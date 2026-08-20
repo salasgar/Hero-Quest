@@ -10,7 +10,9 @@
  *     armas a distancia: se traza una recta de centro a centro y no puede
  *     cruzar muros, puertas cerradas ni mobiliario que tape.
  *
- * Las figuras NO tapan la línea de visión: se ve por encima de un goblin.
+ * Las figuras NO tapan la línea de visión: se ve por encima de un goblin. El
+ * mobiliario solo tapa si es alto (estantería, armario, bastidor de armas); por
+ * encima de una mesa o de una tumba se ve perfectamente.
  */
 
 import { salaEn } from "../data/board-base";
@@ -20,7 +22,7 @@ import { claveCelda, mismaCelda, type Celda, type EstadoPartida, type IdSala } f
 /** ¿Tapa la vista lo que hay en esta casilla? */
 const tapaLaVista = (estado: EstadoPartida, c: Celda): boolean => {
   const mueble = muebleEn(estado, c);
-  return mueble?.bloquea === true;
+  return mueble?.bloqueaVista === true;
 };
 
 /**

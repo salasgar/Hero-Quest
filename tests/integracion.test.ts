@@ -129,7 +129,7 @@ function comprobarInvariantes(e: EstadoPartida, contexto: string) {
 
   // Nadie puede quedarse encima de un mueble que bloquea ni de un bloque caído.
   const prohibidas = new Set([
-    ...e.muebles.filter((m) => m.bloquea).flatMap((m) => m.celdas),
+    ...e.muebles.filter((m) => m.bloqueaPaso).flatMap((m) => m.celdas),
     ...e.celdasBloqueadas,
   ].map(claveCelda));
   for (const f of vivas)

@@ -99,3 +99,131 @@ describe("«El calabozo del guardián» encaja en el tablero", () => {
     expect(new Set(e.heroes.map((h) => claveCelda(h.celda))).size).toBe(4);
   });
 });
+
+// -------------------------------------------------------------- baraja y mobiliario
+
+import { BARAJA_TESOROS, MAZO_COMPLETO, repartoDeLaBaraja, TOTAL_CARTAS } from "../src/data/treasure";
+import { MARCADORES_SECRETOS, MOBILIARIO, PUERTAS_A_CONSTRUIR, TOTAL_PIEZAS } from "../src/data/furniture";
+import { aplicarAccion } from "../src/engine/reducer";
+
+describe("la baraja de tesoros", () => {
+  it("tiene el número de cartas que se van a imprimir", () => {
+    expect(TOTAL_CARTAS).toBe(MAZO_COMPLETO.length);
+    expect(TOTAL_CARTAS).toBe(BARAJA_TESOROS.reduce((s, c) => s + c.copias, 0));
+  });
+
+  it("no hay identificadores repetidos", () => {
+    expect(new Set(BARAJA_TESOROS.map((c) => c.id)).size).toBe(BARAJA_TESOROS.length);
+  });
+
+  it("una cuarta parte de la baraja sale mal, pero nada es demoledor", () => {
+    const r = repartoDeLaBaraja();
+    const malas = (r.monstruoErrante ?? 0) + (r.peligro ?? 0);
+    expect(malas / TOTAL_CARTAS).toBeGreaterThan(0.2);
+    expect(malas / TOTAL_CARTAS).toBeLessThan(0.32);
+    for (const c of BARAJA_TESOROS)
+      if (c.efecto.clase === "peligro") expect(c.efecto.dano).toBeLessThanOrEqual(1);
+  });
+
+  it("se baraja distinto con semillas distintas y siempre entera", () => {
+    const a = crearPartida({ mision: MISION_CALABOZO, heroes: [{ clase: "barbaro" }], monstruos: [], semilla: 1 });
+    const b = crearPartida({ mision: MISION_CALABOZO, heroes: [{ clase: "barbaro" }], monstruos: [], semilla: 2 });
+    expect(a.mazoTesoros).toHaveLength(TOTAL_CARTAS);
+    expect(a.mazoTesoros.sort()).toEqual(b.mazoTesoros.sort());
+    const a2 = crearPartida({ mision: MISION_CALABOZO, heroes: [{ clase: "barbaro" }], monstruos: [], semilla: 1 });
+    expect(a2.mazoTesoros).toEqual(
+      crearPartida({ mision: MISION_CALABOZO, heroes: [{ clase: "barbaro" }], monstruos: [], semilla: 1 }).mazoTesoros,
+    );
+  });
+
+  it("registrar una sala consume una carta del mazo", () => {
+    let e = crearPartida({
+      mision: MISION_CALABOZO,
+      heroes: [{ clase: "barbaro" }],
+      monstruos: [],
+      semilla: 9,
+    });
+    e = { ...e, heroes: e.heroes.map((h) => ({ ...h, celda: { x: 2, y: 15 } })) };
+    const antes = e.mazoTesoros.length;
+    const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.estado.mazoTesoros).toHaveLength(antes - 1);
+    expect(r.eventos.some((x) => x.tipo === "cartaDeTesoro")).toBe(true);
+  });
+});
+
+describe("el mobiliario que hay que construir", () => {
+  it("todas las piezas caben en el tablero", () => {
+    for (const m of MOBILIARIO) {
+      expect(m.ancho).toBeGreaterThanOrEqual(1);
+      expect(m.ancho).toBeLessThanOrEqual(3);
+      expect(m.alto).toBeGreaterThanOrEqual(1);
+      expect(m.alto).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it("todo el mobiliario impide plantarse encima", () => {
+    for (const m of MOBILIARIO) expect(m.bloqueaPaso, `${m.nombre}`).toBe(true);
+  });
+
+  it("solo lo alto tapa la vista", () => {
+    const tapan = MOBILIARIO.filter((m) => m.bloqueaVista).map((m) => m.tipo);
+    expect(tapan.sort()).toEqual(["armario", "bastidor", "estanteria"]);
+  });
+
+  it("el recuento total cuadra", () => {
+    expect(TOTAL_PIEZAS).toBe(MOBILIARIO.reduce((s, m) => s + m.cuantas, 0));
+    expect(TOTAL_PIEZAS).toBeGreaterThan(10);
+  });
+});
+
+describe("la misión cabe en el cartón que hay construido", () => {
+  it("no usa más puertas de las que hay", () => {
+    const normales = PUERTAS_CALABOZO.filter((p) => !p.secreta).length;
+    const secretas = PUERTAS_CALABOZO.filter((p) => p.secreta).length;
+    expect(normales).toBeLessThanOrEqual(PUERTAS_A_CONSTRUIR);
+    expect(secretas).toBeLessThanOrEqual(MARCADORES_SECRETOS);
+  });
+
+  it("no usa más mobiliario del que hay construido", () => {
+    const usadas: Record<string, number> = {};
+    for (const m of MUEBLES_CALABOZO) usadas[m.tipo] = (usadas[m.tipo] ?? 0) + 1;
+    for (const [tipo, n] of Object.entries(usadas)) {
+      const disponibles = MOBILIARIO.find((x) => x.tipo === tipo)?.cuantas ?? 0;
+      expect(n, `la misión usa ${n} de '${tipo}' y solo hay ${disponibles}`).toBeLessThanOrEqual(disponibles);
+    }
+  });
+
+  it("cada mueble ocupa el número de casillas que dice su plantilla", () => {
+    for (const m of MUEBLES_CALABOZO) {
+      const plantilla = MOBILIARIO.find((x) => x.tipo === m.tipo);
+      expect(plantilla, `no hay plantilla para '${m.tipo}'`).toBeTruthy();
+      expect(m.celdas.length, `${m.id} ocupa ${m.celdas.length} casillas`).toBe(
+        plantilla!.ancho * plantilla!.alto,
+      );
+    }
+  });
+
+  it("ningún mueble tapa la casilla de una puerta", () => {
+    // Un mueble que bloquea el paso encima del vano deja la puerta inservible:
+    // se puede abrir pero no se puede cruzar.
+    const ocupadas = new Set(
+      MUEBLES_CALABOZO.filter((m) => m.bloqueaPaso).flatMap((m) => m.celdas).map(claveCelda),
+    );
+    for (const p of PUERTAS_CALABOZO) {
+      expect(ocupadas.has(claveCelda(p.a)), `un mueble tapa el vano de '${p.id}'`).toBe(false);
+      expect(ocupadas.has(claveCelda(p.b)), `un mueble tapa el vano de '${p.id}'`).toBe(false);
+    }
+  });
+
+  it("ningún mueble cae sobre la entrada de los héroes", () => {
+    const ocupadas = new Set(MUEBLES_CALABOZO.flatMap((m) => m.celdas).map(claveCelda));
+    for (const c of MISION_CALABOZO.entrada)
+      expect(ocupadas.has(claveCelda(c)), `un mueble ocupa la entrada ${claveCelda(c)}`).toBe(false);
+  });
+
+  it("hay piezas de sobra para el total declarado", () => {
+    expect(TOTAL_PIEZAS).toBeGreaterThanOrEqual(MUEBLES_CALABOZO.length);
+  });
+});

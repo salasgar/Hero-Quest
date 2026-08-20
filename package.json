@@ -10,7 +10,9 @@
     "server": "tsx server/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "cartas": "vite-node scripts/generar-cartas.ts imprimibles/cartas.html && npm run cartas:pdf",
+    "cartas:pdf": "'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=imprimibles/cartas.pdf imprimibles/cartas.html"
   },
   "dependencies": {
     "react": "^19.2.0"

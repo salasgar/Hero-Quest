@@ -67,7 +67,7 @@ export function celdaLibre(estado: EstadoPartida, c: Celda, salvo?: IdFigura): b
   if (!dentroDelTablero(c.x, c.y)) return false;
   if (celdaCegada(estado, c)) return false;
   const mueble = muebleEn(estado, c);
-  if (mueble?.bloquea) return false;
+  if (mueble?.bloqueaPaso) return false;
   const ocupante = figuraEn(estado, c);
   if (ocupante && ocupante.id !== salvo) return false;
   return true;

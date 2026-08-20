@@ -48,14 +48,14 @@ describe("línea de visión geométrica", () => {
 
   it("el mobiliario que tapa corta la línea", () => {
     const conMesa = partida({
-      muebles: [{ id: "m", tipo: "estanteria", celdas: [c(5, 0)], bloquea: true }],
+      muebles: [{ id: "m", tipo: "estanteria", celdas: [c(5, 0)], bloqueaPaso: true, bloqueaVista: true }],
     });
     expect(lineaDeVision(conMesa, c(0, 0), c(10, 0))).toBe(false);
   });
 
   it("el mobiliario de las casillas extremas no cuenta", () => {
     const conMesa = partida({
-      muebles: [{ id: "m", tipo: "estanteria", celdas: [c(10, 0)], bloquea: true }],
+      muebles: [{ id: "m", tipo: "estanteria", celdas: [c(10, 0)], bloqueaPaso: true, bloqueaVista: true }],
     });
     expect(lineaDeVision(conMesa, c(0, 0), c(10, 0))).toBe(true);
   });

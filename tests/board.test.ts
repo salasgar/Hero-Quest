@@ -48,7 +48,7 @@ describe("ocupación", () => {
 
   it("el mobiliario que bloquea impide el paso", () => {
     const e = partida({
-      muebles: [{ id: "mesa", tipo: "mesa", celdas: [c(2, 2)], bloquea: true }],
+      muebles: [{ id: "mesa", tipo: "mesa", celdas: [c(2, 2)], bloqueaPaso: true, bloqueaVista: false }],
     });
     expect(celdaLibre(e, c(2, 2))).toBe(false);
   });

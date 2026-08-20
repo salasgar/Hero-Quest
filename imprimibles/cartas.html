@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>HeroQuest · cartas para imprimir</title>
+<style>
+  @page { size: A4 portrait; margin: 9mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1a1a1a; }
+
+  .hoja { page-break-after: always; break-after: page; }
+  .hoja:last-child { page-break-after: auto; break-after: auto; }
+  .marca { font-size: 7pt; color: #999; margin-bottom: 2mm; }
+  .rejilla { display: grid; grid-template-columns: repeat(3, 63mm); grid-auto-rows: 88mm; gap: 0; }
+
+  .carta {
+    width: 63mm; height: 88mm; border: 0.3mm dashed #bbb;
+    padding: 3.5mm; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .cinta {
+    color: #fff; font-size: 7.5pt; letter-spacing: .08em; text-transform: uppercase;
+    padding: 1.2mm 2mm; margin: -3.5mm -3.5mm 2.5mm; text-align: center;
+  }
+  .carta h3 { margin: 0 0 2mm; font-size: 12.5pt; line-height: 1.15; text-align: center; }
+  .cuerpo { flex: 1; font-size: 8.5pt; line-height: 1.4; }
+  .pie { font-size: 6.8pt; color: #666; border-top: .2mm solid #ddd; padding-top: 1.2mm; text-align: center; }
+
+  table.atributos { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+  table.atributos th { text-align: left; font-weight: 600; padding: .6mm 0; width: 18mm; }
+  table.atributos td { padding: .6mm 0; }
+  .pips { letter-spacing: .4mm; font-size: 7pt; }
+  .pips.cuerpo { color: #b5352a; }
+  .pips.mente { color: #3a5a8c; }
+  .num { text-align: right; font-weight: 700; width: 6mm; }
+  .equipo, .especial, .descripcion { margin: 2mm 0 0; font-size: 8pt; line-height: 1.35; }
+  .especial { color: #444; font-style: italic; }
+  .sabor { color: #555; font-style: italic; }
+  .efecto { margin: 2.5mm 0 0; font-weight: 700; font-size: 9pt; }
+  .efecto.malo { color: #a02c1e; }
+
+  .reverso { padding: 0; border: 0.3mm dashed #bbb; }
+  .reverso-marco {
+    width: 100%; height: 100%; background: #6b4a12;
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .reverso-rombo {
+    width: 26mm; height: 26mm; background: #8a6d23; transform: rotate(45deg);
+    border: 1mm solid #4a3208;
+  }
+  .reverso-texto {
+    position: absolute; color: #f0dfae; font-size: 10pt; letter-spacing: .3em; font-weight: 700;
+  }
+
+  .hoja-texto { font-size: 10pt; line-height: 1.5; }
+  .hoja-texto h1 { font-size: 17pt; margin: 0 0 3mm; }
+  .hoja-texto h2 { font-size: 12pt; margin: 7mm 0 2mm; border-bottom: .3mm solid #ccc; padding-bottom: 1mm; }
+  .intro { color: #555; margin: 0 0 3mm; }
+  .nota { background: #f4f1e8; border-left: 1mm solid #8a6d23; padding: 2.5mm 3mm; margin: 3mm 0 0; font-size: 9pt; }
+  table.referencia { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 2mm 0; }
+  table.referencia th, table.referencia td { border: .2mm solid #ccc; padding: 1.4mm 2mm; text-align: left; }
+  table.referencia th { background: #eee; font-weight: 600; }
+  .hoja-texto ul { margin: 2mm 0; padding-left: 5mm; }
+  .hoja-texto li { margin-bottom: 1.5mm; }
+</style></head>
+<body>
+
+<section class="hoja hoja-texto">
+  <h1>HeroQuest · cartas para imprimir</h1>
+  <p class="intro">Generado desde los datos de la aplicación. Si algo cambia ahí, vuelve
+     a generar esta hoja y las dos versiones seguirán diciendo lo mismo.</p>
+  <h2>Qué hay aquí</h2>
+  <table class="referencia">
+    <tr><th>Cartas</th><th>Cuántas</th></tr>
+    <tr><td>Héroes</td><td>4</td></tr>
+    <tr><td>Hechizos</td><td>12</td></tr>
+    <tr><td>Equipo</td><td>12</td></tr>
+    <tr><td>Tesoros</td><td>24</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>52</strong></td></tr>
+  </table>
+  <h2>Cómo imprimirlo</h2>
+  <ul>
+    <li>A4, <strong>al 100 %</strong>: no dejes que el diálogo lo ajuste a la página o las
+        cartas saldrán pequeñas.</li>
+    <li>En cartulina si tienes; en folio normal también vale, pegado a cartón.</li>
+    <li>Las cartas miden 63 × 88 mm, el tamaño de una baraja de naipes normal: si las
+        quieres enfundar, valen las fundas corrientes.</li>
+    <li>La hoja de reversos es solo para los tesoros, que se roban a ciegas. Las demás se
+        miran siempre por la cara.</li>
+  </ul>
+  <h2>Lo que NO hay que imprimir</h2>
+  <p>Nada de monstruos: de eso se encarga la aplicación, que hace de máster. Y nada de
+     tablas de reglas: las aplica el motor y las explica el diario de la partida.</p>
+</section>
+<section class="hoja"><div class="marca">Héroes · hoja 1</div>
+      <div class="rejilla">
+  <div class="carta">
+    <div class="cinta" style="background:#3f4a5e">Héroe</div>
+    <h3>Bárbaro</h3>
+    <div class="cuerpo">
+      <table class="atributos">
+        <tr><th>Cuerpo</th><td class="pips cuerpo">●●●●●●●●</td><td class="num">8</td></tr>
+        <tr><th>Mente</th><td class="pips mente">●●</td><td class="num">2</td></tr>
+        <tr><th>Ataque</th><td colspan="2">3 dados</td></tr>
+        <tr><th>Defensa</th><td colspan="2">2 dados</td></tr>
+      </table>
+      <p class="equipo"><strong>Empieza con:</strong> Espada ancha</p>
+      <p class="especial">El más fuerte en combate cuerpo a cuerpo.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#3f4a5e">Héroe</div>
+    <h3>Enano</h3>
+    <div class="cuerpo">
+      <table class="atributos">
+        <tr><th>Cuerpo</th><td class="pips cuerpo">●●●●●●●</td><td class="num">7</td></tr>
+        <tr><th>Mente</th><td class="pips mente">●●●</td><td class="num">3</td></tr>
+        <tr><th>Ataque</th><td colspan="2">2 dados</td></tr>
+        <tr><th>Defensa</th><td colspan="2">2 dados</td></tr>
+      </table>
+      <p class="equipo"><strong>Empieza con:</strong> Espada corta, Herramientas</p>
+      <p class="especial">Desarma trampas sin riesgo gracias a sus herramientas.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#3f4a5e">Héroe</div>
+    <h3>Elfo</h3>
+    <div class="cuerpo">
+      <table class="atributos">
+        <tr><th>Cuerpo</th><td class="pips cuerpo">●●●●●●</td><td class="num">6</td></tr>
+        <tr><th>Mente</th><td class="pips mente">●●●●</td><td class="num">4</td></tr>
+        <tr><th>Ataque</th><td colspan="2">2 dados</td></tr>
+        <tr><th>Defensa</th><td colspan="2">2 dados</td></tr>
+      </table>
+      <p class="equipo"><strong>Empieza con:</strong> Espada corta</p>
+      <p class="especial">Elige 1 elemento de hechizos al empezar la campaña.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#3f4a5e">Héroe</div>
+    <h3>Mago</h3>
+    <div class="cuerpo">
+      <table class="atributos">
+        <tr><th>Cuerpo</th><td class="pips cuerpo">●●●●</td><td class="num">4</td></tr>
+        <tr><th>Mente</th><td class="pips mente">●●●●●●</td><td class="num">6</td></tr>
+        <tr><th>Ataque</th><td colspan="2">1 dado</td></tr>
+        <tr><th>Defensa</th><td colspan="2">2 dados</td></tr>
+      </table>
+      <p class="equipo"><strong>Empieza con:</strong> Daga</p>
+      <p class="especial">Elige 3 elementos de hechizos al empezar la campaña.</p></div>
+    
+  </div></div></section>
+<section class="hoja"><div class="marca">Hechizos · hoja 1</div>
+      <div class="rejilla">
+  <div class="carta">
+    <div class="cinta" style="background:#5b8db8">Hechizo · Aire</div>
+    <h3>Viento veloz</h3>
+    <div class="cuerpo"><p class="descripcion">El héroe elegido puede volver a moverse este turno.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#5b8db8">Hechizo · Aire</div>
+    <h3>Tempestad</h3>
+    <div class="cuerpo"><p class="descripcion">Los monstruos de la sala pierden su siguiente turno.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#5b8db8">Hechizo · Aire</div>
+    <h3>Genio</h3>
+    <div class="cuerpo"><p class="descripcion">Invoca un genio que combate junto a los héroes.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#3f7f8c">Hechizo · Agua</div>
+    <h3>Sueño</h3>
+    <div class="cuerpo"><p class="descripcion">El monstruo cae dormido si su mente no supera la del lanzador.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#3f7f8c">Hechizo · Agua</div>
+    <h3>Velo de niebla</h3>
+    <div class="cuerpo"><p class="descripcion">El lanzador no puede ser atacado hasta su siguiente turno.</p></div>
+    <div class="pie">Un uso por misión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#3f7f8c">Hechizo · Agua</div>
+    <h3>Agua curativa</h3>
+    <div class="cuerpo"><p class="descripcion">Recupera hasta 4 puntos de cuerpo.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#6b7f4a">Hechizo · Tierra</div>
+    <h3>Piel de piedra</h3>
+    <div class="cuerpo"><p class="descripcion">Suma 2 dados de defensa.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#6b7f4a">Hechizo · Tierra</div>
+    <h3>Atravesar la roca</h3>
+    <div class="cuerpo"><p class="descripcion">El lanzador atraviesa muros durante este movimiento.</p></div>
+    <div class="pie">Un uso por misión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#6b7f4a">Hechizo · Tierra</div>
+    <h3>Curación</h3>
+    <div class="cuerpo"><p class="descripcion">Recupera hasta 4 puntos de cuerpo.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div></div></section>
+<section class="hoja"><div class="marca">Hechizos · hoja 2</div>
+      <div class="rejilla">
+  <div class="carta">
+    <div class="cinta" style="background:#a8543a">Hechizo · Fuego</div>
+    <h3>Bola de fuego</h3>
+    <div class="cuerpo"><p class="descripcion">Tira 2 dados de combate; cada calavera quita un punto de cuerpo.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#a8543a">Hechizo · Fuego</div>
+    <h3>Coraje</h3>
+    <div class="cuerpo"><p class="descripcion">Suma 2 dados a su siguiente ataque.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#a8543a">Hechizo · Fuego</div>
+    <h3>Fuego de la ira</h3>
+    <div class="cuerpo"><p class="descripcion">Tira 1 dado de combate; cada calavera quita un punto de cuerpo.</p></div>
+    <div class="pie">Un uso por misión · Necesita línea de visión</div>
+  </div></div></section>
+<section class="hoja"><div class="marca">Equipo · hoja 1</div>
+      <div class="rejilla">
+  <div class="carta">
+    <div class="cinta" style="background:#7a4a2f">Arma</div>
+    <h3>Daga</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Ataque</th><td>1 dado</td></tr><tr><th>Precio</th><td>25 monedas</td></tr></table>
+             <p class="descripcion">Se puede arrojar.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#7a4a2f">Arma</div>
+    <h3>Espada corta</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Ataque</th><td>2 dados</td></tr><tr><th>Precio</th><td>150 monedas</td></tr></table>
+             </div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#7a4a2f">Arma</div>
+    <h3>Espada ancha</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Ataque</th><td>3 dados</td></tr><tr><th>Precio</th><td>250 monedas</td></tr></table>
+             </div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#7a4a2f">Arma</div>
+    <h3>Hacha de batalla</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Ataque</th><td>4 dados</td></tr><tr><th>Precio</th><td>450 monedas</td></tr></table>
+             <p class="descripcion">Ataca también en diagonal. A dos manos: sin escudo.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#7a4a2f">Arma</div>
+    <h3>Bastón</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Ataque</th><td>1 dado</td></tr><tr><th>Precio</th><td>100 monedas</td></tr></table>
+             <p class="descripcion">Ataca también en diagonal.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#7a4a2f">Arma</div>
+    <h3>Lanza</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Ataque</th><td>2 dados</td></tr><tr><th>Precio</th><td>250 monedas</td></tr></table>
+             <p class="descripcion">Ataca también en diagonal. Se puede arrojar.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#7a4a2f">Arma</div>
+    <h3>Ballesta</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Ataque</th><td>3 dados</td></tr><tr><th>Precio</th><td>350 monedas</td></tr></table>
+             <p class="descripcion">Dispara con línea de visión. No puede atacar a un enemigo adyacente.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#4a5a6b">Armadura</div>
+    <h3>Escudo</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Defensa</th><td>+1</td></tr><tr><th>Precio</th><td>150 monedas</td></tr></table>
+             <p class="descripcion">Incompatible con armas a dos manos.</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#4a5a6b">Armadura</div>
+    <h3>Yelmo</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Defensa</th><td>+1</td></tr><tr><th>Precio</th><td>125 monedas</td></tr></table>
+             </div>
+    <div class="pie">⚠ Comprobar con tu carta original</div>
+  </div></div></section>
+<section class="hoja"><div class="marca">Equipo · hoja 2</div>
+      <div class="rejilla">
+  <div class="carta">
+    <div class="cinta" style="background:#4a5a6b">Armadura</div>
+    <h3>Cota de malla</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Defensa</th><td>+1</td></tr><tr><th>Precio</th><td>500 monedas</td></tr></table>
+             </div>
+    <div class="pie">⚠ Comprobar con tu carta original</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#4a5a6b">Armadura</div>
+    <h3>Armadura de placas</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Defensa</th><td>+2</td></tr><tr><th>Precio</th><td>850 monedas</td></tr></table>
+             <p class="descripcion">Revisar si tu carta impone penalización al movimiento.</p></div>
+    <div class="pie">⚠ Comprobar con tu carta original</div>
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#5a5a4a">Objeto</div>
+    <h3>Herramientas</h3>
+    <div class="cuerpo"><table class="atributos"><tr><th>Precio</th><td>—</td></tr></table>
+             <p class="descripcion">Permite desarmar trampas. El enano lo hace sin riesgo.</p></div>
+    
+  </div></div></section>
+<section class="hoja"><div class="marca">Tesoros · hoja 1</div>
+      <div class="rejilla">
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Puñado de monedas</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Unas monedas sueltas entre la paja.</p><p class="efecto">+10 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Puñado de monedas</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Unas monedas sueltas entre la paja.</p><p class="efecto">+10 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Puñado de monedas</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Unas monedas sueltas entre la paja.</p><p class="efecto">+10 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Bolsa de monedas</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Una bolsa de cuero atada con un cordón.</p><p class="efecto">+25 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Bolsa de monedas</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Una bolsa de cuero atada con un cordón.</p><p class="efecto">+25 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Bolsa de monedas</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Una bolsa de cuero atada con un cordón.</p><p class="efecto">+25 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Cofrecillo</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un cofrecillo con la cerradura ya rota.</p><p class="efecto">+50 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Cofrecillo</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un cofrecillo con la cerradura ya rota.</p><p class="efecto">+50 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Gema</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Una piedra verde del tamaño de una nuez.</p><p class="efecto">+75 monedas de oro</p></div>
+    
+  </div></div></section>
+<section class="hoja"><div class="marca">Tesoros · hoja 2</div>
+      <div class="rejilla">
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Gema</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Una piedra verde del tamaño de una nuez.</p><p class="efecto">+75 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Joya antigua</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un broche de oro con un escudo que nadie conoce.</p><p class="efecto">+100 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Joya antigua</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un broche de oro con un escudo que nadie conoce.</p><p class="efecto">+100 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Corona pequeña</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Demasiado pequeña para una cabeza humana.</p><p class="efecto">+150 monedas de oro</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Poción curativa</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un frasco azul. Recupera 4 puntos de cuerpo.</p><p class="efecto">Recuperas 4 de cuerpo</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Poción curativa</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un frasco azul. Recupera 4 puntos de cuerpo.</p><p class="efecto">Recuperas 4 de cuerpo</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Poción curativa</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un frasco azul. Recupera 4 puntos de cuerpo.</p><p class="efecto">Recuperas 4 de cuerpo</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Poción de fuerza</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Sabe a hierro. Suma 2 dados a tu siguiente ataque.</p><p class="efecto">+2 dados en tu siguiente ataque</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8a6d23">Tesoro</div>
+    <h3>Poción de fuerza</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Sabe a hierro. Suma 2 dados a tu siguiente ataque.</p><p class="efecto">+2 dados en tu siguiente ataque</p></div>
+    
+  </div></div></section>
+<section class="hoja"><div class="marca">Tesoros · hoja 3</div>
+      <div class="rejilla">
+  <div class="carta">
+    <div class="cinta" style="background:#8c3a30">Tesoro</div>
+    <h3>Monstruo errante</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un goblin te ha estado siguiendo. Aparece a tu lado.</p><p class="efecto malo">Aparece un goblin</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8c3a30">Tesoro</div>
+    <h3>Monstruo errante</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un goblin te ha estado siguiendo. Aparece a tu lado.</p><p class="efecto malo">Aparece un goblin</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8c3a30">Tesoro</div>
+    <h3>Monstruo errante</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un orco entra por donde has venido. Aparece a tu lado.</p><p class="efecto malo">Aparece un orco</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8c3a30">Tesoro</div>
+    <h3>Monstruo errante</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Un orco entra por donde has venido. Aparece a tu lado.</p><p class="efecto malo">Aparece un orco</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8c3a30">Tesoro</div>
+    <h3>Gas venenoso</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Al abrir el arcón sale una nube verde. Pierdes 1 de cuerpo.</p><p class="efecto malo">Pierdes 1 de cuerpo</p></div>
+    
+  </div>
+  <div class="carta">
+    <div class="cinta" style="background:#8c3a30">Tesoro</div>
+    <h3>Telaraña</h3>
+    <div class="cuerpo"><p class="descripcion sabor">Algo peludo te muerde la mano. Pierdes 1 de cuerpo.</p><p class="efecto malo">Pierdes 1 de cuerpo</p></div>
+    
+  </div></div></section>
+<section class="hoja"><div class="marca">Reversos para las cartas de tesoro</div>
+  <div class="rejilla">
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div>
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div>
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div>
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div>
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div>
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div>
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div>
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div>
+  <div class="carta reverso">
+    <div class="reverso-marco">
+      <div class="reverso-rombo"></div>
+      <div class="reverso-texto">TESORO</div>
+    </div>
+  </div></div></section>
+
+<section class="hoja hoja-texto">
+  <h1>Los monstruos</h1>
+  <p class="intro">No hacen falta cartas: de los monstruos se encarga la aplicación.
+     Esta tabla es para que los héroes sepan a qué se enfrentan.</p>
+  <table class="referencia">
+    <tr><th>Monstruo</th><th>Movimiento</th><th>Ataque</th><th>Defensa</th><th>Cuerpo</th><th>Mente</th></tr>
+    <tr><td>Goblin</td><td>10</td><td>2</td><td>1</td><td>1</td><td>1</td></tr><tr><td>Orco</td><td>8</td><td>3</td><td>2</td><td>1</td><td>2</td></tr><tr><td>Fimir</td><td>6</td><td>3</td><td>3</td><td>2</td><td>3</td></tr><tr><td>Esqueleto</td><td>6</td><td>2</td><td>2</td><td>1</td><td>0</td></tr><tr><td>Zombi</td><td>4</td><td>2</td><td>3</td><td>1</td><td>0</td></tr><tr><td>Momia</td><td>4</td><td>3</td><td>4</td><td>2</td><td>0</td></tr><tr><td>Guerrero del Caos</td><td>7</td><td>4</td><td>4</td><td>3</td><td>3</td></tr><tr><td>Gárgola</td><td>6</td><td>4</td><td>5</td><td>3</td><td>4</td></tr><tr><td>Hechicero del Caos</td><td>6</td><td>3</td><td>4</td><td>2</td><td>6</td></tr>
+  </table>
+  <p class="nota"><strong>Ojo con la defensa de los monstruos.</strong> Ellos paran con el
+     escudo negro, que sale en 1 de cada 6 caras; los héroes paran con el blanco, que sale
+     en 2 de cada 6. Una momia con 4 dados de defensa para lo mismo que un héroe con 2.</p>
+
+  <h2>Mobiliario que hay que construir</h2>
+  <p class="intro">Medidas en casillas del tablero. En el tablero de 2021 cada casilla
+     mide unos 2.55 cm, pero mide la tuya antes de cortar.
+     En total, <strong>14 piezas</strong>.</p>
+  <table class="referencia">
+    <tr><th>Pieza</th><th>Cuántas</th><th>Tamaño</th><th>¿Tapa la vista?</th></tr>
+    <tr><td>Mesa</td><td>2</td>
+      <td>2 × 1 casillas</td>
+      <td>No</td></tr><tr><td>Estantería</td><td>2</td>
+      <td>2 × 1 casillas</td>
+      <td>Sí, es alta</td></tr><tr><td>Arcón</td><td>3</td>
+      <td>1 × 1 casilla</td>
+      <td>No</td></tr><tr><td>Armario</td><td>1</td>
+      <td>2 × 1 casillas</td>
+      <td>Sí, es alta</td></tr><tr><td>Trono</td><td>1</td>
+      <td>1 × 1 casilla</td>
+      <td>No</td></tr><tr><td>Tumba</td><td>1</td>
+      <td>2 × 1 casillas</td>
+      <td>No</td></tr><tr><td>Altar</td><td>1</td>
+      <td>2 × 1 casillas</td>
+      <td>No</td></tr><tr><td>Banco de trabajo</td><td>1</td>
+      <td>2 × 1 casillas</td>
+      <td>No</td></tr><tr><td>Escritorio</td><td>1</td>
+      <td>2 × 1 casillas</td>
+      <td>No</td></tr><tr><td>Bastidor de armas</td><td>1</td>
+      <td>1 × 1 casilla</td>
+      <td>Sí, es alta</td></tr>
+  </table>
+  <p class="nota">Sobre ninguna se puede pisar. Solo las altas (estantería, armario,
+     bastidor) cortan la línea de visión, y eso decide qué hechizos y qué disparos de
+     ballesta llegan al objetivo.</p>
+</section>
+</body></html>

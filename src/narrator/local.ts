@@ -97,7 +97,13 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
         : "Ni trampas ni pasadizos. La sala está limpia.";
 
     case "tesoroEncontrado":
-      return `${nombreDe(e, ev.actor)} encuentra ${ev.oro} monedas de oro.`;
+      return `${nombreDe(e, ev.actor)} se guarda ${ev.oro} monedas de oro.`;
+
+    case "cartaDeTesoro":
+      return `${nombreDe(e, ev.actor)} registra la sala y encuentra: ${ev.nombre}. ${ev.texto}`;
+
+    case "monstruoErrante":
+      return `¡No estabais solos! ${nombreDe(e, ev.monstruo)} aparece a vuestro lado.`;
 
     case "hechizoLanzado": {
       const h = HECHIZOS[ev.hechizo];

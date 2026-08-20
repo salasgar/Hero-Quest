@@ -16,13 +16,15 @@
 
 import { salaEn } from "../data/board-base";
 import { HECHIZOS } from "../data/spells";
+import { BARAJA_TESOROS, MAZO_COMPLETO } from "../data/treasure";
 import { MONSTRUOS } from "../data/monsters";
 import { HEROES } from "../data/heroes";
 import { EQUIPO } from "../data/equipment";
-import { adyacentes, celdaLibre, figuraPorId, rutaHasta } from "./board";
+import { adyacentes, celdaLibre, figuraPorId, pasoAbierto, rutaHasta } from "./board";
+import { vecinas as vecinasDelTablero } from "../data/board-base";
 import { resolverAtaque, resolverDanoDirecto } from "./combat";
 import { tirarMovimiento as tirarDadosMovimiento } from "./dice";
-import { elegir, entero } from "./rng";
+import { elegir } from "./rng";
 import { puedeVer, salasDeLaPuerta } from "./vision";
 import {
   esHeroe,
@@ -427,22 +429,76 @@ function buscarTesoro(e: EstadoPartida): Resultado {
   const monstruosALaVista = vivos(e.monstruos).some((m) => puedeVer(e, f.celda, m.celda));
   if (monstruosALaVista) return fallo("No se puede registrar la sala con monstruos a la vista.");
 
-  // Botín sencillo: de 0 a 60 monedas en múltiplos de 10. La baraja completa
-  // del juego (pociones, gemas, peligros, monstruo errante) llega en la Fase 8.
-  const [tirada, rng] = entero(e.rng, 7);
-  const oro = tirada * 10;
+  // Se roba la primera carta del mazo. Si se acaba, se rehace con la baraja
+  // entera: en una partida larga es preferible a quedarse sin tesoros.
+  const mazo = e.mazoTesoros.length > 0 ? e.mazoTesoros : MAZO_COMPLETO.map((c) => c.id);
+  const idCarta = mazo[0]!;
+  const carta = BARAJA_TESOROS.find((c) => c.id === idCarta);
+
   let estado: EstadoPartida = {
     ...e,
-    rng,
+    mazoTesoros: mazo.slice(1),
     buscadoTesoro: [...e.buscadoTesoro, sala],
     turno: cerrarAccion(e.turno),
   };
-  const eventos: Evento[] = [];
-  if (oro > 0) {
-    estado = conFigura(estado, { ...(figuraPorId(estado, f.id) as Heroe), oro: f.oro + oro });
-    eventos.push({ tipo: "tesoroEncontrado", actor: f.id, oro });
-  } else {
-    eventos.push({ tipo: "busquedaSinHallazgo", actor: f.id, que: "tesoro" });
+  if (!carta) return terminar(estado, [{ tipo: "busquedaSinHallazgo", actor: f.id, que: "tesoro" }]);
+
+  const eventos: Evento[] = [
+    { tipo: "cartaDeTesoro", actor: f.id, carta: carta.id, nombre: carta.nombre, texto: carta.texto },
+  ];
+
+  switch (carta.efecto.clase) {
+    case "oro": {
+      const heroe = figuraPorId(estado, f.id) as Heroe;
+      estado = conFigura(estado, { ...heroe, oro: heroe.oro + carta.efecto.cantidad });
+      eventos.push({ tipo: "tesoroEncontrado", actor: f.id, oro: carta.efecto.cantidad });
+      break;
+    }
+    case "curacion": {
+      const h = figuraPorId(estado, f.id)!;
+      const puntos = Math.min(carta.efecto.cuerpo, h.cuerpoMax - h.cuerpo);
+      if (puntos > 0) {
+        estado = conFigura(estado, { ...h, cuerpo: h.cuerpo + puntos } as Figura);
+        eventos.push({ tipo: "curacion", figura: h.id, puntos });
+      }
+      break;
+    }
+    case "bonusAtaque": {
+      const h = figuraPorId(estado, f.id)!;
+      estado = conFigura(estado, {
+        ...h,
+        efectos: [...h.efectos, { clase: "bonusAtaque", dados: carta.efecto.dados, duracion: "siguienteAtaque" }],
+      } as Figura);
+      break;
+    }
+    case "peligro": {
+      const [tras, ev] = aplicarDano(estado, figuraPorId(estado, f.id)!, carta.efecto.dano);
+      estado = tras;
+      eventos.push(...ev);
+      break;
+    }
+    case "monstruoErrante": {
+      const hueco = vecinasDelTablero(f.celda).find(
+        (c) => pasoAbierto(estado, f.celda, c) && celdaLibre(estado, c),
+      );
+      if (hueco) {
+        const plantilla = MONSTRUOS[carta.efecto.especie];
+        const id = `errante${estado.monstruos.length + 1}`;
+        estado = {
+          ...estado,
+          monstruos: [
+            ...estado.monstruos,
+            {
+              tipo: "monstruo", id, especie: carta.efecto.especie, celda: hueco,
+              cuerpo: plantilla.cuerpo, cuerpoMax: plantilla.cuerpo,
+              efectos: [], dormido: false, pierdeTurno: false,
+            },
+          ],
+        };
+        eventos.push({ tipo: "monstruoErrante", monstruo: id, celda: hueco });
+      }
+      break;
+    }
   }
   return terminar(estado, eventos);
 }

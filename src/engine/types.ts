@@ -97,8 +97,14 @@ export interface Mueble {
   id: string;
   tipo: TipoMueble;
   celdas: Celda[];
-  /** Si bloquea el paso y la línea de visión. */
-  bloquea: boolean;
+  /** Nadie puede plantarse encima: vale para casi todo el mobiliario. */
+  bloqueaPaso: boolean;
+  /**
+   * Además tapa la vista. Solo lo alto: una estantería o un armario tapan,
+   * una mesa o una tumba no. Separarlo importa porque decide qué hechizos y
+   * qué disparos de ballesta tienen línea hasta el objetivo.
+   */
+  bloqueaVista: boolean;
 }
 
 export type TipoTrampa = "foso" | "bloque" | "lanza";
@@ -170,6 +176,12 @@ export interface EstadoPartida {
   buscadoTrampas: IdSala[];
   /** Casillas cegadas por un bloque que ha caído. */
   celdasBloqueadas: Celda[];
+  /**
+   * La baraja de tesoros, barajada al empezar y consumida por arriba. Va dentro
+   * del estado, no en una variable suelta, para que el «deshacer» siga siendo
+   * exacto y para que no puedan salir cinco pociones seguidas.
+   */
+  mazoTesoros: string[];
   turno: Turno;
   registro: Evento[];
   desenlace: null | { victoria: boolean; motivo: string };
@@ -222,6 +234,8 @@ export type Evento =
   | { tipo: "puertaSecretaDescubierta"; puerta: string }
   | { tipo: "busquedaSinHallazgo"; actor: IdFigura; que: "tesoro" | "trampas" }
   | { tipo: "tesoroEncontrado"; actor: IdFigura; oro: number }
+  | { tipo: "cartaDeTesoro"; actor: IdFigura; carta: string; nombre: string; texto: string }
+  | { tipo: "monstruoErrante"; monstruo: IdFigura; celda: Celda }
   | { tipo: "hechizoLanzado"; actor: IdFigura; hechizo: IdHechizo; objetivo: IdFigura | null }
   | { tipo: "curacion"; figura: IdFigura; puntos: number }
   | { tipo: "cambioDeTurno"; actor: Actor }

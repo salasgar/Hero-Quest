@@ -131,7 +131,7 @@ export function BoardMirror({
               width={LADO - 6}
               height={LADO - 6}
               rx={3}
-              fill="#6b5636"
+              fill={m.bloqueaVista ? "#5a4526" : "#6b5636"}
               stroke="#372c1c"
               pointerEvents="none"
             />

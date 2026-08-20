@@ -3,7 +3,8 @@
 import { HEROES, type ClaseHeroe } from "../data/heroes";
 import { MONSTRUOS, type EspecieMonstruo } from "../data/monsters";
 import { hechizosDelElemento, type Elemento, type IdHechizo } from "../data/spells";
-import { crearRng } from "./rng";
+import { MAZO_COMPLETO } from "../data/treasure";
+import { crearRng, entero, type Rng } from "./rng";
 import type {
   Celda,
   EstadoPartida,
@@ -31,6 +32,18 @@ export interface OpcionesPartida {
   muebles?: Mueble[];
   trampas?: Trampa[];
   semilla?: number;
+}
+
+/** Baraja de Fisher-Yates con el generador del estado, para que sea repetible. */
+function barajar<T>(xs: readonly T[], rng: Rng): [T[], Rng] {
+  const a = [...xs];
+  let r = rng;
+  for (let i = a.length - 1; i > 0; i--) {
+    const [j, r2] = entero(r, i + 1);
+    r = r2;
+    [a[i], a[j]] = [a[j]!, a[i]!];
+  }
+  return [a, r];
 }
 
 export function crearPartida(op: OpcionesPartida): EstadoPartida {
@@ -73,8 +86,13 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
     };
   });
 
+  const [mazoTesoros, rng] = barajar(
+    MAZO_COMPLETO.map((c) => c.id),
+    crearRng(op.semilla ?? 1),
+  );
+
   return {
-    rng: crearRng(op.semilla ?? 1),
+    rng,
     mision: op.mision,
     heroes,
     monstruos,
@@ -85,6 +103,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
     buscadoTesoro: [],
     buscadoTrampas: [],
     celdasBloqueadas: [],
+    mazoTesoros,
     turno: {
       orden: [...heroes.map((h) => h.id), "zargon"],
       indice: 0,

@@ -60,7 +60,9 @@ export const TRAMPAS_CALABOZO: Trampa[] = [
 ];
 
 export const MUEBLES_CALABOZO: Mueble[] = [
-  { id: "mesa1", tipo: "mesa", celdas: [c(16, 14), c(17, 14)], bloquea: true },
-  { id: "arcon1", tipo: "arcon", celdas: [c(11, 13)], bloquea: true },
-  { id: "tumba1", tipo: "tumba", celdas: [c(3, 14)], bloquea: true },
+  { id: "mesa1", tipo: "mesa", celdas: [c(16, 14), c(17, 14)], bloqueaPaso: true, bloqueaVista: false },
+  { id: "arcon1", tipo: "arcon", celdas: [c(11, 13)], bloqueaPaso: true, bloqueaVista: false },
+  // Dos casillas, como dice el catálogo. Van en (2,14)-(3,14) y no en (4,14),
+  // porque ahí desemboca la puerta secreta y la dejaría inservible.
+  { id: "tumba1", tipo: "tumba", celdas: [c(2, 14), c(3, 14)], bloqueaPaso: true, bloqueaVista: false },
 ];
