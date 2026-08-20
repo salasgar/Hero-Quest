@@ -121,6 +121,27 @@ export function monstruosPorActivar(e: EstadoPartida): Figura[] {
   );
 }
 
+/**
+ * ¿Se puede registrar esta sala en busca de tesoro?
+ *
+ * Tres condiciones: estar dentro de una sala, que no se haya registrado ya y
+ * que no haya monstruos a la vista. Si la interfaz no comprueba esto, pinta un
+ * botón que el motor va a rechazar, y eso en la mesa es un clic perdido.
+ */
+export function puedeBuscarTesoro(e: EstadoPartida): boolean {
+  const f = figuraActiva(e);
+  if (!f || !esHeroe(f) || e.turno.haActuado) return false;
+  const sala = salaEn(f.celda.x, f.celda.y);
+  if (sala === null || e.buscadoTesoro.includes(sala)) return false;
+  return !vivos(e.monstruos).some((m) => puedeVer(e, f.celda, m.celda));
+}
+
+/** Buscar trampas y pasadizos vale en cualquier sitio, incluido el pasillo. */
+export function puedeBuscarTrampas(e: EstadoPartida): boolean {
+  const f = figuraActiva(e);
+  return !!f && esHeroe(f) && !e.turno.haActuado;
+}
+
 /** Todo lo que la figura activa puede hacer, para pintar los botones. */
 export function accionesDisponibles(e: EstadoPartida) {
   const f = figuraActiva(e);
@@ -129,7 +150,8 @@ export function accionesDisponibles(e: EstadoPartida) {
     puedeMover: casillasDeMovimiento(e).length > 0,
     puedeAtacar: objetivosDeAtaque(e).length > 0,
     puedeAbrirPuerta: puertasAlAlcance(e).length > 0,
-    puedeBuscar: !!f && esHeroe(f) && !e.turno.haActuado,
+    puedeBuscarTesoro: puedeBuscarTesoro(e),
+    puedeBuscarTrampas: puedeBuscarTrampas(e),
     puedeLanzarHechizo: hechizosLanzables(e).some((h) => h.objetivos.length > 0),
   };
 }

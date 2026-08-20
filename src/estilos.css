@@ -54,3 +54,97 @@ button:disabled { opacity: .45; cursor: default; }
 .avisos .error { color: #ff8b7d; }
 .avisos .aviso { color: #f2c76b; }
 .avisos .ok { color: #86d98f; }
+
+/* ------------------------------------------------------------ navegación */
+.navegacion {
+  display: flex; gap: .4rem; padding: .6rem 1rem;
+  border-bottom: 1px solid var(--borde); background: var(--panel);
+}
+.navegacion button.sel { background: var(--tinta); color: #10131a; font-weight: 600; }
+
+/* ------------------------------------------------------------ partida */
+.juego { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem; }
+.juego-tablero { position: relative; flex: 0 0 auto; }
+.tablero { display: block; background: #0d1015; border-radius: 8px; }
+
+.juego-panel {
+  flex: 1 1 320px; min-width: 300px; max-width: 460px;
+  display: flex; flex-direction: column; gap: .9rem;
+  max-height: calc(100vh - 5rem); overflow-y: auto;
+}
+.juego-cabecera h1 { margin: 0 0 .2rem; font-size: 1.15rem; }
+.juego-cabecera p { margin: 0; font-size: .82rem; line-height: 1.45; }
+.apagado { color: #98a2b5; }
+
+.turno, .hojas, .diario, .desenlace {
+  background: var(--panel); border: 1px solid var(--borde);
+  border-radius: 8px; padding: .75rem .85rem;
+}
+.turno h2, .diario h2 { margin: 0 0 .5rem; font-size: .95rem; font-weight: 600; }
+.turno-nombre { color: #ffd76a; }
+.turno-datos { display: flex; gap: .9rem; font-size: .9rem; margin-bottom: .6rem; color: #cfd6e4; }
+
+.botonera { display: flex; flex-wrap: wrap; gap: .4rem; }
+.botonera.pie { margin-top: .7rem; border-top: 1px solid var(--borde); padding-top: .7rem; }
+.grupo { margin-bottom: .6rem; }
+button.principal { background: #2f6f52; border-color: #3d8b68; }
+button.atacar { background: #7a2f2a; border-color: #9c3d36; }
+kbd {
+  display: inline-block; margin-left: .35rem; padding: 0 .3em;
+  border: 1px solid #5a6379; border-bottom-width: 2px; border-radius: 3px;
+  font-family: inherit; font-size: .78em; color: #b6bdcb;
+}
+.pista { margin: .6rem 0 0; font-size: .78rem; color: #8b94a7; }
+
+.hojas { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.hoja { border: 1px solid var(--borde); border-radius: 6px; padding: .45rem .55rem; font-size: .82rem; }
+.hoja-turno { border-color: #ffd76a; box-shadow: 0 0 0 1px #ffd76a55; }
+.hoja-caido { opacity: .45; }
+.hoja-cabecera { display: flex; justify-content: space-between; align-items: center; }
+.hoja-cuerpo { color: #e0574c; letter-spacing: 1px; font-size: .78rem; margin: .15rem 0; }
+.hoja-datos { display: flex; flex-wrap: wrap; gap: .5rem; color: #b6bdcb; font-size: .78rem; }
+.hoja-efectos { margin-top: .25rem; }
+.etiqueta {
+  display: inline-block; padding: 0 .35em; border-radius: 3px;
+  background: #333a48; font-size: .72rem; color: #cfd6e4;
+}
+
+.diario-lista { max-height: 260px; overflow-y: auto; font-size: .84rem; line-height: 1.5; }
+.diario .linea { margin: 0 0 .3rem; }
+.linea-cambioDeTurno { color: #8b94a7; font-style: italic; margin-top: .5rem; }
+.linea-salaRevelada { color: #ffd76a; }
+.linea-figuraDerrotada { color: #ff8b7d; }
+.linea-finDePartida { color: #86d98f; font-weight: 600; }
+.linea-trampaDisparada { color: #f2c76b; }
+
+.desenlace.gana { border-color: #3d8b68; }
+.desenlace.pierde { border-color: #9c3d36; }
+.desenlace h2 { margin: 0 0 .3rem; }
+
+.aviso-error {
+  position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+  background: #7a2f2a; border: 1px solid #9c3d36; color: #ffe6e2;
+  padding: .4rem .8rem; border-radius: 6px; font-size: .85rem;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------ dados */
+.dados-fondo {
+  position: fixed; inset: 0; background: #000a; z-index: 20;
+  display: flex; align-items: center; justify-content: center;
+}
+.dados {
+  background: var(--panel); border: 1px solid var(--borde); border-radius: 10px;
+  padding: 1.1rem 1.3rem; max-width: 420px; text-align: center;
+}
+.dados h2 { margin: 0 0 .3rem; font-size: 1.05rem; }
+.dados-detalle { margin: 0 0 .5rem; color: #98a2b5; font-size: .85rem; }
+.dados-instruccion { margin: 0 0 .8rem; font-size: .95rem; }
+.dados-botones { display: flex; flex-wrap: wrap; gap: .35rem; justify-content: center; }
+.dados-botones button { min-width: 2.4rem; font-size: 1rem; padding: .45rem .6rem; }
+.dados-pista { margin: .8rem 0 0; font-size: .76rem; color: #8b94a7; }
+
+@media (max-width: 1100px) {
+  .juego { flex-direction: column; }
+  .juego-panel { max-width: none; max-height: none; }
+}

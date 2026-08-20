@@ -179,6 +179,16 @@ describe("trampas", () => {
     expect(r.estado.celdasBloqueadas).toContainEqual(c(1, 2));
   });
 
+  it("quien dispara el bloque retrocede: no puede quedarse bajo la piedra", () => {
+    const r = aplicarAccion(conFoso("bloque"), { tipo: "mover", destino: c(1, 3) });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    // Entró desde (1,1) y la piedra cae en (1,2): tiene que volver a (1,1).
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 1));
+    expect(r.estado.celdasBloqueadas).toContainEqual(c(1, 2));
+    expect(r.estado.heroes[0]!.cuerpo).toBe(7);
+  });
+
   it("una trampa ya descubierta no vuelve a saltar", () => {
     const base = partida({
       trampas: [{ id: "t1", tipo: "lanza", celda: c(1, 2), descubierta: true, gastada: false }],

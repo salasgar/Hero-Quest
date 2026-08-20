@@ -150,12 +150,18 @@ function terminar(e: EstadoPartida, eventos: Evento[]): Resultado {
 const trampaEn = (e: EstadoPartida, c: Celda): Trampa | undefined =>
   e.trampas.find((t) => !t.gastada && mismaCelda(t.celda, c));
 
-/** Efecto de pisar una trampa. Devuelve si el movimiento se corta ahí. */
+/**
+ * Efecto de pisar una trampa.
+ *
+ * Devuelve si el movimiento se corta ahí y si la figura tiene que retroceder:
+ * el bloque que cae ciega la casilla, así que quien lo dispara no puede
+ * quedarse encima; vuelve a la casilla de la que venía.
+ */
 function dispararTrampa(
   e: EstadoPartida,
   t: Trampa,
   f: Figura,
-): [EstadoPartida, Evento[], boolean] {
+): [EstadoPartida, Evento[], { corta: boolean; retrocede: boolean }] {
   const dano = 1;
   let estado = { ...e, trampas: e.trampas.map((x) => (x.id === t.id ? { ...x, gastada: true, descubierta: true } : x)) };
   const eventos: Evento[] = [
@@ -171,8 +177,7 @@ function dispararTrampa(
     estado = { ...estado, celdasBloqueadas: [...estado.celdasBloqueadas, t.celda] };
   }
   // El foso y el bloque cortan el movimiento; la lanza no.
-  const corta = t.tipo !== "lanza";
-  return [estado, eventos, corta];
+  return [estado, eventos, { corta: t.tipo !== "lanza", retrocede: t.tipo === "bloque" }];
 }
 
 // ------------------------------------------------------------ el reductor
@@ -277,10 +282,17 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
 
     const trampa = trampaEn(estado, paso);
     if (trampa && !trampa.descubierta) {
-      const [tras, ev, corta] = dispararTrampa(estado, trampa, figuraPorId(estado, f.id)!);
+      const [tras, ev, efecto] = dispararTrampa(estado, trampa, figuraPorId(estado, f.id)!);
       estado = tras;
       eventos.push(...ev);
-      if (corta || figuraPorId(estado, f.id)!.cuerpo === 0) break;
+
+      if (efecto.retrocede) {
+        // La casilla acaba de quedar cegada: hay que salir de ella.
+        recorrido.pop();
+        const atras = recorrido[recorrido.length - 1] ?? desde;
+        estado = conFigura(estado, { ...figuraPorId(estado, f.id)!, celda: atras } as Figura);
+      }
+      if (efecto.corta || figuraPorId(estado, f.id)!.cuerpo === 0) break;
     }
   }
 

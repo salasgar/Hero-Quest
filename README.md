@@ -23,9 +23,9 @@ al lado del tablero, y mantiene un espejo digital de la partida:
 |---|---|---|
 | F0 | Andamiaje (Vite + React + TS + Vitest) | hecho |
 | F1 | Geometría del tablero y catálogos | hecho |
-| F2 | Motor de reglas | hecho · 108 tests |
-| F3 | Pantalla de máster · **primer hito jugable** | siguiente |
-| F4 | IA de monstruos (Zargon automático) | |
+| F2 | Motor de reglas | hecho |
+| F3 | Pantalla de máster · **primer hito jugable** | hecho · 138 tests |
+| F4 | IA de monstruos (Zargon automático) | siguiente |
 | F5 | Narrador: voz, banco local y API de Claude | |
 | F6 | Editor de misiones | |
 | F7 | Generador de mazmorras | |
@@ -40,9 +40,32 @@ npm test           # tests del motor y de los datos
 npm run typecheck
 ```
 
-La pantalla actual es la **verificación del tablero**: compara el tablero digital con el
-físico, permite corregir casillas a mano y genera el mapa listo para pegar en
-`src/data/board-base.ts`. La pantalla de juego llega en la Fase 3.
+Hay dos pantallas:
+
+- **Partida**: la mesa de juego. Ya se puede jugar «El calabozo del guardián» de principio
+  a fin, con las reglas completas.
+- **Verificar tablero**: compara el tablero digital con el físico, permite corregir
+  casillas a mano y genera el mapa listo para pegar en `src/data/board-base.ts`.
+
+### Atajos de teclado
+
+El teclado es la entrada rápida; el ratón es la alternativa. Un turno de héroe se
+despacha en tres o cuatro pulsaciones.
+
+| Tecla | Qué hace |
+|---|---|
+| `T` | Pide la tirada de movimiento (`⇧T` la tira la aplicación) |
+| `←` `↑` `↓` `→` | Mueve una casilla |
+| `A` | Ataca al objetivo disponible |
+| `P` | Abre la puerta que tienes al lado |
+| `B` / `R` | Busca tesoro / busca trampas y pasadizos |
+| `0`–`9` | Responde cuántas calaveras o escudos has sacado |
+| `↵` | Termina el turno (o activa el siguiente monstruo) |
+| `Z` | Deshace |
+
+Los dados se reparten así: **los héroes tiran los suyos de verdad en la mesa** y aquí solo
+se teclea el resultado; **los de los monstruos los tira la aplicación**, que para eso hace
+de máster.
 
 ## El motor
 
@@ -62,6 +85,15 @@ Dos reglas que se confunden a menudo y que aquí están implementadas como manda
 - **Los hechizos no gastan puntos de mente.** Cada carta se lanza una vez por misión y se
   descarta. La mente es un atributo que usan algunos efectos, no un depósito de maná.
 - **Abrir una puerta es gratis**: ni gasta movimiento ni consume la acción del turno.
+
+## Herramientas
+
+```sh
+npx vite-node scripts/render-tablero.tsx tablero.svg
+```
+
+Renderiza el tablero a un SVG suelto para revisarlo sin abrir el navegador. Útil para ver
+de un vistazo si la niebla, los resaltados y las puertas se pintan donde toca.
 
 ## Cómo está montado
 
