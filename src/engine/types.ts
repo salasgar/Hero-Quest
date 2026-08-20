@@ -1,4 +1,13 @@
-/** Tipos geométricos básicos. El motor de reglas completo llega en la Fase 2. */
+/** El modelo de la partida. Todo el motor trabaja sobre estos tipos. */
+
+import type { ClaseHeroe } from "../data/heroes";
+import type { EspecieMonstruo } from "../data/monsters";
+import type { IdEquipo } from "../data/equipment";
+import type { IdHechizo } from "../data/spells";
+import type { CaraCombate } from "./dice";
+import type { Rng } from "./rng";
+
+// ---------------------------------------------------------------- geometría
 
 export interface Celda {
   x: number;
@@ -7,8 +16,6 @@ export interface Celda {
 
 export type IdSala = string;
 
-/** Una casilla es pasillo o pertenece a una sala. No hay roca impasable:
- *  en HeroQuest todo el interior del tablero se puede pisar. */
 export type Region = { tipo: "pasillo" } | { tipo: "sala"; id: IdSala };
 
 export const mismaCelda = (a: Celda, b: Celda): boolean => a.x === b.x && a.y === b.y;
@@ -18,3 +25,210 @@ export const claveCelda = (c: Celda): string => `${c.x},${c.y}`;
 /** Adyacencia ortogonal: en HeroQuest no existe el movimiento en diagonal. */
 export const sonAdyacentes = (a: Celda, b: Celda): boolean =>
   Math.abs(a.x - b.x) + Math.abs(a.y - b.y) === 1;
+
+export const sonAdyacentesConDiagonal = (a: Celda, b: Celda): boolean =>
+  Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y)) === 1 && !mismaCelda(a, b);
+
+// ---------------------------------------------------------------- figuras
+
+export type IdFigura = string;
+
+/** Efecto temporal sobre una figura (bonus de un hechizo, por ejemplo). */
+export interface EfectoActivo {
+  clase: string;
+  dados?: number;
+  /** "turno" dura hasta el final del turno; "mision" hasta acabar la misión. */
+  duracion: "turno" | "mision" | "siguienteAtaque";
+}
+
+export interface Heroe {
+  tipo: "heroe";
+  id: IdFigura;
+  clase: ClaseHeroe;
+  nombre: string;
+  celda: Celda;
+  cuerpo: number;
+  cuerpoMax: number;
+  mente: number;
+  menteMax: number;
+  equipo: IdEquipo[];
+  /** Hechizos que todavía puede lanzar. Cada uno se usa una vez por misión. */
+  hechizos: IdHechizo[];
+  hechizosGastados: IdHechizo[];
+  oro: number;
+  efectos: EfectoActivo[];
+}
+
+export interface Monstruo {
+  tipo: "monstruo";
+  id: IdFigura;
+  especie: EspecieMonstruo;
+  celda: Celda;
+  cuerpo: number;
+  cuerpoMax: number;
+  efectos: EfectoActivo[];
+  dormido: boolean;
+  pierdeTurno: boolean;
+}
+
+export type Figura = Heroe | Monstruo;
+
+export const esHeroe = (f: Figura): f is Heroe => f.tipo === "heroe";
+export const esMonstruo = (f: Figura): f is Monstruo => f.tipo === "monstruo";
+
+// ---------------------------------------------------------------- mazmorra
+
+export interface Puerta {
+  id: string;
+  /** Las dos casillas adyacentes que une, de regiones distintas. */
+  a: Celda;
+  b: Celda;
+  abierta: boolean;
+  secreta: boolean;
+  /** Solo importa en las secretas: hasta descubrirla, se comporta como muro. */
+  descubierta: boolean;
+}
+
+export type TipoMueble =
+  | "mesa" | "estanteria" | "arcon" | "armario" | "trono"
+  | "tumba" | "altar" | "banco" | "escritorio" | "bastidor";
+
+export interface Mueble {
+  id: string;
+  tipo: TipoMueble;
+  celdas: Celda[];
+  /** Si bloquea el paso y la línea de visión. */
+  bloquea: boolean;
+}
+
+export type TipoTrampa = "foso" | "bloque" | "lanza";
+
+export interface Trampa {
+  id: string;
+  tipo: TipoTrampa;
+  celda: Celda;
+  descubierta: boolean;
+  gastada: boolean;
+}
+
+// ---------------------------------------------------------------- misión
+
+export interface Mision {
+  id: string;
+  titulo: string;
+  introduccion: string;
+  /** Casillas donde empiezan los héroes (la escalera). */
+  entrada: Celda[];
+  /** Texto que lee el máster al revelar cada sala. */
+  textosDeSala: Record<IdSala, string>;
+  objetivo: ObjetivoMision;
+}
+
+export type ObjetivoMision =
+  | { clase: "matarATodos" }
+  | { clase: "matarA"; figura: IdFigura }
+  | { clase: "llegarA"; celdas: Celda[] }
+  | { clase: "salir" };
+
+// ---------------------------------------------------------------- turno
+
+export type Actor = IdFigura | "zargon";
+
+export interface Turno {
+  /** Los héroes en orden y, al final, Zargon con todos sus monstruos. */
+  orden: Actor[];
+  indice: number;
+  /** null mientras no se haya tirado el movimiento. */
+  movimientoTotal: number | null;
+  movimientoRestante: number;
+  haMovido: boolean;
+  haActuado: boolean;
+  /**
+   * El movimiento de HeroQuest es un bloque continuo: se mueve y luego se
+   * actúa, o se actúa y luego se mueve, pero no se parte el movimiento en dos
+   * mitades con la acción en medio. Esto se cierra al actuar habiendo movido.
+   */
+  movimientoCerrado: boolean;
+  /** En el turno de Zargon, el monstruo que está actuando ahora. */
+  monstruoActivo: IdFigura | null;
+  /** Monstruos que ya han terminado en este turno de Zargon. */
+  monstruosHechos: IdFigura[];
+}
+
+// ---------------------------------------------------------------- estado
+
+export interface EstadoPartida {
+  rng: Rng;
+  mision: Mision;
+  heroes: Heroe[];
+  monstruos: Monstruo[];
+  puertas: Puerta[];
+  muebles: Mueble[];
+  trampas: Trampa[];
+  salasReveladas: IdSala[];
+  buscadoTesoro: IdSala[];
+  buscadoTrampas: IdSala[];
+  /** Casillas cegadas por un bloque que ha caído. */
+  celdasBloqueadas: Celda[];
+  turno: Turno;
+  registro: Evento[];
+  desenlace: null | { victoria: boolean; motivo: string };
+}
+
+// ---------------------------------------------------------------- acciones
+
+export type Accion =
+  /** Tira 2d6 de movimiento. `dados` permite meter la tirada física de la mesa. */
+  | { tipo: "tirarMovimiento"; dados?: [number, number] }
+  | { tipo: "mover"; destino: Celda }
+  /** Solo en el turno de Zargon: pone en juego a un monstruo concreto. */
+  | { tipo: "activarMonstruo"; monstruo: IdFigura }
+  | { tipo: "abrirPuerta"; puerta: string }
+  | {
+      tipo: "atacar";
+      objetivo: IdFigura;
+      /** Resultados de los dados físicos, si los tira alguien en la mesa. */
+      dadosAtaque?: CaraCombate[];
+      dadosDefensa?: CaraCombate[];
+    }
+  | { tipo: "buscarTesoro" }
+  | { tipo: "buscarTrampas" }
+  | { tipo: "desarmarTrampa"; trampa: string }
+  | { tipo: "lanzarHechizo"; hechizo: IdHechizo; objetivo?: IdFigura; dados?: CaraCombate[] }
+  | { tipo: "terminarTurno" };
+
+// ---------------------------------------------------------------- eventos
+
+/** Lo que ha pasado. Es lo que consume el narrador de la Fase 5. */
+export type Evento =
+  | { tipo: "tiradaMovimiento"; actor: Actor; dados: [number, number]; total: number }
+  | { tipo: "movimiento"; actor: IdFigura; desde: Celda; hasta: Celda; ruta: Celda[] }
+  | { tipo: "puertaAbierta"; puerta: string }
+  | { tipo: "salaRevelada"; sala: IdSala; texto: string | null; monstruos: IdFigura[] }
+  | {
+      tipo: "ataque";
+      atacante: IdFigura;
+      objetivo: IdFigura;
+      dadosAtaque: CaraCombate[];
+      calaveras: number;
+      dadosDefensa: CaraCombate[];
+      escudos: number;
+      dano: number;
+    }
+  | { tipo: "figuraDerrotada"; figura: IdFigura }
+  | { tipo: "trampaDisparada"; trampa: string; tipoTrampa: TipoTrampa; figura: IdFigura; dano: number }
+  | { tipo: "trampaDescubierta"; trampa: string; tipoTrampa: TipoTrampa; celda: Celda }
+  | { tipo: "trampaDesarmada"; trampa: string }
+  | { tipo: "puertaSecretaDescubierta"; puerta: string }
+  | { tipo: "busquedaSinHallazgo"; actor: IdFigura; que: "tesoro" | "trampas" }
+  | { tipo: "tesoroEncontrado"; actor: IdFigura; oro: number }
+  | { tipo: "hechizoLanzado"; actor: IdFigura; hechizo: IdHechizo; objetivo: IdFigura | null }
+  | { tipo: "curacion"; figura: IdFigura; puntos: number }
+  | { tipo: "cambioDeTurno"; actor: Actor }
+  | { tipo: "finDePartida"; victoria: boolean; motivo: string };
+
+// ---------------------------------------------------------------- resultado
+
+export type Resultado =
+  | { ok: true; estado: EstadoPartida; eventos: Evento[] }
+  | { ok: false; motivo: string };

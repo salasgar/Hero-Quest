@@ -22,9 +22,9 @@ al lado del tablero, y mantiene un espejo digital de la partida:
 | Fase | Qué es | Estado |
 |---|---|---|
 | F0 | Andamiaje (Vite + React + TS + Vitest) | hecho |
-| F1 | Geometría del tablero y catálogos | tablero hecho y verificado |
-| F2 | Motor de reglas | siguiente |
-| F3 | Pantalla de máster · **primer hito jugable** | |
+| F1 | Geometría del tablero y catálogos | hecho |
+| F2 | Motor de reglas | hecho · 108 tests |
+| F3 | Pantalla de máster · **primer hito jugable** | siguiente |
 | F4 | IA de monstruos (Zargon automático) | |
 | F5 | Narrador: voz, banco local y API de Claude | |
 | F6 | Editor de misiones | |
@@ -42,7 +42,26 @@ npm run typecheck
 
 La pantalla actual es la **verificación del tablero**: compara el tablero digital con el
 físico, permite corregir casillas a mano y genera el mapa listo para pegar en
-`src/data/board-base.ts`.
+`src/data/board-base.ts`. La pantalla de juego llega en la Fase 3.
+
+## El motor
+
+`aplicarAccion(estado, accion) → { estado, eventos }` es una función pura: no muta lo que
+recibe, no tira dados fuera del generador con semilla que lleva dentro el estado y no sabe
+nada de React. De ahí salen tres cosas que importan jugando con niños:
+
+- **Deshacer**: rehacer la partida desde el principio con una acción menos sale idéntica.
+- **Guardar y reanudar**: el estado es JSON y nada más.
+- **Tests**: se comprueba una regla sin levantar un solo píxel de interfaz.
+
+Las acciones ilegales no lanzan excepciones: devuelven `{ ok: false, motivo }` para que la
+interfaz pueda explicar por qué no se puede hacer eso.
+
+Dos reglas que se confunden a menudo y que aquí están implementadas como manda el juego:
+
+- **Los hechizos no gastan puntos de mente.** Cada carta se lanza una vez por misión y se
+  descarta. La mente es un atributo que usan algunos efectos, no un depósito de maná.
+- **Abrir una puerta es gratis**: ni gasta movimiento ni consume la acción del turno.
 
 ## Cómo está montado
 
