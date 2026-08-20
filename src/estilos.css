@@ -1,0 +1,56 @@
+:root {
+  color-scheme: dark;
+  --tinta: #f1ece1;
+  --fondo: #14161c;
+  --panel: #1e222b;
+  --borde: #333a48;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--tinta);
+  -webkit-text-size-adjust: 100%;
+}
+
+.verificar { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+header h1 { margin: 0 0 .25rem; font-size: 1.5rem; letter-spacing: .01em; }
+header p { margin: 0 0 1.25rem; color: #b6bdcb; max-width: 62ch; line-height: 1.5; }
+code { background: #000; padding: .1em .35em; border-radius: 3px; font-size: .9em; }
+
+.lienzo {
+  overflow-x: auto;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: .5rem;
+}
+.lienzo svg { display: block; touch-action: none; user-select: none; }
+
+.controles, .pinceles {
+  display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+  margin-top: 1rem;
+}
+.controles label { color: #b6bdcb; font-size: .9rem; display: flex; align-items: center; gap: .35rem; }
+
+button {
+  font: inherit; font-size: .85rem;
+  padding: .4rem .7rem; border-radius: 6px;
+  border: 1px solid var(--borde); background: var(--panel); color: var(--tinta);
+  cursor: pointer;
+}
+button:disabled { opacity: .45; cursor: default; }
+
+.pinceles button { color: #10131a; font-weight: 600; border-color: transparent; }
+.pinceles button.sel { outline: 3px solid var(--tinta); outline-offset: 1px; }
+.pinceles strong { font-size: .9rem; margin-right: .2rem; }
+
+.avisos { margin-top: 1.25rem; }
+.avisos ul { margin: 0; padding-left: 1.1rem; line-height: 1.6; }
+.avisos .error { color: #ff8b7d; }
+.avisos .aviso { color: #f2c76b; }
+.avisos .ok { color: #86d98f; }
