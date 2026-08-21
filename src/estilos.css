@@ -148,3 +148,41 @@ kbd {
   .juego { flex-direction: column; }
   .juego-panel { max-width: none; max-height: none; }
 }
+
+/* ------------------------------------------------------------ elección de héroes */
+.eleccion { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+.eleccion-cabecera h1 { margin: 0 0 .25rem; font-size: 1.5rem; }
+.eleccion-cabecera .pista { max-width: 68ch; margin: 0 0 1.2rem; }
+
+.fichas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .6rem; }
+.ficha {
+  text-align: left; padding: .7rem .8rem; line-height: 1.4;
+  display: flex; flex-direction: column; gap: .35rem;
+}
+.ficha:disabled { opacity: .35; }
+.ficha-sel { border-color: #ffd76a; box-shadow: 0 0 0 1px #ffd76a55; }
+.ficha-nombre { display: flex; justify-content: space-between; align-items: center; gap: .5rem; font-size: 1rem; font-weight: 600; }
+.ficha-datos { display: flex; flex-wrap: wrap; gap: .6rem; color: #b6bdcb; font-size: .8rem; }
+.ficha-especial { margin: 0; font-size: .78rem; color: #cfd6e4; }
+.ficha-equipo { margin: 0; font-size: .75rem; color: #8b94a7; }
+
+.grupo { margin-top: 1.5rem; }
+.grupo h2 { font-size: 1.05rem; margin: 0 0 .5rem; }
+.grupo-fila {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+  border: 1px solid var(--borde); border-radius: 6px; padding: .5rem .6rem; margin-bottom: .4rem;
+}
+.grupo-clase { min-width: 6.5rem; }
+.grupo-nombre {
+  font: inherit; font-size: .85rem; padding: .3rem .5rem; border-radius: 5px;
+  border: 1px solid var(--borde); background: var(--fondo); color: var(--tinta); width: 11rem;
+}
+.grupo-elementos { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.grupo-elementos .pista { margin: 0; }
+.chip { font-size: .76rem; padding: .22rem .5rem; }
+.chip-sel { background: #3c4763; border-color: #6f7fa8; color: #fff; }
+.grupo-quitar { margin-left: auto; color: #ff8b7d; }
+
+.eleccion-pie { display: flex; align-items: center; gap: .8rem; margin-top: 1.4rem; }
+.empezar { font-size: 1rem; padding: .55rem 1.1rem; background: #2f5a45; border-color: #3d8b68; }
+.eleccion-pie .pista { margin: 0; }

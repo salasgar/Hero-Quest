@@ -52,7 +52,7 @@ export const EQUIPO: Readonly<Record<IdEquipo, Equipo>> = {
   cotaDeMalla:      { id: "cotaDeMalla",      nombre: "Cota de malla",      ranura: "armadura", defensa: 1, precio: 500, porVerificar: true },
   armaduraDePlacas: { id: "armaduraDePlacas", nombre: "Armadura de placas", ranura: "armadura", defensa: 2, precio: 850, porVerificar: true, notas: "Revisar si tu carta impone penalización al movimiento." },
 
-  herramientas:     { id: "herramientas",     nombre: "Herramientas",       ranura: "objeto", precio: 0, notas: "Permite desarmar trampas. El enano lo hace sin riesgo." },
+  herramientas:     { id: "herramientas",     nombre: "Herramientas",       ranura: "objeto", precio: 0, notas: "Permite desarmar trampas. Enanos y enanas lo hacen sin riesgo." },
 };
 
 export const ARMAS = Object.values(EQUIPO).filter((e) => e.ranura === "arma");

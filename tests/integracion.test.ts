@@ -6,12 +6,13 @@ import {
   PUERTAS_CALABOZO,
   TRAMPAS_CALABOZO,
 } from "../src/data/quests/calabozo";
-import { crearPartida } from "../src/engine/partida";
+import { crearPartida, type HeroeElegido } from "../src/engine/partida";
 import { aplicarAccion } from "../src/engine/reducer";
 import {
   casillasDeMovimiento,
   esTurnoDeZargon,
   figuraActiva,
+  hechizosLanzables,
   monstruosPorActivar,
   objetivosDeAtaque,
   puedeBuscarTesoro,
@@ -22,10 +23,25 @@ import { crearRng, entero } from "../src/engine/rng";
 import { claveCelda, type Accion, type EstadoPartida } from "../src/engine/types";
 import { narrar } from "../src/narrator/local";
 
-const nueva = (semilla = 7) =>
+const CLASICOS: HeroeElegido[] = [
+  { clase: "barbaro" },
+  { clase: "enano" },
+  { clase: "elfo", elementos: ["agua"] },
+  { clase: "mago", elementos: ["fuego", "tierra", "aire"] },
+];
+
+/** Un grupo mixto con el hada dentro, que es la única que vuela. */
+const CON_HADA: HeroeElegido[] = [
+  { clase: "barbaro", genero: "f" },
+  { clase: "enano" },
+  { clase: "elfo", genero: "f", elementos: ["agua"] },
+  { clase: "hada", elementos: ["aire", "fuego"] },
+];
+
+const nueva = (semilla = 7, heroes: HeroeElegido[] = CLASICOS) =>
   crearPartida({
     mision: MISION_CALABOZO,
-    heroes: [{ clase: "barbaro" }, { clase: "enano" }, { clase: "elfo" }, { clase: "mago" }],
+    heroes,
     monstruos: MONSTRUOS_CALABOZO,
     puertas: PUERTAS_CALABOZO,
     muebles: MUEBLES_CALABOZO,
@@ -107,11 +123,10 @@ function accionesPosibles(e: EstadoPartida): Accion[] {
   for (const p of puertasAlAlcance(e)) salida.push({ tipo: "abrirPuerta", puerta: p.id });
   if (puedeBuscarTesoro(e)) salida.push({ tipo: "buscarTesoro" });
   if (puedeBuscarTrampas(e)) salida.push({ tipo: "buscarTrampas" });
-  if (activa.tipo === "heroe" && !e.turno.haActuado) {
-    for (const h of activa.hechizos)
-      for (const o of [...e.monstruos, ...e.heroes].filter((f) => f.cuerpo > 0))
-        salida.push({ tipo: "lanzarHechizo", hechizo: h, objetivo: o.id });
-  }
+  // Los hechizos se enumeran con el mismo selector que pinta los botones: si el
+  // selector ofrece algo que el motor rechaza, es un clic perdido en la mesa.
+  for (const { hechizo, objetivos } of hechizosLanzables(e))
+    for (const o of objetivos) salida.push({ tipo: "lanzarHechizo", hechizo, objetivo: o.id });
   return salida;
 }
 
@@ -159,6 +174,29 @@ describe("juego al azar", () => {
 
       // Y el estado sigue siendo JSON puro, que es lo que permite guardarlo.
       expect(JSON.parse(JSON.stringify(e))).toEqual(e);
+    }
+  });
+
+  it("con el hada en el grupo tampoco se rompe nada", () => {
+    // Volar cambia por dónde se puede pasar, así que merece su propia tanda:
+    // el bicho raro del motor es el que encuentra los agujeros.
+    for (let semilla = 1; semilla <= 6; semilla++) {
+      let e = nueva(semilla * 31, CON_HADA);
+      let rng = crearRng(semilla * 613);
+      let pasos = 0;
+
+      while (!e.desenlace && pasos < 500) {
+        const posibles = accionesPosibles(e);
+        const [i, r2] = entero(rng, posibles.length);
+        rng = r2;
+        const elegida = posibles[i]!;
+        const res = aplicarAccion(e, elegida);
+        expect(res.ok, `semilla ${semilla}: rechazó una acción que ofrecía — ${JSON.stringify(elegida)} → ${res.ok ? "" : res.motivo}`).toBe(true);
+        if (!res.ok) break;
+        e = res.estado;
+        comprobarInvariantes(e, `hada, semilla ${semilla}, paso ${pasos}`);
+        pasos++;
+      }
     }
   });
 

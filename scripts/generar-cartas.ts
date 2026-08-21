@@ -12,7 +12,7 @@
  */
 
 import fs from "node:fs";
-import { HEROES, CLASES_HEROE } from "../src/data/heroes";
+import { HEROES, VARIANTES_HEROE } from "../src/data/heroes";
 import { EQUIPO, type IdEquipo } from "../src/data/equipment";
 import { ELEMENTOS, hechizosDelElemento, type Elemento } from "../src/data/spells";
 import { BARAJA_TESOROS } from "../src/data/treasure";
@@ -43,22 +43,20 @@ const carta = (o: {
   </div>`;
 
 // ---------------------------------------------------------------- personajes
-const cartasPersonaje = CLASES_HEROE.map((clase) => {
+// Una carta por variante: las clases con forma femenina propia salen dos veces,
+// con el mismo reverso de reglas y distinto nombre. Que cada uno coja la suya.
+const cartasPersonaje = VARIANTES_HEROE.map(({ clase, nombre }) => {
   const h = HEROES[clase];
   const armas = h.equipoInicial.map((id) => EQUIPO[id as IdEquipo]?.nombre ?? id).join(", ");
   const dadosAtaque = Math.max(
     1,
     ...h.equipoInicial.map((id) => EQUIPO[id as IdEquipo]?.ataque ?? 0),
   );
-  const especial = h.desarmaTrampasSinRiesgo
-    ? "Desarma trampas sin riesgo gracias a sus herramientas."
-    : h.gruposDeHechizos > 0
-      ? `Elige ${h.gruposDeHechizos} ${h.gruposDeHechizos === 1 ? "elemento" : "elementos"} de hechizos al empezar la campaña.`
-      : "El más fuerte en combate cuerpo a cuerpo.";
+  const especial = h.especial;
   return carta({
     color: "#3f4a5e",
     sobretitulo: "Héroe",
-    titulo: h.nombre,
+    titulo: nombre,
     cuerpo: `
       <table class="atributos">
         <tr><th>Cuerpo</th><td class="pips cuerpo">${pips(h.cuerpo)}</td><td class="num">${h.cuerpo}</td></tr>
@@ -201,6 +199,9 @@ const portada = `
         quieres enfundar, valen las fundas corrientes.</li>
     <li>La hoja de reversos es solo para los tesoros, que se roban a ciegas. Las demás se
         miran siempre por la cara.</li>
+    <li>De los héroes hay dos versiones de cada clase, en masculino y en femenino
+        (Elfo/Elfa, Mago/Hechicera). Cambia el nombre, no las reglas: imprime las dos y que
+        cada uno coja la suya. El hada, que no viene en la caja, es solo una.</li>
   </ul>
   <h2>Lo que NO hay que imprimir</h2>
   <p>Nada de monstruos: de eso se encarga la aplicación, que hace de máster. Y nada de

@@ -15,6 +15,7 @@ import {
   hayMuroEntre,
   vecinas as vecinasDelTablero,
 } from "../data/board-base";
+import { HEROES } from "../data/heroes";
 import {
   claveCelda,
   mismaCelda,
@@ -62,6 +63,21 @@ export function muebleEn(estado: EstadoPartida, c: Celda): Mueble | undefined {
 export const celdaCegada = (estado: EstadoPartida, c: Celda): boolean =>
   estado.celdasBloqueadas.some((k) => mismaCelda(k, c));
 
+/** ¿Esta figura vuela? Hoy solo el hada. */
+export const vuela = (f: Figura): boolean => f.tipo === "heroe" && HEROES[f.clase].vuela;
+
+/**
+ * ¿Puede esta figura atravesar la casilla sin pararse en ella?
+ *
+ * Para casi todo el mundo es lo mismo que poder pararse. Quien vuela pasa por
+ * encima de los muebles y de las demás figuras, pero no de un bloque
+ * desprendido, que sella el hueco de suelo a techo.
+ */
+export function celdaAtravesable(estado: EstadoPartida, c: Celda, figura: Figura): boolean {
+  if (!vuela(figura)) return celdaLibre(estado, c, figura.id);
+  return dentroDelTablero(c.x, c.y) && !celdaCegada(estado, c);
+}
+
 /** ¿Puede una figura terminar o pasar por esta casilla? */
 export function celdaLibre(estado: EstadoPartida, c: Celda, salvo?: IdFigura): boolean {
   if (!dentroDelTablero(c.x, c.y)) return false;
@@ -98,10 +114,12 @@ export function alcanzables(
         const k = claveCelda(vecina);
         if (vistas.has(k)) continue;
         if (!pasoAbierto(estado, celda, vecina)) continue;
-        if (!celdaLibre(estado, vecina, figura.id)) continue;
+        if (!celdaAtravesable(estado, vecina, figura)) continue;
         vistas.add(k);
         const nuevaRuta = [...ruta, vecina];
-        salida.set(k, { coste: paso, ruta: nuevaRuta });
+        // Volar deja cruzar por encima de un mueble o de un compañero, pero no
+        // aterrizar ahí: la casilla sigue estando ocupada.
+        if (celdaLibre(estado, vecina, figura.id)) salida.set(k, { coste: paso, ruta: nuevaRuta });
         siguiente.push({ celda: vecina, ruta: nuevaRuta });
       }
     }

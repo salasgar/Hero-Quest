@@ -5,7 +5,7 @@
  *  1. **Los hechizos no gastan puntos de mente.** Cada carta se lanza UNA vez
  *     por misión y se descarta. La mente es un atributo que usan algunos
  *     efectos (el Sueño compara mentes), no un depósito de maná.
- *  2. El mago elige TRES elementos al empezar y el elfo UNO.
+ *  2. Al empezar se eligen elementos: el mago TRES, el hada DOS y el elfo UNO.
  *
  * ⚠ VALORES POR VERIFICAR CONTRA TUS CARTAS
  * La estructura y a quién apunta cada hechizo la tengo clara; algunas

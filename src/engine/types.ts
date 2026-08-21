@@ -1,6 +1,6 @@
 /** El modelo de la partida. Todo el motor trabaja sobre estos tipos. */
 
-import type { ClaseHeroe } from "../data/heroes";
+import type { ClaseHeroe, Genero } from "../data/heroes";
 import type { EspecieMonstruo } from "../data/monsters";
 import type { IdEquipo } from "../data/equipment";
 import type { IdHechizo } from "../data/spells";
@@ -45,6 +45,8 @@ export interface Heroe {
   tipo: "heroe";
   id: IdFigura;
   clase: ClaseHeroe;
+  /** Si se juega en masculino o en femenino. Solo cambia cómo se le llama. */
+  genero: Genero;
   nombre: string;
   celda: Celda;
   cuerpo: number;

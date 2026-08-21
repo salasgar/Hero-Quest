@@ -17,6 +17,7 @@ import {
   objetivosDeAtaque,
   puertasAlAlcance,
 } from "../engine/selectors";
+import type { HeroeElegido } from "../engine/partida";
 import { esHeroe, type Celda, type Figura } from "../engine/types";
 import { BoardMirror } from "./BoardMirror";
 import { calaveras, DiceInput, escudosBlancos, type PeticionDados } from "./DiceInput";
@@ -30,15 +31,18 @@ const rango = (desde: number, hasta: number) =>
 
 const nombreDeFigura = (f: Figura) => (esHeroe(f) ? f.nombre : MONSTRUOS[f.especie].nombre);
 
-export function Juego() {
+/** El grupo con el que se juega si nadie elige: los cuatro de la caja. */
+export const GRUPO_CLASICO: HeroeElegido[] = [
+  { clase: "barbaro" },
+  { clase: "enano" },
+  { clase: "elfo", elementos: ["agua"] },
+  { clase: "mago", elementos: ["fuego", "tierra", "aire"] },
+];
+
+export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
   const { estado, ejecutar, deshacer, reiniciar, error, limpiarError, puedeDeshacer } = usePartida({
     mision: MISION_CALABOZO,
-    heroes: [
-      { clase: "barbaro" },
-      { clase: "enano" },
-      { clase: "elfo", elementos: ["agua"] },
-      { clase: "mago", elementos: ["fuego", "tierra", "aire"] },
-    ],
+    heroes,
     monstruos: MONSTRUOS_CALABOZO,
     puertas: PUERTAS_CALABOZO,
     muebles: MUEBLES_CALABOZO,

@@ -13,7 +13,7 @@ const LADO = 28;
 const MARGEN = 14;
 
 const INICIALES: Record<string, string> = {
-  barbaro: "B", enano: "E", elfo: "L", mago: "M",
+  barbaro: "B", enano: "E", elfo: "L", mago: "M", hada: "H",
 };
 
 export interface PropsTablero {

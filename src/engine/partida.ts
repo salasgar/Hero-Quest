@@ -1,6 +1,6 @@
 /** Construcción del estado inicial de una partida. */
 
-import { HEROES, type ClaseHeroe } from "../data/heroes";
+import { HEROES, type ClaseHeroe, type Genero } from "../data/heroes";
 import { MONSTRUOS, type EspecieMonstruo } from "../data/monsters";
 import { hechizosDelElemento, type Elemento, type IdHechizo } from "../data/spells";
 import { MAZO_COMPLETO } from "../data/treasure";
@@ -18,9 +18,11 @@ import type {
 
 export interface HeroeElegido {
   clase: ClaseHeroe;
+  /** Masculino o femenino. Por omisión, masculino. No cambia ninguna regla. */
+  genero?: Genero;
   /** Nombre que le pone quien lo juega. Si falta, se usa el de la clase. */
   nombre?: string;
-  /** Elementos de hechizos. El mago elige 3 y el elfo 1. */
+  /** Elementos de hechizos. El mago elige 3, el hada 2 y el elfo 1. */
   elementos?: Elemento[];
 }
 
@@ -47,17 +49,27 @@ function barajar<T>(xs: readonly T[], rng: Rng): [T[], Rng] {
 }
 
 export function crearPartida(op: OpcionesPartida): EstadoPartida {
+  // El identificador es la clase, que basta mientras no se repita. Si dos
+  // jugadores quieren la misma —dos elfas, por ejemplo— el segundo lleva un
+  // sufijo: dos figuras con el mismo id se pisarían la una a la otra.
+  const vecesVista = new Map<ClaseHeroe, number>();
+
   const heroes: Heroe[] = op.heroes.map((elegido, i) => {
     const plantilla = HEROES[elegido.clase];
+    const vez = (vecesVista.get(elegido.clase) ?? 0) + 1;
+    vecesVista.set(elegido.clase, vez);
+    const id = vez === 1 ? elegido.clase : `${elegido.clase}${vez}`;
+    const genero: Genero = elegido.genero ?? "m";
     const elementos = (elegido.elementos ?? []).slice(0, plantilla.gruposDeHechizos);
     const hechizos: IdHechizo[] = elementos.flatMap((el) =>
       hechizosDelElemento(el).map((h) => h.id),
     );
     return {
       tipo: "heroe",
-      id: elegido.clase,
+      id,
       clase: elegido.clase,
-      nombre: elegido.nombre ?? plantilla.nombre,
+      genero,
+      nombre: elegido.nombre?.trim() || plantilla.nombre[genero],
       celda: op.mision.entrada[i % op.mision.entrada.length]!,
       cuerpo: plantilla.cuerpo,
       cuerpoMax: plantilla.cuerpo,

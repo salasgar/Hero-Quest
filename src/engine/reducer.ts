@@ -20,7 +20,7 @@ import { BARAJA_TESOROS, MAZO_COMPLETO } from "../data/treasure";
 import { MONSTRUOS } from "../data/monsters";
 import { HEROES } from "../data/heroes";
 import { EQUIPO } from "../data/equipment";
-import { adyacentes, celdaLibre, figuraPorId, pasoAbierto, rutaHasta } from "./board";
+import { adyacentes, celdaLibre, figuraPorId, pasoAbierto, rutaHasta, vuela } from "./board";
 import { vecinas as vecinasDelTablero } from "../data/board-base";
 import { resolverAtaque, resolverDanoDirecto } from "./combat";
 import { tirarMovimiento as tirarDadosMovimiento } from "./dice";
@@ -282,8 +282,11 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
     estado = conFigura(estado, { ...actual, celda: paso } as Figura);
     recorrido.push(paso);
 
+    // Quien vuela no pisa el suelo, así que los fosos no la tragan. Las lanzas
+    // salen de la pared y el bloque cae del techo: esas la alcanzan igual.
     const trampa = trampaEn(estado, paso);
-    if (trampa && !trampa.descubierta) {
+    const laAfecta = trampa && !trampa.descubierta && !(trampa.tipo === "foso" && vuela(f));
+    if (trampa && laAfecta) {
       const [tras, ev, efecto] = dispararTrampa(estado, trampa, figuraPorId(estado, f.id)!);
       estado = tras;
       eventos.push(...ev);
