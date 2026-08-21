@@ -39,12 +39,11 @@ export interface EfectoActivo {
   dados?: number;
   /**
    * "turno" dura hasta el final del turno en curso; "mision" hasta acabar la
-   * misión; "siguienteAtaque" se gasta al atacar; "hastaSuTurno" aguanta la
-   * ronda entera de Zargon y caduca cuando a quien lo lleva le vuelve a tocar,
-   * que es lo que hace falta para un escudo que protege «hasta tu siguiente
-   * turno».
+   * misión o hasta que algo la gaste; "siguienteAtaque" se gasta al atacar;
+   * "hastaRecibirDano" se rompe con el primer golpe que pasa, que es como
+   * funciona la piel de piedra.
    */
-  duracion: "turno" | "mision" | "siguienteAtaque" | "hastaSuTurno";
+  duracion: "turno" | "mision" | "siguienteAtaque" | "hastaRecibirDano";
 }
 
 export interface Heroe {
@@ -253,7 +252,7 @@ export type Evento =
       dados: CaraCombate[];
       dano: number;
     }
-  | { tipo: "movimientoReabierto"; figura: IdFigura; casillas: number }
+  | { tipo: "movimientoExtra"; figura: IdFigura; casillas: number }
   | { tipo: "cambioDeTurno"; actor: Actor }
   | { tipo: "finDePartida"; victoria: boolean; motivo: string };
 

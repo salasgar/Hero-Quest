@@ -19,6 +19,7 @@ import { HECHIZOS } from "../data/spells";
 import { BARAJA_TESOROS, MAZO_COMPLETO } from "../data/treasure";
 import { MONSTRUOS } from "../data/monsters";
 import { HEROES } from "../data/heroes";
+import { EQUIPO } from "../data/equipment";
 import { celdaLibre, figuraPorId, pasoAbierto, rutaHasta, vuela } from "./board";
 import { vecinas as vecinasDelTablero } from "../data/board-base";
 import {
@@ -27,7 +28,7 @@ import {
   resolverAtaque,
   resolverDanoDirecto,
 } from "./combat";
-import { tirarMovimiento as tirarDadosMovimiento } from "./dice";
+import { tirarD6, tirarMovimiento as tirarDadosMovimiento } from "./dice";
 import { elegir } from "./rng";
 import { puedeVer, salasDeLaPuerta } from "./vision";
 import {
@@ -78,7 +79,13 @@ function conFigura(e: EstadoPartida, f: Figura): EstadoPartida {
 
 function aplicarDano(e: EstadoPartida, f: Figura, dano: number): [EstadoPartida, Evento[]] {
   if (dano <= 0) return [e, []];
-  const herida = { ...f, cuerpo: Math.max(0, f.cuerpo - dano) } as Figura;
+  // La piel de piedra se resquebraja con el primer golpe que pasa: por eso su
+  // duración cuelga del daño y no del reloj del turno.
+  const herida = {
+    ...f,
+    cuerpo: Math.max(0, f.cuerpo - dano),
+    efectos: f.efectos.filter((x) => x.duracion !== "hastaRecibirDano"),
+  } as Figura;
   const eventos: Evento[] = [];
   let estado = conFigura(e, herida);
   if (herida.cuerpo === 0) eventos.push({ tipo: "figuraDerrotada", figura: herida.id });
@@ -231,25 +238,40 @@ function tirarMovimientoAccion(e: EstadoPartida, dados?: [number, number]): Resu
     rng = r;
   }
   const base = tirada[0] + tirada[1];
-
-  // El viento veloz que le echaron encima en un turno anterior se gasta ahora:
-  // dobla la tirada y desaparece.
   const activa = figuraActiva(e);
-  const conViento = !!activa && activa.efectos.some((x) => x.clase === "movimientoExtra");
-  const total = conViento ? base * 2 : base;
-
   let estado: EstadoPartida = { ...e, rng };
-  if (conViento && activa) estado = conFigura(estado, gastarMovimientoExtra(activa));
+  const eventos: Evento[] = [];
+  let total = base;
+
+  // El viento veloz añade dos dados a la tirada: cuatro en total, que es lo que
+  // dice la carta. Los dos de más los tira la aplicación, porque en la mesa ya
+  // se han tirado los otros dos.
+  const viento = activa?.efectos.find((x) => x.clase === "movimientoExtra");
+  if (activa && viento) {
+    let extra = 0;
+    let r = estado.rng;
+    for (let i = 0; i < (viento.dados ?? 2); i++) {
+      const [cara, r2] = tirarD6(r);
+      r = r2;
+      extra += cara;
+    }
+    estado = conFigura({ ...estado, rng: r }, gastarMovimientoExtra(activa));
+    total += extra;
+    eventos.push({ tipo: "movimientoExtra", figura: activa.id, casillas: extra });
+  }
+
+  // Y la armadura de placas resta: pesa lo que pesa.
+  const lastre = activa && esHeroe(activa) ? penalizacionDeMovimiento(activa) : 0;
+  total = Math.max(0, total - lastre);
 
   const turno = { ...estado.turno, movimientoTotal: total, movimientoRestante: total };
-  const eventos: Evento[] = [
-    { tipo: "tiradaMovimiento", actor: actorActual(e), dados: tirada, total },
-  ];
-  if (conViento && activa) {
-    eventos.push({ tipo: "movimientoReabierto", figura: activa.id, casillas: base });
-  }
+  eventos.unshift({ tipo: "tiradaMovimiento", actor: actorActual(e), dados: tirada, total });
   return terminar({ ...estado, turno }, eventos);
 }
+
+/** Lo que la armadura le resta a la tirada de movimiento. */
+const penalizacionDeMovimiento = (h: Heroe): number =>
+  h.equipo.reduce((s, id) => s + (EQUIPO[id].penalizacionMovimiento ?? 0), 0);
 
 function activarMonstruo(e: EstadoPartida, id: IdFigura): Resultado {
   if (!esTurnoDeZargon(e)) return fallo("No es el turno de Zargon.");
@@ -317,6 +339,18 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
       }
       if (efecto.corta || figuraPorId(estado, f.id)!.cuerpo === 0) break;
     }
+  }
+
+  // Las cargas que se gastan moviéndose —velo de niebla y atravesar la roca—
+  // se consumen aquí: valen para UN movimiento, no para el turno entero.
+  if (recorrido.length > 0) {
+    const quien = figuraPorId(estado, f.id)!;
+    estado = conFigura(estado, {
+      ...quien,
+      efectos: quien.efectos.filter(
+        (x) => x.clase !== "atravesarMuros" && x.clase !== "atravesarFiguras",
+      ),
+    } as Figura);
   }
 
   const gastado = recorrido.length;
@@ -398,9 +432,6 @@ function atacar(
   if (!objetivo) return fallo("No existe ese objetivo.");
   if (objetivo.cuerpo <= 0) return fallo("Ese objetivo ya está derrotado.");
   if (objetivo.tipo === atacante.tipo) return fallo("No se ataca a los de tu propio bando.");
-
-  if (objetivo.efectos.some((x) => x.clase === "intangible"))
-    return fallo("Está envuelto en niebla: no hay nada que golpear.");
 
   // Pegado se pelea cuerpo a cuerpo y de lejos se dispara. Llevar ballesta no
   // impide apuñalar a quien tienes encima: cambia el arma, no la posibilidad.
@@ -642,10 +673,27 @@ function lanzarHechizo(
 
   const efecto = hechizo.efecto;
   switch (efecto.clase) {
-    case "danoDirecto": {
-      const [res, rng] = resolverDanoDirecto(estado.rng, efecto.dados, dados);
+    case "danoConSalvacion": {
+      // El daño es fijo y quien lo recibe tira dados rojos para librarse: cada
+      // 5 o 6 le quita un punto. No es la mecánica del combate, y por eso no
+      // pasa por `resolverAtaque` ni cuenta calaveras.
+      let rng = estado.rng;
+      let salvados = 0;
+      for (let i = 0; i < efecto.salvacion; i++) {
+        const [cara, r] = tirarD6(rng);
+        rng = r;
+        if (cara >= 5) salvados++;
+      }
+      const dano = Math.max(0, efecto.dano - salvados);
       estado = { ...estado, rng };
-      const [tras, ev] = aplicarDano(estado, figuraPorId(estado, objetivo.id)!, res.dano);
+      eventos.push({
+        tipo: "danoDeHechizo",
+        hechizo: idHechizo,
+        objetivo: objetivo.id,
+        dados: [],
+        dano,
+      });
+      const [tras, ev] = aplicarDano(estado, figuraPorId(estado, objetivo.id)!, dano);
       estado = tras;
       eventos.push(...ev);
       break;
@@ -669,7 +717,7 @@ function lanzarHechizo(
           {
             clase: efecto.clase,
             dados: efecto.dados,
-            duracion: efecto.clase === "bonusAtaque" ? "siguienteAtaque" : "mision",
+            duracion: efecto.clase === "bonusAtaque" ? "siguienteAtaque" : "hastaRecibirDano",
           },
         ],
       } as Figura);
@@ -711,55 +759,31 @@ function lanzarHechizo(
       eventos.push(...ev);
       break;
     }
-    case "intangible":
-    case "atravesarMuros": {
-      // Los dos son escudos de duración distinta sobre quien los lanza:
-      // la niebla aguanta la ronda de Zargon, atravesar la roca solo lo que
-      // queda de este turno.
+    case "atravesarFiguras":
+    case "atravesarMuros":
+    case "movimientoExtra": {
+      // Los tres son cargas que se gastan en el siguiente movimiento del
+      // objetivo, que puede no ser quien las lanza. Por eso duran "mision":
+      // el que las gasta es el movimiento, no el reloj del turno.
       const o = figuraPorId(estado, objetivo.id)!;
       estado = conFigura(estado, {
         ...o,
         efectos: [
           ...o.efectos,
-          {
-            clase: efecto.clase,
-            duracion: efecto.clase === "intangible" ? "hastaSuTurno" : "turno",
-          },
+          efecto.clase === "movimientoExtra"
+            ? { clase: efecto.clase, dados: efecto.dados, duracion: "mision" as const }
+            : { clase: efecto.clase, duracion: "mision" as const },
         ],
       } as Figura);
       break;
     }
-    case "movimientoExtra": {
-      const o = figuraPorId(estado, objetivo.id)!;
-      estado = conFigura(estado, {
-        ...o,
-        efectos: [...o.efectos, { clase: "movimientoExtra", duracion: "mision" }],
-      } as Figura);
-      break;
-    }
   }
 
+  // El viento veloz no reabre un movimiento ya gastado: la carta dice que si lo
+  // lanzas sobre ti ANTES de moverte tiras cuatro dados este turno, y si ya te
+  // habías movido —o se lo echas a otro— los cuatro dados son de su próximo
+  // turno. Las dos cosas salen solas de guardar la carga y gastarla al tirar.
   estado = { ...estado, turno: cerrarAccion(estado.turno) };
-
-  // El viento veloz sobre quien está jugando su turno se gasta aquí mismo: se
-  // le devuelve otra tanda de movimiento y se reabre lo que `cerrarAccion`
-  // acaba de cerrar. Sobre otro héroe se queda esperando a su tirada.
-  if (efecto.clase === "movimientoExtra" && objetivo.id === figuraActiva(estado)?.id) {
-    const extra = estado.turno.movimientoTotal;
-    if (extra !== null) {
-      estado = {
-        ...estado,
-        turno: {
-          ...estado.turno,
-          movimientoRestante: estado.turno.movimientoRestante + extra,
-          movimientoCerrado: false,
-        },
-      };
-      estado = conFigura(estado, gastarMovimientoExtra(figuraPorId(estado, objetivo.id)!));
-      eventos.push({ tipo: "movimientoReabierto", figura: objetivo.id, casillas: extra });
-    }
-  }
-
   return terminar(estado, eventos);
 }
 
@@ -807,15 +831,11 @@ function avanzarActor(e: EstadoPartida): EstadoPartida {
     ? e.monstruos.map((m) => ({ ...m, pierdeTurno: false }))
     : e.monstruos;
 
-  // Los efectos de duración "turno" caducan al pasar el turno, y los de
-  // "hastaSuTurno" solo cuando a quien los lleva le vuelve a tocar: por eso
-  // aguantan la ronda entera de Zargon, que es de lo que protegen.
-  const entrante = e.turno.orden[indice];
+  // Los efectos de duración "turno" caducan al pasar el turno. Los que cuelgan
+  // de un movimiento o de un golpe se gastan donde pasa la cosa, no aquí.
   const heroes = e.heroes.map((h) => ({
     ...h,
-    efectos: h.efectos.filter(
-      (x) => x.duracion !== "turno" && !(x.duracion === "hastaSuTurno" && h.id === entrante),
-    ),
+    efectos: h.efectos.filter((x) => x.duracion !== "turno"),
   }));
 
   return {

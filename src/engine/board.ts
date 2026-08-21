@@ -70,16 +70,26 @@ export const vuela = (f: Figura): boolean => f.tipo === "heroe" && HEROES[f.clas
 export const atraviesaMuros = (f: Figura): boolean =>
   f.efectos.some((x) => x.clase === "atravesarMuros");
 
+/** ¿Pasa por encima de otras figuras? Vuela, o lleva el velo de niebla. */
+export const atraviesaFiguras = (f: Figura): boolean =>
+  vuela(f) || f.efectos.some((x) => x.clase === "atravesarFiguras");
+
 /**
  * ¿Puede esta figura atravesar la casilla sin pararse en ella?
  *
- * Para casi todo el mundo es lo mismo que poder pararse. Quien vuela pasa por
- * encima de los muebles y de las demás figuras, pero no de un bloque
- * desprendido, que sella el hueco de suelo a techo.
+ * Para casi todo el mundo es lo mismo que poder pararse. Un bloque desprendido
+ * no lo cruza nadie: sella el hueco de suelo a techo.
  */
 export function celdaAtravesable(estado: EstadoPartida, c: Celda, figura: Figura): boolean {
-  if (!vuela(figura)) return celdaLibre(estado, c, figura.id);
-  return dentroDelTablero(c.x, c.y) && !celdaCegada(estado, c);
+  if (!dentroDelTablero(c.x, c.y) || celdaCegada(estado, c)) return false;
+  // Volar levanta muebles y figuras; el velo de niebla, solo las figuras: el
+  // héroe se cuela entre los monstruos, no por encima de una mesa.
+  if (vuela(figura)) return true;
+  const mueble = muebleEn(estado, c);
+  if (mueble?.bloqueaPaso) return false;
+  if (atraviesaFiguras(figura)) return true;
+  const ocupante = figuraEn(estado, c);
+  return !ocupante || ocupante.id === figura.id;
 }
 
 /** ¿Puede una figura terminar o pasar por esta casilla? */

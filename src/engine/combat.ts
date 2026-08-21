@@ -47,6 +47,23 @@ function armasPara(figura: Figura, modo: ModoAtaque): Equipo[] {
 export const armaADistanciaDe = (figura: Figura): Equipo | undefined =>
   armasPara(figura, "distancia")[0];
 
+/** ¿Su mejor arma de cuerpo a cuerpo alcanza en diagonal? El bastón y la lanza. */
+export const atacaEnDiagonal = (figura: Figura): boolean =>
+  armasPara(figura, "cuerpo").some((a) => a.atacaEnDiagonal);
+
+/**
+ * Un arma larga alcanza también en diagonal. La regla vale la pena porque es
+ * la que permite que dos héroes ataquen a la vez al monstruo que tapona un
+ * vano de puerta, en vez de hacer cola.
+ */
+function alcanzaEnDiagonal(estado: EstadoPartida, atacante: Figura, objetivo: Figura): boolean {
+  if (!atacaEnDiagonal(atacante)) return false;
+  const dx = Math.abs(atacante.celda.x - objetivo.celda.x);
+  const dy = Math.abs(atacante.celda.y - objetivo.celda.y);
+  if (dx !== 1 || dy !== 1) return false;
+  return puedeVer(estado, atacante.celda, objetivo.celda);
+}
+
 /**
  * De qué clase sería el ataque de `atacante` contra `objetivo`, o null si no
  * puede atacarlo desde donde está.
@@ -61,6 +78,7 @@ export function modoDeAtaqueContra(
   objetivo: Figura,
 ): ModoAtaque | null {
   if (adyacentes(estado, atacante).some((a) => a.id === objetivo.id)) return "cuerpo";
+  if (alcanzaEnDiagonal(estado, atacante, objetivo)) return "cuerpo";
   if (!armaADistanciaDe(atacante)) return null;
   return puedeVer(estado, atacante.celda, objetivo.celda) ? "distancia" : null;
 }

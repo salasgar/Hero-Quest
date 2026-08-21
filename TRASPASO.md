@@ -88,16 +88,52 @@ puerta es gratis** (ni movimiento ni acción).
 - ~~Cuatro hechizos no hacían nada~~. Genio, Atravesar la roca, Velo de niebla y Viento
   veloz ya se ejecutan. Un test recorre las clases de efecto declaradas y falla si alguna
   se queda sin implementar, que era el agujero de fondo.
+- ~~Los `porVerificar` se quedaron sin referencia~~. Se buscaron en el **reglamento oficial
+  de 2021** (Avalon Hill F3649, descargable de instructions.hasbro.com) y en el texto de
+  las cartas. No queda ninguno: `POR_VERIFICAR` y `HECHIZOS_POR_VERIFICAR` están vacíos y
+  hay un test que lo exige. Lo que cambió está en «Lo que decía el reglamento», abajo.
+- ~~Faltaba confirmar que las figuras quepan en 1,9 cm~~. Confirmado por el usuario el
+  22 de agosto de 2026: **caben**. El tablero de cuatro folios es válido.
 
-### Pendientes
+### Lo que decía el reglamento (y nosotros no)
 
-1. **Los valores marcados `porVerificar`** en `equipment.ts` y `spells.ts` decían
-   «cotéjalo con tus cartas originales». Ya no tiene sentido: **no hay caja original**.
-   O se congelan como nuestros y se quita el aviso de las cartas, o se buscan en el
-   reglamento. Es una decisión pendiente, no una tarea.
-2. **La casilla impresa mide 1,9 cm.** Está sin confirmar que las figuras de cartón que ya
-   están hechas quepan. Si no caben, la salida es sacar el tablero en 6 o 9 folios, no
-   tocar el reparto: el 1,9 sale de dividir un A4, no de un capricho.
+Casi nada de lo que yo había supuesto sobrevivió al cotejo:
+
+| | Lo que teníamos | Lo que dice |
+|---|---|---|
+| Velo de niebla | Nadie podía atacarte | Atraviesas **monstruos** en tu próximo movimiento |
+| Viento veloz | Doblaba la tirada | Tiras **cuatro dados** en vez de dos |
+| Tempestad | Toda la sala pierde el turno | **Un** monstruo pierde su turno |
+| Genio | 4 dados | **5** dados (y también puede abrir una puerta) |
+| Piel de piedra | +2 defensa toda la misión | **+1**, y se rompe al recibir un punto de daño |
+| Bola de fuego / Fuego de la ira | Dados de combate, contar calaveras | Daño **fijo**, y el objetivo tira dados rojos: cada 5 o 6 le resta uno |
+| Atravesar la roca, Velo de niebla | Solo sobre uno mismo | Sobre **cualquier héroe** |
+| Lanza | 250 monedas | **150** |
+| Herramientas | Gratis | **250** monedas |
+| Armadura de placas | Sin penalización | **Resta 2** a cada tirada de movimiento |
+| Hacha de batalla | Atacaba en diagonal | **No**: en diagonal alcanzan el bastón y la lanza |
+
+El ataque en diagonal, que estaba declarado en los datos y en las cartas pero no lo
+aplicaba el motor, ya funciona: es la regla que permite que dos héroes ataquen a la vez al
+monstruo que tapona un vano de puerta, en vez de hacer cola.
+
+### Pendientes: lo que el reglamento dice y el motor todavía no hace
+
+Encontrado al cotejar, no arreglado. **Son cambios de regla, así que decidid antes**:
+
+1. **Los héroes pueden pasar por encima de otros héroes.** «You *may* pass over other
+   heroes» —solo los monstruos taponan. El motor bloquea a todos, y esto es lo que obligó a
+   buscar un pasillo de dos casillas para la entrada de la misión.
+2. **Las figuras cortan la línea de visión de los hechizos.** «If the line does not cross a
+   wall, closed door, hero, or monster, the target is declared visible.» Nuestro
+   `vision.ts` dice lo contrario, y por escrito.
+3. **Buscar trampas y pasadizos exige que no se vea ningún monstruo**, igual que buscar
+   tesoro. `puedeBuscarTrampas` no lo comprueba.
+4. **Los monstruos no disparan las trampas ocultas.** El motor se las dispara a cualquiera.
+5. **Dentro de un foso se ataca y se defiende con un dado menos** (mínimo uno). Y un foso
+   ya disparado no se puede desarmar.
+6. **Cada héroe puede registrar una sala una vez**, no la sala una vez en total.
+7. **El mago no puede llevar armadura normal ni armas grandes.** No está modelado.
 
 ## Lo siguiente: la Fase 4
 

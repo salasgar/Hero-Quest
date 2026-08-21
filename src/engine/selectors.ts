@@ -27,10 +27,6 @@ export { actorActual, esTurnoDeZargon, figuraActiva };
 
 const vivos = <T extends { cuerpo: number }>(xs: readonly T[]): T[] => xs.filter((f) => f.cuerpo > 0);
 
-/** Envuelto en niebla: no se le puede tocar hasta que le vuelva a tocar turno. */
-export const esIntocable = (f: Figura): boolean =>
-  f.efectos.some((x) => x.clase === "intangible");
-
 /** Casillas a las que la figura activa puede ir ahora mismo. */
 export function casillasDeMovimiento(e: EstadoPartida): Celda[] {
   const f = figuraActiva(e);
@@ -49,7 +45,7 @@ export function objetivosDeAtaque(e: EstadoPartida): Figura[] {
   // apuñalar a quien tienes encima, ni llevar espada impide disparar si además
   // llevas ballesta. El modo lo decide después la casilla del objetivo.
   const enemigos = esHeroe(f) ? vivos(e.monstruos) : vivos(e.heroes);
-  return enemigos.filter((x) => modoDeAtaqueContra(e, f, x) !== null && !esIntocable(x));
+  return enemigos.filter((x) => modoDeAtaqueContra(e, f, x) !== null);
 }
 
 /** Con cuántos dados atacaría la figura activa a este objetivo. */

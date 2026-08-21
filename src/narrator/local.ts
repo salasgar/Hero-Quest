@@ -119,8 +119,8 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
         : `${h.nombre} alcanza a ${o}: ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
     }
 
-    case "movimientoReabierto":
-      return `Un viento repentino levanta a ${nombreDe(e, ev.figura)}: ${ev.casillas} casillas más.`;
+    case "movimientoExtra":
+      return `Un viento repentino empuja a ${nombreDe(e, ev.figura)}: ${ev.casillas} casillas más.`;
 
     case "curacion":
       return `${nombreDe(e, ev.figura)} recupera ${ev.puntos} ${ev.puntos === 1 ? "punto" : "puntos"} de cuerpo.`;
