@@ -11,9 +11,11 @@
  * para 0,67 también. Los monstruos son mucho más frágiles de lo que aparentan.
  */
 
-import { EQUIPO } from "../data/equipment";
+import { EQUIPO, type Equipo } from "../data/equipment";
 import { HEROES } from "../data/heroes";
 import { MONSTRUOS } from "../data/monsters";
+import { adyacentes } from "./board";
+import { puedeVer } from "./vision";
 import {
   contarCalaveras,
   contarEscudosBlancos,
@@ -22,16 +24,54 @@ import {
   type CaraCombate,
 } from "./dice";
 import type { Rng } from "./rng";
-import { esHeroe, type Figura } from "./types";
+import { esHeroe, type EstadoPartida, type Figura } from "./types";
 
-/** Dados de ataque de una figura: su arma más los bonus activos. */
-export function dadosDeAtaque(figura: Figura): number {
+/**
+ * Un ataque es de una de estas dos clases, y la diferencia no es cosmética:
+ * decide con qué arma se tira. Quien lleva ballesta y daga dispara con la
+ * ballesta a lo lejos y apuñala de cerca; usar la mejor arma de las dos en los
+ * dos casos sería regalarle tres dados a un cuchillo.
+ */
+export type ModoAtaque = "cuerpo" | "distancia";
+
+/** Las armas del héroe que sirven para este modo de ataque. */
+function armasPara(figura: Figura, modo: ModoAtaque): Equipo[] {
+  if (!esHeroe(figura)) return [];
+  return figura.equipo
+    .map((id) => EQUIPO[id])
+    .filter((e) => e.ranura === "arma" && e.ataque !== undefined)
+    .filter((e) => (modo === "distancia" ? !!e.aDistancia : !e.aDistancia));
+}
+
+/** El arma a distancia que lleva, si lleva alguna. */
+export const armaADistanciaDe = (figura: Figura): Equipo | undefined =>
+  armasPara(figura, "distancia")[0];
+
+/**
+ * De qué clase sería el ataque de `atacante` contra `objetivo`, o null si no
+ * puede atacarlo desde donde está.
+ *
+ * Vive aquí, en una sola función, porque el motor y la interfaz tienen que
+ * responder lo mismo: si la pantalla ofrece un ataque que el motor rechaza, en
+ * la mesa eso es un clic perdido y una discusión.
+ */
+export function modoDeAtaqueContra(
+  estado: EstadoPartida,
+  atacante: Figura,
+  objetivo: Figura,
+): ModoAtaque | null {
+  if (adyacentes(estado, atacante).some((a) => a.id === objetivo.id)) return "cuerpo";
+  if (!armaADistanciaDe(atacante)) return null;
+  return puedeVer(estado, atacante.celda, objetivo.celda) ? "distancia" : null;
+}
+
+/** Dados de ataque de una figura en este modo, más los bonus activos. */
+export function dadosDeAtaque(figura: Figura, modo: ModoAtaque = "cuerpo"): number {
   let base: number;
   if (esHeroe(figura)) {
-    const armas = figura.equipo
-      .map((id) => EQUIPO[id])
-      .filter((e) => e.ranura === "arma" && e.ataque !== undefined);
-    // Si lleva varias armas, se usa la mejor.
+    const armas = armasPara(figura, modo);
+    // Si lleva varias armas del mismo tipo se usa la mejor; sin ninguna que
+    // valga para este modo, se pega con lo que haya: un dado.
     base = armas.length > 0 ? Math.max(...armas.map((a) => a.ataque!)) : 1;
   } else {
     base = MONSTRUOS[figura.especie].ataque;
@@ -82,6 +122,7 @@ export function resolverAtaque(
   defensor: Figura,
   dadosAtaqueDados?: readonly CaraCombate[],
   dadosDefensaDados?: readonly CaraCombate[],
+  modo: ModoAtaque = "cuerpo",
 ): [ResultadoAtaque, Rng] {
   let r = rng;
 
@@ -89,7 +130,7 @@ export function resolverAtaque(
   if (dadosAtaqueDados) {
     dadosAtaque = [...dadosAtaqueDados];
   } else {
-    const [tirada, r2] = tirarDadosCombate(r, dadosDeAtaque(atacante));
+    const [tirada, r2] = tirarDadosCombate(r, dadosDeAtaque(atacante, modo));
     dadosAtaque = tirada;
     r = r2;
   }

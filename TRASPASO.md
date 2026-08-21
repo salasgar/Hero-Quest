@@ -78,20 +78,24 @@ puerta es gratis** (ni movimiento ni acción).
 
 ## Cables pelados
 
-Por orden de cuándo van a morder:
+### Arreglados
 
-1. **Quien lleva ballesta no puede atacar cuerpo a cuerpo**, ni con una daga en la otra
-   mano: `objetivosDeAtaque` encuentra el arma a distancia y descarta a los adyacentes. Hoy
-   no molesta porque ningún héroe empieza con ballesta; en cuanto haya tienda (F8) se nota.
-   Arreglarlo es separar el ataque en dos modos y que `dadosDeAtaque` sepa cuál.
-2. **Cuatro hechizos no hacen nada.** Genio, Atravesar la roca, Velo de niebla y Viento
-   veloz están en los datos y en las cartas, pero sus efectos caen en el `default` del
-   reductor: gastan la carta y se narran, y ahí acaba todo.
-3. **Los valores marcados `porVerificar`** en `equipment.ts` y `spells.ts` decían
+- ~~La ballesta anulaba el cuerpo a cuerpo~~. El ataque tiene ahora dos modos y lo decide
+  la casilla del objetivo, no el arma más gorda del inventario: pegado se apuñala con la
+  daga, de lejos se dispara con la ballesta. Sin arma de cuerpo a cuerpo se pelea igual,
+  con un dado. `modoDeAtaqueContra` es la única función que lo decide, y la usan el motor
+  y la interfaz, para que no puedan discrepar.
+- ~~Cuatro hechizos no hacían nada~~. Genio, Atravesar la roca, Velo de niebla y Viento
+  veloz ya se ejecutan. Un test recorre las clases de efecto declaradas y falla si alguna
+  se queda sin implementar, que era el agujero de fondo.
+
+### Pendientes
+
+1. **Los valores marcados `porVerificar`** en `equipment.ts` y `spells.ts` decían
    «cotéjalo con tus cartas originales». Ya no tiene sentido: **no hay caja original**.
    O se congelan como nuestros y se quita el aviso de las cartas, o se buscan en el
    reglamento. Es una decisión pendiente, no una tarea.
-4. **La casilla impresa mide 1,9 cm.** Está sin confirmar que las figuras de cartón que ya
+2. **La casilla impresa mide 1,9 cm.** Está sin confirmar que las figuras de cartón que ya
    están hechas quepan. Si no caben, la salida es sacar el tablero en 6 o 9 folios, no
    tocar el reparto: el 1,9 sale de dividir un A4, no de un capricho.
 

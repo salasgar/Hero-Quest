@@ -111,6 +111,17 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       return `${nombreDe(e, ev.actor)} lanza ${h.nombre}${contra}.`;
     }
 
+    case "danoDeHechizo": {
+      const h = HECHIZOS[ev.hechizo];
+      const o = nombreDe(e, ev.objetivo);
+      return ev.dano === 0
+        ? `${h.nombre} estalla contra ${o} y no le hace ni un rasguño.`
+        : `${h.nombre} alcanza a ${o}: ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
+    }
+
+    case "movimientoReabierto":
+      return `Un viento repentino levanta a ${nombreDe(e, ev.figura)}: ${ev.casillas} casillas más.`;
+
     case "curacion":
       return `${nombreDe(e, ev.figura)} recupera ${ev.puntos} ${ev.puntos === 1 ? "punto" : "puntos"} de cuerpo.`;
 

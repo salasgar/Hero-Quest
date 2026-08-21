@@ -8,9 +8,10 @@ import {
 } from "../data/quests/calabozo";
 import { MONSTRUOS } from "../data/monsters";
 import { figuraPorId } from "../engine/board";
-import { dadosDeAtaque, dadosDeDefensa } from "../engine/combat";
+import { dadosDeDefensa } from "../engine/combat";
 import {
   casillasDeMovimiento,
+  dadosDeAtaqueContra,
   esTurnoDeZargon,
   figuraActiva,
   monstruosPorActivar,
@@ -73,7 +74,7 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
       if (!atacante || !objetivo) return;
 
       if (esHeroe(atacante)) {
-        const n = dadosDeAtaque(atacante);
+        const n = dadosDeAtaqueContra(estado, objetivo);
         setPeticion({
           titulo: `${atacante.nombre} ataca`,
           detalle: `Contra ${nombreDeFigura(objetivo)} · defensa ${dadosDeDefensa(objetivo)}`,
@@ -89,7 +90,7 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
         const d = dadosDeDefensa(objetivo);
         setPeticion({
           titulo: `${nombreDeFigura(atacante)} ataca a ${nombreDeFigura(objetivo)}`,
-          detalle: `Ataca con ${dadosDeAtaque(atacante)} dados. Los tira la aplicación.`,
+          detalle: `Ataca con ${dadosDeAtaqueContra(estado, objetivo)} dados. Los tira la aplicación.`,
           instruccion: `Tira tus ${d} dados de defensa. ¿Cuántos escudos blancos?`,
           opciones: rango(0, d),
           alResponder: (k) => {

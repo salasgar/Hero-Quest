@@ -35,7 +35,7 @@ export type Efecto =
   | { clase: "movimientoExtra" }
   | { clase: "atravesarMuros" }
   | { clase: "intangible" }
-  | { clase: "invocar" };
+  | { clase: "invocar"; dados: number };
 
 export interface Hechizo {
   id: IdHechizo;
@@ -54,7 +54,8 @@ export const HECHIZOS: Readonly<Record<IdHechizo, Hechizo>> = {
   vientoVeloz: {
     id: "vientoVeloz", nombre: "Viento veloz", elemento: "aire",
     objetivo: "unHeroe", efecto: { clase: "movimientoExtra" }, requiereVision: true,
-    descripcion: "El héroe elegido puede volver a moverse este turno.", porVerificar: true,
+    descripcion: "El héroe elegido dobla su movimiento: si ya ha tirado, vuelve a moverse.",
+    porVerificar: true,
   },
   tempestad: {
     id: "tempestad", nombre: "Tempestad", elemento: "aire",
@@ -63,8 +64,9 @@ export const HECHIZOS: Readonly<Record<IdHechizo, Hechizo>> = {
   },
   genio: {
     id: "genio", nombre: "Genio", elemento: "aire",
-    objetivo: "unEnemigo", efecto: { clase: "invocar" }, requiereVision: true,
-    descripcion: "Invoca un genio que combate junto a los héroes.", porVerificar: true,
+    objetivo: "unEnemigo", efecto: { clase: "invocar", dados: 4 }, requiereVision: true,
+    descripcion: "Invoca un genio que cae sobre el enemigo elegido con 4 dados de combate.",
+    porVerificar: true,
   },
 
   // ---- Agua ----
@@ -76,7 +78,8 @@ export const HECHIZOS: Readonly<Record<IdHechizo, Hechizo>> = {
   veloDeNiebla: {
     id: "veloDeNiebla", nombre: "Velo de niebla", elemento: "agua",
     objetivo: "unoMismo", efecto: { clase: "intangible" }, requiereVision: false,
-    descripcion: "El lanzador no puede ser atacado hasta su siguiente turno.", porVerificar: true,
+    descripcion: "Nadie puede atacar al lanzador hasta que le vuelva a tocar turno.",
+    porVerificar: true,
   },
   aguaCurativa: {
     id: "aguaCurativa", nombre: "Agua curativa", elemento: "agua",
@@ -93,7 +96,8 @@ export const HECHIZOS: Readonly<Record<IdHechizo, Hechizo>> = {
   atravesarLaRoca: {
     id: "atravesarLaRoca", nombre: "Atravesar la roca", elemento: "tierra",
     objetivo: "unoMismo", efecto: { clase: "atravesarMuros" }, requiereVision: false,
-    descripcion: "El lanzador atraviesa muros durante este movimiento.", porVerificar: true,
+    descripcion: "El lanzador atraviesa muros durante lo que le quede de turno.",
+    porVerificar: true,
   },
   curacion: {
     id: "curacion", nombre: "Curación", elemento: "tierra",

@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
+import { dadosDeAtaque } from "../src/engine/combat";
 import { aplicarAccion, repetir } from "../src/engine/reducer";
+import type { IdEquipo } from "../src/data/equipment";
 import type { Accion, Celda } from "../src/engine/types";
 import { c, conMovimiento, hacer, MISION_PRUEBA, partida, rechaza, situar } from "./ayuda";
 
@@ -127,7 +129,7 @@ describe("ataque", () => {
     expect(rechaza(e, { tipo: "atacar", objetivo: "enano" })).toMatch(/propio bando/i);
   });
 
-  it("la ballesta no dispara a bocajarro pero sí a distancia con visión", () => {
+  const conBallesta = (equipo: IdEquipo[]) => {
     const base = partida({
       heroes: [{ clase: "elfo" }],
       monstruos: [
@@ -136,11 +138,37 @@ describe("ataque", () => {
       ],
     });
     let e = situar(base, "elfo", c(0, 0));
-    e = { ...e, heroes: e.heroes.map((h) => ({ ...h, equipo: ["ballesta" as const] })) };
-    e = conMovimiento(e, 6);
-    expect(rechaza(e, { tipo: "atacar", objetivo: "pegado" })).toMatch(/bocajarro|adyacente/i);
+    e = { ...e, heroes: e.heroes.map((h) => ({ ...h, equipo })) };
+    return conMovimiento(e, 6);
+  };
+
+  it("la ballesta dispara a distancia con línea de visión", () => {
+    const e = conBallesta(["ballesta"]);
     const r = aplicarAccion(e, { tipo: "atacar", objetivo: "lejos", dadosAtaque: [CAL, CAL, CAL], dadosDefensa: [] });
     expect(r.ok).toBe(true);
+    expect(dadosDeAtaque(e.heroes[0]!, "distancia")).toBe(3);
+  });
+
+  it("y quien la lleva sigue pudiendo apuñalar a quien tiene encima", () => {
+    // El fallo era este: llevar ballesta anulaba el cuerpo a cuerpo. Con daga
+    // en la otra mano se apuñala con la daga, no con la ballesta.
+    const e = conBallesta(["ballesta", "daga"]);
+    expect(dadosDeAtaque(e.heroes[0]!, "cuerpo")).toBe(1);
+    expect(dadosDeAtaque(e.heroes[0]!, "distancia")).toBe(3);
+    const r = aplicarAccion(e, { tipo: "atacar", objetivo: "pegado", dadosAtaque: [CAL], dadosDefensa: [] });
+    expect(r.ok).toBe(true);
+  });
+
+  it("sin arma cuerpo a cuerpo se pelea igual, con un dado", () => {
+    const e = conBallesta(["ballesta"]);
+    expect(dadosDeAtaque(e.heroes[0]!, "cuerpo")).toBe(1);
+    const r = aplicarAccion(e, { tipo: "atacar", objetivo: "pegado", dadosAtaque: [CAL], dadosDefensa: [] });
+    expect(r.ok).toBe(true);
+  });
+
+  it("la espada no alcanza a quien está lejos", () => {
+    const e = conBallesta(["espadaAncha"]);
+    expect(rechaza(e, { tipo: "atacar", objetivo: "lejos" })).toMatch(/adyacente/i);
   });
 });
 

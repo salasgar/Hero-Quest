@@ -37,8 +37,14 @@ export type IdFigura = string;
 export interface EfectoActivo {
   clase: string;
   dados?: number;
-  /** "turno" dura hasta el final del turno; "mision" hasta acabar la misión. */
-  duracion: "turno" | "mision" | "siguienteAtaque";
+  /**
+   * "turno" dura hasta el final del turno en curso; "mision" hasta acabar la
+   * misión; "siguienteAtaque" se gasta al atacar; "hastaSuTurno" aguanta la
+   * ronda entera de Zargon y caduca cuando a quien lo lleva le vuelve a tocar,
+   * que es lo que hace falta para un escudo que protege «hasta tu siguiente
+   * turno».
+   */
+  duracion: "turno" | "mision" | "siguienteAtaque" | "hastaSuTurno";
 }
 
 export interface Heroe {
@@ -240,6 +246,14 @@ export type Evento =
   | { tipo: "monstruoErrante"; monstruo: IdFigura; celda: Celda }
   | { tipo: "hechizoLanzado"; actor: IdFigura; hechizo: IdHechizo; objetivo: IdFigura | null }
   | { tipo: "curacion"; figura: IdFigura; puntos: number }
+  | {
+      tipo: "danoDeHechizo";
+      hechizo: IdHechizo;
+      objetivo: IdFigura;
+      dados: CaraCombate[];
+      dano: number;
+    }
+  | { tipo: "movimientoReabierto"; figura: IdFigura; casillas: number }
   | { tipo: "cambioDeTurno"; actor: Actor }
   | { tipo: "finDePartida"; victoria: boolean; motivo: string };
 

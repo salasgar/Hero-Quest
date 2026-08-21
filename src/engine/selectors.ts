@@ -7,10 +7,9 @@
  */
 
 import { salaEn } from "../data/board-base";
-import { EQUIPO } from "../data/equipment";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
-import { adyacentes, alcanzables, figuraPorId } from "./board";
-import { dadosDeAtaque, dadosDeDefensa } from "./combat";
+import { alcanzables, figuraPorId } from "./board";
+import { dadosDeAtaque, dadosDeDefensa, modoDeAtaqueContra } from "./combat";
 import { actorActual, esTurnoDeZargon, figuraActiva } from "./reducer";
 import { puedeVer } from "./vision";
 import {
@@ -28,6 +27,10 @@ export { actorActual, esTurnoDeZargon, figuraActiva };
 
 const vivos = <T extends { cuerpo: number }>(xs: readonly T[]): T[] => xs.filter((f) => f.cuerpo > 0);
 
+/** Envuelto en niebla: no se le puede tocar hasta que le vuelva a tocar turno. */
+export const esIntocable = (f: Figura): boolean =>
+  f.efectos.some((x) => x.clase === "intangible");
+
 /** Casillas a las que la figura activa puede ir ahora mismo. */
 export function casillasDeMovimiento(e: EstadoPartida): Celda[] {
   const f = figuraActiva(e);
@@ -42,17 +45,19 @@ export function objetivosDeAtaque(e: EstadoPartida): Figura[] {
   const f = figuraActiva(e);
   if (!f || e.turno.haActuado) return [];
 
+  // Los pegados y los que están a tiro, juntos: llevar ballesta no impide
+  // apuñalar a quien tienes encima, ni llevar espada impide disparar si además
+  // llevas ballesta. El modo lo decide después la casilla del objetivo.
   const enemigos = esHeroe(f) ? vivos(e.monstruos) : vivos(e.heroes);
-  const armaADistancia = esHeroe(f)
-    ? f.equipo.map((id) => EQUIPO[id]).find((x) => x.ranura === "arma" && x.aDistancia)
-    : undefined;
+  return enemigos.filter((x) => modoDeAtaqueContra(e, f, x) !== null && !esIntocable(x));
+}
 
-  if (armaADistancia) {
-    const pegados = new Set(adyacentes(e, f).map((a) => a.id));
-    return enemigos.filter((x) => !pegados.has(x.id) && puedeVer(e, f.celda, x.celda));
-  }
-  const pegados = adyacentes(e, f);
-  return enemigos.filter((x) => pegados.some((p) => p.id === x.id));
+/** Con cuántos dados atacaría la figura activa a este objetivo. */
+export function dadosDeAtaqueContra(e: EstadoPartida, objetivo: Figura): number {
+  const f = figuraActiva(e);
+  if (!f) return 0;
+  const modo = modoDeAtaqueContra(e, f, objetivo);
+  return dadosDeAtaque(f, modo ?? "cuerpo");
 }
 
 /** Puertas que la figura activa puede abrir sin moverse. */

@@ -19,10 +19,14 @@ import { HECHIZOS } from "../data/spells";
 import { BARAJA_TESOROS, MAZO_COMPLETO } from "../data/treasure";
 import { MONSTRUOS } from "../data/monsters";
 import { HEROES } from "../data/heroes";
-import { EQUIPO } from "../data/equipment";
-import { adyacentes, celdaLibre, figuraPorId, pasoAbierto, rutaHasta, vuela } from "./board";
+import { celdaLibre, figuraPorId, pasoAbierto, rutaHasta, vuela } from "./board";
 import { vecinas as vecinasDelTablero } from "../data/board-base";
-import { resolverAtaque, resolverDanoDirecto } from "./combat";
+import {
+  armaADistanciaDe,
+  modoDeAtaqueContra,
+  resolverAtaque,
+  resolverDanoDirecto,
+} from "./combat";
 import { tirarMovimiento as tirarDadosMovimiento } from "./dice";
 import { elegir } from "./rng";
 import { puedeVer, salasDeLaPuerta } from "./vision";
@@ -226,11 +230,25 @@ function tirarMovimientoAccion(e: EstadoPartida, dados?: [number, number]): Resu
     tirada = t;
     rng = r;
   }
-  const total = tirada[0] + tirada[1];
-  const turno = { ...e.turno, movimientoTotal: total, movimientoRestante: total };
-  return terminar({ ...e, rng, turno }, [
+  const base = tirada[0] + tirada[1];
+
+  // El viento veloz que le echaron encima en un turno anterior se gasta ahora:
+  // dobla la tirada y desaparece.
+  const activa = figuraActiva(e);
+  const conViento = !!activa && activa.efectos.some((x) => x.clase === "movimientoExtra");
+  const total = conViento ? base * 2 : base;
+
+  let estado: EstadoPartida = { ...e, rng };
+  if (conViento && activa) estado = conFigura(estado, gastarMovimientoExtra(activa));
+
+  const turno = { ...estado.turno, movimientoTotal: total, movimientoRestante: total };
+  const eventos: Evento[] = [
     { tipo: "tiradaMovimiento", actor: actorActual(e), dados: tirada, total },
-  ]);
+  ];
+  if (conViento && activa) {
+    eventos.push({ tipo: "movimientoReabierto", figura: activa.id, casillas: base });
+  }
+  return terminar({ ...estado, turno }, eventos);
 }
 
 function activarMonstruo(e: EstadoPartida, id: IdFigura): Resultado {
@@ -310,6 +328,18 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
     ruta: recorrido,
   });
 
+  // Normalmente una sala se revela al abrir su puerta, pero atravesando la roca
+  // se puede entrar sin puerta ninguna. Si un héroe acaba dentro de una sala a
+  // oscuras, la sala se enciende: nadie se queda de pie en un sitio que la
+  // partida sigue considerando desconocido.
+  const donde = figuraPorId(estado, f.id)!.celda;
+  const salaFinal = salaEn(donde.x, donde.y);
+  if (esHeroe(f) && salaFinal !== null && !estado.salasReveladas.includes(salaFinal)) {
+    const [tras, ev] = revelarSala(estado, salaFinal);
+    estado = tras;
+    eventos.push(...ev);
+  }
+
   estado = {
     ...estado,
     turno: {
@@ -369,19 +399,19 @@ function atacar(
   if (objetivo.cuerpo <= 0) return fallo("Ese objetivo ya está derrotado.");
   if (objetivo.tipo === atacante.tipo) return fallo("No se ataca a los de tu propio bando.");
 
-  const arma = esHeroe(atacante)
-    ? atacante.equipo.map((id) => EQUIPO[id]).find((x) => x.ranura === "arma" && x.aDistancia)
-    : undefined;
+  if (objetivo.efectos.some((x) => x.clase === "intangible"))
+    return fallo("Está envuelto en niebla: no hay nada que golpear.");
 
-  if (arma?.aDistancia) {
-    if (!puedeVer(e, atacante.celda, objetivo.celda)) return fallo("No tienes línea de visión.");
-    if (adyacentes(e, atacante).some((a) => a.id === idObjetivo))
-      return fallo("La ballesta no puede disparar a un enemigo adyacente.");
-  } else if (!adyacentes(e, atacante).some((a) => a.id === idObjetivo)) {
-    return fallo("Tienes que estar adyacente para atacar cuerpo a cuerpo.");
+  // Pegado se pelea cuerpo a cuerpo y de lejos se dispara. Llevar ballesta no
+  // impide apuñalar a quien tienes encima: cambia el arma, no la posibilidad.
+  const modo = modoDeAtaqueContra(e, atacante, objetivo);
+  if (modo === null) {
+    return armaADistanciaDe(atacante)
+      ? fallo("Ni lo tienes al lado ni lo ves para dispararle.")
+      : fallo("Tienes que estar adyacente para atacar cuerpo a cuerpo.");
   }
 
-  const [res, rng] = resolverAtaque(e.rng, atacante, objetivo, dadosAtaque, dadosDefensa);
+  const [res, rng] = resolverAtaque(e.rng, atacante, objetivo, dadosAtaque, dadosDefensa, modo);
   let estado: EstadoPartida = { ...e, rng };
   const eventos: Evento[] = [
     {
@@ -663,15 +693,81 @@ function lanzarHechizo(
       };
       break;
     }
-    default:
-      // Genio, atravesar la roca, velo de niebla y viento veloz llegan con la
-      // interfaz de la Fase 3, que es donde tienen sentido sus efectos.
+    case "invocar": {
+      // El genio no se queda de acompañante: cae sobre el enemigo señalado y
+      // se deshace. Una figura aliada permanente cambiaría el turno, el bando y
+      // la IA entera, y eso es otra cosa, no un hechizo.
+      const [res, rng] = resolverDanoDirecto(estado.rng, efecto.dados, dados);
+      estado = { ...estado, rng };
+      eventos.push({
+        tipo: "danoDeHechizo",
+        hechizo: idHechizo,
+        objetivo: objetivo.id,
+        dados: res.dados,
+        dano: res.dano,
+      });
+      const [tras, ev] = aplicarDano(estado, figuraPorId(estado, objetivo.id)!, res.dano);
+      estado = tras;
+      eventos.push(...ev);
       break;
+    }
+    case "intangible":
+    case "atravesarMuros": {
+      // Los dos son escudos de duración distinta sobre quien los lanza:
+      // la niebla aguanta la ronda de Zargon, atravesar la roca solo lo que
+      // queda de este turno.
+      const o = figuraPorId(estado, objetivo.id)!;
+      estado = conFigura(estado, {
+        ...o,
+        efectos: [
+          ...o.efectos,
+          {
+            clase: efecto.clase,
+            duracion: efecto.clase === "intangible" ? "hastaSuTurno" : "turno",
+          },
+        ],
+      } as Figura);
+      break;
+    }
+    case "movimientoExtra": {
+      const o = figuraPorId(estado, objetivo.id)!;
+      estado = conFigura(estado, {
+        ...o,
+        efectos: [...o.efectos, { clase: "movimientoExtra", duracion: "mision" }],
+      } as Figura);
+      break;
+    }
   }
 
   estado = { ...estado, turno: cerrarAccion(estado.turno) };
+
+  // El viento veloz sobre quien está jugando su turno se gasta aquí mismo: se
+  // le devuelve otra tanda de movimiento y se reabre lo que `cerrarAccion`
+  // acaba de cerrar. Sobre otro héroe se queda esperando a su tirada.
+  if (efecto.clase === "movimientoExtra" && objetivo.id === figuraActiva(estado)?.id) {
+    const extra = estado.turno.movimientoTotal;
+    if (extra !== null) {
+      estado = {
+        ...estado,
+        turno: {
+          ...estado.turno,
+          movimientoRestante: estado.turno.movimientoRestante + extra,
+          movimientoCerrado: false,
+        },
+      };
+      estado = conFigura(estado, gastarMovimientoExtra(figuraPorId(estado, objetivo.id)!));
+      eventos.push({ tipo: "movimientoReabierto", figura: objetivo.id, casillas: extra });
+    }
+  }
+
   return terminar(estado, eventos);
 }
+
+/** Quita la carga de viento veloz de una figura, que se gasta una sola vez. */
+const gastarMovimientoExtra = (f: Figura): Figura => ({
+  ...f,
+  efectos: f.efectos.filter((x) => x.clase !== "movimientoExtra"),
+}) as Figura;
 
 // ------------------------------------------------------------ fin de turno
 
@@ -711,10 +807,15 @@ function avanzarActor(e: EstadoPartida): EstadoPartida {
     ? e.monstruos.map((m) => ({ ...m, pierdeTurno: false }))
     : e.monstruos;
 
-  // Los efectos de duración "turno" caducan al pasar el turno.
+  // Los efectos de duración "turno" caducan al pasar el turno, y los de
+  // "hastaSuTurno" solo cuando a quien los lleva le vuelve a tocar: por eso
+  // aguantan la ronda entera de Zargon, que es de lo que protegen.
+  const entrante = e.turno.orden[indice];
   const heroes = e.heroes.map((h) => ({
     ...h,
-    efectos: h.efectos.filter((x) => x.duracion !== "turno"),
+    efectos: h.efectos.filter(
+      (x) => x.duracion !== "turno" && !(x.duracion === "hastaSuTurno" && h.id === entrante),
+    ),
   }));
 
   return {

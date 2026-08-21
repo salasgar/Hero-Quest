@@ -66,6 +66,10 @@ export const celdaCegada = (estado: EstadoPartida, c: Celda): boolean =>
 /** ¿Esta figura vuela? Hoy solo el hada. */
 export const vuela = (f: Figura): boolean => f.tipo === "heroe" && HEROES[f.clase].vuela;
 
+/** ¿Lleva encima «atravesar la roca»? Entonces los muros no la paran. */
+export const atraviesaMuros = (f: Figura): boolean =>
+  f.efectos.some((x) => x.clase === "atravesarMuros");
+
 /**
  * ¿Puede esta figura atravesar la casilla sin pararse en ella?
  *
@@ -104,6 +108,11 @@ export function alcanzables(
   if (puntos <= 0) return salida;
 
   const origen = figura.celda;
+  // Atravesar la roca solo levanta los muros; todo lo demás (figuras, muebles,
+  // bloques caídos, el borde del tablero) sigue en pie.
+  const cruza = atraviesaMuros(figura)
+    ? (_e: EstadoPartida, _a: Celda, b: Celda) => dentroDelTablero(b.x, b.y)
+    : pasoAbierto;
   const vistas = new Set<string>([claveCelda(origen)]);
   let frontera: Array<{ celda: Celda; ruta: Celda[] }> = [{ celda: origen, ruta: [] }];
 
@@ -113,7 +122,7 @@ export function alcanzables(
       for (const vecina of vecinasDelTablero(celda)) {
         const k = claveCelda(vecina);
         if (vistas.has(k)) continue;
-        if (!pasoAbierto(estado, celda, vecina)) continue;
+        if (!cruza(estado, celda, vecina)) continue;
         if (!celdaAtravesable(estado, vecina, figura)) continue;
         vistas.add(k);
         const nuevaRuta = [...ruta, vecina];
