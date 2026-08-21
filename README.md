@@ -24,12 +24,16 @@ al lado del tablero, y mantiene un espejo digital de la partida:
 | F0 | Andamiaje (Vite + React + TS + Vitest) | hecho |
 | F1 | Geometría del tablero y catálogos | hecho |
 | F2 | Motor de reglas | hecho |
-| F3 | Pantalla de máster · **primer hito jugable** | hecho · 138 tests |
-| F4 | IA de monstruos (Zargon automático) | siguiente |
+| F3 | Pantalla de máster · **primer hito jugable** | hecho |
+| — | Material imprimible: cartas, mobiliario y tablero | hecho |
+| F4 | IA de monstruos (Zargon automático) | **siguiente** |
 | F5 | Narrador: voz, banco local y API de Claude | |
 | F6 | Editor de misiones | |
 | F7 | Generador de mazmorras | |
 | F8 | Campaña y progresión | |
+
+174 tests en 12 ficheros. `src/ai/`, `server/` y el resto de `src/narrator/` **todavía no
+existen**: aparecen más abajo como el sitio donde irán, no como código escrito.
 
 ## Arranque
 
@@ -38,12 +42,19 @@ npm install
 npm run dev        # http://localhost:5173
 npm test           # tests del motor y de los datos
 npm run typecheck
+
+npm run cartas     # imprimibles/cartas.pdf  — 57 cartas en 7 hojas
+npm run tablero    # imprimibles/tablero.pdf — 4 folios A4 en 2 x 2
 ```
+
+Los dos últimos necesitan Google Chrome instalado en `/Applications`: generan el HTML y
+lo imprimen a PDF con Chrome sin ventana.
 
 Hay dos pantallas:
 
-- **Partida**: la mesa de juego. Ya se puede jugar «El calabozo del guardián» de principio
-  a fin, con las reglas completas.
+- **Partida**: primero se elige el grupo (clase, género, nombre y elementos de hechizos) y
+  después se juega. Ya se puede jugar «El calabozo del guardián» de principio a fin, con
+  las reglas completas.
 - **Verificar tablero**: compara el tablero digital con el físico, permite corregir
   casillas a mano y genera el mapa listo para pegar en `src/data/board-base.ts`.
 
@@ -98,15 +109,56 @@ de un vistazo si la niebla, los resaltados y las puertas se pintan donde toca.
 ## Cómo está montado
 
 - `src/engine/` — motor de reglas, TypeScript puro, sin React y testeable.
-- `src/data/` — geometría del tablero y catálogos (monstruos, hechizos, equipo).
-- `src/ai/` — la táctica de los monstruos: determinista, instantánea y siempre legal.
-- `src/narrator/` — narración: banco de frases local, voz del navegador y API de Claude.
-- `src/ui/` — la pantalla del máster.
-- `server/` — proxy de la API de Claude (la clave nunca llega al navegador).
+- `src/data/` — geometría del tablero, catálogos y medidas de lo imprimible.
+- `src/ui/` — la pantalla del máster y la elección de héroes.
+- `src/narrator/` — de momento solo `local.ts`, el banco de frases en español.
+- `scripts/` — generadores de las cartas y del tablero, y el volcado del tablero a SVG.
+- `src/ai/` *(por escribir, F4)* — la táctica de los monstruos: determinista y siempre legal.
+- `server/` *(vacío, F5)* — irá el proxy de la API de Claude, para que la clave no llegue
+  nunca al navegador. `npm run server` todavía no funciona: no hay código ni `tsx`.
 
 **Claude no mueve monstruos.** La mecánica y la táctica las decide el motor determinista;
 Claude es director de escena: narra y da sesgos de personalidad. Si se cae la red, la
 partida sigue con el narrador local.
+
+## Los héroes
+
+Los cuatro de la caja más el hada. **Cada clase se juega en masculino o en femenino**
+—Bárbaro/Bárbara, Enano/Enana, Elfo/Elfa, Mago/Hechicera— y eso no cambia ninguna regla:
+solo el nombre. Por eso los textos de `especial` de cada clase están escritos sin género,
+para que una sola redacción valga para las dos cartas.
+
+| Clase | Cuerpo | Mente | Empieza con | Lo suyo |
+|---|---|---|---|---|
+| Bárbaro / Bárbara | 8 | 2 | Espada ancha | El cuerpo a cuerpo |
+| Enano / Enana | 7 | 3 | Espada corta, herramientas | Desarma trampas sin riesgo |
+| Elfo / Elfa | 6 | 4 | Espada corta | Espada y un elemento de hechizos |
+| Mago / Hechicera | 4 | 6 | Daga | Tres elementos: nueve hechizos |
+| Hada | 3 | 7 | Daga | **Vuela**, y dos elementos |
+
+El hada no viene en la caja. Vuela: cruza por encima de los muebles y de las otras figuras
+—sin poder aterrizar sobre ellos— y los fosos no la tragan. Los muros, las puertas
+cerradas y los bloques desprendidos la paran igual que a los demás.
+
+## El material de la mesa
+
+No hay caja original: todo sale del repositorio, de los mismos datos que usa la
+aplicación, para que el papel y la pantalla no puedan decir cosas distintas.
+
+- `npm run cartas` → **57 cartas** en 7 hojas A4 (9 de héroe, 12 de hechizo, 12 de equipo,
+  24 de tesoro), más reversos, la tabla de monstruos y la lista de mobiliario.
+- `npm run tablero` → el tablero en **cuatro folios A4 apaisados** que se recortan por los
+  bordes interiores y se pegan en un rectángulo de 2 × 2.
+
+El lado de la casilla impresa son **19 mm**, y no es una elección estética: las 19 filas
+del tablero son impares, la mitad de arriba lleva 10, y diez casillas más el recorte más
+el margen que ninguna impresora doméstica alcanza no caben en los 210 mm de un A4
+apaisado con más. Como el mobiliario se corta en casillas, `furniture.ts` importa esa
+medida de `board-print.ts` en lugar de llevar la suya.
+
+Hay que construir además **14 piezas de mobiliario, 25 puertas y 4 marcadores** de puerta
+secreta. Solo las piezas altas —estantería, armario y bastidor— tapan la línea de visión,
+y esa distinción decide qué hechizos y qué disparos llegan al objetivo.
 
 ## El tablero
 
