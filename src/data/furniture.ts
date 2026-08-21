@@ -3,14 +3,16 @@
  *
  * Las medidas van en CASILLAS, que es lo único que no admite discusión: la
  * aplicación razona en casillas y el cartón tiene que encajar en el tablero.
- * En el tablero de 2021 cada casilla mide unos 2,55 cm, pero mide la tuya antes
- * de cortar nada.
+ * El centímetro exacto sale del tablero que imprimimos nosotros
+ * (`board-print.ts`), no de ninguna edición comercial: si algún día cambia el
+ * tamaño del papel, el mobiliario se entera solo.
  *
  * La distinción entre `bloqueaPaso` y `bloqueaVista` no es un capricho: sobre
  * una mesa no te pones, pero ves y disparas por encima; una estantería tapa.
  * Eso decide qué hechizos y qué tiros de ballesta llegan al objetivo.
  */
 
+import { LADO_CASILLA_MM } from "./board-print";
 import type { TipoMueble } from "../engine/types";
 
 export interface PlantillaMueble {
@@ -41,8 +43,8 @@ export const MOBILIARIO: readonly PlantillaMueble[] = [
 
 export const TOTAL_PIEZAS = MOBILIARIO.reduce((s, m) => s + m.cuantas, 0);
 
-/** Lado de la casilla en el tablero de la edición 2021, en centímetros. */
-export const LADO_CASILLA_CM = 2.55;
+/** Lado de la casilla del tablero imprimible, en centímetros. */
+export const LADO_CASILLA_CM = LADO_CASILLA_MM / 10;
 
 /**
  * Cuántas puertas construir.

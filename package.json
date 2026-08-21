@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "cartas": "vite-node scripts/generar-cartas.ts imprimibles/cartas.html && npm run cartas:pdf",
-    "cartas:pdf": "'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=imprimibles/cartas.pdf imprimibles/cartas.html"
+    "cartas:pdf": "'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=imprimibles/cartas.pdf imprimibles/cartas.html",
+    "tablero": "vite-node scripts/generar-tablero.ts imprimibles/tablero.html && npm run tablero:pdf",
+    "tablero:pdf": "'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=imprimibles/tablero.pdf imprimibles/tablero.html"
   },
   "dependencies": {
     "react": "^19.2.0"

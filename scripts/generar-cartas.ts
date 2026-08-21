@@ -162,8 +162,9 @@ const tablaMonstruos = `
      en 2 de cada 6. Una momia con 4 dados de defensa para lo mismo que un héroe con 2.</p>
 
   <h2>Mobiliario que hay que construir</h2>
-  <p class="intro">Medidas en casillas del tablero. En el tablero de 2021 cada casilla
-     mide unos ${LADO_CASILLA_CM} cm, pero mide la tuya antes de cortar.
+  <p class="intro">Medidas en casillas del tablero. En el tablero que imprime
+     <code>npm run tablero</code> cada casilla mide <strong>${String(LADO_CASILLA_CM).replace(".", ",")} cm</strong>,
+     así que una pieza de 2 x 1 casillas mide ${String(LADO_CASILLA_CM * 2).replace(".", ",")} x ${String(LADO_CASILLA_CM).replace(".", ",")} cm.
      En total, <strong>${TOTAL_PIEZAS} piezas</strong>.</p>
   <table class="referencia">
     <tr><th>Pieza</th><th>Cuántas</th><th>Tamaño</th><th>¿Tapa la vista?</th></tr>
