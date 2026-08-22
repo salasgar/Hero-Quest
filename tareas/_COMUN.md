@@ -34,6 +34,14 @@ npm run typecheck
   ```
 - **`tsc -b` se cuelga** en este repo, porque no hay `composite: true`. Usa
   `tsc -p tsconfig.json --noEmit`, que es lo que hace `npm run typecheck`.
+- **Varias sesiones comparten este mismo directorio de trabajo.** No hay un worktree por
+  sesión: el árbol es uno solo. Consecuencia práctica y ya ocurrida: `git add _ESTADO.md`
+  se lleva por delante el claim que otra sesión acaba de escribir y todavía no ha
+  commiteado, y esa sesión se encuentra el `git status` limpio sin haber hecho commit.
+  **Antes de cada `git commit`, mira `git diff` del fichero y comprueba que todo lo que
+  hay dentro es tuyo.** Si te llevas una línea ajena, no la deshagas -el claim es válido y
+  perderlo es peor-: dilo en el mensaje de commit y avisa a esa sesión.
+
 - **El reglamento oficial de 2021** (Avalon Hill F3649) se descarga de
   `https://instructions.hasbro.com/api/download/F3649_en-us_heroquest-game-instructions-rulebook.pdf`.
   Son **32 páginas escaneadas sin capa de texto**: `pdftotext` devuelve vacío. Hay que
