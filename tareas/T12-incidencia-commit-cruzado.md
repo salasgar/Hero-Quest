@@ -1,5 +1,9 @@
 # T12 · Incidencia: un commit se llevó trabajo ajeno, y el tablón se quedó a medias
 
+> **CERRADA (`8b0b7dc`). No la vuelvas a ejecutar.** Y su paso 2 estaba mal: daba por
+> muertas tres sesiones que seguían vivas, y liberó T2, T4 y T7 mientras se trabajaba en
+> ellas. Restaurado; el detalle está en las incidencias de `_ESTADO.md`.
+
 **Precondición:** ninguna. **Ficheros que toca:** `_ESTADO.md`, `src/engine/reducer.ts`.
 **Urgente:** hazla antes de coger cualquier otra, porque el tablón está desactualizado y
 hay trabajo sin commitear que se pierde si alguien limpia el árbol.

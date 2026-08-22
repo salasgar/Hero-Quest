@@ -71,12 +71,12 @@ coger en cualquier orden desde hoy.
 | # | Tarea | Precondición | Ficheros que toca | Estado |
 |---|---|---|---|---|
 | T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | **hecha** · `a24b396` · 2026-08-22 |
-| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | **pendiente** · `board.ts` está en `main` desde `d3dced0` y el retroceso del `reducer.ts` desde `8b0b7dc`; faltan sus tests y la entrada de la misión |
+| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | **en curso** · sesión `47e1fced` · `board.ts` está en `main` desde `d3dced0` y el retroceso del `reducer.ts` desde `8b0b7dc`; le faltan sus tests y la entrada de la misión |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | pendiente |
-| T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **pendiente** · la regla está en `main` desde `8b0b7dc`, faltan sus tests |
+| T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **en curso** · sesión `64d69b4d` · la regla está en `main` desde `8b0b7dc`, le faltan sus tests |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
-| T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **pendiente** · la sesión `5ea252fd` lo reclamó y no llegó a commitear nada |
+| T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **en curso** · sesión `5ea252fd` · reclamada y sin commitear nada todavía |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
 | T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 (falta T2–T7) | `src/ai/` | bloqueada |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
@@ -122,6 +122,18 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 ---
 
 ## Incidencias abiertas
+
+- **T12 liberó por error tres tareas vivas, y quedan restauradas.** Su paso 2 daba por
+  muerto lo que solo estaba en marcha: mandaba devolver T2, T4 y T7 a «pendiente» porque
+  «sus sesiones ya no existen». Existían. Lo avisó la sesión `610b4941` y se ha
+  comprobado: `hero-quest-b0`, `hero-quest-b1` y `hero-quest-ae` seguían vivas. Las tres
+  filas vuelven a «en curso» con la nota de qué parte suya ya está en `main`, para que sus
+  propias sesiones no repitan ese trabajo.
+
+  **La lección, que vale para todo fichero de tarea:** no escribas como un hecho algo que
+  caduca. «Estas sesiones ya no existen» era verdad al escribirlo y mentira al ejecutarlo.
+  Se escribe la comprobación, no la conclusión: «mira si siguen vivas y, si lo están,
+  déjalas en curso».
 
 - **El mensaje de `d3dced0` no corresponde con su contenido.** Su texto describe unos
   cambios del tablón que, por un fallo del script que los aplicaba, nunca llegaron a
