@@ -36,7 +36,7 @@ coger en cualquier orden desde hoy.
 | # | Tarea | Precondición | Fichero que bloquea | Estado |
 |---|---|---|---|---|
 | T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | pendiente · **hay una rama con un intento, léela** |
-| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) | — | `board.ts` | pendiente |
+| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/` | pendiente |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts` | pendiente |
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | `reducer.ts` | pendiente |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `reducer.ts` | pendiente |
@@ -95,13 +95,14 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   nueve folios.
 - **2026-08-22 — Los valores de cartas se cotejan contra el reglamento oficial de 2021**
   (Avalon Hill F3649), no contra la memoria ni contra una caja física, que no existe.
+- **2026-08-22 — La entrada de «El calabozo del guardián» vuelve a un pasillo de una
+  casilla de ancho.** Está en uno de dos (columnas 12-13) solo porque con la regla vieja
+  los cuatro héroes se taponaban; era un parche, no diseño. **Se hace dentro de T2 y en el
+  mismo commit que la regla**, nunca antes: con la regla vieja en pie, el atasco vuelve.
 
 ### Pendientes de su palabra
 
-- **La entrada de la misión «El calabozo del guardián».** Está en un pasillo de dos
-  casillas de ancho (columnas 12-13) porque los cuatro héroes se hacían tapón unos a
-  otros. Cuando T2 esté hecha ese problema desaparece y la entrada podría volver a un
-  pasillo normal. **Cambiar la misión es decisión suya**: T2 solo tiene que decírselo.
+*(nada)*
 
 ---
 

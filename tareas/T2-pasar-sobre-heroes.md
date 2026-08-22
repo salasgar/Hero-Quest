@@ -52,15 +52,64 @@ Hoy retrocede sin comprobar nada. **Compruébalo y decide qué pasa**, porque do
 la misma casilla rompen una invariante del test de juego al azar. Escribe en el commit qué
 decidiste y por qué.
 
-## El efecto secundario que hay que MIRAR pero NO arreglar
+## Segunda parte: devolver la entrada de la misión a un pasillo de una casilla
 
-La misión «El calabozo del guardián» (`src/data/quests/calabozo.ts`) entra por un pasillo
-de **dos** casillas de ancho (columnas 12-13) precisamente porque los cuatro héroes se
-taponaban unos a otros. Con esta regla, ese problema desaparece.
+**Autorizado por Juan Luis el 22 de agosto de 2026.** Está en `_ESTADO.md`.
 
-**No cambies la misión.** Mira si los tests que justifican esa entrada siguen teniendo
-sentido y dilo en el registro de `_ESTADO.md`. La decisión es de Juan Luis, y está
-apuntada como pendiente de su palabra.
+La misión «El calabozo del guardián» (`src/data/quests/calabozo.ts`) entra hoy por un
+pasillo de **dos** casillas de ancho, columnas 12-13:
+
+```ts
+entrada: [c(12, 17), c(13, 17), c(12, 18), c(13, 18)],
+```
+
+Eso no fue una decisión de diseño: fue un parche. Con la regla vieja, cuatro héroes en
+fila india se taponaban y el primero no podía salir. En cuanto tengas hecha la primera
+parte de esta tarea, el parche sobra.
+
+**Hazlo en el mismo commit que la regla**, no antes: si cambias la entrada con la regla
+vieja todavía en pie, reproduces el atasco.
+
+### Qué entrada poner
+
+Recomendación: el pasillo de abajo, en fila hacia el oeste.
+
+```ts
+entrada: [c(12, 18), c(11, 18), c(10, 18), c(9, 18)],
+```
+
+La fila 18 es pasillo de punta a punta y tiene una sola casilla de alto: sala por encima,
+borde del tablero por debajo. El primer héroe de la lista es el que va en cabeza.
+
+**No pongas la fila recta por la columna 12** (filas 15 a 18), que es la otra opción
+evidente: la casilla **(12,15) es el vano de la puerta `ps`**, y dejarías a un héroe
+empezando dentro de la puerta que el grupo tiene que abrir. Compruébalo tú mismo en
+`PUERTAS_CALABOZO` antes de decidir otra cosa.
+
+Sea cual sea tu elección, las cuatro casillas tienen que ser pasillo, contiguas y estar
+libres de puertas, muebles y trampas. Hay invariantes en `tests/quest.test.ts` que lo
+comprueban: déjalas pasar sin tocarlas.
+
+### Los tests que hablan de la entrada, uno por uno
+
+Todos en `tests/integracion.test.ts`. No los busques a ciegas:
+
+- **«los cuatro héroes entran en un pasillo de dos de ancho y no se hacen tapón»**
+  (~línea 60). Su premisa se invierte entera. Ya no hay que demostrar que la entrada es
+  ancha, sino que **en fila india el de detrás puede pasar por encima del de delante**.
+  Reescríbelo con ese sentido y cambia también el comentario, que explica el motivo viejo.
+- **`expect(e.heroes[0]!.celda).toEqual({ x: 12, y: 17 })`** (~línea 69). La casilla de
+  salida cambia.
+- **El movimiento hasta `{ x: 12, y: 15 }`** y su `expect(...movimientoRestante).toBe(4)`
+  (~líneas 72-73). Desde la entrada nueva la distancia es otra: **recalcula el número, no
+  lo ajustes hasta que pase.** Si no te sale a mano, tienes mal el camino.
+- **El test del foso** (~línea 101), que mueve hacia `{ x: 12, y: 13 }` y comprueba que el
+  héroe se queda en el foso de `(12, 14)`. La distancia cambia; el desenlace no.
+
+### Qué NO cambia
+
+El foso de `(12, 14)`, la puerta `ps` y los goblins siguen donde están. Esto es un cambio
+de dónde empiezan los héroes, no un rediseño de la misión.
 
 ## Tests que hay que añadir
 
@@ -71,10 +120,14 @@ apuntada como pendiente de su palabra.
 
 ## Prohibido
 
-- Cambiar la entrada de la misión.
+- Mover monstruos, trampas, puertas o mobiliario de la misión. Solo cambia `entrada`.
+- Cambiar la entrada **antes** que la regla, o en un commit distinto.
 - Dejar que alguien termine el movimiento encima de otra figura, ni siquiera «por un
   momento».
+- Ajustar un número esperado en un test hasta que pase. Si no sabes por qué sale ese
+  número, no has entendido el cambio.
 
 ## Al terminar
 
-Commit en `main` y push. Línea en el registro de `_ESTADO.md`.
+Commit en `main` y push, con las dos partes juntas. Línea en el registro de `_ESTADO.md`
+diciendo qué entrada elegiste y por qué.
