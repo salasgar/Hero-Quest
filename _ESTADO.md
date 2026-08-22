@@ -5,10 +5,45 @@ contradicen, manda el tablón. Antes de tocar nada, léelo entero: son dos minut
 repetir trabajo que ya está hecho.
 
 Repositorio: <https://github.com/salasgar/Hero-Quest> · rama `main` · último commit
-integrado: `a24b396` · 204 tests en verde.
+integrado: `8b0b7dc` · 204 tests en verde.
 
 Qué es el proyecto y por qué está montado así: `TRASPASO.md`. Qué falta y por qué es
 urgente: aquí.
+
+---
+
+## Si acabas de llegar
+
+Cuatro pasos, en este orden. El tercero es el que evita que dos sesiones hagan lo mismo.
+
+1. **`git pull`.** Varias sesiones empujan a `main`. Si arrancas con una copia vieja,
+   trabajas contra un tablón que ya no es verdad.
+2. **Elige una tarea libre**, respetando el candado de fichero de la tabla de abajo.
+3. **Escribe tu línea en la columna «Estado» y haz `git commit` y `git push` de ese cambio
+   solo**, antes de tocar código. Formato: `en curso · <tu id> · <fecha>`.
+4. **Si el push te lo rechazan, alguien se te adelantó.** Haz `git pull --rebase`, mira si
+   tu tarea sigue libre y, si no, elige otra. No fuerces el push.
+
+Ese cuarto paso es el mecanismo entero: **el candado no es el fichero, es el push**. Dos
+sesiones pueden leer el tablón a la vez, pero solo una consigue empujar su reclamación
+primero. La otra se entera al instante y sin ambigüedad.
+
+**Nunca `git add -A`.** El directorio de trabajo es compartido: añade tus ficheros por
+nombre, uno a uno. Ignorar esto ya costó la incidencia T12.
+
+Cuando termines, escribe tu línea en el registro de finalizaciones y **cierra la sesión**.
+No encadenes otra tarea: una sesión, una tarea.
+
+### El prompt con el que arrancar una sesión
+
+```
+Lee _ESTADO.md y coge la tarea T4. Sigue su fichero en tareas/ y tareas/_COMUN.md.
+Apúntate en el tablón y empuja ese commit antes de tocar código.
+```
+
+**Nombra la tarea en el prompt.** «Mira el tablón y continúa con el trabajo» funciona, pero
+deja que dos sesiones abiertas a la vez elijan la misma antes de que ninguna haya podido
+reclamarla. Decirlo tú cuesta tres palabras y quita la carrera de en medio.
 
 ---
 
@@ -33,28 +68,36 @@ urgente: aquí.
 Ordenadas por dependencia, no por importancia. **T1 a T7 no dependen de nada**: se pueden
 coger en cualquier orden desde hoy.
 
-| # | Tarea | Precondición | Fichero que bloquea | Estado |
+| # | Tarea | Precondición | Ficheros que toca | Estado |
 |---|---|---|---|---|
 | T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | **hecha** · `a24b396` · 2026-08-22 |
-| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/` | **en curso** · sesión `47e1fced` · 2026-08-22 |
-| T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts` **+ `reducer.ts`** | pendiente |
-| T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | `reducer.ts` | **en curso** · sesión `64d69b4d` · 2026-08-22 |
-| T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `reducer.ts` | pendiente |
-| T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `reducer.ts` | pendiente |
-| T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **en curso** · sesión `5ea252fd` · 2026-08-22 |
-| **T12** | [**Incidencia: un commit se llevó trabajo ajeno**](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **pendiente · HAZLA PRIMERA** |
+| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | **pendiente** · `board.ts` está en `main` desde `d3dced0` y el retroceso del `reducer.ts` desde `8b0b7dc`; faltan sus tests y la entrada de la misión |
+| T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | pendiente |
+| T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **pendiente** · la regla está en `main` desde `8b0b7dc`, faltan sus tests |
+| T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
+| T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
+| T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **pendiente** · la sesión `5ea252fd` lo reclamó y no llegó a commitear nada |
+| T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
 | T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 (falta T2–T7) | `src/ai/` | bloqueada |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
 
-### Cómo se leen las dos últimas columnas
+### Cuántas sesiones caben a la vez
 
-**«Fichero que bloquea»** no es una dependencia: es un candado. T4, T5 y T6 reescriben
-las mismas funciones de `reducer.ts`. Se pueden hacer en cualquier orden, pero **no a la
-vez**: antes de coger una, mira si otra con el mismo fichero está «en curso». Si lo está,
-coge otra tarea. Dos sesiones editando `reducer.ts` en paralelo producen un conflicto que
-cuesta más que el código.
+**Hoy, dos.** No es una cifra prudente: es lo que dan los ficheros.
+
+`reducer.ts` lo tocan **cinco de las siete** tareas. Las únicas dos que no lo tocan son
+**T1** y **T7**, y T1 ya está hecha, así que solo queda **una** tarea que no pise el
+fichero grande. De ahí la única combinación que va sobre seguro:
+
+> **T7 + una cualquiera del grupo de `reducer.ts`.**
+
+Cuando T7 esté hecha, la cifra baja a **una**: lo que quede son cinco tareas sobre el
+mismo fichero. Una tercera sesión hoy es posible —las cinco tocan funciones distintas del
+fichero, y `git` las suele fusionar sin quejarse— pero ya es apostar a que el rebase salga
+limpio. Si lo intentas, que sea T4, que es la más pequeña y la que antes suelta el fichero;
+y de T4 ya solo quedan los tests, porque su regla está commiteada.
 
 **«bloqueada»** significa que la precondición no se cumple todavía, no que la tarea sea
 difícil. En cuanto T1–T7 estén en «hecha», T8 se puede coger.
@@ -80,11 +123,19 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 ## Incidencias abiertas
 
-- **`d3dced0` tiene un mensaje que no corresponde con su contenido.** Se coló trabajo
-  ajeno por un `git add -A` en el directorio compartido, y los cambios que el mensaje
-  describe nunca llegaron a escribirse. **Hay trabajo sin commitear en
-  `src/engine/reducer.ts`** que se pierde si alguien limpia el árbol. Todo el detalle y
-  qué hacer, en [T12](tareas/T12-incidencia-commit-cruzado.md). **Antes que nada.**
+- **El mensaje de `d3dced0` no corresponde con su contenido.** Su texto describe unos
+  cambios del tablón que, por un fallo del script que los aplicaba, nunca llegaron a
+  escribirse; y su diff contiene, en cambio, `src/engine/board.ts` (el trabajo a medias de
+  T2, de otra sesión) y una línea de `_ESTADO.md`. Se coló por un `git add -A` en el
+  directorio compartido. **No se arregla**: está empujado y reescribir el histórico
+  necesita autorización de Juan Luis (regla 4). Queda escrito aquí para que quien lo lea en
+  `git log` no se vuelva loco buscando la correspondencia. Los cambios del tablón que ese
+  mensaje prometía **ya están aplicados**, en T12. Detalle completo en
+  [T12](tareas/T12-incidencia-commit-cruzado.md).
+
+- ~~Trabajo sin commitear en `src/engine/reducer.ts`.~~ **Rescatado** en `8b0b7dc`. Era de
+  la sesión `64d69b4d`, que llevaba T4 y fue interrumpida. Está en `main` y **sin tests**:
+  no da por terminadas ni T4 ni T2.
 
 ---
 
@@ -92,6 +143,23 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T12 · sesión `46312c98` · 2026-08-22 · `8b0b7dc`.** La incidencia del commit cruzado.
+  Cuatro cosas que conviene saber:
+  - **El trabajo huérfano de `reducer.ts` está rescatado y es de otro.** Se commiteó tal
+    cual, sin tocar una línea, nombrando en el mensaje a la sesión que lo escribió. Son la
+    regla de T4 (`esHeroe(f)` en la condición de la trampa) y el retroceso de T2 hasta la
+    primera casilla libre. **Las dos sin un solo test.**
+  - **El verde no probaba nada.** Se comprobó revirtiendo: con el código anterior los 204
+    tests pasan igual. Es la prueba que recomendaba T1 y aquí sale negativa, que es
+    justamente el motivo por el que T2 y T4 siguen pendientes en vez de hechas.
+  - **T7 se reclamó y no produjo nada.** `git log` sobre `src/data/` no tiene ningún commit
+    posterior a su claim `6504be8`. Vuelve a pendiente: el claim solo, sin trabajo detrás,
+    no reserva la tarea indefinidamente.
+  - **La columna de ficheros estaba mal medida** y ese era el fallo de fondo: decía que
+    `reducer.ts` lo tocaban tres tareas y son cinco. Quien repartiera sesiones con la tabla
+    vieja abría en paralelo dos que iban al mismo fichero. Ya está corregida y medida con
+    `grep`, no de memoria.
 
 - **T1 · sesión `fae5dfc8` · 2026-08-22 · `a24b396`.** Las figuras cortan la línea de
   visión. Tres cosas que no estaban escritas:
@@ -142,9 +210,9 @@ once tareas de escribir código, y todas necesitan criterio. Además, en este en
 están disponibles las herramientas de programación remota, así que una tarea programada no
 podría arrancar de todos modos.
 
-T1 ya está hecha. Quedan T2, T3 y T7, que no comparten fichero con ninguna otra y se
-pueden hacer las tres a la vez; y T4, T5 y T6, que se reparten `reducer.ts` y por tanto van
-de una en una.
+T1 y T12 están hechas. De las seis que quedan, **cinco tocan `reducer.ts`** (T2, T3, T4,
+T5 y T6) y van de una en una; solo **T7** es independiente. A T2 y a T4 les falta ya solo
+la parte de tests: su código de producción está en `main`, pero sin nada que lo ejerza.
 
 ---
 
