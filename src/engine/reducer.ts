@@ -322,18 +322,29 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
     estado = conFigura(estado, { ...actual, celda: paso } as Figura);
     recorrido.push(paso);
 
-    // Quien vuela no pisa el suelo, así que los fosos no la tragan. Las lanzas
-    // salen de la pared y el bloque cae del techo: esas la alcanzan igual.
+    // Tres excepciones, cada una por su motivo: la trampa descubierta ya se ve y
+    // no sorprende a nadie; las trampas las coloca Zargon, que sabe dónde están,
+    // así que sus monstruos no las disparan (reglamento p. 17: «Monsters do not
+    // spring hidden traps»); y quien vuela no pisa el suelo, así que el foso no la
+    // traga —la lanza sale de la pared y el bloque cae del techo, y esas dos
+    // alcanzan igual a quien vuela—.
     const trampa = trampaEn(estado, paso);
-    const laAfecta = trampa && !trampa.descubierta && !(trampa.tipo === "foso" && vuela(f));
+    const laAfecta =
+      trampa && !trampa.descubierta && esHeroe(f) && !(trampa.tipo === "foso" && vuela(f));
     if (trampa && laAfecta) {
       const [tras, ev, efecto] = dispararTrampa(estado, trampa, figuraPorId(estado, f.id)!);
       estado = tras;
       eventos.push(...ev);
 
       if (efecto.retrocede) {
-        // La casilla acaba de quedar cegada: hay que salir de ella.
+        // La casilla acaba de quedar cegada: hay que salir de ella. Y el camino
+        // de vuelta puede estar ocupado, porque un héroe pasa por encima de sus
+        // compañeros y el hada por encima de cualquiera: se desanda hasta la
+        // primera casilla donde de verdad quepa. La de salida siempre vale, que
+        // es de la figura y nadie ha podido metersele dentro.
         recorrido.pop();
+        while (recorrido.length > 0 && !celdaLibre(estado, recorrido[recorrido.length - 1]!, f.id))
+          recorrido.pop();
         const atras = recorrido[recorrido.length - 1] ?? desde;
         estado = conFigura(estado, { ...figuraPorId(estado, f.id)!, celda: atras } as Figura);
       }
