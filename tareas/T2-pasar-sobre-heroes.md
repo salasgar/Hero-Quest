@@ -90,6 +90,15 @@ Sea cual sea tu elección, las cuatro casillas tienen que ser pasillo, contiguas
 libres de puertas, muebles y trampas. Hay invariantes en `tests/quest.test.ts` que lo
 comprueban: déjalas pasar sin tocarlas.
 
+**Esa recomendación está comprobada contra `board-base.ts`** (sesión `47e1fced`,
+2026-08-22), no supuesta. Las cuatro casillas dan `esPasillo` verdadero y `salaEn` nulo,
+y `hayMuroEntre` es falso en los tres tramos, así que la fila es contigua de verdad.
+Ninguna coincide con puerta, mueble ni trampa de la misión: la puerta `pr` está en la
+columna 6, y las trampas en (12,14), (15,16) y (7,15).
+
+De paso quedó confirmado por qué la columna 12 no vale como fila recta: (12,15) es
+pasillo, sí, pero es el vano de `ps`, como dice el aviso de arriba.
+
 ### Los tests que hablan de la entrada, uno por uno
 
 Todos en `tests/integracion.test.ts`. No los busques a ciegas:
@@ -103,8 +112,34 @@ Todos en `tests/integracion.test.ts`. No los busques a ciegas:
 - **El movimiento hasta `{ x: 12, y: 15 }`** y su `expect(...movimientoRestante).toBe(4)`
   (~líneas 72-73). Desde la entrada nueva la distancia es otra: **recalcula el número, no
   lo ajustes hasta que pase.** Si no te sale a mano, tienes mal el camino.
+  La cuenta, para que puedas contrastarla en vez de fiarte: con la entrada recomendada el
+  primer héroe sale de (12,18) y sube por la columna 12, o sea (12,17), (12,16) y (12,15),
+  **tres** casillas donde antes eran dos. Con `[3, 3]` el total es 6 y sin lastre, así que
+  el resto esperado pasa de 4 a **3**. Si te sale otro número, no des por buena esta línea:
+  la escribió una sesión que soltó la tarea sin llegar a ejecutar la suite con la entrada
+  cambiada.
 - **El test del foso** (~línea 101), que mueve hacia `{ x: 12, y: 13 }` y comprueba que el
-  héroe se queda en el foso de `(12, 14)`. La distancia cambia; el desenlace no.
+  héroe se queda en el foso de `(12, 14)`. La distancia cambia; el desenlace no: son
+  cuatro pasos en vez de tres, y el foso sigue cortando el movimiento en (12,14). Los 12
+  puntos de `[6, 6]` sobran en los dos casos, que es justo por lo que el desenlace aguanta.
+
+### Medido por otra sesión, y verificado por ella
+
+La sesión `47e1fced` llevó T2 y la soltó sin escribir código, pero dejó esto comprobado el
+2026-08-22. Está aquí para que no lo midas dos veces, no para que lo copies:
+
+- **La entrada recomendada de arriba es válida.** Las cuatro casillas
+  `[(12,18), (11,18), (10,18), (9,18)]` son pasillo, contiguas, sin muros entre ellas y sin
+  puerta, mueble ni trampa encima. Pasa las invariantes de `tests/quest.test.ts`.
+- **`heroes[0]` sale en `(12,18)`**, no en `(12,17)`.
+- **De `(12,18)` a `(12,15)` hay 3 casillas**, así que con la tirada `[3, 3]` el
+  `movimientoRestante` esperado de la línea ~73 pasa de **4 a 3**.
+- **El test del foso sigue acabando en `(12,14)`**, pero el héroe llega tras **4 pasos** en
+  vez de 3. El desenlace no cambia; la distancia sí.
+
+Sigue en pie la regla de la sección anterior: **deriva tú los números y comprueba que te
+salen**. Si el tuyo no coincide con el de aquí, manda el tuyo, pero averigua por qué
+difieren antes de seguir: uno de los dos caminos está mal trazado.
 
 ### Qué NO cambia
 
