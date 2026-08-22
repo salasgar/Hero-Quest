@@ -5,7 +5,7 @@ contradicen, manda el tablón. Antes de tocar nada, léelo entero: son dos minut
 repetir trabajo que ya está hecho.
 
 Repositorio: <https://github.com/salasgar/Hero-Quest> · rama `main` · último commit
-integrado: `c135722` · 197 tests en verde.
+integrado: `a24b396` · 204 tests en verde.
 
 Qué es el proyecto y por qué está montado así: `TRASPASO.md`. Qué falta y por qué es
 urgente: aquí.
@@ -35,14 +35,14 @@ coger en cualquier orden desde hoy.
 
 | # | Tarea | Precondición | Fichero que bloquea | Estado |
 |---|---|---|---|---|
-| T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | **en curso** · sesión `fae5dfc8` · 2026-08-22 |
+| T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | **hecha** · `a24b396` · 2026-08-22 |
 | T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/` | **en curso** · sesión `47e1fced` · 2026-08-22 |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts` | pendiente |
-| T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | `reducer.ts` | pendiente |
+| T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | `reducer.ts` | **en curso** · sesión `64d69b4d` · 2026-08-22 |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `reducer.ts` | pendiente |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `reducer.ts` | pendiente |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | pendiente |
-| T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 | `src/ai/` | bloqueada |
+| T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 (falta T2–T7) | `src/ai/` | bloqueada |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
@@ -68,7 +68,7 @@ puesto en la tabla. Conviene saber por qué, por si alguna vez hay prisa:
 De las siete, solo tres son bloqueantes técnicas de verdad. La IA de Zargon elige entre
 acciones legales, y estas tres cambian **qué es legal para un monstruo**:
 
-- **T1**, porque decide a quién ve y por tanto a quién puede atacar o apuntar.
+- **T1**, porque decide a quién ve y por tanto a quién puede atacar o apuntar. **Hecha.**
 - **T4**, porque decide por dónde puede pasar sin comerse una trampa.
 - **T5**, porque cambia con cuántos dados pelea dentro de un foso.
 
@@ -82,7 +82,24 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
 
-*(vacío)*
+- **T1 · sesión `fae5dfc8` · 2026-08-22 · `a24b396`.** Las figuras cortan la línea de
+  visión. Tres cosas que no estaban escritas:
+  - **La rama `worktree-agent-a087aa61fe4700ed8` era buena y está fusionada y borrada.**
+    Se validó revisando el *motivo* de sus dos cambios de test, no que pasaran: el de
+    `vision.test.ts` afirmaba la regla equivocada y tocaba corregirlo; el de
+    `reducer.test.ts` movía un orco que estaba en la línea de tiro y que con la regla
+    nueva volvía ilegal un disparo que ese bloque no quería probar. Además la rama añadió
+    por su cuenta el test que fija la regla nueva. Nada de esto se ve mirando el verde.
+  - **La prueba que decide si un test nuevo vale**: revertir el fichero de producción y
+    comprobar que falla. Los cuatro tests de la regla fallan sin el cambio. Uno que pasa
+    igual con el código viejo no está probando nada. Recomendado para T2–T7, que también
+    cambian reglas ya afirmadas por tests.
+  - **La tarea daba por existente un test de «rozar una esquina» que no existía.** Ahora
+    hay dos, y el caso permisivo del paso diagonal queda fijado. Si T2–T7 dicen «ese caso
+    ya está cubierto», comprueba que lo esté.
+  - **Se nota en la mesa**: con un compañero delante, el mago no puede apuntar y la
+    ballesta del elfo no dispara a través de la fila. El orden de la fila pasa a ser una
+    decisión.
 
 ---
 
@@ -114,18 +131,15 @@ once tareas de escribir código, y todas necesitan criterio. Además, en este en
 están disponibles las herramientas de programación remota, así que una tarea programada no
 podría arrancar de todos modos.
 
-Lo primero que va a ocurrir es que alguien coja T1, T2, T3 o T7 —las cuatro que no
-comparten fichero con ninguna otra— y las pueda hacer las cuatro a la vez si quiere.
+T1 ya está hecha. Quedan T2, T3 y T7, que no comparten fichero con ninguna otra y se
+pueden hacer las tres a la vez; y T4, T5 y T6, que se reparten `reducer.ts` y por tanto van
+de una en una.
 
 ---
 
-## La rama que hay dando vueltas
+## La rama que había dando vueltas
 
-`worktree-agent-a087aa61fe4700ed8` contiene **un intento completo y en verde de T1**,
-hecho por un subagente de la sesión del 22 de agosto de 2026 que se detuvo antes de que
-nadie lo revisara. Toca `vision.ts`, `tests/vision.test.ts` y `tests/reducer.test.ts`.
-
-Quien coja T1: **léela antes de escribir nada**, y decide. O la validas y la fusionas, o
-la descartas con `git branch -D worktree-agent-a087aa61fe4700ed8`. Lo que no vale es
-dejarla ahí: una rama huérfana que nadie sabe si vale es exactamente el ruido que este
-tablón existe para evitar.
+`worktree-agent-a087aa61fe4700ed8` **ya no existe**: contenía el intento de T1, se revisó
+en la propia T1, resultó bueno y está dentro de `a24b396`. La rama se borró el 2026-08-22.
+Si tu clon todavía la tiene, es tuya y sobra: `git branch -D worktree-agent-a087aa61fe4700ed8`.
+Nunca llegó a empujarse a `origin`, así que en un clon nuevo no aparece.
