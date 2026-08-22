@@ -4,7 +4,8 @@
  *
  * Reglas de HeroQuest que se aplican aquí:
  *  - Solo se mueve en ortogonal; no hay diagonales.
- *  - No se atraviesan figuras, ni amigas ni enemigas.
+ *  - Un héroe pasa por encima de otro héroe, pero no de un monstruo, y nadie
+ *    termina el movimiento encima de otra figura.
  *  - Un cambio de región (sala↔pasillo, o sala↔otra sala) es muro, salvo que
  *    haya una puerta y esté abierta.
  *  - Una puerta secreta sin descubrir se comporta exactamente como un muro.
@@ -18,6 +19,7 @@ import {
 import { HEROES } from "../data/heroes";
 import {
   claveCelda,
+  esHeroe,
   mismaCelda,
   type Celda,
   type EstadoPartida,
@@ -89,7 +91,11 @@ export function celdaAtravesable(estado: EstadoPartida, c: Celda, figura: Figura
   if (mueble?.bloqueaPaso) return false;
   if (atraviesaFiguras(figura)) return true;
   const ocupante = figuraEn(estado, c);
-  return !ocupante || ocupante.id === figura.id;
+  if (!ocupante || ocupante.id === figura.id) return true;
+  // Reglamento p. 12: «You cannot pass over monsters. You may pass over other
+  // heroes.» Es una regla del turno de los héroes y de nadie más: un monstruo
+  // no cruza a un héroe, y entre monstruos tampoco se dejan pasar.
+  return esHeroe(figura) && esHeroe(ocupante);
 }
 
 /** ¿Puede una figura terminar o pasar por esta casilla? */
