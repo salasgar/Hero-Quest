@@ -40,22 +40,55 @@ terminar hay menos, has roto algo.
 - **`tsc -b` se cuelga** en este repo, porque no hay `composite: true`. Usa
   `tsc -p tsconfig.json --noEmit`, que es lo que hace `npm run typecheck`.
 - **Varias sesiones comparten este mismo directorio de trabajo.** No hay un worktree por
-  sesión: el árbol es uno solo. Consecuencia práctica y ya ocurrida: `git add _ESTADO.md`
-  se lleva por delante el claim que otra sesión acaba de escribir y todavía no ha
-  commiteado, y esa sesión se encuentra el `git status` limpio sin haber hecho commit.
-  **Antes de cada `git commit`, mira `git diff` del fichero y comprueba que todo lo que
-  hay dentro es tuyo.** Si te llevas una línea ajena, no la deshagas -el claim es válido y
+  sesión: el árbol es uno solo. Lo que tú ves en `git status` incluye lo que otra sesión
+  está escribiendo ahora mismo, y tu `git add` se lo lleva.
+
+  El 22 de agosto de 2026 esto ocurrió **tres veces en una tarde, por tres causas
+  distintas**. Importa separarlas, porque no se arreglan igual:
+
+  1. **`d3dced0` — `git add -A`.** Metió ficheros enteros de otras dos sesiones en un
+     commit cuyo mensaje describía otra cosa. Es la incidencia T12.
+     **Nunca `git add -A` ni `git add .`.** Los ficheros se añaden por nombre, uno a uno.
+  2. **`fe71dc6` — añadir por nombre un fichero compartido.** Dos sesiones editaban filas
+     distintas de la tabla de `_ESTADO.md`; `git add _ESTADO.md` se llevó el fichero
+     entero, con la fila ajena dentro. **Añadir por nombre no protege de nada cuando la
+     otra sesión edita el mismo fichero**: el índice se llena desde el árbol, no desde tus
+     ediciones. La regla 1 cubre «ficheros ajenos», no «líneas ajenas en tu fichero».
+  3. **`f07db88` — mirar el diff con la vista recortada.** Esa sesión sí lo miró, pero con
+     `git diff … | head -30`, y lo ajeno empezaba en la línea 126. Commiteó convencida de
+     haber comprobado, y escribió en el mensaje que el diff estaba limpio.
+
+  De ahí la regla, y va con su forma exacta porque la forma es el fallo:
+
+  ```sh
+  git diff --stat -- <fichero>   # ¿cuadra el número de líneas con lo que escribiste?
+  git diff -- <fichero>          # entero, hasta el final
+  ```
+
+  **Sin `head`, sin `tail` y sin `grep` que filtre por lo que esperas encontrar**, que es
+  la costumbre razonable de acortar salidas largas y aquí es justo lo que no vale: el paso
+  que falla es el de encontrar lo que **no** esperabas. El `--stat` es la red rápida y
+  barata: en `f07db88` marcaba 36 inserciones cuando su autora había escrito 18.
+
+  Si aun así te llevas algo ajeno, **no lo deshagas** -el trabajo del otro es válido y
   perderlo es peor-: dilo en el mensaje de commit y avisa a esa sesión.
 
-  **Nunca `git add -A` ni `git add .`.** Los ficheros se añaden por nombre, uno a uno. Esta
-  regla no es higiene: es la causa exacta de la incidencia T12, donde un `git add -A` metió
-  el trabajo a medias de otras dos sesiones en un commit cuyo mensaje describía otra cosa.
-
 - **Edita con las herramientas de edición, no con `sed -i` ni con heredocs.** El hook que
-  reparte los candados entre sesiones (`.claude/sesiones/`) solo se dispara con Edit y
-  Write. Todo lo que escribas desde Bash pasa por debajo del candado sin avisar a nadie, y
-  además no renueva tu reserva: una sesión que se pasa media hora en Bash pierde sus
-  ficheros por caducidad mientras sigue trabajando en ellos.
+  reparte los candados entre sesiones (`.claude/sesiones/`) tiene matcher
+  `Edit|Write|NotebookEdit`. Todo lo que escribas desde Bash pasa por debajo sin comprobar
+  el candado ajeno **ni reclamar el tuyo**, y además no renueva tu reserva: el mtime solo
+  se refresca al reclamar un fichero nuevo, y `purga` -que ejecuta *cualquier otra* sesión
+  al arrancar o al reclamar- borra tu json cuando pasa del TTL. No es que tu reserva
+  caduque: es que otra sesión te la borra y tú sigues creyendo que la tienes.
+
+  Esto no es teórico. El mismo 22 de agosto, tres sesiones a la vez estaban editando por
+  `sed` y heredocs de python, ninguna reclamó nada, y una de ellas escribió su propio json
+  de candado a mano desde Bash. Con las tres pasando por debajo del hook, el cruce estaba
+  garantizado por diseño.
+
+  **Si tus instrucciones de arranque te dicen que edites con `sed`, heredocs o scripts
+  cortos, aquí manda esta regla.** En este repositorio Bash no basta para editar: rompe la
+  coordinación, que es la parte cara.
 
 - **El reglamento oficial de 2021** (Avalon Hill F3649) se descarga de
   `https://instructions.hasbro.com/api/download/F3649_en-us_heroquest-game-instructions-rulebook.pdf`.
