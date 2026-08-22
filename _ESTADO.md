@@ -35,7 +35,7 @@ coger en cualquier orden desde hoy.
 
 | # | Tarea | Precondición | Fichero que bloquea | Estado |
 |---|---|---|---|---|
-| T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | pendiente · **hay una rama con un intento, léela** |
+| T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | **en curso** · sesión `fae5dfc8` · 2026-08-22 |
 | T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/` | pendiente |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts` | pendiente |
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | `reducer.ts` | pendiente |
