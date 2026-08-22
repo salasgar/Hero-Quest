@@ -123,24 +123,6 @@ Todos en `tests/integracion.test.ts`. No los busques a ciegas:
   cuatro pasos en vez de tres, y el foso sigue cortando el movimiento en (12,14). Los 12
   puntos de `[6, 6]` sobran en los dos casos, que es justo por lo que el desenlace aguanta.
 
-### Medido por otra sesión, y verificado por ella
-
-La sesión `47e1fced` llevó T2 y la soltó sin escribir código, pero dejó esto comprobado el
-2026-08-22. Está aquí para que no lo midas dos veces, no para que lo copies:
-
-- **La entrada recomendada de arriba es válida.** Las cuatro casillas
-  `[(12,18), (11,18), (10,18), (9,18)]` son pasillo, contiguas, sin muros entre ellas y sin
-  puerta, mueble ni trampa encima. Pasa las invariantes de `tests/quest.test.ts`.
-- **`heroes[0]` sale en `(12,18)`**, no en `(12,17)`.
-- **De `(12,18)` a `(12,15)` hay 3 casillas**, así que con la tirada `[3, 3]` el
-  `movimientoRestante` esperado de la línea ~73 pasa de **4 a 3**.
-- **El test del foso sigue acabando en `(12,14)`**, pero el héroe llega tras **4 pasos** en
-  vez de 3. El desenlace no cambia; la distancia sí.
-
-Sigue en pie la regla de la sección anterior: **deriva tú los números y comprueba que te
-salen**. Si el tuyo no coincide con el de aquí, manda el tuyo, pero averigua por qué
-difieren antes de seguir: uno de los dos caminos está mal trazado.
-
 ### Qué NO cambia
 
 El foso de `(12, 14)`, la puerta `ps` y los goblins siguen donde están. Esto es un cambio
