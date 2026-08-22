@@ -117,6 +117,10 @@ El ataque en diagonal, que estaba declarado en los datos y en las cartas pero no
 aplicaba el motor, ya funciona: es la regla que permite que dos héroes ataquen a la vez al
 monstruo que tapona un vano de puerta, en vez de hacer cola.
 
+> **Este trabajo está repartido.** Las siete divergencias de abajo y la Fase 4 son once
+> tareas con su fichero en `tareas/`, coordinadas por el tablón `_ESTADO.md`. Si vas a
+> ponerte con alguna, **empieza por el tablón**, no por aquí.
+
 ### Pendientes: lo que el reglamento dice y el motor todavía no hace
 
 Encontrado al cotejar, no arreglado. **Son cambios de regla, así que decidid antes**:

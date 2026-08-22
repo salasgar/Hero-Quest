@@ -1,0 +1,82 @@
+# Lo que toda tarea necesita saber
+
+Treinta líneas que se aplican a todas. Léelas antes de coger cualquier tarea; te ahorran
+la tarde entera.
+
+## El proyecto en dos frases
+
+Aplicación web que hace de máster de HeroQuest sobre un tablero **físico**, en el Mac de
+Juan Luis, para jugar con sus hijos. El motor (`src/engine/`) es un reductor puro
+`aplicarAccion(estado, accion) → { estado, eventos }`, sin React, con el generador
+aleatorio **dentro** del estado. Las acciones ilegales devuelven `{ ok: false, motivo }`;
+no lanzan excepciones.
+
+Contexto completo en `TRASPASO.md`. Estado del reparto en `_ESTADO.md`.
+
+## Cómo se verifica
+
+```sh
+npx vitest run     # 197 tests en 13 ficheros
+npm run typecheck
+```
+
+**Las dos cosas tienen que estar en verde antes de dar nada por hecho.**
+
+## Trampas del entorno
+
+- **El Mac se satura** (carga por encima de 12) y `tsc` y `vitest` pasan de segundos a
+  varios minutos. Encadena la verificación en segundo plano y espera con un bucle, en vez
+  de sondear a mano:
+  ```sh
+  (npx vitest run > /tmp/v.log 2>&1; echo "T=$?" >> /tmp/v.log; \
+   npm run typecheck >> /tmp/v.log 2>&1; echo "TC=$?" >> /tmp/v.log) &
+  until grep -q "TC=" /tmp/v.log; do sleep 5; done
+  ```
+- **`tsc -b` se cuelga** en este repo, porque no hay `composite: true`. Usa
+  `tsc -p tsconfig.json --noEmit`, que es lo que hace `npm run typecheck`.
+- **El reglamento oficial de 2021** (Avalon Hill F3649) se descarga de
+  `https://instructions.hasbro.com/api/download/F3649_en-us_heroquest-game-instructions-rulebook.pdf`.
+  Son **32 páginas escaneadas sin capa de texto**: `pdftotext` devuelve vacío. Hay que
+  leerlo con la herramienta Read pasando `pages`; cada página del PDF es un pliego de dos
+  del libro. La página 7 del PDF son las páginas 12-13 del libro (las seis acciones del
+  héroe); la 8 son la 14-15 (hechizos, tesoro); la 9 son la 16-17 (puertas secretas y
+  trampas).
+
+## Trampas del código
+
+- **`e.monstruos` y `e.heroes` conservan a los caídos con cuerpo 0.** Filtra por
+  `cuerpo > 0` en cuanto preguntes «quién está vivo». Esa lista completa se usa a
+  propósito: su longitud distingue «los hemos matado a todos» de «esta misión no tenía
+  monstruos».
+- **En los tests, una sala sin revelar no deja ver nada.** `puedeVer` aplica la regla de
+  las salas: a oscuras no hay línea de visión, ni siquiera de una casilla a la de al lado.
+  Si un hechizo se te rechaza con «no tienes línea de visión» en un test, te falta
+  `salasReveladas: ["a"]` en el estado de partida.
+- **La sala `a` mide 4 × 4** (columnas 1-4, filas 1-4). Para probar que algo bloquea el
+  paso, ajusta el movimiento: con 4 o más casillas se rodea por debajo y el bloqueo no se
+  nota. Con 2 sí.
+- **El test de juego al azar de `tests/integracion.test.ts` es el que encuentra los fallos
+  de verdad.** Juega partidas enteras con acciones legales al azar y comprueba las
+  invariantes en cada paso. Ha encontrado tres fallos reales del motor. **Si lo rompes,
+  la sospecha por defecto es que has metido un bug, no que el test esté mal.**
+- **Un test que falla porque afirmaba la regla equivocada se corrige**, y se dice en el
+  commit que el test era el equivocado. Uno que falla por cualquier otro motivo es un
+  fallo tuyo. Distinguir las dos cosas honestamente es media tarea.
+
+## Estilo
+
+Código y comentarios **en español**. Los comentarios explican **por qué**, nunca qué hace
+la línea siguiente, y van con la misma densidad que el código de alrededor. Si escribes
+un comentario que se limita a repetir el nombre de la función, bórralo.
+
+## Prohibido en todas las tareas
+
+- **Tocar `src/data/board-base.ts`.** La geometría del tablero está medida píxel a píxel
+  sobre una foto y verificada. Si crees que está mal, escríbelo en `_ESTADO.md` y para.
+- **Tocar `src/data/board-print.ts`** ni el reparto de los cuatro folios. El tablero ya
+  está impreso y pegado.
+- **Inventarse una regla.** Todo lo que se implemente sale del reglamento, y la cita va en
+  el comentario o en el mensaje de commit. Si no encuentras la fuente, implementa solo lo
+  confirmado y deja escrito lo que falta. Esta regla existe porque ya se incumplió una vez:
+  cuatro hechizos se implementaron «de memoria» y once de doce valores estaban mal.
+- **Hacer `git push --force`** o reescribir el histórico.
