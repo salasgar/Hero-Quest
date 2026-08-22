@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { lineaDeVision, puedeVer } from "../src/engine/vision";
-import { c, partida } from "./ayuda";
+import { c, partida, situar } from "./ayuda";
 
 const conPuertaAbierta = () =>
   partida({
@@ -60,9 +60,44 @@ describe("línea de visión geométrica", () => {
     expect(lineaDeVision(conMesa, c(0, 0), c(10, 0))).toBe(true);
   });
 
-  it("una figura no tapa la vista", () => {
+  it("una figura en medio corta la línea", () => {
     const e = partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(5, 0) }] });
+    expect(lineaDeVision(e, c(0, 0), c(10, 0))).toBe(false);
+  });
+
+  it("los héroes tapan igual que los monstruos", () => {
+    const e = situar(partida(), "barbaro", c(5, 0));
+    expect(lineaDeVision(e, c(0, 0), c(10, 0))).toBe(false);
+  });
+
+  it("la figura del propio objetivo no se tapa a sí misma", () => {
+    const e = partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(10, 0) }] });
     expect(lineaDeVision(e, c(0, 0), c(10, 0))).toBe(true);
+  });
+
+  it("ni quien mira se tapa a sí mismo", () => {
+    // El bárbaro está en la casilla desde la que se traza: el elfo con ballesta
+    // dispararía desde debajo de su propia figura si esto no fuese así.
+    const e = situar(partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(10, 0) }] }), "barbaro", c(0, 0));
+    expect(lineaDeVision(e, c(0, 0), c(10, 0))).toBe(true);
+  });
+
+  it("una figura caída ya no tapa", () => {
+    const viva = partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(5, 0) }] });
+    const e = { ...viva, monstruos: viva.monstruos.map((m) => ({ ...m, cuerpo: 0 })) };
+    expect(lineaDeVision(e, c(0, 0), c(10, 0))).toBe(true);
+  });
+
+  it("una figura a la que la recta solo le roza la esquina no tapa", () => {
+    // Diagonal limpia dentro de la sala 'a': la recta (1,1)-(3,3) pasa por el
+    // vértice de (2,1), no por dentro.
+    const e = partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(2, 1) }] });
+    expect(lineaDeVision(e, c(1, 1), c(3, 3))).toBe(true);
+  });
+
+  it("pero la que está justo sobre la diagonal sí tapa", () => {
+    const e = partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(2, 2) }] });
+    expect(lineaDeVision(e, c(1, 1), c(3, 3))).toBe(false);
   });
 
   it("verse a sí mismo siempre vale", () => {

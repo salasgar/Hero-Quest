@@ -133,7 +133,9 @@ describe("ataque", () => {
     const base = partida({
       heroes: [{ clase: "elfo" }],
       monstruos: [
-        { id: "pegado", especie: "orco", celda: c(1, 0) },
+        // El de al lado va en el pasillo de abajo, no en la línea de tiro: una
+        // figura en medio tapa, y aquí lo que se quiere probar es el disparo.
+        { id: "pegado", especie: "orco", celda: c(0, 1) },
         { id: "lejos", especie: "orco", celda: c(6, 0) },
       ],
     });
@@ -147,6 +149,12 @@ describe("ataque", () => {
     const r = aplicarAccion(e, { tipo: "atacar", objetivo: "lejos", dadosAtaque: [CAL, CAL, CAL], dadosDefensa: [] });
     expect(r.ok).toBe(true);
     expect(dadosDeAtaque(e.heroes[0]!, "distancia")).toBe(3);
+  });
+
+  it("una figura en medio tapa el disparo de la ballesta", () => {
+    const base = conBallesta(["ballesta"]);
+    const e = situar(base, "pegado", c(3, 0));
+    expect(rechaza(e, { tipo: "atacar", objetivo: "lejos" })).toMatch(/ni lo ves/i);
   });
 
   it("y quien la lleva sigue pudiendo apuñalar a quien tiene encima", () => {

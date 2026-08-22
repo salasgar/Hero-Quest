@@ -8,21 +8,26 @@
  *     vano de una puerta abierta que da a ella. No vale asomarse desde lejos.
  *  2. **La línea geométrica.** Para los pasillos, y para los hechizos y las
  *     armas a distancia: se traza una recta de centro a centro y no puede
- *     cruzar muros, puertas cerradas ni mobiliario que tape.
+ *     cruzar muros, puertas cerradas, mobiliario que tape ni figuras.
  *
- * Las figuras NO tapan la línea de visión: se ve por encima de un goblin. El
- * mobiliario solo tapa si es alto (estantería, armario, bastidor de armas); por
- * encima de una mesa o de una tumba se ve perfectamente.
+ * Las figuras que se cruzan por en medio SÍ tapan la línea de visión: el
+ * reglamento de 2021 (pág. 14, «See (Line of Sight)») pone a héroes y monstruos
+ * a la misma altura que los muros y las puertas cerradas. Ni quien mira ni el
+ * objetivo se estorban a sí mismos, y una figura caída (cuerpo 0) ya no tapa.
+ * El mobiliario solo tapa si es alto (estantería, armario, bastidor de armas);
+ * por encima de una mesa o de una tumba se ve perfectamente.
  */
 
 import { salaEn } from "../data/board-base";
-import { pasoAbierto, muebleEn } from "./board";
+import { pasoAbierto, figuraEn, muebleEn } from "./board";
 import { claveCelda, mismaCelda, type Celda, type EstadoPartida, type IdSala } from "./types";
 
 /** ¿Tapa la vista lo que hay en esta casilla? */
 const tapaLaVista = (estado: EstadoPartida, c: Celda): boolean => {
-  const mueble = muebleEn(estado, c);
-  return mueble?.bloqueaVista === true;
+  if (muebleEn(estado, c)?.bloqueaVista === true) return true;
+  // Las caídas siguen en el estado con cuerpo 0 y ya no estorban a nadie;
+  // `figuraEn` solo devuelve las vivas, así que basta con preguntarle.
+  return figuraEn(estado, c) !== undefined;
 };
 
 /**
@@ -51,8 +56,9 @@ export function casillasDelSegmento(a: Celda, b: Celda): Celda[] {
  * Línea de visión geométrica.
  *
  * Cuando el segmento pasa justo por una esquina, el paso es diagonal. Ahí se
- * es permisivo: basta con que uno de los dos rodeos ortogonales esté abierto.
- * Con niños en la mesa, "no lo ves por medio milímetro" no compensa.
+ * es permisivo: basta con que uno de los dos rodeos ortogonales esté abierto y
+ * despejado. Es lo que pide el reglamento cuando la recta solo roza el canto de
+ * una casilla, y además evita el "no lo ves por medio milímetro" en la mesa.
  */
 export function lineaDeVision(estado: EstadoPartida, a: Celda, b: Celda): boolean {
   if (mismaCelda(a, b)) return true;
@@ -62,7 +68,8 @@ export function lineaDeVision(estado: EstadoPartida, a: Celda, b: Celda): boolea
     const previa = camino[i - 1]!;
     const actual = camino[i]!;
 
-    // El mobiliario intermedio tapa; el de las casillas extremas no.
+    // Solo tapa lo que está en medio: nadie se tapa a sí mismo ni tapa a su
+    // propio objetivo.
     if (i < camino.length - 1 && tapaLaVista(estado, actual)) return false;
 
     const dx = Math.abs(actual.x - previa.x);
