@@ -41,7 +41,7 @@ coger en cualquier orden desde hoy.
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | `reducer.ts` | **en curso** · sesión `64d69b4d` · 2026-08-22 |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `reducer.ts` | pendiente |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `reducer.ts` | pendiente |
-| T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | pendiente |
+| T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **en curso** · sesión `5ea252fd` · 2026-08-22 |
 | T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 (falta T2–T7) | `src/ai/` | bloqueada |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
