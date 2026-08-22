@@ -4,8 +4,11 @@
 contradicen, manda el tablón. Antes de tocar nada, léelo entero: son dos minutos y evita
 repetir trabajo que ya está hecho.
 
-Repositorio: <https://github.com/salasgar/Hero-Quest> · rama `main` · último commit
-integrado: `8b0b7dc` · 204 tests en verde.
+Repositorio: <https://github.com/salasgar/Hero-Quest> · rama `main`.
+
+Aquí no va el hash del último commit ni el número de tests: caducan a la primera y este
+tablón ya ha mentido dos veces por escribir como fijo un dato que se mueve. Para saber
+dónde estamos: `git log -1` y `npx vitest run`.
 
 Qué es el proyecto y por qué está montado así: `TRASPASO.md`. Qué falta y por qué es
 urgente: aquí.
@@ -30,6 +33,25 @@ primero. La otra se entera al instante y sin ambigüedad.
 
 **Nunca `git add -A`.** El directorio de trabajo es compartido: añade tus ficheros por
 nombre, uno a uno. Ignorar esto ya costó la incidencia T12.
+
+### Hay dos candados, no uno
+
+Se confunden con facilidad y hacen cosas distintas:
+
+- **`.claude/sesiones/<id>.json` reserva.** Es un registro real de qué ficheros tiene
+  cogidos cada sesión viva. Está fuera de git —el gitignore global lo tapa, así que no
+  sale en `git status`— y el hook de arranque te dice qué no puedes editar. Es lo que
+  impide que dos sesiones escriban el mismo fichero a la vez.
+- **El push integra.** Es lo que resuelve quién llegó primero a una reclamación del
+  tablón: si te rechazan el push, alguien se te adelantó.
+
+**Reservar y no soltar es tan dañino como no reservar.** Cuando termines y hayas empujado,
+vacía tu lista `archivos`. Una sesión que se queda viva con el tablón cogido lo bloquea
+para todas las demás sin que nadie sepa por qué.
+
+Y no confundas «mi árbol de git está limpio» con «no retengo nada»: son dos mecanismos
+distintos. Esta misma sesión afirmó dos veces que no tenía nada reclamado mientras tenía
+este fichero cogido desde las 08:31.
 
 Cuando termines, escribe tu línea en el registro de finalizaciones y **cierra la sesión**.
 No encadenes otra tarea: una sesión, una tarea.
