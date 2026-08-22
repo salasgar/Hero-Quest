@@ -42,6 +42,7 @@ coger en cualquier orden desde hoy.
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `reducer.ts` | pendiente |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `reducer.ts` | pendiente |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **en curso** · sesión `5ea252fd` · 2026-08-22 |
+| **T12** | [**Incidencia: un commit se llevó trabajo ajeno**](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **pendiente · HAZLA PRIMERA** |
 | T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 (falta T2–T7) | `src/ai/` | bloqueada |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
@@ -74,6 +75,16 @@ acciones legales, y estas tres cambian **qué es legal para un monstruo**:
 
 T2, T3, T6 y T7 tocan solo el turno de los héroes: la IA no las nota. Escribir T8 antes de
 tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y rehacerla.
+
+---
+
+## Incidencias abiertas
+
+- **`d3dced0` tiene un mensaje que no corresponde con su contenido.** Se coló trabajo
+  ajeno por un `git add -A` en el directorio compartido, y los cambios que el mensaje
+  describe nunca llegaron a escribirse. **Hay trabajo sin commitear en
+  `src/engine/reducer.ts`** que se pierde si alguien limpia el árbol. Todo el detalle y
+  qué hacer, en [T12](tareas/T12-incidencia-commit-cruzado.md). **Antes que nada.**
 
 ---
 
