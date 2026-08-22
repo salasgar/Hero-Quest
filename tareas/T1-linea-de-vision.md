@@ -6,7 +6,7 @@ Lee `_COMUN.md` primero.
 ## Antes de empezar: mira si ya está hecho
 
 ```sh
-grep -n "NO tapan la línea de visión" ../src/engine/vision.ts
+grep -n "NO tapan la línea de visión" src/engine/vision.ts
 ```
 
 Si no aparece nada, la tarea ya está hecha: ese comentario es el que afirma la regla

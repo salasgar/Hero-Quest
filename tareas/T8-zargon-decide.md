@@ -10,7 +10,7 @@ a mano. Eso es lo único que queda por quitar.
 ## Antes de empezar
 
 ```sh
-ls ../src/ai 2>/dev/null || echo "no existe todavía"
+ls src/ai 2>/dev/null || echo "no existe todavía"
 ```
 
 Y comprueba en `_ESTADO.md` que T1 a T7 están en «hecha». **Si T1, T4 o T5 no lo están,

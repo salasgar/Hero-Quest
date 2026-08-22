@@ -32,8 +32,9 @@ al lado del tablero, y mantiene un espejo digital de la partida:
 | F7 | Generador de mazmorras | |
 | F8 | Campaña y progresión | |
 
-174 tests en 12 ficheros. `src/ai/`, `server/` y el resto de `src/narrator/` **todavía no
-existen**: aparecen más abajo como el sitio donde irán, no como código escrito.
+`src/ai/`, `server/` y el resto de `src/narrator/` **todavía no existen**: aparecen más
+abajo como el sitio donde irán, no como código escrito. Cuántos tests hay en verde, en
+`_ESTADO.md`.
 
 ## Arranque
 

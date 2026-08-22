@@ -10,7 +10,8 @@ conviene deshacer y dónde están los cables pelados**.
 
 Aplicación web que hace de máster de HeroQuest sobre un tablero físico, en el Mac, para
 jugar con niños. Repositorio propio y público en <https://github.com/salasgar/Hero-Quest>,
-rama `main`, último commit `df12fa9`.
+rama `main`. **En qué commit está y qué tests pasan lo dice `_ESTADO.md`**: este documento
+cuenta el porqué, que no caduca, y no lleva cifras que caduquen cada tarde.
 
 ## Qué se puede hacer hoy
 
@@ -37,7 +38,7 @@ Que no despiste el README ni el plan: describen el destino, no lo construido.
 ## Cómo se verifica
 
 ```sh
-npm test        # 174 tests en 12 ficheros
+npm test
 npm run typecheck
 ```
 

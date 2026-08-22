@@ -6,7 +6,7 @@ toca). Lee `_COMUN.md` primero.
 ## Antes de empezar: mira si ya está hecho
 
 ```sh
-grep -n "puedeLlevar\|restricc" ../src/data/heroes.ts ../src/data/equipment.ts
+grep -n "puedeLlevar\|restricc" src/data/heroes.ts src/data/equipment.ts
 ```
 
 Si no hay nada, está pendiente.

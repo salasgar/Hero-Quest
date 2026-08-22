@@ -6,7 +6,7 @@ Lee `_COMUN.md` primero.
 ## Antes de empezar: mira si ya está hecho
 
 ```sh
-grep -n -A4 "export function puedeBuscarTrampas" ../src/engine/selectors.ts
+grep -n -A4 "export function puedeBuscarTrampas" src/engine/selectors.ts
 ```
 
 Si la función ya mira los monstruos a la vista, está hecha. Hoy dice solo esto:

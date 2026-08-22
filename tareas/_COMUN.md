@@ -16,11 +16,16 @@ Contexto completo en `TRASPASO.md`. Estado del reparto en `_ESTADO.md`.
 ## Cómo se verifica
 
 ```sh
-npx vitest run     # 197 tests en 13 ficheros
+npx vitest run
 npm run typecheck
 ```
 
 **Las dos cosas tienen que estar en verde antes de dar nada por hecho.**
+
+Cuántos tests hay lo dice `_ESTADO.md`, y solo ahí. La cifra cambia con cada tarea, y
+tenerla copiada en cuatro ficheros garantiza que tres estén mintiendo: ya pasó, con 174,
+197 y 204 conviviendo a la vez. Antes de empezar, anota el número que te sale; si al
+terminar hay menos, has roto algo.
 
 ## Trampas del entorno
 
@@ -41,6 +46,16 @@ npm run typecheck
   **Antes de cada `git commit`, mira `git diff` del fichero y comprueba que todo lo que
   hay dentro es tuyo.** Si te llevas una línea ajena, no la deshagas -el claim es válido y
   perderlo es peor-: dilo en el mensaje de commit y avisa a esa sesión.
+
+  **Nunca `git add -A` ni `git add .`.** Los ficheros se añaden por nombre, uno a uno. Esta
+  regla no es higiene: es la causa exacta de la incidencia T12, donde un `git add -A` metió
+  el trabajo a medias de otras dos sesiones en un commit cuyo mensaje describía otra cosa.
+
+- **Edita con las herramientas de edición, no con `sed -i` ni con heredocs.** El hook que
+  reparte los candados entre sesiones (`.claude/sesiones/`) solo se dispara con Edit y
+  Write. Todo lo que escribas desde Bash pasa por debajo del candado sin avisar a nadie, y
+  además no renueva tu reserva: una sesión que se pasa media hora en Bash pierde sus
+  ficheros por caducidad mientras sigue trabajando en ellos.
 
 - **El reglamento oficial de 2021** (Avalon Hill F3649) se descarga de
   `https://instructions.hasbro.com/api/download/F3649_en-us_heroquest-game-instructions-rulebook.pdf`.

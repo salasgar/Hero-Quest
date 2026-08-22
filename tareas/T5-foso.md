@@ -7,7 +7,7 @@ Lee `_COMUN.md` primero.
 ## Antes de empezar: mira si ya está hecho
 
 ```sh
-grep -n "foso" ../src/engine/combat.ts
+grep -n "foso" src/engine/combat.ts
 ```
 
 Si no hay nada, la parte de los dados está pendiente.

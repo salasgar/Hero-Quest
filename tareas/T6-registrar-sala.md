@@ -7,7 +7,7 @@ Lee `_COMUN.md` primero.
 ## Antes de empezar: mira si ya está hecho
 
 ```sh
-grep -n "buscadoTesoro" ../src/engine/types.ts
+grep -n "buscadoTesoro" src/engine/types.ts
 ```
 
 Si el campo sigue siendo `buscadoTesoro: string[]`, la tarea está pendiente. Cuando esté
