@@ -152,7 +152,8 @@ function comprobarInvariantes(e: EstadoPartida, contexto: string) {
 }
 
 describe("juego al azar", () => {
-  it("aguanta miles de acciones legales sin romper ninguna invariante", () => {
+  // Con el Mac saturado estos dos tests pasan de largo los 5 s por defecto.
+  it("aguanta miles de acciones legales sin romper ninguna invariante", { timeout: 60_000 }, () => {
     for (let semilla = 1; semilla <= 12; semilla++) {
       let e = nueva(semilla);
       let rng = crearRng(semilla * 977);
@@ -177,7 +178,7 @@ describe("juego al azar", () => {
     }
   });
 
-  it("con el hada en el grupo tampoco se rompe nada", () => {
+  it("con el hada en el grupo tampoco se rompe nada", { timeout: 60_000 }, () => {
     // Volar cambia por dónde se puede pasar, así que merece su propia tanda:
     // el bicho raro del motor es el que encuentra los agujeros.
     for (let semilla = 1; semilla <= 6; semilla++) {
