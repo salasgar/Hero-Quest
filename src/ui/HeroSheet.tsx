@@ -26,8 +26,13 @@ export function HeroSheet({
         {barra(heroe.cuerpo, heroe.cuerpoMax)}
       </div>
       <div className="hoja-datos">
-        <span title="dados de ataque">⚔ {dadosDeAtaque(heroe)}</span>
-        <span title="dados de defensa">🛡 {dadosDeDefensa(heroe)}</span>
+        {/*
+          El `estado` no es opcional aquí aunque la firma lo permita: es lo que
+          descuenta el dado a quien está metido en un foso. Sin él la hoja
+          promete un dado que el motor no va a tirar (divergencia de T5).
+        */}
+        <span title="dados de ataque">⚔ {dadosDeAtaque(heroe, "cuerpo", estado)}</span>
+        <span title="dados de defensa">🛡 {dadosDeDefensa(heroe, estado)}</span>
         <span title="puntos de mente">✦ {heroe.mente}</span>
         {heroe.oro > 0 && <span title="oro">🪙 {heroe.oro}</span>}
         {heroe.hechizos.length > 0 && (

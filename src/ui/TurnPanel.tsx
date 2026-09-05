@@ -82,8 +82,9 @@ export function TurnPanel({
 
       {activa && (
         <div className="turno-datos">
-          <span title="dados de ataque">⚔ {dadosDeAtaque(activa)}</span>
-          <span title="dados de defensa">🛡 {dadosDeDefensa(activa)}</span>
+          {/* Con el estado, para descontar el dado del foso: ver `HeroSheet`. */}
+          <span title="dados de ataque">⚔ {dadosDeAtaque(activa, "cuerpo", estado)}</span>
+          <span title="dados de defensa">🛡 {dadosDeDefensa(activa, estado)}</span>
           <span title="movimiento">
             👣{" "}
             {t.movimientoTotal === null

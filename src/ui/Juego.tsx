@@ -97,7 +97,7 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
         const n = dadosDeAtaqueContra(estado, objetivo);
         setPeticion({
           titulo: `${atacante.nombre} ataca`,
-          detalle: `Contra ${nombreDeFigura(objetivo)} · defensa ${dadosDeDefensa(objetivo)}`,
+          detalle: `Contra ${nombreDeFigura(objetivo)} · defensa ${dadosDeDefensa(objetivo, estado)}`,
           instruccion: `Tira ${n} dados de combate. ¿Cuántas calaveras?`,
           opciones: rango(0, n),
           alResponder: (k) => {
@@ -107,7 +107,9 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
           alCancelar: cerrar,
         });
       } else {
-        const d = dadosDeDefensa(objetivo);
+        // Con el estado: el foso le quita un dado de defensa y el diálogo
+        // tiene que pedir los que se van a tirar de verdad, ni uno más.
+        const d = dadosDeDefensa(objetivo, estado);
         setPeticion({
           titulo: `${nombreDeFigura(atacante)} ataca a ${nombreDeFigura(objetivo)}`,
           detalle: `Ataca con ${dadosDeAtaqueContra(estado, objetivo)} dados. Los tira la aplicación.`,
