@@ -164,7 +164,7 @@ export function BoardVerify() {
             {avisos.map((a, i) => (
               <li key={i} className={a.gravedad}>
                 {a.gravedad === "error" ? "✕" : "!"} {a.texto}
-                {a.celda && ` (${a.celda.x},${a.celda.y})`}
+                {a.celda && ` (${a.celda.x + 1},${a.celda.y + 1})`}
               </li>
             ))}
           </ul>

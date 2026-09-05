@@ -10,7 +10,7 @@ import { colorDeSala } from "./paleta";
 import { claveCelda, mismaCelda, type Celda, type EstadoPartida, type Figura } from "../engine/types";
 
 const LADO = 28;
-const MARGEN = 14;
+const MARGEN = 16;
 
 const INICIALES: Record<string, string> = {
   barbaro: "B", enano: "E", elfo: "L", mago: "M", hada: "H",
@@ -82,6 +82,22 @@ export function BoardMirror({
   return (
     <svg className="tablero" width={ancho} height={alto} role="img" aria-label="Tablero de la partida">
       <g transform={`translate(${MARGEN},${MARGEN})`}>
+        {/* Coordenadas en los márgenes, en base 1: las mismas que usa el diario. */}
+        <g fontSize={9} fill="#8e9bb3" pointerEvents="none">
+          {Array.from({ length: ANCHO_TABLERO }, (_, x) => (
+            <g key={`cx${x}`} textAnchor="middle">
+              <text x={x * LADO + LADO / 2} y={-4}>{x + 1}</text>
+              <text x={x * LADO + LADO / 2} y={ALTO_TABLERO * LADO + 11}>{x + 1}</text>
+            </g>
+          ))}
+          {Array.from({ length: ALTO_TABLERO }, (_, y) => (
+            <g key={`cy${y}`}>
+              <text x={-4} y={y * LADO + LADO / 2 + 3} textAnchor="end">{y + 1}</text>
+              <text x={ANCHO_TABLERO * LADO + 4} y={y * LADO + LADO / 2 + 3}>{y + 1}</text>
+            </g>
+          ))}
+        </g>
+
         {/* Suelo */}
         {Array.from({ length: ALTO_TABLERO }, (_, y) =>
           Array.from({ length: ANCHO_TABLERO }, (_, x) => {

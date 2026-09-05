@@ -83,7 +83,8 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     }
 
     case "trampaDescubierta":
-      return `Con cuidado, aparece una trampa en la casilla ${ev.celda.x},${ev.celda.y}.`;
+      // En base 1, que es como están rotulados los márgenes del tablero.
+      return `Con cuidado, aparece una trampa en la casilla ${ev.celda.x + 1},${ev.celda.y + 1}.`;
 
     case "trampaDesarmada":
       return "La trampa queda inutilizada.";
