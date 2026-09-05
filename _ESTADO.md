@@ -107,7 +107,7 @@ coger en cualquier orden desde hoy.
 | T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | **hecha** · `1c8a533` · 2026-09-05 · con la entrada de la misión en el mismo commit |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | **hecha** · `3bbf380` · 2026-09-05 · su sesión no llegó a apuntarlo aquí |
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **hecha** · `9bcd7d1` · 2026-09-05 |
-| T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `39f05f5` · 2026-09-05 |
+| T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `39f05f5` · 2026-09-05 · el suelo queda solo para héroes: firmado en autorizaciones, no cambia código |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `0dc95d5` · 2026-09-05 · **cambia la forma del estado**: `buscadoTesoro` son pares `{heroe, sala}`, no salas |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
@@ -118,7 +118,7 @@ coger en cualquier orden desde hoy.
 | T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | **hecha** · `de466ec` · 2026-09-05 · era la sesión `797b0a1c`, que no pudo escribir aquí su reclamo porque el tablón estuvo cogido de principio a fin del trabajo |
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
 | T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 · lo de `56f5f21`+`29e079c` está en `main`; **ya tiene su firma** y lo que falta es la colocación por cercanía · `calabozo.ts` no se toca |
-| T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
+| T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | **aparcada por decisión suya** · 2026-09-05 · no la cojas: no espera firmas, espera a que él decida si quiere la regla; sus cuatro preguntas siguen abajo |
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
 | T19 | [Una puerta se abre también desde la diagonal](tareas/T19-abrir-puertas-en-diagonal.md) | — · regla de la casa, **firmada** | `board.ts`, **`reducer.ts`**, `selectors.ts` | **hecha** · `c08bbc0` · 2026-09-05 · seis casillas por puerta, y la diagonal no atraviesa el muro |
@@ -885,6 +885,15 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   del guardián» se gana matando al guardián— y queda escrito para quien escriba la primera
   misión de salir.
 
+- **2026-09-05 — El suelo de un dado en el foso queda solo para los héroes (T5).** Decidido
+  por la sesión `205592a2` por delegación de Juan Luis, 2026-09-05. Se queda la lectura
+  literal, que es la ya implementada: el recuadro de la p. 17 dice «As a hero» y no lleva la
+  coletilla de los monstruos que sí lleva la penalización de arriba. Extenderlo sería regla
+  de la casa sin fuente —el mismo criterio que las armas grandes de T7— y el único caso al
+  que afecta apenas puede darse: solo el goblin defiende con 1, y un monstruo dentro de un
+  foso ya es rareza, porque las trampas ocultas no las dispara (T4). No hay código que
+  cambiar; si algún día molesta jugando, es una línea en `conPenalizacionDeFoso` y su test.
+
 ### Pendientes de su palabra
 
 **Las dos firmas de la fase de red (T30 y T34).** Las cuatro decisiones de diseño ya están
@@ -919,21 +928,9 @@ Cambiarlo es el `case "perderTurno"` de `reducer.ts` y su test, que hoy fija el
 comportamiento de la sala entera. Si tienes la carta de Tempestad a mano, la respuesta está
 en ella.
 
-**¿El suelo de un dado dentro del foso vale también para los monstruos? (T5).** El
-reglamento (p. 17) da la penalización del foso para todos —«you must roll one fewer combat
-dice … (This applies to monsters as well.)»— pero el recuadro que pone el suelo empieza por
-«**As a hero**, your minimum attack or defend strength is always 1 combat die» y no repite
-esa coletilla. Implementado literal: el suelo es solo del héroe. En la práctica afecta a un
-solo caso, porque solo un monstruo defiende con 1 dado: **el goblin, que dentro de un foso
-defiende con 0** y muere con cualquier calavera. Ataques no afecta a ninguno: el peor
-monstruo ataca con 2. Cambiarlo es una línea en `conPenalizacionDeFoso`
-(`src/engine/combat.ts`) y su test. Dos opciones:
-
-- **Dejarlo literal.** El goblin en el foso está indefenso. Es lo que dice la letra y es
-  coherente con no inventarse reglas.
-- **Extender el suelo a los monstruos.** El goblin defiende con 1. Se parece más a cómo
-  está escrita la regla de arriba, que sí se extiende explícitamente, y evita el único
-  caso raro. Sería regla de la casa, y habría que decirlo en el comentario.
+~~**¿El suelo de un dado dentro del foso vale también para los monstruos? (T5).**~~
+**Cerrada el 2026-09-05 por delegación suya.** La firma está arriba, entre las
+autorizaciones: se queda la lectura literal, el suelo es solo de los héroes.
 
 ~~**La entrada del calabozo, con ocho héroes (T16).**~~ **Contestada el 2026-09-05.** Su
 respuesta está arriba, entre las autorizaciones: los héroes que no caben en `mision.entrada`
