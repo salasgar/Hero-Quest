@@ -93,10 +93,10 @@ coger en cualquier orden desde hoy.
 | # | Tarea | Precondición | Ficheros que toca | Estado |
 |---|---|---|---|---|
 | T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | **hecha** · `a24b396` · 2026-08-22 |
-| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | en curso · `b63aa070` · 2026-09-05 · `board.ts` está en `main` desde `d3dced0` y el retroceso del `reducer.ts` desde `8b0b7dc`; le faltan sus tests y la entrada de la misión |
+| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | **hecha** · `1c8a533` · 2026-09-05 · con la entrada de la misión en el mismo commit |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | pendiente |
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **hecha** · `9bcd7d1` · 2026-09-05 |
-| T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | en curso · `2921da7f` · 2026-09-05 |
+| T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | en curso · `2921da7f` · 2026-09-05 · **su commit `39f05f5` ya está en `main` y su sesión soltó los ficheros**; mira si sigue viva antes de darla por hecha o por libre |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
@@ -104,7 +104,7 @@ coger en cualquier orden desde hoy.
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
-| T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | pendiente · **no la cojas mientras T5 esté en curso**: comparten `reducer.ts` y `selectors.ts` |
+| T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | pendiente en el papel, **pero alguien la está escribiendo**: al cierre del 5 de septiembre otra sesión tenía reservados sus cinco ficheros del motor. Mira `.claude/sesiones/` antes de cogerla |
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
 | T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 |
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
@@ -143,9 +143,9 @@ ponérsela sería inventarla.
 5 de septiembre ha bajado de dos a una, y conviene saber por qué antes de abrir sesiones que
 se van a estorbar.
 
-`reducer.ts` es el cuello, y lo tocan **todas las tareas libres que quedan**: T2, T3, T6,
-T13 y T15. Van de una en una. Las que no lo pisaban —**T7, T14 y T17**— ya están hechas, y
-con ellas se ha acabado el hueco para una segunda sesión cómoda.
+`reducer.ts` es el cuello, y lo tocan **todas las tareas libres que quedan**: T3, T6, T13 y
+T15. Van de una en una. Las que no lo pisaban —**T7, T14, T17** y la parte de tests de
+**T2**— ya están hechas, y con ellas se ha acabado el hueco para una segunda sesión cómoda.
 
 Lo que queda fuera del motor no da una segunda sesión de verdad:
 
@@ -155,8 +155,13 @@ Lo que queda fuera del motor no da una segunda sesión de verdad:
 
 Una segunda sesión sobre `reducer.ts` sigue siendo posible —cada tarea toca funciones
 distintas y `git` las suele fusionar— pero ya es apostar a que el rebase salga limpio. Si lo
-intentas, mira cuál de las dos toca menos el fichero: **T2** solo necesita tests y la
-entrada de la misión, porque su regla ya está commiteada, y **T3** cambia una condición.
+intentas, la más pequeña es **T3**, que cambia una condición.
+
+**Y hoy la cuenta de ficheros ya ni siquiera decide.** Al cierre del 5 de septiembre, T13
+tenía reservados `types.ts`, `partida.ts`, `reducer.ts`, `selectors.ts` y `vision.ts`, que
+son exactamente los que necesitan T3 y T6. **No quedaba ninguna tarea reclamable.** Si
+llegas y te pasa lo mismo, no fuerces: mira `.claude/sesiones/`, y si está todo cogido, la
+respuesta correcta es esperar, no abrir una sesión que va a chocar.
 
 **Y hay un cuello de botella que no está en esta cuenta: `_ESTADO.md`.** Todas las tareas
 lo escriben dos veces —al reclamar y al terminar—, así que una sesión que lo deje
@@ -222,6 +227,25 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T2 · sesión `b63aa070` · 2026-09-05 · `1c8a533`.** Pasar sobre los héroes, y la entrada.
+  - **La entrada elegida es la fila india del pasillo de abajo**: (12,18), (11,18), (10,18),
+    (9,18), con el bárbaro en cabeza. Comprobada contra `board-base.ts`, no supuesta: las
+    cuatro son pasillo, sin muro en los tres tramos, y ninguna coincide con puerta, mueble
+    ni trampa. La columna 12 en vertical **no vale**: (12,15) es el vano de `ps` y dejaría a
+    un héroe empezando dentro de la puerta que el grupo tiene que abrir.
+  - **El código ya estaba en `main`; lo que faltaba eran los tests**, y por eso T12 dejó
+    esta tarea en pendiente. Comprobado que ahora prueban algo: revirtiendo
+    `celdaAtravesable` fallan dos de los cinco.
+  - **Cerrada la trampa que dejó apuntada un subagente**: el bloque hace retroceder, y con
+    la regla nueva la casilla de la que venías puede tenerla ocupada el compañero al que
+    acabas de saltar. `mover()` ya desandaba hasta la primera casilla libre —y la de salida
+    siempre vale, que es suya—, pero no había test. Ahora lo hay, y comprueba además que no
+    queden dos figuras en la misma casilla.
+  - **El 4 del test de integración aparecía dos veces, no una.** La tarea solo nombraba la
+    primera; la segunda comprueba que abrir la puerta es gratis. Las dos pasan a 3, y el 3
+    está contado —tres casillas subiendo por la columna 12, de 6 puntos quedan 3—, no
+    ajustado hasta que pasara.
 
 - **La divergencia del foso en pantalla, cerrada · sesión `b63aa070` · 2026-09-05 ·
   `aa403fd`.** T5 dejó el `estado` opcional al final de `dadosDeAtaque` y `dadosDeDefensa`
