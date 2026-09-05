@@ -198,7 +198,20 @@ export interface EstadoPartida {
    * pueden retroceder y perderlo de vista, pero la figura ya está en la mesa.
    */
   monstruosEnTablero: IdFigura[];
-  buscadoTesoro: IdSala[];
+  /**
+   * Quién ha registrado qué sala en busca de tesoro. Un par por búsqueda, no una
+   * lista de salas.
+   *
+   * Reglamento p. 14: «A room may be searched by **all four heroes**, but each
+   * individual hero may only search the room once». Con una lista de salas, el
+   * primero que registraba una se la cerraba a los otros tres, que es más
+   * restrictivo que la regla y además les quitaba su carta de tesoro.
+   *
+   * Par y no una clave `"heroe|sala"` para que el estado se lea al depurarlo y
+   * no haya que acordarse del separador. Sigue siendo JSON puro: hay un test que
+   * comprueba que el estado sobrevive a `JSON.parse(JSON.stringify(e))`.
+   */
+  buscadoTesoro: Array<{ heroe: IdFigura; sala: IdSala }>;
   buscadoTrampas: IdSala[];
   /** Casillas cegadas por un bloque que ha caído. */
   celdasBloqueadas: Celda[];

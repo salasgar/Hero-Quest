@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { dadosDeAtaque } from "../src/engine/combat";
 import { aplicarAccion, repetir } from "../src/engine/reducer";
-import { puedeBuscarTrampas } from "../src/engine/selectors";
+import { puedeBuscarTesoro, puedeBuscarTrampas } from "../src/engine/selectors";
 import type { IdEquipo } from "../src/data/equipment";
 import type { Accion, Celda } from "../src/engine/types";
 import { c, conMovimiento, enTablero, hacer, MISION_PRUEBA, partida, rechaza, situar } from "./ayuda";
@@ -330,11 +330,53 @@ describe("búsquedas", () => {
     expect(rechaza(e, { tipo: "buscarTesoro" })).toMatch(/monstruos a la vista/i);
   });
 
-  it("una sala solo se registra una vez", () => {
-    let e = conMovimiento(situar(partida(), "barbaro", c(1, 1)), 6);
-    e = hacer(e, { tipo: "buscarTesoro" });
+  // Reglamento p. 14: «A room may be searched by all four heroes, but each
+  // individual hero may only search the room once and may do so only on their
+  // own turn». Son dos afirmaciones, y antes de T6 el motor solo cumplía media:
+  // el primero que registraba la sala se la cerraba a los demás.
+  //
+  // Los dos héroes se sitúan en la sala `a` y se les da movimiento; el turno se
+  // pasa con `terminarTurno`, que es lo que hay en la mesa.
+  const dosEnLaSala = () => {
+    const base = partida({ heroes: [{ clase: "barbaro" }, { clase: "enano" }] });
+    const e = situar(situar(base, "barbaro", c(1, 1)), "enano", c(2, 1));
+    return conMovimiento(e, 6);
+  };
+
+  it("el mismo héroe no registra dos veces la misma sala", () => {
+    let e = hacer(dosEnLaSala(), { tipo: "buscarTesoro" });
     e = { ...e, turno: { ...e.turno, haActuado: false } };
-    expect(rechaza(e, { tipo: "buscarTesoro" })).toMatch(/ya se ha registrado/i);
+    expect(puedeBuscarTesoro(e)).toBe(false);
+    expect(rechaza(e, { tipo: "buscarTesoro" })).toMatch(/ya has registrado/i);
+  });
+
+  it("pero su compañero sí la registra después, y saca su carta", () => {
+    let e = hacer(dosEnLaSala(), { tipo: "buscarTesoro" });
+    const mazoTrasElPrimero = e.mazoTesoros.length;
+
+    e = hacer(e, { tipo: "terminarTurno" }); // le toca al enano
+    expect(e.turno.orden[e.turno.indice]).toBe("enano");
+    e = conMovimiento(e, 6);
+
+    expect(puedeBuscarTesoro(e)).toBe(true);
+    const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    // Lo que se le devolvía antes era nada: ni carta ni tirada. Media diversión.
+    expect(r.estado.mazoTesoros.length).toBe(mazoTrasElPrimero - 1);
+    expect(r.eventos.some((x) => x.tipo === "cartaDeTesoro")).toBe(true);
+  });
+
+  it("y el registro queda apuntado por pares, no por salas", () => {
+    let e = hacer(dosEnLaSala(), { tipo: "buscarTesoro" });
+    e = conMovimiento(hacer(e, { tipo: "terminarTurno" }), 6);
+    e = hacer(e, { tipo: "buscarTesoro" });
+    expect(e.buscadoTesoro).toEqual([
+      { heroe: "barbaro", sala: "a" },
+      { heroe: "enano", sala: "a" },
+    ]);
+    // La forma del estado cambió en T6: sigue siendo JSON puro y comparable.
+    expect(JSON.parse(JSON.stringify(e.buscadoTesoro))).toEqual(e.buscadoTesoro);
   });
 
   // Reglamento p. 16, dos veces con las mismas palabras —una para las trampas y

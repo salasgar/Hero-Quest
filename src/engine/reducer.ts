@@ -42,6 +42,7 @@ import {
   type Figura,
   type Heroe,
   type IdFigura,
+  type IdSala,
   type Monstruo,
   type Resultado,
   type Trampa,
@@ -533,6 +534,17 @@ const cerrarAccion = (t: EstadoPartida["turno"]) => ({
 
 // ------------------------------------------------------------ búsquedas
 
+/**
+ * ¿Ha registrado ya este héroe esta sala?
+ *
+ * Vive aquí y la importa `selectors.ts` en vez de escribirla dos veces: es la
+ * misma pregunta que hacen la guarda de `buscarTesoro` y el botón de la
+ * pantalla, y cuando una condición está copiada en dos sitios acaban
+ * discrepando. Ya pasó con el filtro de monstruos activables.
+ */
+export const yaRegistro = (e: EstadoPartida, heroe: IdFigura, sala: IdSala): boolean =>
+  e.buscadoTesoro.some((r) => r.heroe === heroe && r.sala === sala);
+
 function buscarTesoro(e: EstadoPartida): Resultado {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f)) return fallo("Solo los héroes buscan tesoros.");
@@ -540,7 +552,9 @@ function buscarTesoro(e: EstadoPartida): Resultado {
 
   const sala = salaEn(f.celda.x, f.celda.y);
   if (sala === null) return fallo("Solo se busca tesoro dentro de una sala.");
-  if (e.buscadoTesoro.includes(sala)) return fallo("Esta sala ya se ha registrado.");
+  // Reglamento p. 14: la sala la registran los cuatro héroes, pero cada uno una
+  // sola vez. Antes bastaba con que la hubiera registrado cualquiera.
+  if (yaRegistro(e, f.id, sala)) return fallo("Ya has registrado esta sala.");
 
   const monstruosALaVista = vivos(e.monstruos).some((m) => puedeVer(e, f.celda, m.celda));
   if (monstruosALaVista) return fallo("No se puede registrar la sala con monstruos a la vista.");
@@ -554,7 +568,7 @@ function buscarTesoro(e: EstadoPartida): Resultado {
   let estado: EstadoPartida = {
     ...e,
     mazoTesoros: mazo.slice(1),
-    buscadoTesoro: [...e.buscadoTesoro, sala],
+    buscadoTesoro: [...e.buscadoTesoro, { heroe: f.id, sala }],
     turno: cerrarAccion(e.turno),
   };
   if (!carta) return terminar(estado, [{ tipo: "busquedaSinHallazgo", actor: f.id, que: "tesoro" }]);
