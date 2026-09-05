@@ -6,6 +6,7 @@ import {
   PUERTAS_CALABOZO,
   TRAMPAS_CALABOZO,
 } from "../src/data/quests/calabozo";
+import { alcanzables } from "../src/engine/board";
 import { crearPartida, type HeroeElegido } from "../src/engine/partida";
 import { aplicarAccion } from "../src/engine/reducer";
 import {
@@ -56,28 +57,47 @@ const hacer = (e: EstadoPartida, a: Accion): EstadoPartida => {
 };
 
 describe("los primeros turnos del calabozo", () => {
-  it("los cuatro héroes entran en un pasillo de dos de ancho y no se hacen tapón", () => {
+  it("los cuatro héroes entran en fila india y el de detrás pasa por encima", () => {
+    // Este test afirmaba lo contrario: que la entrada tenía que ser de dos de
+    // ancho para que el primero pudiera salir. Eso era el parche de la regla
+    // vieja. Con «You may pass over other heroes» (reglamento p. 12) la fila
+    // india funciona, y lo que hay que demostrar es justo eso.
     const e = nueva();
-    // Si la entrada fuera un pasillo de una casilla, el primero no podría salir.
     expect(new Set(e.heroes.map((h) => `${h.celda.x},${h.celda.y}`)).size).toBe(4);
     const anchos = new Set(e.mision.entrada.map((c) => c.x));
-    expect(anchos.size).toBe(2);
+    expect(anchos.size).toBe(4); // cuatro columnas seguidas: fila india
+    expect(new Set(e.mision.entrada.map((c) => c.y)).size).toBe(1);
+
+    // El último de la fila, con el grupo entero delante, alcanza la casilla que
+    // hay más allá del primero. Sin la regla no pasaría del primer compañero.
+    const ultimo = e.heroes[3]!;
+    const cabeza = e.heroes[0]!.celda;
+    const masAlla = { x: cabeza.x + 1, y: cabeza.y };
+    expect(alcanzables(e, ultimo, 4).has(claveCelda(masAlla))).toBe(true);
+    // Pero no puede aterrizar sobre ninguno de los tres que tiene delante.
+    for (const companero of e.heroes.slice(0, 3)) {
+      expect(alcanzables(e, ultimo, 4).has(claveCelda(companero.celda))).toBe(false);
+    }
   });
 
   it("el bárbaro llega a la puerta, la abre y aparece la sala con sus goblins", () => {
     let e = nueva();
-    expect(e.heroes[0]!.celda).toEqual({ x: 12, y: 17 });
+    expect(e.heroes[0]!.celda).toEqual({ x: 12, y: 18 });
 
     e = hacer(e, { tipo: "tirarMovimiento", dados: [3, 3] });
     e = hacer(e, { tipo: "mover", destino: { x: 12, y: 15 } });
-    expect(e.turno.movimientoRestante).toBe(4);
+    // Sube por la columna 12: (12,17), (12,16) y (12,15) son tres casillas,
+    // donde con la entrada vieja eran dos. De 6 puntos quedan 3, no 4.
+    expect(e.turno.movimientoRestante).toBe(3);
 
     const r = aplicarAccion(e, { tipo: "abrirPuerta", puerta: "ps" });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
 
-    // Abrir es gratis: sigue teniendo su movimiento y su acción.
-    expect(r.estado.turno.movimientoRestante).toBe(4);
+    // Abrir es gratis: sigue teniendo su movimiento y su acción. El 3 es el
+    // mismo de arriba, no un número nuevo: lo que se comprueba es que abrir la
+    // puerta no le quita nada.
+    expect(r.estado.turno.movimientoRestante).toBe(3);
     expect(r.estado.turno.haActuado).toBe(false);
     expect(r.estado.salasReveladas).toContain("s");
 
@@ -96,7 +116,9 @@ describe("los primeros turnos del calabozo", () => {
 
   it("el foso del pasillo salta al pisarlo y corta el movimiento", () => {
     let e = nueva();
-    // El foso está en (12,14); el bárbaro entra por (12,17).
+    // El foso está en (12,14); el bárbaro entra por (12,18), o sea a cuatro
+    // pasos en vez de tres. Los 12 puntos de [6,6] sobran en los dos casos, que
+    // es por lo que el desenlace no cambia: el foso corta igual en (12,14).
     e = hacer(e, { tipo: "tirarMovimiento", dados: [6, 6] });
     const r = aplicarAccion(e, { tipo: "mover", destino: { x: 12, y: 13 } });
     expect(r.ok).toBe(true);

@@ -24,7 +24,22 @@ export const MISION_CALABOZO: Mision = {
     "Bajo el castillo hay un calabozo que nadie ha vuelto a abrir en cien años. " +
     "Dicen que algo se quedó dentro montando guardia, y que todavía espera. " +
     "Vosotros vais a averiguar qué.",
-  entrada: [c(12, 17), c(13, 17), c(12, 18), c(13, 18)],
+  /**
+   * Fila india por el pasillo de abajo, con el bárbaro en cabeza.
+   *
+   * Era un rectángulo de dos de ancho (columnas 12-13, filas 17-18), y eso no
+   * fue diseño sino parche: con la regla vieja los cuatro héroes se taponaban
+   * porque nadie podía cruzar a nadie. Con la regla de la p. 12 en pie —«You
+   * may pass over other heroes»— el parche sobra, y una entrada de dos de ancho
+   * no es lo que hay en el tablero. Autorizado por Juan Luis el 2026-08-22.
+   *
+   * La fila 18 es pasillo de punta a punta, con sala por encima y el borde del
+   * tablero por debajo, así que la fila es contigua de verdad y no roza ninguna
+   * puerta, mueble ni trampa. La columna 12 en vertical era la otra opción
+   * evidente y **no vale**: (12,15) es el vano de la puerta `ps`, y dejaría a un
+   * héroe empezando dentro de la puerta que el grupo tiene que abrir.
+   */
+  entrada: [c(12, 18), c(11, 18), c(10, 18), c(9, 18)],
   textosDeSala: {
     s: "Una sala de piedra ámbar. Hay huesos pequeños amontonados en un rincón.",
     t: "Paredes rojizas y una mesa larga volcada. Todavía huele a humo.",
