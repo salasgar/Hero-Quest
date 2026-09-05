@@ -20,7 +20,7 @@ export const ALTO_TABLERO = 19;
 
 // prettier-ignore
 export const MAPA_TABLERO: readonly string[] = [
-  //0123456789012345678901234
+  //01234567890123456789012345
   "..........................", //  0
   ".aaaabbbbccc..dddeeeeffff.", //  1
   ".aaaabbbbccc..dddeeeeffff.", //  2
@@ -33,7 +33,7 @@ export const MAPA_TABLERO: readonly string[] = [
   "..........kkkkkk..........", //  9
   ".llllmmnn.kkkkkk.oooopppp.", // 10
   ".llllmmnn.kkkkkk.oooopppp.", // 11
-  ".llllmmnn.kkkkkk.oooopppp.", // 12
+  ".llllmmnn........oooopppp.", // 12
   ".llllrrrrsss..ttttooopppp.", // 13
   ".qqqqrrrrsss..ttttuuuvvvv.", // 14
   ".qqqqrrrrsss..ttttuuuvvvv.", // 15

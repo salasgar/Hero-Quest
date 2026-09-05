@@ -225,6 +225,10 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   nueve folios.
 - **2026-08-22 — Los valores de cartas se cotejan contra el reglamento oficial de 2021**
   (Avalon Hill F3649), no contra la memoria ni contra una caja física, que no existe.
+- **2026-09-05 — La fila 13 (base 1) de la sala central `k` pasa a pasillo.** Juan Luis
+  revisó el tablero contra la foto de referencia y pintó esa zona como pasillo: era el
+  único error de transcripción. La sala queda en 6 × 5. Ojo: los dos folios de abajo del
+  tablero impreso quedan desfasados hasta reimprimirlos.
 - **2026-08-22 — La entrada de «El calabozo del guardián» vuelve a un pasillo de una
   casilla de ancho.** Está en uno de dos (columnas 12-13) solo porque con la regla vieja
   los cuatro héroes se taponaban; era un parche, no diseño. **Se hace dentro de T2 y en el
