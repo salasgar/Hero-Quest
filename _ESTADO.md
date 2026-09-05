@@ -112,7 +112,7 @@ coger en cualquier orden desde hoy.
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
 | T19 | [Una puerta se abre también desde la diagonal](tareas/T19-abrir-puertas-en-diagonal.md) | — · regla de la casa, **firmada** | `board.ts`, **`reducer.ts`**, `selectors.ts` | **hecha** · `c08bbc0` · 2026-09-05 · seis casillas por puerta, y la diagonal no atraviesa el muro |
 | T20 | [El turno de Zargon pasa sin que el diario lo cuente](tareas/T20-el-turno-de-zargon-no-se-cuenta.md) | — | `types.ts`, **`reducer.ts`**, `narrator/local.ts`, `TurnPanel.tsx` | **hecha** · `740f54a` · 2026-09-05 · **no escribe la IA: eso es T8**, que ya estaba libre |
-| T21 | [Siete hechizos de doce no dejan rastro en el diario](tareas/T21-hechizos-sin-rastro-en-el-diario.md) | — · **no cabe a la vez que T20**: mismos tres ficheros | `types.ts`, **`reducer.ts`**, `narrator/local.ts` | en curso · `6905402d` · 2026-09-05 |
+| T21 | [Siete hechizos de doce no dejan rastro en el diario](tareas/T21-hechizos-sin-rastro-en-el-diario.md) | — · **no cabe a la vez que T20**: mismos tres ficheros | `types.ts`, **`reducer.ts`**, `narrator/local.ts` | **hecha** · `72a7c7f` · 2026-09-05 · la Tempestad **espera su palabra**: mira abajo |
 | T22 | [Saber qué hace cada hechizo antes de lanzarlo](tareas/T22-que-hace-cada-hechizo.md) | `Instrucciones.tsx` en `main` | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css` | pendiente · **a la cola**, por decisión suya |
 | T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | **hecha** · `6b07f82` · 2026-09-05 · escrita y probada; **falta desplegarla**, y eso pide su firma |
 | T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | **hecha** · `15c852a` · 2026-09-05 · el sondeo pide desde cero a propósito; ver el registro |
@@ -472,6 +472,32 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
     `tests/red-protocolo.test.ts` pierde su conversor provisional montaje→partida
     y usa `partidaDelMontaje` de `cliente.ts`, que es lo que su propio
     comentario dejaba encargado a T31. El conversor vive en un solo sitio.
+
+- **T21 · sesión `6905402d` · 2026-09-05 · `72a7c7f`.** Los hechizos dejan rastro. Es el
+  tercero de los tres fallos que trajo Juan Luis de su segunda partida. Cinco cosas:
+  - **Dos eventos nuevos, no siete.** `efectoDeHechizo` lleva la clase de efecto y la
+    **lista** de alcanzados —lista, porque la Tempestad alcanza a más de uno—, y
+    `hechizoSinEfecto` lleva el motivo **en el dato y no en la frase**: hoy son cuatro
+    (no muerto, mente más fuerte, ya estaba sano, no hay a quién) y va a haber más.
+  - **Lo grave no era el silencio: era el fallo silencioso.** El Sueño no prende contra un no
+    muerto ni contra una mente mayor que la del lanzador, y los tres finales dejaban
+    exactamente la misma línea. Quien juega no podía saber si el orco se había dormido. Ahora
+    son tres frases distintas y hay un test por cada una.
+  - **Dos fallos de la Tempestad, arreglados por el camino y sin tocarle el alcance:** marcaba
+    también a los monstruos ya derrotados, y —el gordo— `salaEn` devuelve `null` fuera de las
+    salas, así que lanzarla en un pasillo comparaba `null === null` y metía en el hechizo a
+    **todos los monstruos de todos los pasillos del tablero**. Un pasillo no es una sala.
+  - **La divergencia de la Tempestad NO se ha resuelto, y no es un descuido.** Está
+    implementada sobre toda la sala y su carta dice «el monstruo elegido». Se fue a mirar el
+    reglamento y **el reglamento no lo dice**: la p. 14 remite a la carta —«A spell and its
+    effects are explained in detail on its corresponding spell card»— y las cartas no las
+    tenemos, exactamente como las armas grandes de T7. Sin fuente no se inventa. Queda abajo,
+    en «Pendientes de su palabra», y hay un test que **fija lo que hace hoy** para que el día
+    que conteste se vea qué cambia. Y ahora, jugando, se nota: el diario dice «Un torbellino
+    envuelve a Goblin y Goblin».
+  - **El test que sostiene la tarea es el de los doce.** Cada hechizo se lanza y se exige una
+    segunda frase no vacía detrás de «Mago lanza X». Un hechizo nuevo que nazca mudo salta
+    ahí, y no en una partida seis meses después.
 
 - **T20 · sesión `6905402d` · 2026-09-05 · `740f54a`.** El turno de Zargon deja rastro.
   Sale del segundo rato de juego de Juan Luis, y su frase —«los monstruos no se mueven, se
@@ -849,6 +875,23 @@ sesión se lo puede autorizar a sí misma:
 
 Las dos tareas se pueden **escribir y probar enteras sin ninguna de las dos firmas**: lo que
 requiere su palabra es el `wrangler deploy` y el encendido de Pages, no el código.
+
+**¿A quién alcanza la Tempestad: al monstruo elegido o a toda su sala? (T21).** El código la
+aplica a **todos los monstruos de la sala del objetivo**; la descripción de su carta, en
+`spells.ts`, dice «el monstruo elegido», en singular, y su campo `objetivo` es `unEnemigo`.
+Una de las dos miente y con el diario mudo no se notaba jugando; ahora sí, porque el diario
+dice a quién ha alcanzado. **El reglamento no lo decide**: la p. 14 remite a la carta del
+hechizo y las cartas no las tenemos (es el mismo caso que las armas grandes del mago, T7).
+Dos opciones:
+
+- **Un solo monstruo.** Es lo que dicen los dos datos que tenemos escritos, y deja la
+  Tempestad como un «pierde su turno» a cambio de una carta.
+- **Toda la sala.** Es lo que hace hoy, y con seis monstruos en una sala es un hechizo que
+  gana una partida él solo.
+
+Cambiarlo es el `case "perderTurno"` de `reducer.ts` y su test, que hoy fija el
+comportamiento de la sala entera. Si tienes la carta de Tempestad a mano, la respuesta está
+en ella.
 
 **¿El suelo de un dado dentro del foso vale también para los monstruos? (T5).** El
 reglamento (p. 17) da la penalización del foso para todos —«you must roll one fewer combat
