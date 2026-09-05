@@ -34,6 +34,17 @@ primero. La otra se entera al instante y sin ambigüedad.
 **Nunca `git add -A`.** El directorio de trabajo es compartido: añade tus ficheros por
 nombre, uno a uno. Ignorar esto ya costó la incidencia T12.
 
+**Y añadir por nombre no basta: commitea por nombre.** `git add fichero && git commit` se
+lleva dentro **todo lo que haya en el índice**, y el índice también es compartido: si otra
+sesión tiene ficheros suyos preparados, entran en tu commit con tu mensaje. Pasó el
+2026-09-05 con `56f5f21`, un commit de tablón que se llevó la T16 entera. La forma que no
+falla es nombrar los ficheros **en el commit**, que ignora el resto del índice:
+
+```sh
+git commit -- _ESTADO.md            # solo ese fichero, pase lo que pase en el índice
+git commit -- src/engine/board.ts tests/puertas-en-diagonal.test.ts
+```
+
 ### Hay dos candados, no uno
 
 Se confunden con facilidad y hacen cosas distintas:
