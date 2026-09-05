@@ -7,6 +7,14 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { salaEn } from "../src/data/board-base";
+import {
+  MISION_CALABOZO,
+  MONSTRUOS_CALABOZO,
+  MUEBLES_CALABOZO,
+  PUERTAS_CALABOZO,
+  TRAMPAS_CALABOZO,
+} from "../src/data/quests/calabozo";
 import { crearPartida } from "../src/engine/partida";
 import { hacer, c, partida, situar, MISION_PRUEBA } from "./ayuda";
 import { claveCelda, type EstadoPartida } from "../src/engine/types";
@@ -53,17 +61,57 @@ describe("ocho héroes caben, y cada uno en su casilla", () => {
   });
 });
 
-describe("si no caben, la partida no se crea en silencio", () => {
-  it("más héroes que casillas de entrada es un error, no una partida apilada", () => {
-    const estrecha = { ...MISION_PRUEBA, entrada: [c(0, 1), c(0, 2)] };
+describe("los que no caben en la entrada salen por las casillas de al lado", () => {
+  const estrecha = { ...MISION_PRUEBA, entrada: [c(0, 1), c(0, 2)] };
+
+  const conEstrecha = (cuantos: number) =>
+    crearPartida({
+      mision: estrecha,
+      heroes: Array.from({ length: cuantos }, () => ({ clase: "barbaro" as const })),
+      monstruos: [],
+      semilla: 42,
+    });
+
+  it("el que sobra sale en una casilla libre, no encima de nadie", () => {
+    // Lo firmó Juan Luis el 2026-09-05: con más héroes que casillas de entrada,
+    // los que sobran ocupan las más cercanas que sean pasillo. Antes esto era
+    // un error —así lo dejó la primera versión de esta tarea— y el test decía
+    // eso. El test afirmaba la regla equivocada, no el código.
+    const e = conEstrecha(3);
+    expect(new Set(e.heroes.map((h) => claveCelda(h.celda))).size).toBe(3);
+  });
+
+  it("los declarados en la misión van primero y en su orden", () => {
+    // Que se reparta el sobrante no puede desordenar a los que sí tenían sitio:
+    // en la mesa, el grupo entra por donde dice la misión.
+    const e = conEstrecha(3);
+    expect(claveCelda(e.heroes[0]!.celda)).toBe("0,1");
+    expect(claveCelda(e.heroes[1]!.celda)).toBe("0,2");
+  });
+
+  it("ninguno acaba dentro de una sala", () => {
+    // La condición que puso Juan Luis: las casillas tienen que ser de pasillo.
+    // Un héroe de pie dentro de una sala que la partida todavía da por
+    // desconocida es una incoherencia que no se ve hasta tres turnos después.
+    const e = conEstrecha(4);
+    for (const h of e.heroes) expect(salaEn(h.celda.x, h.celda.y)).toBeNull();
+  });
+
+  it("si de verdad no hay sitio, la partida no se crea en silencio", () => {
+    // El límite sigue existiendo: repartir por las de al lado no es repartir
+    // por cualquier sitio. El reparto no cruza puertas —para `hayMuroEntre`,
+    // cambiar de región es un muro—, así que una entrada dentro de la sala 'a',
+    // que mide 4×4, tiene un techo de 16 por mucho que el tablero sea grande.
+    // Por el pasillo no se puede probar: la red de pasillos da para más de cien.
+    const enSala = { ...MISION_PRUEBA, entrada: [c(1, 1)] };
     expect(() =>
       crearPartida({
-        mision: estrecha,
-        heroes: [{ clase: "barbaro" }, { clase: "enano" }, { clase: "elfo" }],
+        mision: enSala,
+        heroes: Array.from({ length: 20 }, () => ({ clase: "barbaro" as const })),
         monstruos: [],
         semilla: 42,
       }),
-    ).toThrow(/no caben sin apilarse/);
+    ).toThrow(/no tiene sitio/);
   });
 
   it("justo los que caben sí se crean", () => {
@@ -77,6 +125,51 @@ describe("si no caben, la partida no se crea en silencio", () => {
       semilla: 42,
     });
     expect(e.heroes.map((h) => claveCelda(h.celda))).toEqual(["0,1", "0,2"]);
+  });
+});
+
+describe("la misión de verdad, con ocho héroes", () => {
+  // No es una escena inventada: es «El calabozo del guardián», con sus muebles,
+  // sus trampas y sus monstruos puestos. Es lo que va a pasar en la mesa el día
+  // que bajen los ocho, y es lo único que prueba que la decisión de Juan Luis
+  // cabe de verdad en este tablero.
+  const calabozo = () =>
+    crearPartida({
+      mision: MISION_CALABOZO,
+      heroes: OCHO,
+      monstruos: MONSTRUOS_CALABOZO,
+      puertas: PUERTAS_CALABOZO,
+      muebles: MUEBLES_CALABOZO,
+      trampas: TRAMPAS_CALABOZO,
+      semilla: 42,
+    });
+
+  it("los ocho entran, cada uno en su casilla", () => {
+    const e = calabozo();
+    expect(new Set(e.heroes.map((h) => claveCelda(h.celda))).size).toBe(8);
+  });
+
+  it("los cuatro primeros van en la entrada declarada", () => {
+    const e = calabozo();
+    MISION_CALABOZO.entrada.forEach((celda, i) => {
+      expect(claveCelda(e.heroes[i]!.celda)).toBe(claveCelda(celda));
+    });
+  });
+
+  it("ninguno empieza dentro de una sala, encima de un mueble o de una trampa", () => {
+    const e = calabozo();
+    const muebles = new Set(
+      MUEBLES_CALABOZO.filter((m) => m.bloqueaPaso).flatMap((m) => m.celdas.map(claveCelda)),
+    );
+    const trampas = new Set(TRAMPAS_CALABOZO.map((t) => claveCelda(t.celda)));
+    const monstruos = new Set(MONSTRUOS_CALABOZO.map((m) => claveCelda(m.celda)));
+    for (const h of e.heroes) {
+      const k = claveCelda(h.celda);
+      expect(salaEn(h.celda.x, h.celda.y), `${h.id} en ${k}`).toBeNull();
+      expect(muebles.has(k), `${h.id} sobre un mueble en ${k}`).toBe(false);
+      expect(trampas.has(k), `${h.id} sobre una trampa en ${k}`).toBe(false);
+      expect(monstruos.has(k), `${h.id} sobre un monstruo en ${k}`).toBe(false);
+    }
   });
 });
 

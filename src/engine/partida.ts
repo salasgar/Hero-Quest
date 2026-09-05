@@ -1,11 +1,13 @@
 /** Construcción del estado inicial de una partida. */
 
+import { hayMuroEntre, vecinas } from "../data/board-base";
 import { HEROES, type ClaseHeroe, type Genero } from "../data/heroes";
 import { MONSTRUOS, type EspecieMonstruo } from "../data/monsters";
 import { hechizosDelElemento, type Elemento, type IdHechizo } from "../data/spells";
 import { MAZO_COMPLETO } from "../data/treasure";
 import { crearRng, entero, type Rng } from "./rng";
 import { conMonstruosEnTablero, conPuertasVistas } from "./vision";
+import { claveCelda } from "./types";
 import type {
   Celda,
   EstadoPartida,
@@ -37,6 +39,74 @@ export interface OpcionesPartida {
   semilla?: number;
 }
 
+/**
+ * Dónde empieza cada héroe.
+ *
+ * Primero las casillas que la misión declara como entrada, en su orden. Si hay
+ * más héroes que casillas, los que sobran salen **por las casillas más cercanas
+ * a la entrada**, hacia fuera. Lo decidió Juan Luis el 2026-09-05 y está firmado
+ * en `_ESTADO.md`; antes de eso, `crearPartida` se negaba a arrancar.
+ *
+ * Es un recorrido en anchura desde todas las casillas de entrada a la vez, así
+ * que «más cercana» es en pasos por el tablero y no en línea recta: una casilla
+ * pegada al otro lado de un muro está lejísimos, que es lo que se quiere.
+ *
+ * **El recorrido no sale de la región de la entrada**, y sale gratis:
+ * `hayMuroEntre` considera muro todo cambio de región, y las puertas son datos
+ * de misión que se ponen encima. Entrando por el pasillo, el grupo se estira por
+ * el pasillo y nunca aparece dentro de una sala —que además empieza a oscuras, y
+ * un héroe de pie en un sitio que la partida da por desconocido es justo la
+ * incoherencia que no se ve hasta tres turnos después—.
+ *
+ * Se saltan las casillas ocupadas: mobiliario que corta el paso, monstruos y
+ * trampas. Las trampas no se disparan al colocar —solo al moverse—, pero
+ * empezar encima de una es una faena gratis, y `quest.test.ts` ya exige que
+ * ninguna caiga sobre la entrada declarada.
+ */
+function casillasDeSalida(op: OpcionesPartida, cuantos: number): Celda[] {
+  const entrada = op.mision.entrada;
+  if (cuantos <= entrada.length) return entrada.slice(0, cuantos);
+
+  const ocupada = new Set<string>([
+    ...(op.muebles ?? []).filter((m) => m.bloqueaPaso).flatMap((m) => m.celdas.map(claveCelda)),
+    ...op.monstruos.map((m) => claveCelda(m.celda)),
+    ...(op.trampas ?? []).map((t) => claveCelda(t.celda)),
+  ]);
+
+  const salida: Celda[] = [];
+  const vistas = new Set<string>();
+  // La cola arranca con TODAS las casillas de entrada, no con la primera: así
+  // el grupo crece por los dos extremos del pasillo a la vez, en vez de hacer
+  // una cola de ocho por un lado.
+  let frente: Celda[] = [...entrada];
+  for (const c of frente) vistas.add(claveCelda(c));
+
+  while (frente.length > 0 && salida.length < cuantos) {
+    for (const c of frente) {
+      if (salida.length >= cuantos) break;
+      if (!ocupada.has(claveCelda(c))) salida.push(c);
+    }
+    const siguiente: Celda[] = [];
+    for (const c of frente) {
+      for (const v of vecinas(c)) {
+        const k = claveCelda(v);
+        if (vistas.has(k) || hayMuroEntre(c, v)) continue;
+        vistas.add(k);
+        siguiente.push(v);
+      }
+    }
+    frente = siguiente;
+  }
+
+  if (salida.length < cuantos) {
+    throw new Error(
+      `«${op.mision.titulo}» no tiene sitio para ${cuantos} héroes: desde su entrada solo se ` +
+        `alcanzan ${salida.length} casillas libres sin cruzar una puerta. Lleva menos héroes.`,
+    );
+  }
+  return salida;
+}
+
 /** Baraja de Fisher-Yates con el generador del estado, para que sea repetible. */
 function barajar<T>(xs: readonly T[], rng: Rng): [T[], Rng] {
   const a = [...xs];
@@ -50,7 +120,7 @@ function barajar<T>(xs: readonly T[], rng: Rng): [T[], Rng] {
 }
 
 export function crearPartida(op: OpcionesPartida): EstadoPartida {
-  // Una casilla de entrada por héroe, y se acabó.
+  // Una casilla por héroe, sin excepción.
   //
   // Antes se repartían con `i % entrada.length`, que con más héroes que
   // casillas los **apilaba** en silencio: con ocho héroes y cuatro casillas
@@ -59,20 +129,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
   // partir de ahí el movimiento, la visión y los ataques razonan sobre un
   // tablero que no existe, y el síntoma aparece tres acciones después, lejos
   // de la causa.
-  //
-  // Falla en vez de buscarles hueco alrededor, y es a propósito: repartirlos
-  // por las casillas libres de al lado significaría decidir por dónde entra el
-  // grupo, y **cuántas casillas de entrada tiene una misión es una decisión de
-  // tablero**, no del constructor. Además `mision.entrada` decide el objetivo
-  // «salir» (`reducer.ts`): con menos casillas que héroes, esa victoria no es
-  // difícil, es imposible. Mejor no arrancar que arrancar mintiendo.
-  if (op.heroes.length > op.mision.entrada.length) {
-    throw new Error(
-      `«${op.mision.titulo}» tiene ${op.mision.entrada.length} casilla(s) de entrada y se han ` +
-        `elegido ${op.heroes.length} héroes: no caben sin apilarse. Alarga la entrada de la ` +
-        `misión o lleva menos héroes.`,
-    );
-  }
+  const salida = casillasDeSalida(op, op.heroes.length);
 
   // El identificador es la clase, que basta mientras no se repita. Si dos
   // jugadores quieren la misma —dos elfas, por ejemplo— el segundo lleva un
@@ -95,7 +152,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
       clase: elegido.clase,
       genero,
       nombre: elegido.nombre?.trim() || plantilla.nombre[genero],
-      celda: op.mision.entrada[i]!,
+      celda: salida[i]!,
       cuerpo: plantilla.cuerpo,
       cuerpoMax: plantilla.cuerpo,
       mente: plantilla.mente,

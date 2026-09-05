@@ -9,22 +9,17 @@ import type { HeroeElegido } from "../engine/partida";
 const MAXIMO = 8;
 
 /**
- * Cuántos caben de verdad hoy: **una casilla de entrada por héroe**.
+ * Cuántas casillas declara la misión como entrada. Ya no es un tope, solo un
+ * dato para explicarse en pantalla.
  *
- * `crearPartida` ya no reparte en círculo —apilaba figuras y dejaba la partida
- * en un estado ilegal desde el turno cero—, así que un grupo más largo que la
- * entrada de la misión no se puede crear. El tope sale del dato y no de un
- * número escrito aquí: **el día que la entrada del calabozo crezca, esta
- * pantalla admite ocho sin tocar una línea.**
- *
- * Y por qué la entrada mide hoy lo que mide es una decisión de Juan Luis que
- * está pendiente de firma en `_ESTADO.md` (T16, punto 2): si el pasillo se
- * alarga para que quepan ocho en fila india, si la entrada crece a lo ancho, o
- * si el tope de ocho es para misiones futuras y el calabozo se queda como está.
- * Ninguna de las tres se decide aquí.
+ * Lo fue durante unas horas: mientras `crearPartida` se negaba a arrancar con
+ * más héroes que casillas, la pantalla tenía que recortar a esa cifra o el
+ * juego reventaba al empezar. Juan Luis lo resolvió el 2026-09-05 al firmar que
+ * **los que sobran salen por las casillas de pasillo más cercanas**, así que el
+ * tope vuelve a ser el que él pidió: ocho.
  */
 const PLAZAS = MISION_CALABOZO.entrada.length;
-const TOPE = Math.min(MAXIMO, PLAZAS);
+const TOPE = MAXIMO;
 
 const NOMBRE_ELEMENTO: Record<Elemento, string> = {
   aire: "Aire", agua: "Agua", tierra: "Tierra", fuego: "Fuego",
@@ -108,21 +103,21 @@ export function EleccionDeHeroes({ alEmpezar }: { alEmpezar: (heroes: HeroeElegi
       <header className="eleccion-cabecera">
         <h1>¿Quién baja a la mazmorra?</h1>
         <p className="pista">
-          Hasta {TOPE} héroes, que son las casillas de la entrada de «{MISION_CALABOZO.titulo}»:
-          cada uno necesita la suya. Se puede repetir clase —dos magos, dos elfas—, y cada clase
-          se juega en masculino o en femenino: solo cambia el nombre, las reglas son las mismas.
+          Hasta {TOPE} héroes. Se puede repetir clase —dos magos, dos elfas—, y cada clase se
+          juega en masculino o en femenino: solo cambia el nombre, las reglas son las mismas.
           El hada es añadido nuestro, no viene en la caja.
         </p>
         {/*
-          Que el tope sea menor que ocho no es un capricho de la pantalla, y si
-          no se dice aquí, quien lea «hasta ocho» en otro sitio va a creer que
-          esto está roto. Solo sale cuando de verdad recorta.
+          Con más héroes que casillas de entrada, el grupo se estira por el
+          pasillo. Conviene decirlo aquí: en la mesa hay que colocar las figuras
+          a mano, y quien vea la fila larga tiene que saber que es lo previsto y
+          no un despiste de la aplicación.
         */}
-        {TOPE < MAXIMO && (
+        {grupo.length > PLAZAS && (
           <p className="pista">
-            El tope de {MAXIMO} está puesto en el código, pero esta misión tiene {PLAZAS} casillas
-            de entrada y nadie empieza encima de otro. Para llevar {MAXIMO} hay que alargar la
-            entrada, y eso está pendiente de decidir.
+            «{MISION_CALABOZO.titulo}» declara {PLAZAS} casillas de entrada. Los {grupo.length - PLAZAS}{" "}
+            que sobran empiezan en las casillas de pasillo más cercanas, en fila hacia fuera:
+            nadie empieza encima de otro.
           </p>
         )}
       </header>
