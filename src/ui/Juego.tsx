@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MISION_CALABOZO,
   MONSTRUOS_CALABOZO,
@@ -7,6 +7,7 @@ import {
   TRAMPAS_CALABOZO,
 } from "../data/quests/calabozo";
 import { MONSTRUOS } from "../data/monsters";
+import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { figuraPorId } from "../engine/board";
 import { dadosDeDefensa } from "../engine/combat";
 import {
@@ -14,6 +15,7 @@ import {
   dadosDeAtaqueContra,
   esTurnoDeZargon,
   figuraActiva,
+  hechizosLanzables,
   monstruosPorActivar,
   objetivosDeAtaque,
   puertasAlAlcance,
@@ -52,6 +54,8 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
   });
 
   const [peticion, setPeticion] = useState<PeticionDados | null>(null);
+  /** El hechizo elegido que todavía no sabe a quién va. */
+  const [hechizoElegido, setHechizoElegido] = useState<IdHechizo | null>(null);
 
   const activa = figuraActiva(estado);
   const esZargon = esTurnoDeZargon(estado);
@@ -60,7 +64,17 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
   const puertas = puertasAlAlcance(estado);
   const porActivar = monstruosPorActivar(estado);
 
+  // Solo los que tienen a alguien a la vista: los demás no se pintan, para que
+  // no haya un botón que el motor vaya a rechazar.
+  const hechizos = useMemo(
+    () => hechizosLanzables(estado).filter((h) => h.objetivos.length > 0),
+    [estado],
+  );
+  const pendiente = hechizos.find((h) => h.hechizo === hechizoElegido) ?? null;
+  const hechizosEnMano = activa && esHeroe(activa) ? activa.hechizos.length : 0;
+
   const cerrar = useCallback(() => setPeticion(null), []);
+  const cancelarHechizo = useCallback(() => setHechizoElegido(null), []);
 
   /**
    * El reparto de los dados: los héroes tiran los suyos de verdad en la mesa y
@@ -104,6 +118,59 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
     [estado, ejecutar, cerrar],
   );
 
+  /**
+   * Lanzar, ya con el objetivo decidido.
+   *
+   * Quién tira qué, leído en `lanzarHechizo` del reductor antes de montar nada:
+   *
+   * - **Bola de fuego y fuego de la ira** (`danoConSalvacion`): los dados de
+   *   salvación los tira **quien recibe**, y los dos hechizos apuntan a un
+   *   enemigo, así que siempre los tira la aplicación. No hay nada que pedir.
+   * - **Viento veloz** (`movimientoExtra`): no tira nada al lanzarse. Los dos
+   *   dados de más los añade `tirarMovimientoAccion` cuando el héroe tira su
+   *   movimiento, y esa tirada ya pasa por `pedirMovimiento`.
+   * - **Genio** (`invocar`): son cinco dados de combate del bando de los héroes,
+   *   y en esta mesa los dados de los héroes se tiran de verdad. Es el único
+   *   hechizo que abre diálogo; `resolverDanoDirecto` acepta esos dados justo
+   *   para esto. Si se cancela, el hechizo no se gasta: no se despacha nada.
+   * - Los demás no tiran dados en absoluto.
+   */
+  const lanzar = useCallback(
+    (hechizo: IdHechizo, idObjetivo: string) => {
+      setHechizoElegido(null);
+      const h = HECHIZOS[hechizo];
+      if (h.efecto.clase !== "invocar") {
+        ejecutar({ tipo: "lanzarHechizo", hechizo, objetivo: idObjetivo });
+        return;
+      }
+      const n = h.efecto.dados;
+      const objetivo = figuraPorId(estado, idObjetivo);
+      setPeticion({
+        titulo: h.nombre,
+        detalle: objetivo ? `Contra ${nombreDeFigura(objetivo)}` : "",
+        instruccion: `Tira ${n} dados de combate por el genio. ¿Cuántas calaveras?`,
+        opciones: rango(0, n),
+        alResponder: (k) => {
+          ejecutar({ tipo: "lanzarHechizo", hechizo, objetivo: idObjetivo, dados: calaveras(n, k) });
+          cerrar();
+        },
+        alCancelar: cerrar,
+      });
+    },
+    [estado, ejecutar, cerrar],
+  );
+
+  /** Un objetivo: va directo. Varios: hay que señalar a quién. */
+  const elegirHechizo = useCallback(
+    (hechizo: IdHechizo) => {
+      const entrada = hechizos.find((h) => h.hechizo === hechizo);
+      if (!entrada || entrada.objetivos.length === 0) return;
+      if (entrada.objetivos.length === 1) lanzar(hechizo, entrada.objetivos[0]!.id);
+      else setHechizoElegido(hechizo);
+    },
+    [hechizos, lanzar],
+  );
+
   const pedirMovimiento = useCallback(() => {
     setPeticion({
       titulo: "Tirada de movimiento",
@@ -128,19 +195,32 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
 
   const alPulsarFigura = useCallback(
     (id: string) => {
+      // Con un hechizo a medio lanzar, el tablero señala objetivos suyos, no de
+      // ataque: pulsar una figura completa el hechizo.
+      if (pendiente) {
+        if (pendiente.objetivos.some((o) => o.id === id)) lanzar(pendiente.hechizo, id);
+        return;
+      }
       if (esZargon && porActivar.some((m) => m.id === id)) {
         ejecutar({ tipo: "activarMonstruo", monstruo: id });
         return;
       }
       if (objetivos.some((o) => o.id === id)) pedirAtaque(id);
     },
-    [esZargon, porActivar, objetivos, ejecutar, pedirAtaque],
+    [pendiente, lanzar, esZargon, porActivar, objetivos, ejecutar, pedirAtaque],
   );
 
   // ---- teclado: es la entrada rápida, más que el ratón ----
   useEffect(() => {
     if (peticion) return; // mientras se piden dados, manda el diálogo
     const alPulsar = (ev: KeyboardEvent) => {
+      // Con un hechizo esperando objetivo, Escape lo suelta. Va antes que las
+      // flechas: mientras se elige a quién, moverse sería perder la elección.
+      if (ev.key === "Escape" && hechizoElegido) {
+        ev.preventDefault();
+        cancelarHechizo();
+        return;
+      }
       const paso: Record<string, [number, number]> = {
         ArrowUp: [0, -1],
         ArrowDown: [0, 1],
@@ -170,6 +250,10 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
       } else if (tecla === "r") {
         ev.preventDefault();
         ejecutar({ tipo: "buscarTrampas" });
+      } else if (tecla === "h" && hechizos.length > 0) {
+        // T, A, P, B, R y Z estaban cogidas; H no.
+        ev.preventDefault();
+        elegirHechizo(hechizos[0]!.hechizo);
       } else if (tecla === "z") {
         ev.preventDefault();
         deshacer();
@@ -186,7 +270,8 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
     return () => window.removeEventListener("keydown", alPulsar);
   }, [
     peticion, activa, esZargon, estado.turno.movimientoTotal, objetivos, puertas, porActivar,
-    mover, ejecutar, deshacer, pedirAtaque, pedirMovimiento,
+    hechizos, hechizoElegido, mover, ejecutar, deshacer, pedirAtaque, pedirMovimiento,
+    elegirHechizo, cancelarHechizo,
   ]);
 
   useEffect(() => {
@@ -201,7 +286,9 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
         <BoardMirror
           estado={estado}
           movimiento={movimiento}
-          objetivos={objetivos}
+          // Mientras se elige a quién apuntar, el tablero marca los objetivos
+          // del hechizo en vez de los del ataque: solo hay una elección viva.
+          objetivos={pendiente ? pendiente.objetivos : objetivos}
           activa={activa}
           alPulsarCelda={mover}
           alPulsarFigura={alPulsarFigura}
@@ -229,6 +316,9 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
             porActivar={porActivar}
             puertas={puertas}
             objetivos={objetivos}
+            hechizos={hechizos}
+            hechizosEnMano={hechizosEnMano}
+            pendiente={pendiente}
             puedeDeshacer={puedeDeshacer}
             acciones={{
               tirarMovimiento: pedirMovimiento,
@@ -236,6 +326,11 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
               atacar: pedirAtaque,
               buscarTesoro: () => ejecutar({ tipo: "buscarTesoro" }),
               buscarTrampas: () => ejecutar({ tipo: "buscarTrampas" }),
+              elegirHechizo,
+              lanzarSobre: (id) => {
+                if (pendiente) lanzar(pendiente.hechizo, id);
+              },
+              cancelarHechizo,
               activarMonstruo: (id) => ejecutar({ tipo: "activarMonstruo", monstruo: id }),
               terminarTurno: () => ejecutar({ tipo: "terminarTurno" }),
               deshacer,

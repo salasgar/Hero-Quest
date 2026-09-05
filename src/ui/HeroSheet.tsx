@@ -1,4 +1,5 @@
 import { dadosDeAtaque, dadosDeDefensa } from "../engine/combat";
+import { HECHIZOS } from "../data/spells";
 import type { EstadoPartida, Heroe } from "../engine/types";
 
 const barra = (actual: number, maximo: number) =>
@@ -33,6 +34,27 @@ export function HeroSheet({
           <span title="hechizos que le quedan">✨ {heroe.hechizos.length}</span>
         )}
       </div>
+      {/*
+        Los nombres, no el contador. Un «✨ 9» en la mesa no es información:
+        nadie recuerda cuáles son los nueve. Y los gastados se siguen viendo
+        tachados porque un hechizo se gasta para siempre en la misión: lo que
+        hay que evitar es que alguien cuente con la Curación que usó hace dos
+        salas. El bárbaro y el enano no tienen ninguno y aquí no les sale nada.
+      */}
+      {(heroe.hechizos.length > 0 || heroe.hechizosGastados.length > 0) && (
+        <div className="hoja-efectos">
+          {heroe.hechizos.map((id) => (
+            <span key={id} className="etiqueta" title={HECHIZOS[id].descripcion}>
+              ✨ {HECHIZOS[id].nombre}
+            </span>
+          ))}
+          {heroe.hechizosGastados.map((id) => (
+            <span key={id} className="etiqueta apagado" title="Ya gastado en esta misión">
+              <s>{HECHIZOS[id].nombre}</s>
+            </span>
+          ))}
+        </div>
+      )}
       {heroe.efectos.length > 0 && (
         <div className="hoja-efectos">
           {heroe.efectos.map((e, i) => (
