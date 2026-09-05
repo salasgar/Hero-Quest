@@ -111,9 +111,9 @@ coger en cualquier orden desde hoy.
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
 | T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | **hecha** · `6b07f82` · 2026-09-05 · escrita y probada; **falta desplegarla**, y eso pide su firma |
-| T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | en curso · `992c726d` · 2026-09-05 |
-| T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 · y T18, **cumplida** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | bloqueada |
-| T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 | `TurnPanel.tsx`, `DiceInput.tsx` | bloqueada |
+| T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | **hecha** · `15c852a` · 2026-09-05 · el sondeo pide desde cero a propósito; ver el registro |
+| T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 y T18 · **cumplidas** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | libre |
+| T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 · **cumplida** | `TurnPanel.tsx`, `DiceInput.tsx` | libre · pero no a la vez que T32: comparten pantalla |
 | T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **falta su autorización** | `.github/workflows/`, `vite.config.ts`, `README.md` | pendiente · esperando su firma |
 
 Las cinco de la tanda de septiembre —**T13 a T17**, no las de red, que empiezan en T30— salen
@@ -256,6 +256,20 @@ van aquí y no se pierden en la tabla:
 
 ## Incidencias abiertas
 
+- **El candado del `esperado` no ve un deshacer seguido de una jugada, y conviene
+  decidirlo antes del `wrangler deploy`.** Lo encontró T31: el `esperado` compara
+  longitudes, y truncar una acción y añadir otra deja el registro con la misma
+  longitud. Una escritura que llegue en ese hueco entra con la cuenta buena y el
+  contenido cambiado. El cliente lo tapa —sondea desde cero y el registro del
+  relevo manda siempre, así que las dos casas convergen en un segundo como
+  mucho— pero puede colarse en el registro una acción que ya no era legal;
+  `repetir` la ignora igual en las dos casas, así que no divergen, aunque esa
+  jugada se pierde en silencio. La solución de raíz es un número de revisión en
+  el registro que `truncar` incremente y `anadir` compruebe. Es un cambio del
+  protocolo de T30, y **hoy es barato porque no hay nada desplegado**: después
+  del despliegue obligaría a redesplegar con partidas vivas. La decisión es de
+  Juan Luis (regla 4: toca el protocolo).
+
 - **El propio tablón es el cuello de botella del protocolo, y hoy ha fallado.** Reclamar una
   tarea significa escribir una fila *en este fichero*, pero el candado de `.claude/sesiones/`
   trata `_ESTADO.md` como cualquier otro: mientras una sesión lo tiene reservado, ninguna
@@ -321,6 +335,48 @@ van aquí y no se pierden en la tabla:
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T31 · sesión `992c726d` · 2026-09-05 · `15c852a`.** La partida en red, en el
+  cliente. Lo que T32 y T33 dan por hecho, y una desviación dicha:
+  - **La reconciliación del 409, tal como quedó.** `SesionDeRed.enviar` es un
+    bucle: ¿me toca a mí (`puedeActuar`)? → ¿es legal (`aplicarAccion`)? → se
+    envía. En un 409 incorpora las entradas que trae el propio rechazo, avisa a
+    los suscriptores y vuelve al principio del bucle, o sea que **recomprueba el
+    turno además de la legalidad**: tras ponerse al día, el turno puede ser de
+    una figura de otro jugador y el motor no puede notar eso. Si la acción dejó
+    de ser legal, devuelve `{ ok: false, motivo }` sin reenviar, y la pantalla
+    revierte al estado del registro y enseña el motivo. El bucle no gira para
+    siempre: cada rechazo incorpora acciones y el `esperado` crece.
+  - **El sondeo pide `desde=0` y compara, no `desde=N` como decía la tarea.** Es
+    la desviación, y va con su porqué: el registro no lleva número de revisión,
+    así que si la mesa deshace y juega otra cosa dentro del mismo segundo los
+    totales coinciden, las colas difieren y con `desde=N` la divergencia sería
+    invisible y permanente —justo el fallo por el que esta tarea era banda ALTO—.
+    Hay un test que fija ese caso exacto y falla con la implementación de
+    `desde=N` (comprobado mutando). El coste es traer unas decenas de acciones
+    por segundo. El agujero de fondo está arriba, en incidencias, con la
+    solución de raíz propuesta.
+  - **Quién puede actuar, tal como quedó**: el turno de Zargon es de la mesa;
+    una figura que el `reparto` no nombra, también. La sesión que crea la
+    partida es la mesa (`jugador = MESA`) y es la única que guarda el `secreto`,
+    así que `puedeDeshacer` solo es verdad en su pantalla. Y `usePartida` gana
+    un campo, `puedeActuar`, que es la señal de la que cuelgan T32 y T33; en
+    local siempre es verdad y la forma del hook no cambia en nada más.
+  - **`reiniciar` en red no hace nada, a propósito.** El protocolo no tiene esa
+    operación: «jugar otra vez» en red es crear otra partida con otro código, y
+    esa pantalla es de T32.
+  - **Si el sondeo de un segundo se nota, no se ha podido medir de verdad**: no
+    existe pantalla remota hasta T32 y en los tests el sondeo se llama a mano.
+    Queda `MS_ENTRE_SONDEOS = 1000` en `cliente.ts`, y el `setInterval` arranca
+    y para con el componente que use el hook.
+  - **La receta de T1, pasada tres veces** sobre los 14 tests nuevos: sondeo con
+    `desde=N` tumba los dos del deshacer compartido; `puedeActuar` siempre a sí
+    tumba los dos del reparto; reenviar sin recomprobar la legalidad tumba el
+    del 409 ilegal. Ninguna mutación tumba tests ajenos a lo mutado.
+  - **Un fichero de T30 tocado, dicho aquí además de en el commit**:
+    `tests/red-protocolo.test.ts` pierde su conversor provisional montaje→partida
+    y usa `partidaDelMontaje` de `cliente.ts`, que es lo que su propio
+    comentario dejaba encargado a T31. El conversor vive en un solo sitio.
 
 - **T30 · sesión `66e4a4ea` · 2026-09-05 · `6b07f82`.** El relevo de acciones. La misma
   sesión escribió antes las cinco tareas de la fase (`1fd496c`) y siguió con esta, que es
