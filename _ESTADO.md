@@ -109,7 +109,7 @@ coger en cualquier orden desde hoy.
 | T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 |
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
-| T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | en curso · `797b0a1c` · 2026-09-05 · **banda ALTO** |
+| T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
 
 Las cinco salen de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la
 lista original de divergencias. Vienen con dos hallazgos que no eran lo que parecía:
@@ -253,6 +253,25 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T18 · sesión `797b0a1c` · 2026-09-05 · `632d089`.** Los monstruos no actúan hasta que
+  se los encuentra. Cuatro cosas que no estaban escritas:
+  - **La forma del estado ha cambiado otra vez**: `monstruosEnTablero: IdFigura[]`, junto a
+    `puertasVistas`. Van juntos a propósito y con la misma mecánica; quien guarde partidas
+    tiene ahora dos listas acumulativas que conservar, no una.
+  - **El filtro de «qué puede mover Zargon» estaba copiado en tres sitios**, y el tercero
+    —el cierre del turno de Zargon, `terminarTurno`— es el que se olvida. Si cuenta
+    monstruos que la pantalla no ofrece, el turno no termina y **la partida se queda parada
+    en la mesa**. Ahora es uno solo, `monstruosActivables`, y vive en `reducer.ts` y no en
+    `selectors.ts` porque selectors importa de reducer, no al revés.
+  - **Doce tests viejos cayeron y los doce afirmaban la regla vieja**: montaban un monstruo
+    con `situar` y lo activaban sin que nadie lo hubiera encontrado. Se corrigen con
+    `enTablero()`, nuevo en `tests/ayuda.ts`. Cinco eran de T17 y se arreglaron los cinco en
+    su propio helper. **Ninguno falló por otro motivo**, que es lo que había que comprobar.
+  - **El monstruo errante hay que meterlo a mano.** Nace al lado del héroe que roba la
+    carta, así que no pasa por ninguna de las dos vías de descubrimiento; sin esa línea no
+    actuaría jamás y no se notaría hasta que la carta saliera jugando. Vale de aviso para
+    cualquier cosa que cree figuras a mitad de partida.
 
 - **T13 · sesión `797b0a1c` · 2026-09-05 · `de466ec`.** Las puertas que se pintan. Cuatro
   cosas que no estaban escritas:
