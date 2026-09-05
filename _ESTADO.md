@@ -96,7 +96,7 @@ coger en cualquier orden desde hoy.
 | T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | **hecha** · `1c8a533` · 2026-09-05 · con la entrada de la misión en el mismo commit |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | pendiente |
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **hecha** · `9bcd7d1` · 2026-09-05 |
-| T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | en curso · `2921da7f` · 2026-09-05 · **su commit `39f05f5` ya está en `main` y su sesión soltó los ficheros**; mira si sigue viva antes de darla por hecha o por libre |
+| T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `39f05f5` · 2026-09-05 |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
@@ -220,6 +220,12 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 - ~~Trabajo sin commitear en `src/engine/reducer.ts`.~~ **Rescatado** en `8b0b7dc`. Era de
   la sesión `64d69b4d`, que llevaba T4 y fue interrumpida. Estaba en `main` y **sin
   tests**. Su mitad de T4 ya los tiene (`9bcd7d1`); **la de T2 sigue sin ellos**.
+
+- **Divergencia conocida y a propósito: no se puede buscar dentro del foso.** El reglamento
+  (p. 17) dice que un héroe dentro de un foso puede registrarlo «as if it were a separate
+  room unto itself». T5 mandaba **no** implementarlo y así se ha hecho: obliga a cambiar
+  cómo se identifican las salas para buscar tesoro —hoy `salaEn(x, y)`, en
+  `selectors.ts`— y eso es justo lo que toca T6. Quien coja T6, que decida si lo mete ahí.
 
 ---
 
@@ -345,6 +351,32 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
     vieja abría en paralelo dos que iban al mismo fichero. Ya está corregida y medida con
     `grep`, no de memoria.
 
+- **T5 · sesión `2921da7f` · 2026-09-05 · `39f05f5`.** El foso resta un dado y ya no se
+  desarma. Cuatro cosas:
+  - **Las tres frases salieron del PDF, no de la tarea.** La página 17 se leyó con `Read`
+    (`pages: 9`) y dice literalmente lo que T5 citaba, incluida «(This applies to monsters
+    as well.)». Y de paso confirmó la de T4, «Monsters do not spring hidden traps», que
+    está en esa misma página.
+  - **El suelo de un dado se ha implementado solo para el héroe, y es discutible.** Su
+    recuadro empieza por «As a hero» y **no** lleva la coletilla de los monstruos que sí
+    lleva la regla de arriba. Leído literal: un goblin, que defiende con 1, dentro del foso
+    defiende con 0. Está abajo, en «Pendientes de su palabra». No es un descuido: es la
+    lectura conservadora, para no inventar una regla que el reglamento no da.
+  - **El suelo protege de la penalización del foso y de nada más.** Si una figura ya llega
+    a 0 dados por otro motivo, el foso no se los sube a 1. Es lo que avisaba T5 sobre dónde
+    poner el `max`, y hay un test que lo fija: cambiar el 1 por un 0 hace fallar justo el
+    del mago con daga.
+  - **Divergencia conocida, y ya cerrada por otra sesión.** `dadosDeAtaque` y
+    `dadosDeDefensa` recibieron el estado como argumento **opcional y último**, porque los
+    cinco sitios de `src/ui/` que las llaman estaban reservados por otra sesión y no se
+    podían tocar. Eso dejó la pantalla enseñando el dado sin descontar. Lo arregló
+    `aa403fd` una hora después. Lo que queda de la historia es la forma del argumento, que
+    ahora ya podría pasar a obligatorio y delante si alguien quiere.
+
+  **Lo que T5 mandaba NO hacer y no se ha hecho:** buscar dentro del foso «como si fuera
+  una sala aparte» (p. 17). Cambia cómo se identifican las salas para buscar tesoro y
+  arrastraría a T6. Queda como divergencia conocida.
+
 - **T4 · sesión `2921da7f` · 2026-09-05 · `9bcd7d1`.** Los monstruos no disparan las
   trampas ocultas. Solo faltaban los tests: la regla estaba desde `8b0b7dc`. Tres cosas:
   - **La prueba de T1 vuelve a salir negativa y luego positiva.** Con la condición vieja
@@ -403,6 +435,22 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   mismo commit que la regla**, nunca antes: con la regla vieja en pie, el atasco vuelve.
 
 ### Pendientes de su palabra
+
+**¿El suelo de un dado dentro del foso vale también para los monstruos? (T5).** El
+reglamento (p. 17) da la penalización del foso para todos —«you must roll one fewer combat
+dice … (This applies to monsters as well.)»— pero el recuadro que pone el suelo empieza por
+«**As a hero**, your minimum attack or defend strength is always 1 combat die» y no repite
+esa coletilla. Implementado literal: el suelo es solo del héroe. En la práctica afecta a un
+solo caso, porque solo un monstruo defiende con 1 dado: **el goblin, que dentro de un foso
+defiende con 0** y muere con cualquier calavera. Ataques no afecta a ninguno: el peor
+monstruo ataca con 2. Cambiarlo es una línea en `conPenalizacionDeFoso`
+(`src/engine/combat.ts`) y su test. Dos opciones:
+
+- **Dejarlo literal.** El goblin en el foso está indefenso. Es lo que dice la letra y es
+  coherente con no inventarse reglas.
+- **Extender el suelo a los monstruos.** El goblin defiende con 1. Se parece más a cómo
+  está escrita la regla de arriba, que sí se extiende explícitamente, y evita el único
+  caso raro. Sería regla de la casa, y habría que decirlo en el comentario.
 
 **La entrada del calabozo, con ocho héroes (T16).** El 2026-09-05 pidió que se puedan elegir
 hasta ocho héroes. La autorización del 2026-08-22, cuatro líneas más arriba, manda estrechar
