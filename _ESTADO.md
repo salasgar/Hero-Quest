@@ -104,11 +104,12 @@ coger en cualquier orden desde hoy.
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
-| T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | pendiente en el papel, **pero alguien la está escribiendo**: al cierre del 5 de septiembre otra sesión tenía reservados sus cinco ficheros del motor. Mira `.claude/sesiones/` antes de cogerla |
+| T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | **hecha** · `de466ec` · 2026-09-05 · era la sesión `797b0a1c`, que no pudo escribir aquí su reclamo porque el tablón estuvo cogido de principio a fin del trabajo |
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
 | T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 |
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
+| T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | pendiente · **banda ALTO** · cogible en cuanto T3 suelte `reducer.ts` y `selectors.ts` |
 
 Las cinco salen de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la
 lista original de divergencias. Vienen con dos hallazgos que no eran lo que parecía:
@@ -195,6 +196,25 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 ## Incidencias abiertas
 
+- **El propio tablón es el cuello de botella del protocolo, y hoy ha fallado.** Reclamar una
+  tarea significa escribir una fila *en este fichero*, pero el candado de `.claude/sesiones/`
+  trata `_ESTADO.md` como cualquier otro: mientras una sesión lo tiene reservado, ninguna
+  otra puede reclamar nada. El 5 de septiembre la sesión `797b0a1c` hizo T13 entera sin poder
+  escribir su reclamo: el tablón pasó de una sesión a otra —`b63aa070`, luego `2921da7f`— sin
+  quedar libre ni una vez desde que quiso cogerla hasta que la terminó. Consecuencias reales,
+  las dos del mismo día:
+  - `460a72f` escribió «hoy no queda ninguna tarea reclamable» mientras T13 se estaba
+    escribiendo.
+  - `7e13452` reclamó T3, que necesita `reducer.ts` y `selectors.ts`, cuando esos ficheros
+    los tenía otra sesión: el reclamo del tablón y la reserva de fichero se contradijeron.
+
+  **No se arregla sin decisión de Juan Luis** (regla 4: toca el protocolo). Lo que se hizo
+  hoy, y sirve mientras tanto: **quien no pueda reclamar, que reserve los ficheros de su
+  tarea, empiece, y escriba la fila en cuanto el tablón se libere**. La reserva de fichero
+  es visible para todas las sesiones y no se puede pisar, así que protege el trabajo aunque
+  el tablón mienta un rato. Y al terminar, **soltar la reserva enseguida**: T3 estuvo parada
+  esperando a que `797b0a1c` soltase los dos ficheros del motor.
+
 - **T12 liberó por error tres tareas vivas, y quedan restauradas.** Su paso 2 daba por
   muerto lo que solo estaba en marcha: mandaba devolver T2, T4 y T7 a «pendiente» porque
   «sus sesiones ya no existen». Existían. Lo avisó la sesión `610b4941` y se ha
@@ -233,6 +253,27 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T13 · sesión `797b0a1c` · 2026-09-05 · `de466ec`.** Las puertas que se pintan. Cuatro
+  cosas que no estaban escritas:
+  - **La forma del estado ha cambiado**: `EstadoPartida` gana `puertasVistas: string[]`,
+    al lado de `salasReveladas`. Quien vaya a guardar partidas tiene que saberlo, igual que
+    con T6.
+  - **El acumulador vive en `terminar()`**, no en cada acción, porque es el único embudo por
+    el que pasan todas las acciones legales sin excepción; y va **después** de revelar la
+    sala, o la puerta recién abierta tardaría un turno en aparecer. La función es
+    `conPuertasVistas(estado)`, en `vision.ts`, y `crearPartida` la llama también: si el
+    estado inicial saliera vacío, la primera pantalla no enseñaría ni una puerta.
+  - **Una revert sola no basta para validar estos tests, y esto vale para T2–T18.** Hay
+    *dos* implementaciones equivocadas distintas y cada una la caza un test distinto: con la
+    regla vieja (pintarlas todas) falla el test de `pq`; con un selector puro (lo que se vea
+    ahora, sin memoria) fallan los dos de «una puerta vista no se desve». Al revertir solo el
+    selector a la regla vieja pasaban cuatro de cinco, y eso parecía que los tests no valían
+    cuando lo que faltaba era la segunda revert. Dos de los cinco no discriminan entre
+    variantes de selector, y queda dicho: fijan el estado, no la regla.
+  - **El caso de la captura aguanta el cambio de entrada de T2.** Medido con las dos
+    entradas: desde el rectángulo viejo y desde la fila india nueva se ven `ps`, `pt` y `pr`
+    y no `pq`. El test no depende de dónde empiecen los héroes.
 
 - **T2 · sesión `b63aa070` · 2026-09-05 · `1c8a533`.** Pasar sobre los héroes, y la entrada.
   - **La entrada elegida es la fila india del pasillo de abajo**: (12,18), (11,18), (10,18),
