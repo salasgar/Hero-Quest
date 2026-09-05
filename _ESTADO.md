@@ -110,7 +110,7 @@ coger en cualquier orden desde hoy.
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
-| T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | en curso · `66e4a4ea` · 2026-09-05 · la misma sesión que escribió esta fase sigue con ella; **no toca el motor ni la pantalla, así que cabe en paralelo con cualquier cosa** |
+| T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | **hecha** · `6b07f82` · 2026-09-05 · escrita y probada; **falta desplegarla**, y eso pide su firma |
 | T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 | `src/red/cliente.ts`, `usePartida.ts` | bloqueada |
 | T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 · y T18, **cumplida** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | bloqueada |
 | T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 | `TurnPanel.tsx`, `DiceInput.tsx` | bloqueada |
@@ -305,6 +305,39 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T30 · sesión `66e4a4ea` · 2026-09-05 · `6b07f82`.** El relevo de acciones. La misma
+  sesión escribió antes las cinco tareas de la fase (`1fd496c`) y siguió con esta, que es
+  la única cogible de las cinco: **rompe la regla de «una sesión, una tarea» a sabiendas**,
+  y se dice aquí en vez de disimularlo. Lo que la siguiente sesión necesita saber:
+  - **El protocolo, tal como ha quedado**, porque es contra lo que T31 va a programar:
+    `POST /partidas` → `{ codigo, secreto }`; `GET /partidas/:codigo?desde=N` →
+    `{ montaje, entradas, total }`; `POST /partidas/:codigo/acciones`
+    `{ esperado, accion, autor }`; `POST /partidas/:codigo/truncar` `{ esperado, secreto }`.
+    Un 409 trae dentro `entradas` y `total`, para que quien llegó tarde se ponga al día
+    **sin una segunda petición**.
+  - **Un test se escribió mal, y el motivo vale más que el test.** «Dos jugadores a la vez»
+    llamaba dos veces a `anadir` sobre la misma copia y esperaba que la segunda fallara.
+    Falla que no: `anadir` es **pura**, y las dos ven un registro de cero acciones. La
+    serialización no la da la función, la da el almacén que guarda entre una petición y la
+    siguiente. De ahí sale el requisito de verdad para el servidor —**guardar antes de
+    contestar**—, que es lo que cumple `blockConcurrencyWhile`. Si algún día se cambia el
+    Durable Object por otra cosa, esto es lo que hay que conservar.
+  - **La prueba de T1, hecha**: desconectando el candado del `esperado` fallan **dos** tests
+    y solo esos dos. Y el test grande —dos casas llegan al mismo estado— lleva su propia
+    mitad negativa: con otra semilla **no** llegan. Sin ella pasaría igual aunque el estado
+    no dependiera de la semilla, que es justo el fallo que se busca.
+  - **Se compara el JSON entero del estado, no las posiciones.** Dentro van el generador, el
+    mazo de tesoros barajado y el turno; comparar solo las figuras dejaría pasar la
+    divergencia.
+  - **Nada de esto está desplegado.** El código se escribe y se prueba sin cuenta; el
+    `wrangler deploy` espera su firma. Y hay un dato que **no se ha comprobado y no se
+    inventa**: si los Durable Objects entran hoy en el plan gratuito. Está escrito como
+    primer paso del despliegue en `server/README.md`, con la orden de parar y avisar si no
+    entran.
+  - **El relevo no valida de quién es el turno, y no puede.** Una acción no nombra a su
+    figura: `{ tipo: "mover", destino }` no dice quién se mueve. Esa comprobación es de
+    T31, en el cliente. Si no se hace allí, no se hace en ningún sitio.
 
 - **T18 · sesión `797b0a1c` · 2026-09-05 · `632d089`.** Los monstruos no actúan hasta que
   se los encuentra. Cuatro cosas que no estaban escritas:
