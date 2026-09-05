@@ -97,10 +97,10 @@ coger en cualquier orden desde hoy.
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | **hecha** · `3bbf380` · 2026-09-05 · su sesión no llegó a apuntarlo aquí |
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **hecha** · `9bcd7d1` · 2026-09-05 |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `39f05f5` · 2026-09-05 |
-| T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | en curso · `2921da7f` · 2026-09-05 · **es la última de las siete: al cerrarla se desbloquea T8** |
+| T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `0dc95d5` · 2026-09-05 · **cambia la forma del estado**: `buscadoTesoro` son pares `{heroe, sala}`, no salas |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
-| T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 (falta T2–T7) | `src/ai/` | bloqueada |
+| T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 · **cumplida entera** | `src/ai/` | **libre, y es la que más desbloquea**: T9, T10 y T11 cuelgan de ella |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
@@ -229,20 +229,28 @@ difícil. En cuanto T1–T7 estén en «hecha», T8 se puede coger.
 
 ---
 
-## La dependencia real de la Fase 4
+## La dependencia real de la Fase 4 — **cumplida**
 
-Juan Luis pidió arreglar las siete divergencias **antes** de empezar la Fase 4, y así está
-puesto en la tabla. Conviene saber por qué, por si alguna vez hay prisa:
+**Las siete divergencias están hechas. T8 se puede coger ya.** Lo de abajo se queda escrito
+porque explica contra qué reglas se escribe la IA, que es lo que hará falta al leer T8.
 
-De las siete, solo tres son bloqueantes técnicas de verdad. La IA de Zargon elige entre
-acciones legales, y estas tres cambian **qué es legal para un monstruo**:
+Juan Luis pidió arreglar las siete **antes** de empezar la Fase 4. De las siete, solo tres
+eran bloqueantes técnicas de verdad: la IA de Zargon elige entre acciones legales, y estas
+tres cambian **qué es legal para un monstruo**:
 
 - **T1**, porque decide a quién ve y por tanto a quién puede atacar o apuntar. **Hecha.**
 - **T4**, porque decide por dónde puede pasar sin comerse una trampa. **Hecha.**
-- **T5**, porque cambia con cuántos dados pelea dentro de un foso.
+- **T5**, porque cambia con cuántos dados pelea dentro de un foso. **Hecha.**
 
-T2, T3, T6 y T7 tocan solo el turno de los héroes: la IA no las nota. Escribir T8 antes de
-tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y rehacerla.
+T2, T3, T6 y T7 tocan solo el turno de los héroes: la IA no las nota. **También hechas.**
+
+Y desde entonces han aparecido dos que la IA sí nota y que T8 tiene que respetar, así que
+van aquí y no se pierden en la tabla:
+
+- **T17**, que ya decide el orden en que actúan los monstruos.
+- **T18**, que dice cuáles puede mover: solo los que están puestos sobre el tablero
+  (`monstruosEnTablero`). Una IA que planee con monstruos que los héroes no han descubierto
+  estaría haciendo trampas.
 
 ---
 
@@ -292,6 +300,14 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 - ~~Trabajo sin commitear en `src/engine/reducer.ts`.~~ **Rescatado** en `8b0b7dc`. Era de
   la sesión `64d69b4d`, que llevaba T4 y fue interrumpida. Estaba en `main` y **sin
   tests**. Su mitad de T4 ya los tiene (`9bcd7d1`); **la de T2 sigue sin ellos**.
+
+- **Divergencia conocida: no hay tesoro especial de misión.** El reglamento (p. 14) dice
+  que «the special treasure is discovered only once by the first hero who searches the
+  room, even if other heroes later search that same room». T6 mandaba conservar esa regla,
+  y resulta que **no había nada que conservar**: `Mision` no tiene campo de tesoro especial
+  y `buscarTesoro` solo roba del mazo. No se ha inventado. Cuando alguien añada tesoros de
+  misión, la mitad de «solo el primero» habrá que escribirla entonces; la otra mitad —cada
+  héroe registra la sala una vez— ya está.
 
 - **Divergencia conocida y a propósito: no se puede buscar dentro del foso.** El reglamento
   (p. 17) dice que un héroe dentro de un foso puede registrarlo «as if it were a separate
@@ -495,6 +511,28 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
     `reducer.ts` lo tocaban tres tareas y son cinco. Quien repartiera sesiones con la tabla
     vieja abría en paralelo dos que iban al mismo fichero. Ya está corregida y medida con
     `grep`, no de memoria.
+
+- **T6 · sesión `2921da7f` · 2026-09-05 · `0dc95d5`.** Cada héroe registra la sala una vez.
+  **Con esta se cierran las siete divergencias y T8 queda libre.** Cuatro cosas:
+  - **Es la única que cambia la forma del estado, y hay que decirlo dos veces.**
+    `buscadoTesoro` pasa de `IdSala[]` a `Array<{heroe, sala}>`. Una partida guardada con el
+    formato viejo **no cargaría**. Hoy no existe ninguna —guardar es de la Fase 8—, así que
+    no hay migración que escribir, pero quien haga la Fase 8 tiene que saberlo. El
+    «deshacer» no se entera: sigue siendo estado puro que se rehace repitiendo acciones.
+  - **El motor solo cumplía media regla.** La p. 14 dice dos cosas: que la sala la registran
+    los cuatro héroes y que cada uno una sola vez. Con una lista de salas, el primero se la
+    cerraba a los otros tres y les quitaba su carta de tesoro, que es media diversión de la
+    acción. Ahora sacan la suya.
+  - **La condición vive en un solo sitio.** `yaRegistro(estado, heroe, sala)` está en
+    `reducer.ts` y la importa `selectors.ts`. Es el patrón de `monstruosActivables`, y por
+    el mismo motivo: la condición estaba a punto de quedar copiada en dos sitios, que es
+    como empiezan siempre.
+  - **Dos mutaciones opuestas, no una.** Si `yaRegistro` ignora al héroe —la semántica
+    vieja— fallan los dos tests del compañero; si siempre dice que no, falla el del mismo
+    héroe repitiendo. Cada mitad de la regla tiene quien la defienda, que con una regla de
+    dos mitades es justo lo que hay que comprobar.
+
+  **Lo que no trae:** el tesoro especial de misión. Está arriba, en incidencias.
 
 - **T3 · sesión `2921da7f` · 2026-09-05 · `3bbf380`.** No se busca con un monstruo a la
   vista. La fila la cerró otra sesión al ver el commit; esto es lo que faltaba. Tres cosas:
