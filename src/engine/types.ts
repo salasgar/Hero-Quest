@@ -285,6 +285,11 @@ export type Evento =
       dano: number;
     }
   | { tipo: "movimientoExtra"; figura: IdFigura; casillas: number }
+  | { tipo: "monstruoActiva"; monstruo: IdFigura }
+  /** Cerró su activación sin moverse ni atacar. Es el caso que se lee como «esto está roto». */
+  | { tipo: "monstruoSinActuar"; monstruo: IdFigura }
+  /** Zargon llega a su turno y no tiene a nadie. Los dos motivos se cuentan distinto. */
+  | { tipo: "zargonSinMonstruos"; motivo: "ningunoDescubierto" | "todosHanActuado" }
   | { tipo: "cambioDeTurno"; actor: Actor }
   | { tipo: "finDePartida"; victoria: boolean; motivo: string };
 

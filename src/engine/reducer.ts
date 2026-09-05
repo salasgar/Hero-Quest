@@ -339,7 +339,7 @@ function activarMonstruo(e: EstadoPartida, id: IdFigura): Resultado {
         movimientoCerrado: false,
       },
     },
-    [],
+    [{ tipo: "monstruoActiva", monstruo: id }],
   );
 }
 
@@ -884,21 +884,50 @@ function terminarTurno(e: EstadoPartida): Resultado {
   if (esTurnoDeZargon(e) && e.turno.monstruoActivo) {
     const hechos = [...e.turno.monstruosHechos, e.turno.monstruoActivo];
     const quedan = monstruosActivables(e, hechos);
+
+    // Si se movió o atacó ya está contado, y una línea de cierre sobraría. La
+    // que hace falta es la contraria: un monstruo que se activa y no hace nada
+    // dejaba el diario exactamente igual que antes, y eso se lee en la mesa
+    // como «la aplicación está rota».
+    const quieto: Evento[] =
+      e.turno.haMovido || e.turno.haActuado
+        ? []
+        : [{ tipo: "monstruoSinActuar", monstruo: e.turno.monstruoActivo }];
+
     if (quedan.length > 0) {
       return terminar(
         {
           ...e,
           turno: { ...e.turno, monstruoActivo: null, monstruosHechos: hechos, movimientoTotal: null, movimientoRestante: 0 },
         },
-        [],
+        quieto,
       );
     }
     return terminar(avanzarActor({ ...e, turno: { ...e.turno, monstruoActivo: null, monstruosHechos: hechos } }), [
+      ...quieto,
       { tipo: "cambioDeTurno", actor: siguienteActor(e) },
     ]);
   }
 
-  return terminar(avanzarActor(e), [{ tipo: "cambioDeTurno", actor: siguienteActor(e) }]);
+  // Zargon cierra su turno sin haber activado a nadie. Los dos motivos son
+  // distintos en la mesa y la pantalla ya los distingue desde T18: en el turno
+  // 1, con los héroes en el pasillo, lo normal es que no hayan descubierto a
+  // nadie; «no queda ninguno» ahí suena a avería. El diario no distinguía
+  // ninguno de los dos, porque no decía nada.
+  const sinNadie: Evento[] =
+    esTurnoDeZargon(e) && monstruosActivables(e).length === 0
+      ? [
+          {
+            tipo: "zargonSinMonstruos",
+            motivo: e.monstruosEnTablero.length === 0 ? "ningunoDescubierto" : "todosHanActuado",
+          },
+        ]
+      : [];
+
+  return terminar(avanzarActor(e), [
+    ...sinNadie,
+    { tipo: "cambioDeTurno", actor: siguienteActor(e) },
+  ]);
 }
 
 const siguienteActor = (e: EstadoPartida): Actor =>

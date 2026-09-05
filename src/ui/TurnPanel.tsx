@@ -247,7 +247,13 @@ export function TurnPanel({
         </button>
       </div>
 
-      {activa && !esZargon && (
+      {/*
+        La pista vale también con un monstruo activo, y hasta T20 no salía: se
+        pedía `!esZargon`. Mientras T8 y T11 no estén, al monstruo lo mueve a
+        mano quien arbitra, y era justo entonces cuando la pantalla dejaba de
+        decirle cómo.
+      */}
+      {activa && (
         <p className="pista">
           Mueve con las flechas <Tecla>←</Tecla>
           <Tecla>↑</Tecla>

@@ -126,6 +126,26 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     case "curacion":
       return `${nombreDe(e, ev.figura)} recupera ${ev.puntos} ${ev.puntos === 1 ? "punto" : "puntos"} de cuerpo.`;
 
+    case "monstruoActiva":
+      // En la mesa, saber cuál de los seis se está moviendo es la mitad de la
+      // información. El motivo por el que le toca a ése lo enseña la pantalla
+      // (T17): aquí no se repite, que el diario se lee entero.
+      return `Le toca a ${nombreDe(e, ev.monstruo)}.`;
+
+    case "monstruoSinActuar":
+      return elegir(
+        [
+          `${nombreDe(e, ev.monstruo)} no se mueve ni ataca.`,
+          `${nombreDe(e, ev.monstruo)} se queda donde está, vigilando.`,
+        ],
+        n,
+      );
+
+    case "zargonSinMonstruos":
+      return ev.motivo === "ningunoDescubierto"
+        ? "Zargon espera: todavía no habéis encontrado a nadie."
+        : "Zargon no tiene ya a quién mover.";
+
     case "cambioDeTurno":
       return ev.actor === "zargon" ? "— Turno de Zargon —" : `— Turno de ${nombreDe(e, String(ev.actor))} —`;
 
