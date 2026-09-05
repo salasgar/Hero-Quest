@@ -100,7 +100,7 @@ coger en cualquier orden desde hoy.
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `0dc95d5` · 2026-09-05 · **cambia la forma del estado**: `buscadoTesoro` son pares `{heroe, sala}`, no salas |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
-| T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 · **cumplida entera** | `src/ai/` | **libre, y es la que más desbloquea**: T9, T10 y T11 cuelgan de ella |
+| T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 · **cumplida entera** | `src/ai/` | **la está escribiendo `66e4a4ea`**: a las 21:45 del 2026-09-05 tenía reservados `src/ai/targeting.ts`, `src/ai/zargon.ts` y sus tests, y no llegó a escribir esta fila. Mira si sigue viva antes de cogerla |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
@@ -110,6 +110,10 @@ coger en cualquier orden desde hoy.
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
+| T19 | [Una puerta se abre también desde la diagonal](tareas/T19-abrir-puertas-en-diagonal.md) | — · regla de la casa, **firmada** | `board.ts`, **`reducer.ts`**, `selectors.ts` | **hecha** · `c08bbc0` · 2026-09-05 · seis casillas por puerta, y la diagonal no atraviesa el muro |
+| T20 | [El turno de Zargon pasa sin que el diario lo cuente](tareas/T20-el-turno-de-zargon-no-se-cuenta.md) | — | `types.ts`, **`reducer.ts`**, `narrator/local.ts`, `TurnPanel.tsx` | **hecha** · `740f54a` · 2026-09-05 · **no escribe la IA: eso es T8**, que ya estaba libre |
+| T21 | [Siete hechizos de doce no dejan rastro en el diario](tareas/T21-hechizos-sin-rastro-en-el-diario.md) | — · **no cabe a la vez que T20**: mismos tres ficheros | `types.ts`, **`reducer.ts`**, `narrator/local.ts` | en curso · `6905402d` · 2026-09-05 |
+| T22 | [Saber qué hace cada hechizo antes de lanzarlo](tareas/T22-que-hace-cada-hechizo.md) | `Instrucciones.tsx` en `main` | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css` | pendiente · **a la cola**, por decisión suya |
 | T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | **hecha** · `6b07f82` · 2026-09-05 · escrita y probada; **falta desplegarla**, y eso pide su firma |
 | T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | **hecha** · `15c852a` · 2026-09-05 · el sondeo pide desde cero a propósito; ver el registro |
 | T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 y T18 · **cumplidas** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | libre |
@@ -377,6 +381,52 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
     `tests/red-protocolo.test.ts` pierde su conversor provisional montaje→partida
     y usa `partidaDelMontaje` de `cliente.ts`, que es lo que su propio
     comentario dejaba encargado a T31. El conversor vive en un solo sitio.
+
+- **T20 · sesión `6905402d` · 2026-09-05 · `740f54a`.** El turno de Zargon deja rastro.
+  Sale del segundo rato de juego de Juan Luis, y su frase —«los monstruos no se mueven, se
+  quedan quietos, y el diario no dice qué han hecho»— eran **dos cosas**: que nadie los mueve
+  (T8) y que no se cuenta (esto). Cinco cosas para quien venga:
+  - **Tres eventos nuevos, y el número importa.** `monstruoActiva` («Le toca a Goblin»),
+    `monstruoSinActuar` («Goblin no se mueve ni ataca») y `zargonSinMonstruos`, con los dos
+    motivos que la pantalla ya distinguía desde T18. Seis monstruos por tres líneas cada uno
+    es un diario que en la mesa no lee nadie: si hay que añadir más, que sea quitando.
+  - **La línea de «no ha hecho nada» solo sale si no se movió ni atacó**, mirando `haMovido` y
+    `haActuado`. Está redactada sobre esos dos verbos a propósito: un monstruo que solo abre
+    una puerta no ha movido ni atacado, y la frase sigue siendo verdad al lado de «la puerta
+    cede con un chirrido».
+  - **El motivo de T17 no baja al diario.** «Le toca al goblin: te tiene a tiro» está en la
+    pantalla y ahí se queda: el motor no importa de `src/ai/`, y `src/ai/orden.ts` importa del
+    motor. Meterlo aquí era invertir esa flecha por una frase.
+  - **La pista de las flechas salía condicionada a `!esZargon`**, o sea que con un monstruo
+    activo desaparecía. Mientras T8 y T11 no estén, al monstruo lo mueve a mano quien arbitra,
+    y era justo entonces cuando la pantalla dejaba de decirle cómo. Quitado el `!esZargon`.
+  - **Y una que no se arregla aquí, vista jugando:** los dos goblins de la sala `s` se llaman
+    los dos «Goblin», así que «Le toca a Goblin» no dice cuál de los dos. `nombreDe` da el
+    nombre de la especie. Se nota ahora porque antes no se decía nada; con seis monstruos en
+    la mesa hace falta un número o una letra, y eso es tarea aparte.
+
+- **T19 · sesión `6905402d` · 2026-09-05 · `c08bbc0`.** La puerta se abre desde la diagonal.
+  Regla de la casa que pidió Juan Luis, no reglamento. Cuatro cosas:
+  - **Son seis casillas por puerta, no diez.** `a`, `b` y las cuatro que salen de sumarles el
+    vector perpendicular a `b − a`. Las ocho vecinas de `a` tocan un vértice de *la casilla*,
+    no de *la puerta*: para `ps`, en (12,15)-(11,15), entran (12,14), (12,16), (11,14) y
+    (11,16), y no (13,14) —que además es el vano de `pt`— ni (13,15). Está en
+    `celdasQueAbren`, en `board.ts`.
+  - **La diagonal solo cuenta desde el mismo lado del muro**, que es lo que él firmó. Se
+    filtra con `hayMuroEntre` y **no con `pasoAbierto`**: `pasoAbierto` mira además si hay
+    puerta y está abierta, y la que se quiere abrir está cerrada por definición, así que
+    habría devuelto `false` siempre y la regla nueva no habría hecho nada con los tests en
+    verde. El caso existe en el calabozo: `psecreta`, en (4,13)-(4,14), tiene dos diagonales
+    en la sala `r`, al otro lado del muro.
+  - **La condición estaba escrita dos veces** —la guarda de `abrirPuerta` y el selector
+    `puertasAlAlcance`, que es quien pinta el botón— y ahora las dos consumen la misma
+    función. Hay un test que recorre las 494 casillas del tablero y exige que motor y selector
+    digan lo mismo sobre las cinco puertas, con su mitad negativa: 28 casillas del tablero
+    tienen puerta al alcance, así que el acuerdo no es «los dos dicen que no a todo».
+  - **Vale también para los monstruos**, porque `abrirPuerta` usa `figuraActiva`. Es
+    coherente, y **T8 tiene que saberlo**: el alcance de una puerta son seis casillas, no dos.
+    Ningún test viejo cambió de número, pero jugando se nota: el bárbaro abre `ps` desde
+    (12,16), una casilla antes que antes.
 
 - **T30 · sesión `66e4a4ea` · 2026-09-05 · `6b07f82`.** El relevo de acciones. La misma
   sesión escribió antes las cinco tareas de la fase (`1fd496c`) y siguió con esta, que es

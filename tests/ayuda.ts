@@ -10,7 +10,19 @@ export const MISION_PRUEBA: Mision = {
   id: "prueba",
   titulo: "Misión de prueba",
   introduccion: "",
-  entrada: [c(0, 1)],
+  /**
+   * Ocho casillas, en fila por el pasillo de la columna 0.
+   *
+   * Era una sola, y como `crearPartida` repartía con `i % entrada.length`, los
+   * tests que montan dos, tres o cuatro héroes los ponían **todos encima de la
+   * misma casilla** sin que nadie se enterara: un estado que el motor prohíbe
+   * —`celdaLibre`— y sobre el que se estaban comprobando movimiento, visión y
+   * ataques. Pasaban porque casi todos llaman a `situar` acto seguido.
+   *
+   * Ocho y no cuatro para que la suite pueda montar el grupo máximo que pide
+   * T16 sin volver a tropezar con esto.
+   */
+  entrada: [c(0, 1), c(0, 2), c(0, 3), c(0, 4), c(0, 5), c(0, 6), c(0, 7), c(0, 8)],
   textosDeSala: { a: "Un olor a moho lo llena todo." },
   // Un rincón al que ningún test llega: así la partida no se acaba sola.
   objetivo: { clase: "llegarA", celdas: [c(25, 18)] },

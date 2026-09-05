@@ -50,6 +50,30 @@ function barajar<T>(xs: readonly T[], rng: Rng): [T[], Rng] {
 }
 
 export function crearPartida(op: OpcionesPartida): EstadoPartida {
+  // Una casilla de entrada por héroe, y se acabó.
+  //
+  // Antes se repartían con `i % entrada.length`, que con más héroes que
+  // casillas los **apilaba** en silencio: con ocho héroes y cuatro casillas
+  // salían de dos en dos. En este motor dos figuras no caben en una casilla
+  // —`figuraEn` devuelve la primera y `celdaLibre` lo prohíbe—, así que a
+  // partir de ahí el movimiento, la visión y los ataques razonan sobre un
+  // tablero que no existe, y el síntoma aparece tres acciones después, lejos
+  // de la causa.
+  //
+  // Falla en vez de buscarles hueco alrededor, y es a propósito: repartirlos
+  // por las casillas libres de al lado significaría decidir por dónde entra el
+  // grupo, y **cuántas casillas de entrada tiene una misión es una decisión de
+  // tablero**, no del constructor. Además `mision.entrada` decide el objetivo
+  // «salir» (`reducer.ts`): con menos casillas que héroes, esa victoria no es
+  // difícil, es imposible. Mejor no arrancar que arrancar mintiendo.
+  if (op.heroes.length > op.mision.entrada.length) {
+    throw new Error(
+      `«${op.mision.titulo}» tiene ${op.mision.entrada.length} casilla(s) de entrada y se han ` +
+        `elegido ${op.heroes.length} héroes: no caben sin apilarse. Alarga la entrada de la ` +
+        `misión o lleva menos héroes.`,
+    );
+  }
+
   // El identificador es la clase, que basta mientras no se repita. Si dos
   // jugadores quieren la misma —dos elfas, por ejemplo— el segundo lleva un
   // sufijo: dos figuras con el mismo id se pisarían la una a la otra.
@@ -71,7 +95,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
       clase: elegido.clase,
       genero,
       nombre: elegido.nombre?.trim() || plantilla.nombre[genero],
-      celda: op.mision.entrada[i % op.mision.entrada.length]!,
+      celda: op.mision.entrada[i]!,
       cuerpo: plantilla.cuerpo,
       cuerpoMax: plantilla.cuerpo,
       mente: plantilla.mente,
