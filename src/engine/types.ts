@@ -285,6 +285,36 @@ export type Evento =
       dano: number;
     }
   | { tipo: "movimientoExtra"; figura: IdFigura; casillas: number }
+  /**
+   * Lo que un hechizo le hace al objetivo cuando no es daño ni curación. Siete
+   * clases de efecto que hasta T21 se aplicaban sin decir una palabra: la carta
+   * se gastaba, el monstruo se dormía y en el diario solo quedaba «X lanza Y».
+   * Va con lista de objetivos porque la Tempestad alcanza a más de uno.
+   */
+  | {
+      tipo: "efectoDeHechizo";
+      hechizo: IdHechizo;
+      clase:
+        | "dormir"
+        | "perderTurno"
+        | "bonusAtaque"
+        | "bonusDefensa"
+        | "atravesarMuros"
+        | "atravesarFiguras"
+        | "movimientoExtra";
+      objetivos: IdFigura[];
+    }
+  /**
+   * El hechizo se gasta y no pasa nada. El motivo va en el dato y no en la
+   * frase: hoy son cuatro y va a haber más. El fallo silencioso era peor que el
+   * silencio: un Sueño que no prende dejaba la misma línea que uno que sí.
+   */
+  | {
+      tipo: "hechizoSinEfecto";
+      hechizo: IdHechizo;
+      objetivo: IdFigura;
+      motivo: "noMuerto" | "menteSuperior" | "yaEstabaSano" | "sinObjetivo";
+    }
   | { tipo: "monstruoActiva"; monstruo: IdFigura }
   /** Cerró su activación sin moverse ni atacar. Es el caso que se lee como «esto está roto». */
   | { tipo: "monstruoSinActuar"; monstruo: IdFigura }

@@ -23,6 +23,13 @@ export function nombreDe(e: EstadoPartida, id: IdFigura): string {
   return id;
 }
 
+/** «Goblin», «Goblin y Orco», «Goblin, Orco y Fimir». */
+function lista(e: EstadoPartida, ids: readonly IdFigura[]): string {
+  const nombres = ids.map((id) => nombreDe(e, id));
+  if (nombres.length <= 1) return nombres[0] ?? "nadie";
+  return `${nombres.slice(0, -1).join(", ")} y ${nombres[nombres.length - 1]}`;
+}
+
 const golpes = [
   "le abre la guardia",
   "le acierta de lleno",
@@ -125,6 +132,44 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
 
     case "curacion":
       return `${nombreDe(e, ev.figura)} recupera ${ev.puntos} ${ev.puntos === 1 ? "punto" : "puntos"} de cuerpo.`;
+
+    case "efectoDeHechizo": {
+      // Las frases son para la mesa: se entienden sin saber qué es un
+      // `bonusDefensa`. El nombre de la clase no sale nunca al diario.
+      const quienes = lista(e, ev.objetivos);
+      const varios = ev.objetivos.length > 1;
+      switch (ev.clase) {
+        case "dormir":
+          return `${quienes} ${varios ? "caen dormidos" : "cabecea y se queda dormido"}.`;
+        case "perderTurno":
+          return `Un torbellino envuelve a ${quienes}: ${varios ? "pierden" : "pierde"} su siguiente turno.`;
+        case "bonusAtaque":
+          return `${quienes} ${varios ? "golpearán" : "golpeará"} más fuerte en su próximo ataque.`;
+        case "bonusDefensa":
+          return `La piel de ${quienes} se vuelve de piedra: ${varios ? "aguantan" : "aguanta"} mejor el próximo golpe.`;
+        case "atravesarMuros":
+          return `${quienes} ${varios ? "podrán" : "podrá"} cruzar la roca en su próximo movimiento.`;
+        case "atravesarFiguras":
+          return `${quienes} se ${varios ? "difuminan" : "difumina"}: en su próximo movimiento ${varios ? "pasan" : "pasa"} entre los monstruos sin que lo vean.`;
+        case "movimientoExtra":
+          return `El viento se pone detrás de ${quienes}: ${varios ? "tirarán" : "tirará"} cuatro dados de movimiento.`;
+      }
+    }
+
+    case "hechizoSinEfecto": {
+      const h = HECHIZOS[ev.hechizo];
+      const quien = nombreDe(e, ev.objetivo);
+      switch (ev.motivo) {
+        case "noMuerto":
+          return `Los no muertos no duermen: ${h.nombre} se pierde sobre ${quien}.`;
+        case "menteSuperior":
+          return `${quien} resiste: su mente es más fuerte que la de quien lanza el hechizo.`;
+        case "yaEstabaSano":
+          return `${quien} no tiene ni un rasguño: ${h.nombre} se gasta sin curar nada.`;
+        case "sinObjetivo":
+          return `${h.nombre} no encuentra a nadie a quien afectar.`;
+      }
+    }
 
     case "monstruoActiva":
       // En la mesa, saber cuál de los seis se está moviendo es la mitad de la

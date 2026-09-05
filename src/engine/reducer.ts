@@ -788,6 +788,15 @@ function lanzarHechizo(
       if (puntos > 0) {
         estado = conFigura(estado, { ...o, cuerpo: o.cuerpo + puntos } as Figura);
         eventos.push({ tipo: "curacion", figura: o.id, puntos });
+      } else {
+        // Curar a quien está intacto gastaba la carta y dejaba el diario igual
+        // que una curación que sí funcionó.
+        eventos.push({
+          tipo: "hechizoSinEfecto",
+          hechizo: idHechizo,
+          objetivo: o.id,
+          motivo: "yaEstabaSano",
+        });
       }
       break;
     }
@@ -805,24 +814,76 @@ function lanzarHechizo(
           },
         ],
       } as Figura);
+      eventos.push({
+        tipo: "efectoDeHechizo",
+        hechizo: idHechizo,
+        clase: efecto.clase,
+        objetivos: [o.id],
+      });
       break;
     }
     case "dormir": {
+      // Tres finales distintos que hasta T21 dejaban la misma línea: dormido,
+      // no muerto —que no duerme— y mente más fuerte que la del lanzador. Quien
+      // juega no tenía forma de saber cuál de los tres le había tocado.
       const o = figuraPorId(estado, objetivo.id)!;
-      if (o.tipo === "monstruo" && !MONSTRUOS[o.especie].noMuerto) {
-        const menteMonstruo = MONSTRUOS[o.especie].mente;
-        if (menteMonstruo <= f.mente) estado = conFigura(estado, { ...o, dormido: true });
+      const sinEfecto = (motivo: "noMuerto" | "menteSuperior" | "sinObjetivo") =>
+        eventos.push({ tipo: "hechizoSinEfecto", hechizo: idHechizo, objetivo: o.id, motivo });
+
+      if (o.tipo !== "monstruo") sinEfecto("sinObjetivo");
+      else if (MONSTRUOS[o.especie].noMuerto) sinEfecto("noMuerto");
+      else if (MONSTRUOS[o.especie].mente > f.mente) sinEfecto("menteSuperior");
+      else {
+        estado = conFigura(estado, { ...o, dormido: true });
+        eventos.push({
+          tipo: "efectoDeHechizo",
+          hechizo: idHechizo,
+          clase: "dormir",
+          objetivos: [o.id],
+        });
       }
       break;
     }
     case "perderTurno": {
+      // OJO: esto alcanza a **toda la sala**, y la carta dice «el monstruo
+      // elegido». La divergencia está sin resolver y no se resuelve aquí: el
+      // reglamento de 2021 no describe los hechizos uno a uno —remite a la
+      // carta, p. 14: «A spell and its effects are explained in detail on its
+      // corresponding spell card»—, así que no hay fuente que lo decida y
+      // inventarla está prohibido. Queda escrita en el tablón, esperando a Juan
+      // Luis. Lo que sí cambia es que ahora el diario dice a quién ha alcanzado,
+      // que era justo lo que impedía notarlo jugando.
       const sala = salaEn(objetivo.celda.x, objetivo.celda.y);
+      const afectados = estado.monstruos.filter(
+        (m) =>
+          m.cuerpo > 0 &&
+          // Un pasillo no es una sala: `salaEn` devuelve null fuera de las
+          // salas, y comparar null con null metía en el hechizo a todos los
+          // monstruos de todos los pasillos del tablero.
+          (m.id === objetivo.id || (sala !== null && salaEn(m.celda.x, m.celda.y) === sala)),
+      );
+
+      if (afectados.length === 0) {
+        eventos.push({
+          tipo: "hechizoSinEfecto",
+          hechizo: idHechizo,
+          objetivo: objetivo.id,
+          motivo: "sinObjetivo",
+        });
+        break;
+      }
+
+      const alcanzados = new Set(afectados.map((m) => m.id));
       estado = {
         ...estado,
-        monstruos: estado.monstruos.map((m) =>
-          salaEn(m.celda.x, m.celda.y) === sala ? { ...m, pierdeTurno: true } : m,
-        ),
+        monstruos: estado.monstruos.map((m) => (alcanzados.has(m.id) ? { ...m, pierdeTurno: true } : m)),
       };
+      eventos.push({
+        tipo: "efectoDeHechizo",
+        hechizo: idHechizo,
+        clase: "perderTurno",
+        objetivos: afectados.map((m) => m.id),
+      });
       break;
     }
     case "invocar": {
@@ -859,6 +920,12 @@ function lanzarHechizo(
             : { clase: efecto.clase, duracion: "mision" as const },
         ],
       } as Figura);
+      eventos.push({
+        tipo: "efectoDeHechizo",
+        hechizo: idHechizo,
+        clase: efecto.clase,
+        objetivos: [o.id],
+      });
       break;
     }
   }
