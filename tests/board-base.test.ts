@@ -61,9 +61,11 @@ describe("salas", () => {
     }
   });
 
-  it("la sala central ocupa las columnas 10-15 y las filas 7-12", () => {
-    expect(marcoDeSala("k")).toEqual({ x0: 10, y0: 7, x1: 15, y1: 12 });
-    expect(celdasDeSala("k")).toHaveLength(36);
+  it("la sala central ocupa las columnas 10-15 y las filas 7-11", () => {
+    // La fila 12 era un error de transcripción: en el tablero real es pasillo
+    // (revisado contra la foto el 2026-09-05, autorización en _ESTADO.md).
+    expect(marcoDeSala("k")).toEqual({ x0: 10, y0: 7, x1: 15, y1: 11 });
+    expect(celdasDeSala("k")).toHaveLength(30);
   });
 
   it("la sala ajedrezada tiene el escalón medido en la foto", () => {
@@ -119,8 +121,8 @@ describe("recuento global", () => {
     const total = ANCHO_TABLERO * ALTO_TABLERO;
     const deSala = MAPA_TABLERO.join("").split("").filter((c) => c !== ".").length;
     expect(total).toBe(494);
-    expect(deSala).toBe(352);
-    expect(total - deSala).toBe(142);
+    expect(deSala).toBe(346);
+    expect(total - deSala).toBe(148);
   });
 
   it("hay 22 salas", () => {
