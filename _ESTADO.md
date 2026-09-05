@@ -104,6 +104,38 @@ coger en cualquier orden desde hoy.
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
+| T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | pendiente · **no la cojas mientras T5 esté en curso**: comparten `reducer.ts` y `selectors.ts` |
+| T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | en curso · `b63aa070` · 2026-09-05 · sin commitear; apuntado aquí por sus reservas de fichero, no por su mano |
+| T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 |
+| T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada |
+| T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada |
+
+Las cinco salen de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la
+lista original de divergencias. Vienen con dos hallazgos que no eran lo que parecía:
+
+- **El mago sí tiene sus nueve hechizos.** Medido con `crearPartida`: `mago@13,18 hechizos=9`.
+  Lo que faltaba era el botón para lanzarlos. La pregunta «¿cómo los consigue?» ya tenía
+  respuesta en la página 13 del reglamento; lo roto era la pantalla. Eso es T14, y el libro
+  de la estantería (T15) es una vía **extra**, regla de la casa.
+- **La puerta de su captura es `pq`, en (0,15)-(1,15).** Medido con `puedeVer` sobre el
+  estado inicial: al empezar, `ps`, `pt` y `pr` las ve algún héroe desde la escalera y `pq`
+  no la ve nadie. Eso es T13. **La captura no llegó al chat**: la puerta se identificó
+  midiendo, no mirando, y está sin confirmar por él.
+
+### Banda de modelo de las tareas nuevas
+
+Con qué modelo conviene abrir la sesión que coja cada una. Es **una posición del menú, no un
+nombre**: los nombres de la gama cambian cada pocos meses y este reparto lleva ya tres
+semanas. ALTO = el más capaz que haya; MEDIO = el intermedio.
+
+- **ALTO** — T13 (cambia la forma del estado, y la regla la heredan T15 y la Fase 4),
+  T15 (regla nueva que no está en el reglamento), T16 (choca con una autorización ya
+  firmada, y el choque hay que resolverlo, no rodearlo).
+- **MEDIO** — T14 (el motor ya está escrito y probado; esto es conectarlo), T17 (una
+  heurística corta y reversible).
+
+T1–T12 se escribieron sin banda y **no se les pone ahora**: no sale de sus ficheros, así que
+ponérsela sería inventarla.
 
 ### Cuántas sesiones caben a la vez
 
@@ -262,7 +294,39 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
 
 ### Pendientes de su palabra
 
-*(nada)*
+**La entrada del calabozo, con ocho héroes (T16).** El 2026-09-05 pidió que se puedan elegir
+hasta ocho héroes. La autorización del 2026-08-22, cuatro líneas más arriba, manda estrechar
+esa misma entrada a **una casilla de ancho** dentro de T2. Las dos cosas están pedidas por él
+y no caben a la vez: hoy hay cuatro casillas de entrada, y `crearPartida` colocaría a los
+ocho **apilados de dos en dos** —medido: 4 casillas distintas de 8—, que es un estado ilegal
+desde el turno cero. Y `mision.entrada` decide además el objetivo «salir» (`reducer.ts:145`):
+con ocho héroes y cuatro casillas, esa victoria pasa a ser **imposible**, no difícil.
+Tres salidas, y la elección es suya:
+
+1. **Fila india por el pasillo de una casilla.** Se puede en cuanto T2 deje pasar por encima
+   de un compañero, que es justo lo que T2 hace. Respeta la autorización de agosto.
+2. **La entrada crece** a ocho casillas y la autorización de agosto se revisa.
+3. **El tope de ocho es para misiones futuras** y «El calabozo del guardián» se queda con
+   cuatro, con la pantalla avisando de que en esta misión no caben más.
+
+Hasta que conteste, T16 hace todo lo demás y **no toca `calabozo.ts`**.
+
+**Las cuatro del libro de hechizos (T15).** Lo propuso él el 2026-09-05 y es regla de la
+casa, no del reglamento, así que nada se puede deducir de una fuente:
+
+1. ¿Los hechizos del libro **se suman** a los nueve con los que ya empieza el mago, o
+   **devuelven** los que ya gastó? Son dos juegos distintos.
+2. ¿**Qué trae** el libro? ¿Un elemento que no eligió, uno suelto al azar de los doce, o los
+   elige él a mano en el momento?
+3. ¿Vale **solo para el mago**, o también para el elfo y el hada, que también lanzan?
+4. ¿**Cómo se decide** si lo encuentra: él pulsando sí o no, o una tirada del motor como la
+   de buscar tesoro? Y si falla, ¿puede reintentarlo, o esa estantería queda agotada?
+
+De la 4 depende si la acción consume el `rng` del estado, y de eso dependen los tests y el
+deshacer. T15 está bloqueada hasta que estas cuatro estén firmadas aquí.
+
+**Y un aviso que no es una pregunta:** si el tope sube a ocho, hacen falta **ocho figuras de
+héroe en cartón**. Hoy hay cuatro.
 
 ---
 
