@@ -6,6 +6,7 @@ import {
   PUERTAS_CALABOZO,
   TRAMPAS_CALABOZO,
 } from "../data/quests/calabozo";
+import { motivoDeActivacion, ordenDeActivacion } from "../ai/orden";
 import { MONSTRUOS } from "../data/monsters";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { figuraPorId } from "../engine/board";
@@ -63,6 +64,11 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
   const objetivos = objetivosDeAtaque(estado);
   const puertas = puertasAlAlcance(estado);
   const porActivar = monstruosPorActivar(estado);
+
+  // Se recalcula en cada render a partir del estado, que es lo que hace que un
+  // monstruo muerto o dormido a mitad del turno cambie quién va después.
+  const orden = useMemo(() => ordenDeActivacion(estado), [estado]);
+  const motivo = orden[0] ? motivoDeActivacion(estado, orden[0]) : null;
 
   // Solo los que tienen a alguien a la vista: los demás no se pintan, para que
   // no haya un botón que el motor vaya a rechazar.
@@ -259,8 +265,10 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
         deshacer();
       } else if (ev.key === "Enter" || ev.key === " ") {
         ev.preventDefault();
-        if (esZargon && !activa && porActivar[0]) {
-          ejecutar({ tipo: "activarMonstruo", monstruo: porActivar[0].id });
+        // Enter activa al que ha elegido Zargon, no al primero de la lista del
+        // fichero de la misión, que era lo que hacía antes.
+        if (esZargon && !activa && orden[0]) {
+          ejecutar({ tipo: "activarMonstruo", monstruo: orden[0].id });
         } else {
           ejecutar({ tipo: "terminarTurno" });
         }
@@ -270,8 +278,8 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
     return () => window.removeEventListener("keydown", alPulsar);
   }, [
     peticion, activa, esZargon, estado.turno.movimientoTotal, objetivos, puertas, porActivar,
-    hechizos, hechizoElegido, mover, ejecutar, deshacer, pedirAtaque, pedirMovimiento,
-    elegirHechizo, cancelarHechizo,
+    hechizos, hechizoElegido, orden, mover, ejecutar, deshacer, pedirAtaque,
+    pedirMovimiento, elegirHechizo, cancelarHechizo,
   ]);
 
   useEffect(() => {
@@ -319,6 +327,8 @@ export function Juego({ heroes = GRUPO_CLASICO }: { heroes?: HeroeElegido[] }) {
             hechizos={hechizos}
             hechizosEnMano={hechizosEnMano}
             pendiente={pendiente}
+            orden={orden}
+            motivo={motivo}
             puedeDeshacer={puedeDeshacer}
             acciones={{
               tirarMovimiento: pedirMovimiento,

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { dadosDeAtaque, dadosDeDefensa } from "../engine/combat";
 import { esHeroe, type EstadoPartida, type Figura, type Puerta } from "../engine/types";
 import { MONSTRUOS } from "../data/monsters";
@@ -23,6 +24,10 @@ export interface PropsTurno {
   hechizosEnMano: number;
   /** El hechizo elegido que está esperando a que se señale a quién. */
   pendiente: HechizoConObjetivos | null;
+  /** Los que quedan por activar, ya en el orden que ha decidido Zargon. */
+  orden: readonly Figura[];
+  /** Por qué le toca al primero, si hay una razón que contar. */
+  motivo: string | null;
   acciones: {
     tirarMovimiento: () => void;
     abrirPuerta: (id: string) => void;
@@ -41,6 +46,9 @@ export interface PropsTurno {
 
 const Tecla = ({ children }: { children: React.ReactNode }) => <kbd>{children}</kbd>;
 
+const nombreDeMonstruo = (m: Figura) =>
+  MONSTRUOS[(m as { especie: keyof typeof MONSTRUOS }).especie].nombre;
+
 export function TurnPanel({
   estado,
   activa,
@@ -51,9 +59,12 @@ export function TurnPanel({
   hechizos,
   hechizosEnMano,
   pendiente,
+  orden,
+  motivo,
   acciones,
   puedeDeshacer,
 }: PropsTurno) {
+  const [eligiendoAMano, setEligiendoAMano] = useState(false);
   const t = estado.turno;
   const nombre = activa
     ? esHeroe(activa)
@@ -82,17 +93,55 @@ export function TurnPanel({
         </div>
       )}
 
+      {/*
+        Antes esto era una botonera y el adulto elegía. Elegir el orden de los
+        monstruos es una decisión del enemigo, y quitársela de encima al árbitro
+        es para lo que existe esta aplicación (T17). Ahora Zargon lo decide y la
+        pantalla lo anuncia; el motivo va delante porque en la mesa «el orco ya
+        te tiene a tiro» es lo que hace que un niño entienda por qué le toca a
+        ese y no a otro.
+      */}
       {esZargon && !activa && (
         <div className="grupo">
-          <p className="apagado">Elige el monstruo que actúa:</p>
-          <div className="botonera">
-            {porActivar.map((m) => (
-              <button key={m.id} onClick={() => acciones.activarMonstruo(m.id)}>
-                {MONSTRUOS[(m as { especie: keyof typeof MONSTRUOS }).especie].nombre} ({m.cuerpo})
-              </button>
-            ))}
-            {porActivar.length === 0 && <span className="apagado">No queda ninguno.</span>}
-          </div>
+          {orden.length === 0 ? (
+            <p className="apagado">No queda ningún monstruo por mover.</p>
+          ) : (
+            <>
+              <p>
+                Le toca a <span className="turno-nombre">{nombreDeMonstruo(orden[0]!)}</span>
+                {motivo && <span className="apagado">: {motivo}</span>}
+              </p>
+              <div className="botonera">
+                <button onClick={() => acciones.activarMonstruo(orden[0]!.id)} className="principal">
+                  Que actúe <Tecla>↵</Tecla>
+                </button>
+                <button onClick={() => setEligiendoAMano((x) => !x)}>
+                  {eligiendoAMano ? "Dejarlo a Zargon" : "Cambiar"}
+                </button>
+              </div>
+              {/*
+                La salida manual se queda, como manda T11: si la aplicación hace
+                algo raro en mitad de una partida, con niños delante no se puede
+                parar a depurar. Solo se aparta de la vista.
+              */}
+              {eligiendoAMano && (
+                <>
+                  <p className="apagado">O elige tú:</p>
+                  <div className="botonera">
+                    {porActivar.map((m) => (
+                      <button key={m.id} onClick={() => acciones.activarMonstruo(m.id)}>
+                        {nombreDeMonstruo(m)} ({m.cuerpo})
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              <p className="pista">
+                El orden se recalcula tras cada activación: quien muere o se duerme cambia
+                quién va después.
+              </p>
+            </>
+          )}
         </div>
       )}
 
