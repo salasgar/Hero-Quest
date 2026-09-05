@@ -237,6 +237,29 @@ describe("trampas", () => {
   });
 });
 
+describe("un foso abierto ya no se desarma", () => {
+  // Reglamento p. 17: «Once a pit trap is sprung and a pit tile placed on the
+  // board, the trap cannot be disarmed and removed».
+  const conEnano = (gastada: boolean) => {
+    const base = partida({
+      heroes: [{ clase: "enano" }], // lleva herramientas de serie
+      trampas: [{ id: "t1", tipo: "foso", celda: c(1, 2), descubierta: true, gastada }],
+    });
+    return conMovimiento(situar(base, "enano", c(1, 1)), 6);
+  };
+
+  it("el enano, que desarma sin riesgo, tampoco puede con un foso ya disparado", () => {
+    expect(rechaza(conEnano(true), { tipo: "desarmarTrampa", trampa: "t1" })).toMatch(
+      /el agujero se queda/i,
+    );
+  });
+
+  it("pero un foso sin disparar sí se desarma", () => {
+    const e = hacer(conEnano(false), { tipo: "desarmarTrampa", trampa: "t1" });
+    expect(e.trampas[0]!.gastada).toBe(true);
+  });
+});
+
 describe("los monstruos no disparan las trampas ocultas", () => {
   // Reglamento p. 17: «Monsters do not spring hidden traps». Las pone Zargon,
   // que sabe dónde están. Lo que se juega aquí no es el daño al monstruo sino

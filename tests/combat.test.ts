@@ -38,6 +38,72 @@ describe("dados de ataque y defensa", () => {
   });
 });
 
+describe("dentro de un foso se tira un dado menos", () => {
+  // Reglamento p. 17: «When in a pit, you may also attack and defend, but you
+  // must roll one fewer combat dice when doing so. (This applies to monsters as
+  // well.)» Estar dentro no es un campo de la figura: es estar en la casilla de
+  // un foso ya disparado.
+  const enFoso = (e: ReturnType<typeof partida>, celda: { x: number; y: number }) => ({
+    ...e,
+    trampas: [{ id: "t1", tipo: "foso" as const, celda, descubierta: true, gastada: true }],
+  });
+
+  it("el bárbaro con espada ancha ataca con 2 en vez de con 3", () => {
+    const e = partida({ heroes: [{ clase: "barbaro" }] });
+    const h = e.heroes[0]!;
+    expect(dadosDeAtaque(h, "cuerpo", e)).toBe(3); // fuera no pierde nada
+    expect(dadosDeAtaque(h, "cuerpo", enFoso(e, h.celda))).toBe(2);
+  });
+
+  it("el mago con daga sigue atacando con 1, no con 0", () => {
+    const e = partida({ heroes: [{ clase: "mago" }] });
+    const h = e.heroes[0]!;
+    expect(dadosDeAtaque(h, "cuerpo", enFoso(e, h.celda))).toBe(1);
+  });
+
+  // El suelo no se llega a tocar defendiendo: todos los héroes defienden con 2
+  // y la armadura solo suma, así que dentro del foso lo peor es bajar a 1. Este
+  // test fija que la penalización también se aplica a la defensa, no el suelo.
+  it("la defensa también pierde su dado", () => {
+    const e = partida({ heroes: [{ clase: "mago" }] });
+    const h = e.heroes[0]!;
+    expect(dadosDeDefensa(h, e)).toBe(2);
+    expect(dadosDeDefensa(h, enFoso(e, h.celda))).toBe(1);
+  });
+
+  it("el monstruo también pierde su dado", () => {
+    const e = conMonstruo();
+    const m = e.monstruos[0]!;
+    expect(dadosDeAtaque(m, "cuerpo", e)).toBe(3); // orco
+    expect(dadosDeAtaque(m, "cuerpo", enFoso(e, m.celda))).toBe(2);
+    expect(dadosDeDefensa(m, enFoso(e, m.celda))).toBe(1); // 2 - 1
+  });
+
+  it("un foso en otra casilla no le quita nada a nadie", () => {
+    const e = conMonstruo();
+    const lejos = enFoso(e, c(20, 20));
+    expect(dadosDeAtaque(e.heroes[0]!, "cuerpo", lejos)).toBe(3);
+    expect(dadosDeDefensa(e.monstruos[0]!, lejos)).toBe(2);
+  });
+
+  it("un foso que todavía no ha saltado no es un foso: nadie está dentro", () => {
+    const e = partida({ heroes: [{ clase: "barbaro" }] });
+    const h = e.heroes[0]!;
+    const sinSaltar = {
+      ...e,
+      trampas: [{ id: "t1", tipo: "foso" as const, celda: h.celda, descubierta: false, gastada: false }],
+    };
+    expect(dadosDeAtaque(h, "cuerpo", sinSaltar)).toBe(3);
+  });
+
+  it("el ataque resuelto tira los dados ya descontados", () => {
+    const e = conMonstruo();
+    const h = e.heroes[0]!;
+    const [res] = resolverAtaque(enFoso(e, h.celda), h, e.monstruos[0]!);
+    expect(res.dadosAtaque).toHaveLength(2); // 3 - 1: los tira el motor
+  });
+});
+
 describe("resolución del ataque", () => {
   const CAL: CaraCombate = "calavera";
   const BLA: CaraCombate = "escudoBlanco";
@@ -45,7 +111,7 @@ describe("resolución del ataque", () => {
 
   it("usa los dados que se le pasan, sin tirar nada", () => {
     const e = conMonstruo();
-    const [res, rng] = resolverAtaque(e.rng, e.heroes[0]!, e.monstruos[0]!, [CAL, CAL, CAL], [NEG, BLA]);
+    const [res, rng] = resolverAtaque(e, e.heroes[0]!, e.monstruos[0]!, [CAL, CAL, CAL], [NEG, BLA]);
     expect(res.calaveras).toBe(3);
     expect(res.escudos).toBe(1); // monstruo: solo cuenta el negro
     expect(res.dano).toBe(2);
@@ -54,21 +120,21 @@ describe("resolución del ataque", () => {
 
   it("el monstruo solo para con escudos negros", () => {
     const e = conMonstruo();
-    const [res] = resolverAtaque(e.rng, e.heroes[0]!, e.monstruos[0]!, [CAL, CAL], [BLA, BLA]);
+    const [res] = resolverAtaque(e, e.heroes[0]!, e.monstruos[0]!, [CAL, CAL], [BLA, BLA]);
     expect(res.escudos).toBe(0);
     expect(res.dano).toBe(2);
   });
 
   it("el héroe solo para con escudos blancos", () => {
     const e = conMonstruo();
-    const [res] = resolverAtaque(e.rng, e.monstruos[0]!, e.heroes[0]!, [CAL, CAL], [NEG, NEG]);
+    const [res] = resolverAtaque(e, e.monstruos[0]!, e.heroes[0]!, [CAL, CAL], [NEG, NEG]);
     expect(res.escudos).toBe(0);
     expect(res.dano).toBe(2);
   });
 
   it("el daño nunca es negativo", () => {
     const e = conMonstruo();
-    const [res] = resolverAtaque(e.rng, e.monstruos[0]!, e.heroes[0]!, [CAL], [BLA, BLA, BLA]);
+    const [res] = resolverAtaque(e, e.monstruos[0]!, e.heroes[0]!, [CAL], [BLA, BLA, BLA]);
     expect(res.dano).toBe(0);
   });
 
@@ -82,9 +148,9 @@ describe("resolución del ataque", () => {
     const N = 40000;
     const momia = { ...e.monstruos[0]!, especie: "momia" as const }; // defensa 4
     for (let i = 0; i < N; i++) {
-      const [a, r1] = resolverAtaque(r, e.heroes[0]!, momia, [CAL]);
+      const [a, r1] = resolverAtaque({ ...e, rng: r }, e.heroes[0]!, momia, [CAL]);
       paradasMonstruo += a.escudos;
-      const [b, r2] = resolverAtaque(r1, e.monstruos[0]!, e.heroes[0]!, [CAL]);
+      const [b, r2] = resolverAtaque({ ...e, rng: r1 }, e.monstruos[0]!, e.heroes[0]!, [CAL]);
       paradasHeroe += b.escudos;
       r = r2;
     }

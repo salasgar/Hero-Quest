@@ -24,7 +24,42 @@ import {
   type CaraCombate,
 } from "./dice";
 import type { Rng } from "./rng";
-import { esHeroe, type EstadoPartida, type Figura } from "./types";
+import { esHeroe, mismaCelda, type EstadoPartida, type Figura } from "./types";
+
+/**
+ * ¿Está esta figura metida en un foso?
+ *
+ * No hace falta guardarlo en la figura: un foso disparado deja su trampa
+ * `gastada` en una casilla del tablero, y estar dentro es estar en esa casilla.
+ * Un campo `enFoso` sería el mismo dato dos veces, y dos copias del mismo dato
+ * acaban un día diciendo cosas distintas.
+ */
+export const enUnFoso = (e: EstadoPartida, f: Figura): boolean =>
+  e.trampas.some((t) => t.tipo === "foso" && t.gastada && mismaCelda(t.celda, f.celda));
+
+/**
+ * Lo que el foso resta a una tirada de combate, con su suelo.
+ *
+ * Reglamento p. 17: «When in a pit, you may also attack and defend, but you
+ * must roll **one fewer combat dice** when doing so. (This applies to monsters
+ * as well.)»
+ *
+ * El recuadro que fija el suelo está escrito **solo para el héroe** —«As a
+ * hero, your minimum attack or defend strength is always 1 combat die, even if
+ * the pit penalty would reduce your dice to 0»— y no lleva la coletilla de los
+ * monstruos que sí lleva la regla de arriba. Así que aquí el suelo es solo del
+ * héroe: un goblin, que defiende con 1, dentro del foso defiende con 0. Es la
+ * lectura literal y está apuntada en `_ESTADO.md` como pendiente de la palabra
+ * de Juan Luis, no como certeza.
+ *
+ * Y el suelo protege **de la penalización del foso, no de todo**: a quien ya
+ * llegue a 0 dados por otro motivo, el foso no se los sube a 1.
+ */
+function conPenalizacionDeFoso(e: EstadoPartida | undefined, f: Figura, dados: number): number {
+  if (!e || !enUnFoso(e, f)) return dados;
+  const bajado = Math.max(0, dados - 1);
+  return esHeroe(f) && dados > 0 ? Math.max(1, bajado) : bajado;
+}
 
 /**
  * Un ataque es de una de estas dos clases, y la diferencia no es cosmética:
@@ -83,8 +118,22 @@ export function modoDeAtaqueContra(
   return puedeVer(estado, atacante.celda, objetivo.celda) ? "distancia" : null;
 }
 
-/** Dados de ataque de una figura en este modo, más los bonus activos. */
-export function dadosDeAtaque(figura: Figura, modo: ModoAtaque = "cuerpo"): number {
+/**
+ * Dados de ataque de una figura en este modo, más los bonus activos.
+ *
+ * `estado` es opcional y solo sirve para una cosa: descontar el dado del foso.
+ * Va al final y no delante porque los tres sitios de la interfaz que llaman a
+ * esta función están cogidos por T14 y no se pueden tocar desde aquí; quien
+ * termine T14 solo tiene que pasarles el estado. Mientras tanto, **la pantalla
+ * enseña el dado sin descontar a quien está en un foso**, y está apuntado como
+ * divergencia en `_ESTADO.md`. El motor sí lo descuenta: pasa por
+ * `resolverAtaque`, que siempre lo recibe.
+ */
+export function dadosDeAtaque(
+  figura: Figura,
+  modo: ModoAtaque = "cuerpo",
+  estado?: EstadoPartida,
+): number {
   let base: number;
   if (esHeroe(figura)) {
     const armas = armasPara(figura, modo);
@@ -97,11 +146,11 @@ export function dadosDeAtaque(figura: Figura, modo: ModoAtaque = "cuerpo"): numb
   const bonus = figura.efectos
     .filter((e) => e.clase === "bonusAtaque")
     .reduce((s, e) => s + (e.dados ?? 0), 0);
-  return Math.max(0, base + bonus);
+  return conPenalizacionDeFoso(estado, figura, Math.max(0, base + bonus));
 }
 
-/** Dados de defensa: base de la figura, más armadura, más bonus activos. */
-export function dadosDeDefensa(figura: Figura): number {
+/** Dados de defensa: base de la figura, más armadura, más bonus activos. Ver `dadosDeAtaque` sobre `estado`. */
+export function dadosDeDefensa(figura: Figura, estado?: EstadoPartida): number {
   let base: number;
   if (esHeroe(figura)) {
     base = HEROES[figura.clase].defensa;
@@ -115,7 +164,7 @@ export function dadosDeDefensa(figura: Figura): number {
   const bonus = figura.efectos
     .filter((e) => e.clase === "bonusDefensa")
     .reduce((s, e) => s + (e.dados ?? 0), 0);
-  return Math.max(0, base + bonus);
+  return conPenalizacionDeFoso(estado, figura, Math.max(0, base + bonus));
 }
 
 export interface ResultadoAtaque {
@@ -133,22 +182,25 @@ export interface ResultadoAtaque {
  * dados que se han tirado en la mesa. Si no se pasan, los tira el motor. Así el
  * mismo código sirve para los héroes (que tiran de verdad) y para los monstruos
  * (que los tira la aplicación).
+ *
+ * Recibe el estado entero y no solo el generador porque cuántos dados se tiran
+ * depende del tablero: quien está en un foso tira uno menos.
  */
 export function resolverAtaque(
-  rng: Rng,
+  e: EstadoPartida,
   atacante: Figura,
   defensor: Figura,
   dadosAtaqueDados?: readonly CaraCombate[],
   dadosDefensaDados?: readonly CaraCombate[],
   modo: ModoAtaque = "cuerpo",
 ): [ResultadoAtaque, Rng] {
-  let r = rng;
+  let r = e.rng;
 
   let dadosAtaque: CaraCombate[];
   if (dadosAtaqueDados) {
     dadosAtaque = [...dadosAtaqueDados];
   } else {
-    const [tirada, r2] = tirarDadosCombate(r, dadosDeAtaque(atacante, modo));
+    const [tirada, r2] = tirarDadosCombate(r, dadosDeAtaque(atacante, modo, e));
     dadosAtaque = tirada;
     r = r2;
   }
@@ -157,7 +209,7 @@ export function resolverAtaque(
   if (dadosDefensaDados) {
     dadosDefensa = [...dadosDefensaDados];
   } else {
-    const [tirada, r3] = tirarDadosCombate(r, dadosDeDefensa(defensor));
+    const [tirada, r3] = tirarDadosCombate(r, dadosDeDefensa(defensor, e));
     dadosDefensa = tirada;
     r = r3;
   }

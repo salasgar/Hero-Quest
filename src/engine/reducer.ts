@@ -453,7 +453,7 @@ function atacar(
       : fallo("Tienes que estar adyacente para atacar cuerpo a cuerpo.");
   }
 
-  const [res, rng] = resolverAtaque(e.rng, atacante, objetivo, dadosAtaque, dadosDefensa, modo);
+  const [res, rng] = resolverAtaque(e, atacante, objetivo, dadosAtaque, dadosDefensa, modo);
   let estado: EstadoPartida = { ...e, rng };
   const eventos: Evento[] = [
     {
@@ -624,6 +624,12 @@ function desarmarTrampa(e: EstadoPartida, idTrampa: string): Resultado {
 
   const t = e.trampas.find((x) => x.id === idTrampa);
   if (!t) return fallo("No existe esa trampa.");
+  // Un foso disparado no es una trampa gastada: es un agujero en el suelo que
+  // se queda ahí toda la misión. Reglamento p. 17: «Once a pit trap is sprung
+  // and a pit tile placed on the board, the trap cannot be disarmed and
+  // removed». Va antes que la comprobación de `gastada` para que el motivo diga
+  // la verdad: no es que llegues tarde, es que no hay nada que desarmar.
+  if (t.tipo === "foso" && t.gastada) return fallo("Un foso abierto no se desarma: el agujero se queda.");
   if (t.gastada) return fallo("Esa trampa ya está gastada.");
   if (!t.descubierta) return fallo("Primero hay que encontrarla.");
 

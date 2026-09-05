@@ -53,7 +53,7 @@ export function dadosDeAtaqueContra(e: EstadoPartida, objetivo: Figura): number 
   const f = figuraActiva(e);
   if (!f) return 0;
   const modo = modoDeAtaqueContra(e, f, objetivo);
-  return dadosDeAtaque(f, modo ?? "cuerpo");
+  return dadosDeAtaque(f, modo ?? "cuerpo", e);
 }
 
 /** Puertas que la figura activa puede abrir sin moverse. */
@@ -106,8 +106,8 @@ export function fichaDe(e: EstadoPartida, id: IdFigura) {
     nombre: esHeroe(f) ? f.nombre : f.especie,
     cuerpo: f.cuerpo,
     cuerpoMax: f.cuerpoMax,
-    ataque: dadosDeAtaque(f),
-    defensa: dadosDeDefensa(f),
+    ataque: dadosDeAtaque(f, "cuerpo", e),
+    defensa: dadosDeDefensa(f, e),
     celda: f.celda,
     sala: salaEn(f.celda.x, f.celda.y),
     efectos: f.efectos,
