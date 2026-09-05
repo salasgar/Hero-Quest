@@ -111,7 +111,7 @@ coger en cualquier orden desde hoy.
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
 | T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | **hecha** · `6b07f82` · 2026-09-05 · escrita y probada; **falta desplegarla**, y eso pide su firma |
-| T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 | `src/red/cliente.ts`, `usePartida.ts` | bloqueada |
+| T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | en curso · `992c726d` · 2026-09-05 |
 | T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 · y T18, **cumplida** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | bloqueada |
 | T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 | `TurnPanel.tsx`, `DiceInput.tsx` | bloqueada |
 | T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **falta su autorización** | `.github/workflows/`, `vite.config.ts`, `README.md` | pendiente · esperando su firma |
