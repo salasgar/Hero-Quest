@@ -97,7 +97,7 @@ coger en cualquier orden desde hoy.
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | **hecha** · `3bbf380` · 2026-09-05 · su sesión no llegó a apuntarlo aquí |
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **hecha** · `9bcd7d1` · 2026-09-05 |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `39f05f5` · 2026-09-05 |
-| T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
+| T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | en curso · `2921da7f` · 2026-09-05 · **es la última de las siete: al cerrarla se desbloquea T8** |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
 | T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 (falta T2–T7) | `src/ai/` | bloqueada |
@@ -410,6 +410,25 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
     `reducer.ts` lo tocaban tres tareas y son cinco. Quien repartiera sesiones con la tabla
     vieja abría en paralelo dos que iban al mismo fichero. Ya está corregida y medida con
     `grep`, no de memoria.
+
+- **T3 · sesión `2921da7f` · 2026-09-05 · `3bbf380`.** No se busca con un monstruo a la
+  vista. La fila la cerró otra sesión al ver el commit; esto es lo que faltaba. Tres cosas:
+  - **Los dos lados dicen lo mismo, y hay un test que lo comprueba en la misma línea.**
+    `puedeBuscarTrampas` (selector) y `buscarTrampas` (reductor) se afirman juntos en cada
+    caso. Revertir cualquiera de las dos mitades por separado hace fallar el mismo test:
+    ninguna se puede olvidar sin que salte.
+  - **La escena cambia una sola cosa.** Héroe quieto en el vano de (0,2), orco quieto en
+    (2,2), y entre el caso que pasa y el que no solo se mueve si la puerta está abierta. Es
+    a propósito: si mañana falla, no hay que averiguar cuál de tres cosas lo movió.
+  - **El `vivos()` no es adorno.** `e.monstruos` conserva a los caídos con cuerpo 0, así
+    que sin él un orco muerto en la sala impediría buscar para siempre. Hay un test para
+    eso y falla si se quita.
+
+  **Y un test ajeno tocado, dicho aquí además de en el commit:** `tests/puertas-vistas.test.ts`
+  (T13) usaba `buscarTrampas` solo como medio para descubrir una puerta secreta, en la sala
+  `q` recién abierta y con sus monstruos delante. Con la regla nueva ese paso es ilegal: no
+  era un test equivocado, era una escena que dejó de valer. Se le quitan los monstruos en
+  ese paso, que va de puertas.
 
 - **T5 · sesión `2921da7f` · 2026-09-05 · `39f05f5`.** El foso resta un dado y ya no se
   desarma. Cuatro cosas:
