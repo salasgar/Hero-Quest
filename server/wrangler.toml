@@ -1,0 +1,25 @@
+# El relevo de acciones (T30). Cómo se despliega y qué hay que comprobar antes:
+# `server/README.md`.
+#
+# Ojo: este fichero NO despliega nada por sí solo, y desplegarlo necesita la
+# autorización escrita de Juan Luis en `_ESTADO.md` — es su cuenta y es un
+# servicio de terceros donde quedan guardadas las partidas.
+
+name = "heroquest-relevo"
+main = "relevo.ts"
+compatibility_date = "2026-09-05"
+
+# Una partida = un Durable Object, con el código de cuatro letras como nombre.
+# Es lo que da la serialización de escrituras sin la que el candado del
+# `esperado` no serviría de nada.
+[[durable_objects.bindings]]
+name = "PARTIDAS"
+class_name = "Partida"
+
+# Migración con almacenamiento SQLite, que es el que entra en el plan gratuito.
+# **Compruébalo el día del despliegue** en vez de fiarte de esta línea: si
+# resultara que no entra, para y escríbelo en el tablón. La decisión de pagar o
+# de cambiar de servicio es de Juan Luis, no de la sesión que despliegue.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Partida"]
