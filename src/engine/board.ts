@@ -37,6 +37,40 @@ export function puertaEntre(estado: EstadoPartida, a: Celda, b: Celda): Puerta |
   );
 }
 
+/**
+ * Las casillas desde las que se puede abrir una puerta.
+ *
+ * **Regla de la casa, no del reglamento** (Juan Luis, 2026-09-05): además de
+ * las dos casillas del vano, vale cualquier casilla que comparta un *vértice*
+ * con la puerta.
+ *
+ * Una puerta no es una casilla: es el **lado** que separa `a` y `b`, que
+ * siempre son ortogonales. Ese lado tiene dos extremos, y las casillas que
+ * tocan alguno son seis: `a`, `b` y las cuatro que salen de sumar a cada una
+ * el vector perpendicular a `b − a`. Las diagonales «de fuera» —(13,14) para
+ * la puerta `ps`— tocan un vértice de `a`, pero **no de la puerta**, y no
+ * entran. Si esto devuelve más de seis casillas, está mal.
+ *
+ * Y una diagonal solo vale **desde el mismo lado**: tiene que estar en la
+ * misma región que la casilla del vano a la que flanquea, o se estaría
+ * abriendo la puerta metiendo el brazo por dentro de la pared. Eso lo decide
+ * `hayMuroEntre` y **no `pasoAbierto`**: `pasoAbierto` mira además si hay
+ * puerta y está abierta, y la puerta que se quiere abrir está cerrada por
+ * definición, así que devolvería `false` siempre y dejaría la regla sin efecto.
+ */
+export function celdasQueAbren(puerta: Puerta): Celda[] {
+  const { a, b } = puerta;
+  // Vector perpendicular a b − a: si a y b comparten columna, va en x.
+  const d: Celda = a.x === b.x ? { x: 1, y: 0 } : { x: 0, y: 1 };
+  const out: Celda[] = [a, b];
+  for (const vano of [a, b])
+    for (const signo of [1, -1]) {
+      const diagonal = { x: vano.x + d.x * signo, y: vano.y + d.y * signo };
+      if (!hayMuroEntre(diagonal, vano)) out.push(diagonal);
+    }
+  return out;
+}
+
 /** ¿Se puede cruzar de `a` a `b` sin contar figuras? Solo mira muros y puertas. */
 export function pasoAbierto(estado: EstadoPartida, a: Celda, b: Celda): boolean {
   if (!dentroDelTablero(b.x, b.y)) return false;

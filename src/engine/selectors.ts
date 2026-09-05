@@ -8,7 +8,7 @@
 
 import { salaEn } from "../data/board-base";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
-import { alcanzables, figuraPorId } from "./board";
+import { alcanzables, celdasQueAbren, figuraPorId } from "./board";
 import { dadosDeAtaque, dadosDeDefensa, modoDeAtaqueContra } from "./combat";
 import { actorActual, esTurnoDeZargon, figuraActiva, monstruosActivables, yaRegistro } from "./reducer";
 import { puedeVer } from "./vision";
@@ -64,7 +64,7 @@ export function puertasAlAlcance(e: EstadoPartida): Puerta[] {
     (p) =>
       !p.abierta &&
       (!p.secreta || p.descubierta) &&
-      (mismaCelda(p.a, f.celda) || mismaCelda(p.b, f.celda)),
+      celdasQueAbren(p).some((c) => mismaCelda(c, f.celda)),
   );
 }
 

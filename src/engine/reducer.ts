@@ -20,7 +20,7 @@ import { BARAJA_TESOROS, MAZO_COMPLETO } from "../data/treasure";
 import { MONSTRUOS } from "../data/monsters";
 import { HEROES } from "../data/heroes";
 import { EQUIPO } from "../data/equipment";
-import { celdaLibre, figuraPorId, pasoAbierto, rutaHasta, vuela } from "./board";
+import { celdaLibre, celdasQueAbren, figuraPorId, pasoAbierto, rutaHasta, vuela } from "./board";
 import { vecinas as vecinasDelTablero } from "../data/board-base";
 import {
   armaADistanciaDe,
@@ -452,7 +452,7 @@ function abrirPuerta(e: EstadoPartida, idPuerta: string): Resultado {
   if (puerta.abierta) return fallo("Esa puerta ya está abierta.");
   if (puerta.secreta && !puerta.descubierta) return fallo("Ahí no se ve ninguna puerta.");
 
-  const pegado = mismaCelda(puerta.a, f.celda) || mismaCelda(puerta.b, f.celda);
+  const pegado = celdasQueAbren(puerta).some((c) => mismaCelda(c, f.celda));
   if (!pegado) return fallo("Tienes que estar junto a la puerta para abrirla.");
 
   let estado: EstadoPartida = {
