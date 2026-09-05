@@ -106,7 +106,7 @@ coger en cualquier orden desde hoy.
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
 | T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | **hecha** · `de466ec` · 2026-09-05 · era la sesión `797b0a1c`, que no pudo escribir aquí su reclamo porque el tablón estuvo cogido de principio a fin del trabajo |
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
-| T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 |
+| T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | **hecha salvo `calabozo.ts`** · `56f5f21` + `29e079c` · 2026-09-05 · relevada de `946ca4aa`, que la reclamó y murió sin dejar nada · **lo que falta es su firma**, no código |
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
@@ -260,6 +260,26 @@ van aquí y no se pierden en la tabla:
 
 ## Incidencias abiertas
 
+- **Trabajo terminado y sin commitear de una sesión que ya no existe, y es la precondición
+  de T22.** La sesión `6f2f1053` escribió la hoja de instrucciones —`src/ui/Instrucciones.tsx`
+  (167 líneas, sin rastrear), más el cableado en `App.tsx`, el botón en `estilos.css`,
+  `equivalenciaDeDados` en `dice.ts` y 13 tests en `dice.test.ts`— y **murió sin commitear
+  nada**. Está en verde: la suite pasa con ello dentro. Y está en el árbol compartido, o sea
+  a un `git add -A` ajeno de acabar dentro del commit de cualquiera, que es exactamente la
+  incidencia T12. **T22 no se puede coger hasta que eso esté en `main`**, porque su
+  precondición es justo ese fichero. Commitear el trabajo de otra sesión no lo decide una
+  sesión por su cuenta: **es de Juan Luis**. Lo que no se puede es dejarlo ahí.
+
+- **La incidencia T12 ha vuelto a pasar hoy, en su variante 2.** La sesión `86ebd3db` tenía
+  en el índice los cuatro ficheros de T16 cuando otra commiteó el tablón: `56f5f21`, que se
+  anuncia como «Tablón: T19 y T20 hechas», **se llevó la T16 entera dentro**. No se ha
+  deshecho —el trabajo de las dos partes es válido y aquí no se reescribe el histórico—: se
+  ha explicado en un commit vacío, `29e079c`. Lo que enseña es que la regla escrita («añade
+  por nombre, uno a uno») **no basta**: el índice se llena desde el árbol compartido, así que
+  entre tu `git add` y tu `git commit` cabe el commit de otro, y se lleva lo tuyo. Mientras
+  las sesiones compartan directorio de trabajo esto seguirá pasando; la solución de raíz es
+  un worktree por sesión, y esa es una decisión de Juan Luis.
+
 - **El candado del `esperado` no ve un deshacer seguido de una jugada, y conviene
   decidirlo antes del `wrangler deploy`.** Lo encontró T31: el `esperado` compara
   longitudes, y truncar una acción y añadir otra deja el registro con la misma
@@ -339,6 +359,30 @@ van aquí y no se pierden en la tabla:
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T16 · sesión `86ebd3db` · 2026-09-05 · dentro de `56f5f21`, explicada en `29e079c`.**
+  Ocho héroes y clases repetidas, **todo menos `calabozo.ts`**, que sigue esperando su firma.
+  Relevada de `946ca4aa`, que la reclamó en `146c8dd` y murió sin dejar commit ni reserva.
+  Cuatro cosas que la sesión siguiente necesita saber:
+  - **La ficha de la tarea está desfasada en su dato principal.** Dice que la entrada son
+    cuatro casillas en dos columnas, (12,17)-(13,18). **T2 ya la estrechó**: hoy es
+    `[(12,18), (11,18), (10,18), (9,18)]`, un pasillo de **una casilla de ancho y cuatro de
+    largo**. O sea que la autorización de agosto ya está cumplida y el choque que describe el
+    punto 2 de la ficha ya no es tal: lo único que falta para ocho es **alargar** ese pasillo,
+    no ensancharlo. Eso hace que la salida 1 de las tres que se le ofrecen —fila india— sea
+    hoy la barata, y conviene decírselo así cuando conteste.
+  - **Quien arregla el apilamiento es la guarda, no la línea del `%`.** Con la guarda puesta,
+    `i % n` e `i` son la misma cosa. Por eso la comprobación que pedía la ficha —revertir
+    `partida.ts` y ver caer el test de las ocho casillas— **no funciona**, y el test que de
+    verdad sostiene el arreglo es el de «más héroes que casillas de entrada». Comprobado
+    quitando la guarda: cae ese y solo ese.
+  - **El apilamiento ilegal ya estaba en la suite entera.** `MISION_PRUEBA` tenía una sola
+    casilla de entrada y unos veinte tests montan grupos de dos a cuatro héroes: todos
+    empezaban encima de la misma casilla, un estado que `celdaLibre` prohíbe, y pasaban
+    porque casi todos llaman a `situar` acto seguido. La entrada de prueba pasa a ocho.
+  - **El tope de la pantalla sale del dato**, `min(8, mision.entrada.length)`, y hoy da 4. La
+    pantalla dice en voz alta por qué recorta. No hace falta volver a tocarla cuando él
+    decida: alargar la entrada la sube sola.
 
 - **T31 · sesión `992c726d` · 2026-09-05 · `15c852a`.** La partida en red, en el
   cliente. Lo que T32 y T33 dan por hecho, y una desviación dicha:
