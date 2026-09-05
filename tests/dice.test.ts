@@ -3,6 +3,7 @@ import {
   contarCalaveras,
   contarEscudosBlancos,
   contarEscudosNegros,
+  equivalenciaDeDados,
   tirarDadoCombate,
   tirarDadosCombate,
   tirarMovimiento,
@@ -85,6 +86,48 @@ describe("dado de combate", () => {
     expect(contarCalaveras(caras)).toBe(2);
     expect(contarEscudosBlancos(caras)).toBe(1);
     expect(contarEscudosNegros(caras)).toBe(1);
+  });
+});
+
+describe("dados corrientes que hacen de dado de combate", () => {
+  it("el d6 se lee 1-3 calavera, 4-5 escudo blanco, 6 escudo negro", () => {
+    expect(equivalenciaDeDados(6)).toEqual([
+      { cara: "calavera", numeros: [1, 2, 3] },
+      { cara: "escudoBlanco", numeros: [4, 5] },
+      { cara: "escudoNegro", numeros: [6] },
+    ]);
+  });
+
+  it("el d12 dobla cada tramo", () => {
+    expect(equivalenciaDeDados(12)).toEqual([
+      { cara: "calavera", numeros: [1, 2, 3, 4, 5, 6] },
+      { cara: "escudoBlanco", numeros: [7, 8, 9, 10] },
+      { cara: "escudoNegro", numeros: [11, 12] },
+    ]);
+  });
+
+  it("reparte todas las caras del dado, sin huecos ni repetidos", () => {
+    for (const lados of [6, 12, 18, 24]) {
+      const numeros = equivalenciaDeDados(lados).flatMap((t) => t.numeros);
+      expect(numeros).toEqual([...Array(lados)].map((_, i) => i + 1));
+    }
+  });
+
+  it("mantiene las probabilidades del dado de combate", () => {
+    for (const lados of [6, 12, 24]) {
+      const tramos = equivalenciaDeDados(lados);
+      const proporcion = (cara: string) =>
+        tramos.find((t) => t.cara === cara)!.numeros.length / lados;
+      expect(proporcion("calavera")).toBeCloseTo(1 / 2);
+      expect(proporcion("escudoBlanco")).toBeCloseTo(1 / 3);
+      expect(proporcion("escudoNegro")).toBeCloseTo(1 / 6);
+    }
+  });
+
+  it("rechaza un dado cuyas caras no se reparten por igual", () => {
+    // Un d10 daría tramos desiguales y cambiaría el juego sin avisar.
+    expect(() => equivalenciaDeDados(10)).toThrow();
+    expect(() => equivalenciaDeDados(0)).toThrow();
   });
 });
 

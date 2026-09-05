@@ -149,6 +149,48 @@ kbd {
   .juego-panel { max-width: none; max-height: none; }
 }
 
+/* ------------------------------------------------------------ instrucciones */
+/* Van por encima de la ventana de dados (z-index 20): se consultan justo
+   mientras se está decidiendo qué contestar en ella. */
+.instrucciones-fondo {
+  position: fixed; inset: 0; background: #000c; z-index: 30;
+  overflow-y: auto; padding: 1.5rem 1rem 3rem;
+}
+.instrucciones {
+  max-width: 760px; margin: 0 auto;
+  background: var(--panel); border: 1px solid var(--borde); border-radius: 10px;
+  padding: 1.2rem 1.4rem 1.6rem;
+}
+.instrucciones-cabecera { display: flex; gap: 1rem; align-items: flex-start; }
+.instrucciones-cabecera h1 { margin: 0 0 .3rem; font-size: 1.35rem; }
+.instrucciones-cabecera p { margin: 0; }
+.instrucciones-cerrar { flex: 0 0 auto; margin-left: auto; }
+
+.instr-bloque { margin-top: 1.4rem; }
+.instr-bloque h2 {
+  margin: 0 0 .5rem; font-size: 1rem; color: #ffd76a;
+  border-bottom: 1px solid var(--borde); padding-bottom: .3rem;
+}
+.instrucciones p { line-height: 1.55; margin: 0 0 .6rem; max-width: 64ch; color: #cfd6e4; }
+.instrucciones .instr-regla { color: var(--tinta); font-size: 1rem; }
+.instr-aviso {
+  border-left: 3px solid #9c3d36; padding-left: .7rem;
+}
+
+.dados-tablas { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-bottom: .9rem; }
+.dado-tabla { flex: 1 1 300px; }
+.dado-tabla h3 { margin: 0 0 .4rem; font-size: .85rem; color: #b6bdcb; font-weight: 600; }
+.dado-tabla table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+.dado-tabla td { padding: .3rem .5rem .3rem 0; border-top: 1px solid var(--borde); }
+.dado-numeros { font-weight: 600; white-space: nowrap; }
+.dado-flecha { color: #8b94a7; padding-right: .4rem; }
+.dado-cara { white-space: nowrap; }
+.dado-simbolo { font-size: 1.05rem; vertical-align: -2px; }
+.dado-para { color: #8b94a7; font-size: .78rem; line-height: 1.3; }
+.cara-calavera { color: #e0574c; }
+.cara-escudoBlanco { color: #f1ece1; }
+.cara-escudoNegro { color: #8b94a7; }
+
 /* ------------------------------------------------------------ elección de héroes */
 .eleccion { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
 .eleccion-cabecera h1 { margin: 0 0 .25rem; font-size: 1.5rem; }
