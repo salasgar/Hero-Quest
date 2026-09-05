@@ -95,7 +95,7 @@ coger en cualquier orden desde hoy.
 | T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | **hecha** · `a24b396` · 2026-08-22 |
 | T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | **pendiente** · `board.ts` está en `main` desde `d3dced0` y el retroceso del `reducer.ts` desde `8b0b7dc`; le faltan sus tests y la entrada de la misión |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | pendiente |
-| T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | en curso · `2921da7f` · 2026-09-05 |
+| T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **hecha** · `9bcd7d1` · 2026-09-05 |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | pendiente |
@@ -115,11 +115,19 @@ fichero grande. De ahí la única combinación que va sobre seguro:
 
 > **T7 + una cualquiera del grupo de `reducer.ts`.**
 
-Cuando T7 esté hecha, la cifra baja a **una**: lo que quede son cinco tareas sobre el
-mismo fichero. Una tercera sesión hoy es posible —las cinco tocan funciones distintas del
+Cuando T7 esté hecha, la cifra baja a **una**: lo que quede son cuatro tareas sobre el
+mismo fichero. Una tercera sesión hoy es posible —las cuatro tocan funciones distintas del
 fichero, y `git` las suele fusionar sin quejarse— pero ya es apostar a que el rebase salga
-limpio. Si lo intentas, que sea T4, que es la más pequeña y la que antes suelta el fichero;
-y de T4 ya solo quedan los tests, porque su regla está commiteada.
+limpio. Si lo intentas, que sea T2, que es la que menos toca el fichero: su regla ya está
+commiteada y solo le faltan los tests y la entrada de la misión.
+
+**Y hay un cuello de botella que no está en esta cuenta: `_ESTADO.md`.** Todas las tareas
+lo escriben dos veces —al reclamar y al terminar—, así que una sesión que lo deje
+reservado bloquea a todas las demás en el primer paso del protocolo. Le pasó a esta misma
+sesión el 5 de septiembre: media hora sin poder escribir su fila, y por el camino perdió
+T7. Si te lo encuentras cogido, **reserva antes los ficheros de tu tarea** y escribe la
+fila cuando se libere: el candado que evita el trabajo duplicado es el del fichero de
+código, no el del tablón.
 
 **«bloqueada»** significa que la precondición no se cumple todavía, no que la tarea sea
 difícil. En cuanto T1–T7 estén en «hecha», T8 se puede coger.
@@ -135,7 +143,7 @@ De las siete, solo tres son bloqueantes técnicas de verdad. La IA de Zargon eli
 acciones legales, y estas tres cambian **qué es legal para un monstruo**:
 
 - **T1**, porque decide a quién ve y por tanto a quién puede atacar o apuntar. **Hecha.**
-- **T4**, porque decide por dónde puede pasar sin comerse una trampa.
+- **T4**, porque decide por dónde puede pasar sin comerse una trampa. **Hecha.**
 - **T5**, porque cambia con cuántos dados pelea dentro de un foso.
 
 T2, T3, T6 y T7 tocan solo el turno de los héroes: la IA no las nota. Escribir T8 antes de
@@ -168,8 +176,8 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
   [T12](tareas/T12-incidencia-commit-cruzado.md).
 
 - ~~Trabajo sin commitear en `src/engine/reducer.ts`.~~ **Rescatado** en `8b0b7dc`. Era de
-  la sesión `64d69b4d`, que llevaba T4 y fue interrumpida. Está en `main` y **sin tests**:
-  no da por terminadas ni T4 ni T2.
+  la sesión `64d69b4d`, que llevaba T4 y fue interrumpida. Estaba en `main` y **sin
+  tests**. Su mitad de T4 ya los tiene (`9bcd7d1`); **la de T2 sigue sin ellos**.
 
 ---
 
@@ -194,6 +202,24 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
     `reducer.ts` lo tocaban tres tareas y son cinco. Quien repartiera sesiones con la tabla
     vieja abría en paralelo dos que iban al mismo fichero. Ya está corregida y medida con
     `grep`, no de memoria.
+
+- **T4 · sesión `2921da7f` · 2026-09-05 · `9bcd7d1`.** Los monstruos no disparan las
+  trampas ocultas. Solo faltaban los tests: la regla estaba desde `8b0b7dc`. Tres cosas:
+  - **La prueba de T1 vuelve a salir negativa y luego positiva.** Con la condición vieja
+    —sin el `esHeroe(f)`— la suite entera pasaba igual: no había un solo test que tocara
+    la regla. Los cuatro nuevos fallan al revertirla y ninguno más se mueve. Esa segunda
+    mitad importa tanto como la primera: dice que los tests nuevos prueban *esto* y no
+    otra cosa de rebote.
+  - **El test que vale es el de que la trampa no se gasta**, no el del daño. Que el orco
+    salga ileso es lo llamativo; que el foso siga `gastada: false` y `descubierta: false`
+    es lo que impide que Zargon vaya despejándoles el camino a los héroes al mover sus
+    propios monstruos. El orco tiene un punto de cuerpo, así que si la trampa saltara
+    moriría: el daño se prueba solo.
+  - **La reclamación llegó después del trabajo, y no por descuido.** El tablón lo tuvo
+    reservado otra sesión treinta minutos y el candado no dejaba escribir la fila. Ese
+    rato costó T7: al volver, ya la tenía cogida `b63aa070`. Si vuelve a pasar, la salida
+    es reservar cuanto antes **los ficheros** de la tarea —que es el candado que de verdad
+    impide el solape— y dejar la fila del tablón para cuando se libere.
 
 - **T1 · sesión `fae5dfc8` · 2026-08-22 · `a24b396`.** Las figuras cortan la línea de
   visión. Tres cosas que no estaban escritas:
@@ -248,9 +274,9 @@ once tareas de escribir código, y todas necesitan criterio. Además, en este en
 están disponibles las herramientas de programación remota, así que una tarea programada no
 podría arrancar de todos modos.
 
-T1 y T12 están hechas. De las seis que quedan, **cinco tocan `reducer.ts`** (T2, T3, T4,
-T5 y T6) y van de una en una; solo **T7** es independiente. A T2 y a T4 les falta ya solo
-la parte de tests: su código de producción está en `main`, pero sin nada que lo ejerza.
+T1, T4 y T12 están hechas. De las cinco que quedan, **cuatro tocan `reducer.ts`** (T2, T3,
+T5 y T6) y van de una en una; solo **T7** es independiente. A T2 le falta ya solo la parte
+de tests: su código de producción está en `main`, pero sin nada que lo ejerza.
 
 ---
 
