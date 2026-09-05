@@ -187,6 +187,17 @@ export interface EstadoPartida {
    * corresponderse con lo que hay en la mesa.
    */
   puertasVistas: string[];
+  /**
+   * Monstruos que están puestos sobre el tablero, por id. Reglamento p. 11:
+   * «Zargon may move all monsters currently **on the gameboard**», y la p. 12
+   * dice cuándo se ponen: al abrir la puerta de su sala, o al quedar en la línea
+   * de visión de un héroe por un pasillo. Hasta entonces la figura sigue en la
+   * caja y Zargon no puede moverla.
+   *
+   * Acumula y nunca quita, igual que `puertasVistas` y por lo mismo: los héroes
+   * pueden retroceder y perderlo de vista, pero la figura ya está en la mesa.
+   */
+  monstruosEnTablero: IdFigura[];
   buscadoTesoro: IdSala[];
   buscadoTrampas: IdSala[];
   /** Casillas cegadas por un bloque que ha caído. */

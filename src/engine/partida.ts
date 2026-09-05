@@ -5,7 +5,7 @@ import { MONSTRUOS, type EspecieMonstruo } from "../data/monsters";
 import { hechizosDelElemento, type Elemento, type IdHechizo } from "../data/spells";
 import { MAZO_COMPLETO } from "../data/treasure";
 import { crearRng, entero, type Rng } from "./rng";
-import { conPuertasVistas } from "./vision";
+import { conMonstruosEnTablero, conPuertasVistas } from "./vision";
 import type {
   Celda,
   EstadoPartida,
@@ -114,6 +114,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
     trampas: op.trampas ?? [],
     salasReveladas: [],
     puertasVistas: [],
+    monstruosEnTablero: [],
     buscadoTesoro: [],
     buscadoTrampas: [],
     celdasBloqueadas: [],
@@ -135,5 +136,10 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
 
   // El grupo ya está mirando el pasillo antes de que nadie mueva ficha: si esto
   // saliera vacío, la primera pantalla de la partida no enseñaría ni una puerta.
-  return conPuertasVistas(inicial);
+  //
+  // Los monstruos pasan por lo mismo aunque en «El calabozo del guardián» dé
+  // lista vacía —los seis empiezan en salas cerradas—: una misión que plante uno
+  // en un pasillo a la vista tiene que arrancar con él puesto, no esperando a la
+  // primera acción.
+  return conMonstruosEnTablero(conPuertasVistas(inicial));
 }

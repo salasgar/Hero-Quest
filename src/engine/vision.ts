@@ -162,6 +162,31 @@ export function conPuertasVistas(estado: EstadoPartida): EstadoPartida {
   return { ...estado, puertasVistas: [...estado.puertasVistas, ...nuevas] };
 }
 
+/**
+ * Añade a `monstruosEnTablero` los que los héroes acaben de descubrir.
+ *
+ * Dos vías, las dos del reglamento p. 12: que se revele la sala donde está —al
+ * abrir su puerta se ponen sobre el tablero **todos** los de dentro, los vea
+ * quien los vea— o que algún héroe vivo lo tenga en su línea de visión, que es
+ * el caso del monstruo plantado en un pasillo.
+ *
+ * Acumula y nunca quita: una figura puesta en la mesa no se retira porque el
+ * grupo dé media vuelta.
+ */
+export function conMonstruosEnTablero(estado: EstadoPartida): EstadoPartida {
+  const heroes = estado.heroes.filter((h) => h.cuerpo > 0);
+  const nuevos = estado.monstruos
+    .filter((m) => {
+      if (estado.monstruosEnTablero.includes(m.id)) return false;
+      const sala = salaEn(m.celda.x, m.celda.y);
+      if (sala !== null && estado.salasReveladas.includes(sala)) return true;
+      return heroes.some((h) => puedeVer(estado, h.celda, m.celda));
+    })
+    .map((m) => m.id);
+  if (nuevos.length === 0) return estado;
+  return { ...estado, monstruosEnTablero: [...estado.monstruosEnTablero, ...nuevos] };
+}
+
 /** Comprueba si el objetivo es visible desde donde está una figura. */
 export function figurasVisiblesPara(
   estado: EstadoPartida,

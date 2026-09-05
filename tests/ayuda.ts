@@ -49,6 +49,22 @@ export function situar(e: EstadoPartida, id: string, celda: Celda): EstadoPartid
   };
 }
 
+/**
+ * Da por descubiertos unos monstruos, saltándose las reglas.
+ *
+ * Desde T18, Zargon solo puede activar los que están puestos sobre el tablero, y
+ * eso ocurre al abrir la puerta de su sala o al verlos por un pasillo. Un test
+ * que planta un monstruo con `situar` y lo activa necesita esto; si no, el motor
+ * le contesta que los héroes todavía no lo han encontrado. Sin argumentos, pone
+ * a todos los de la partida.
+ */
+export const enTablero = (e: EstadoPartida, ...ids: string[]): EstadoPartida => ({
+  ...e,
+  monstruosEnTablero: [
+    ...new Set([...e.monstruosEnTablero, ...(ids.length > 0 ? ids : e.monstruos.map((m) => m.id))]),
+  ],
+});
+
 /** Da al actor de turno un movimiento concreto sin depender del azar. */
 export const conMovimiento = (e: EstadoPartida, puntos: number): EstadoPartida => ({
   ...e,

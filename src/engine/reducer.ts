@@ -30,7 +30,7 @@ import {
 } from "./combat";
 import { tirarD6, tirarMovimiento as tirarDadosMovimiento } from "./dice";
 import { elegir } from "./rng";
-import { conPuertasVistas, puedeVer, salasDeLaPuerta } from "./vision";
+import { conMonstruosEnTablero, conPuertasVistas, puedeVer, salasDeLaPuerta } from "./vision";
 import {
   esHeroe,
   mismaCelda,
@@ -62,6 +62,32 @@ export function figuraActiva(e: EstadoPartida): Figura | null {
 }
 
 const vivos = <T extends { cuerpo: number }>(xs: readonly T[]): T[] => xs.filter((f) => f.cuerpo > 0);
+
+/**
+ * Monstruos que Zargon puede activar, dados los que ya han terminado.
+ *
+ * Vive aquí y no en `selectors.ts` porque de ahí lo consumen tres sitios —el
+ * selector de la pantalla, la guarda de `activarMonstruo` y el cierre del turno
+ * de Zargon— y `selectors.ts` importa de este fichero, no al revés. Estaba
+ * copiado en los tres, y el tercero es el que se olvidaba: si el cierre del
+ * turno cuenta monstruos que la pantalla no ofrece, el turno de Zargon no
+ * termina nunca y la partida se queda parada.
+ *
+ * `monstruosEnTablero` es la condición nueva (reglamento p. 11: solo se mueve lo
+ * que está puesto sobre el tablero). Las otras tres ya estaban.
+ */
+export function monstruosActivables(
+  e: EstadoPartida,
+  hechos: readonly IdFigura[] = e.turno.monstruosHechos,
+): Monstruo[] {
+  return vivos(e.monstruos).filter(
+    (m) =>
+      e.monstruosEnTablero.includes(m.id) &&
+      !hechos.includes(m.id) &&
+      !m.dormido &&
+      !m.pierdeTurno,
+  );
+}
 
 const movimientoDe = (f: Figura): number =>
   f.tipo === "monstruo" ? MONSTRUOS[f.especie].movimiento : 0;
@@ -152,18 +178,18 @@ function comprobarDesenlace(e: EstadoPartida): [EstadoPartida, Evento[]] {
 }
 
 /**
- * Envoltorio final: apunta las puertas que se han visto, comprueba el desenlace
- * y añade los eventos al registro.
+ * Envoltorio final: apunta lo que el grupo acaba de descubrir —puertas y
+ * monstruos—, comprueba el desenlace y añade los eventos al registro.
  *
- * Las puertas se actualizan aquí, y no en cada acción que pueda descubrirlas,
- * porque este es el único embudo por el que pasan todas las acciones legales sin
- * excepción: mover, abrir, atravesar la roca y lo que venga después. La lista de
- * sitios siempre se queda corta. Y va **después** de revelar la sala, que ocurre
- * dentro de la acción: al revés, la puerta recién abierta tardaría un turno en
- * aparecer.
+ * Se actualizan aquí, y no en cada acción que pueda descubrirlos, porque este es
+ * el único embudo por el que pasan todas las acciones legales sin excepción:
+ * mover, abrir, atravesar la roca y lo que venga después. La lista de sitios
+ * siempre se queda corta. Y va **después** de revelar la sala, que ocurre dentro
+ * de la acción: al revés, la puerta recién abierta y los monstruos de dentro
+ * tardarían un turno en aparecer.
  */
 function terminar(e: EstadoPartida, eventos: Evento[]): Resultado {
-  const [conDesenlace, masEventos] = comprobarDesenlace(conPuertasVistas(e));
+  const [conDesenlace, masEventos] = comprobarDesenlace(conMonstruosEnTablero(conPuertasVistas(e)));
   const todos = [...eventos, ...masEventos];
   return { ok: true, estado: { ...conDesenlace, registro: [...conDesenlace.registro, ...todos] }, eventos: todos };
 }
@@ -290,6 +316,11 @@ function activarMonstruo(e: EstadoPartida, id: IdFigura): Resultado {
   const m = figuraPorId(e, id);
   if (!m || m.tipo !== "monstruo") return fallo("No existe ese monstruo.");
   if (m.cuerpo <= 0) return fallo("Ese monstruo está derrotado.");
+  // Reglamento p. 11: Zargon mueve los monstruos que están sobre el tablero, y
+  // ahí solo se ponen los que los héroes han descubierto (p. 12). Antes de eso
+  // la figura sigue dentro de la caja.
+  if (!e.monstruosEnTablero.includes(id))
+    return fallo("Los héroes todavía no lo han encontrado: ese monstruo no está en el tablero.");
   if (m.dormido) return fallo("Ese monstruo está dormido.");
   if (m.pierdeTurno) return fallo("Ese monstruo pierde este turno.");
 
@@ -579,6 +610,11 @@ function buscarTesoro(e: EstadoPartida): Resultado {
               efectos: [], dormido: false, pierdeTurno: false,
             },
           ],
+          // Nace puesto sobre el tablero: lo acaban de sacar de la carta y lo
+          // ponen al lado del héroe que la ha robado, a la vista de todos. Sin
+          // esta línea dependería de que el acumulador lo pillara, y un errante
+          // que aparece en un rincón ciego no actuaría jamás.
+          monstruosEnTablero: [...estado.monstruosEnTablero, id],
         };
         eventos.push({ tipo: "monstruoErrante", monstruo: id, celda: hueco });
       }
@@ -833,9 +869,7 @@ function terminarTurno(e: EstadoPartida): Resultado {
   // Si hay un monstruo actuando, se cierra solo su activación.
   if (esTurnoDeZargon(e) && e.turno.monstruoActivo) {
     const hechos = [...e.turno.monstruosHechos, e.turno.monstruoActivo];
-    const quedan = vivos(e.monstruos).filter(
-      (m) => !hechos.includes(m.id) && !m.dormido && !m.pierdeTurno,
-    );
+    const quedan = monstruosActivables(e, hechos);
     if (quedan.length > 0) {
       return terminar(
         {

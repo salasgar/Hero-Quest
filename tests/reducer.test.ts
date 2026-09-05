@@ -4,7 +4,7 @@ import { aplicarAccion, repetir } from "../src/engine/reducer";
 import { puedeBuscarTrampas } from "../src/engine/selectors";
 import type { IdEquipo } from "../src/data/equipment";
 import type { Accion, Celda } from "../src/engine/types";
-import { c, conMovimiento, hacer, MISION_PRUEBA, partida, rechaza, situar } from "./ayuda";
+import { c, conMovimiento, enTablero, hacer, MISION_PRUEBA, partida, rechaza, situar } from "./ayuda";
 
 const CAL = "calavera" as const;
 const BLA = "escudoBlanco" as const;
@@ -274,8 +274,10 @@ describe("los monstruos no disparan las trampas ocultas", () => {
       trampas: [{ id: "t1", tipo, celda: c(1, 2), descubierta: false, gastada: false }],
       monstruos: [{ id: "orco1", especie: "orco", celda: c(1, 1) }],
     });
-    // El bárbaro entra en (0,1) y no estorba la columna 1.
-    let e = hacer(base, { tipo: "terminarTurno" }); // le toca a Zargon
+    // El bárbaro entra en (0,1) y no estorba la columna 1. El orco está en la
+    // sala `a`, que nadie ha abierto: sin `enTablero` Zargon no puede moverlo
+    // (T18), y aquí lo que se prueba son las trampas, no el descubrimiento.
+    let e = hacer(enTablero(base), { tipo: "terminarTurno" }); // le toca a Zargon
     e = hacer(e, { tipo: "activarMonstruo", monstruo: "orco1" });
     const r = aplicarAccion(e, { tipo: "mover", destino: c(1, 3) });
     if (!r.ok) throw new Error(`el orco no pudo cruzar: ${r.motivo}`);
@@ -460,7 +462,7 @@ describe("turnos", () => {
   });
 
   it("los monstruos no tiran movimiento: lo tienen fijo", () => {
-    let e = partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(3, 1) }] });
+    let e = enTablero(partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(3, 1) }] }));
     e = hacer(e, { tipo: "terminarTurno" }); // a Zargon
     expect(rechaza(e, { tipo: "tirarMovimiento" })).toMatch(/número fijo/i);
     e = hacer(e, { tipo: "activarMonstruo", monstruo: "orco1" });
@@ -474,7 +476,7 @@ describe("turnos", () => {
         { id: "orco2", especie: "orco", celda: c(4, 1) },
       ],
     });
-    e = hacer(e, { tipo: "terminarTurno" });
+    e = hacer(enTablero(e), { tipo: "terminarTurno" });
     e = hacer(e, { tipo: "activarMonstruo", monstruo: "orco1" });
     e = hacer(e, { tipo: "terminarTurno" }); // cierra el orco1
     expect(rechaza(e, { tipo: "activarMonstruo", monstruo: "orco1" })).toMatch(/ya ha actuado/i);
@@ -499,7 +501,7 @@ describe("desenlace", () => {
     let e = partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(2, 1) }] });
     e = situar(e, "barbaro", c(1, 1));
     e = { ...e, heroes: e.heroes.map((h) => ({ ...h, cuerpo: 1 })) };
-    e = hacer(e, { tipo: "terminarTurno" });
+    e = hacer(enTablero(e), { tipo: "terminarTurno" });
     e = hacer(e, { tipo: "activarMonstruo", monstruo: "orco1" });
     e = hacer(e, { tipo: "atacar", objetivo: "barbaro", dadosAtaque: [CAL], dadosDefensa: [] });
     expect(e.desenlace?.victoria).toBe(false);

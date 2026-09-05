@@ -10,7 +10,7 @@ import { salaEn } from "../data/board-base";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { alcanzables, figuraPorId } from "./board";
 import { dadosDeAtaque, dadosDeDefensa, modoDeAtaqueContra } from "./combat";
-import { actorActual, esTurnoDeZargon, figuraActiva } from "./reducer";
+import { actorActual, esTurnoDeZargon, figuraActiva, monstruosActivables } from "./reducer";
 import { puedeVer } from "./vision";
 import {
   claveCelda,
@@ -131,12 +131,16 @@ export function fichaDe(e: EstadoPartida, id: IdFigura) {
   };
 }
 
-/** Monstruos que Zargon todavía puede activar en este turno. */
+/**
+ * Monstruos que Zargon todavía puede activar en este turno.
+ *
+ * El filtro no se escribe aquí: es `monstruosActivables`, en `reducer.ts`, el
+ * mismo que usan la guarda de `activarMonstruo` y el cierre del turno. Estuvo
+ * copiado en los tres sitios y los tres tenían que cambiar a la vez.
+ */
 export function monstruosPorActivar(e: EstadoPartida): Figura[] {
   if (!esTurnoDeZargon(e)) return [];
-  return vivos(e.monstruos).filter(
-    (m) => !e.turno.monstruosHechos.includes(m.id) && !m.dormido && !m.pierdeTurno,
-  );
+  return monstruosActivables(e);
 }
 
 /**

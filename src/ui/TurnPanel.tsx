@@ -105,7 +105,17 @@ export function TurnPanel({
       {esZargon && !activa && (
         <div className="grupo">
           {orden.length === 0 ? (
-            <p className="apagado">No queda ningún monstruo por mover.</p>
+            /*
+              Dos motivos distintos para no tener a nadie que mover, y decirlos
+              igual sería un fallo en la mesa: en el turno 1, con los héroes aún
+              en el pasillo, lo normal es que no se haya descubierto a nadie, y
+              «no queda ninguno» ahí suena a que la aplicación se ha averiado.
+            */
+            <p className="apagado">
+              {estado.monstruosEnTablero.length === 0
+                ? "Los héroes todavía no han encontrado a nadie. Zargon espera."
+                : "No queda ningún monstruo por mover."}
+            </p>
           ) : (
             <>
               <p>

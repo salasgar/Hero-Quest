@@ -17,14 +17,22 @@
 import { describe, expect, it } from "vitest";
 import { ordenDeActivacion, proximoEnActuar, tieneATiro } from "../src/ai/orden";
 import type { EstadoPartida } from "../src/engine/types";
-import { c, hacer, partida, situar } from "./ayuda";
+import { c, enTablero, hacer, partida, situar } from "./ayuda";
 
-/** Sin esto no es el turno de Zargon y no hay ningún monstruo por activar. */
-const turnoDeZargon = (e: EstadoPartida): EstadoPartida => ({
-  ...e,
-  turno: { ...e.turno, indice: e.turno.orden.indexOf("zargon") },
-  salasReveladas: ["a"],
-});
+/**
+ * Sin esto no es el turno de Zargon y no hay ningún monstruo por activar.
+ *
+ * `enTablero` es la parte que añadió T18: desde entonces Zargon solo ordena a
+ * los monstruos que los héroes han descubierto. Estos tests montan el estado a
+ * mano, sin pasar por el motor, así que hay que declararlo aquí; lo que prueban
+ * es el orden, no el descubrimiento.
+ */
+const turnoDeZargon = (e: EstadoPartida): EstadoPartida =>
+  enTablero({
+    ...e,
+    turno: { ...e.turno, indice: e.turno.orden.indexOf("zargon") },
+    salasReveladas: ["a"],
+  });
 
 const ids = (e: EstadoPartida) => ordenDeActivacion(e).map((m) => m.id);
 
