@@ -117,7 +117,7 @@ coger en cualquier orden desde hoy.
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8 · **cumplida** · y T9 | `src/ui/` | bloqueada solo por T9 · el punto de entrada ya existe: `siguienteAccionDeZargon` |
 | T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | **hecha** · `de466ec` · 2026-09-05 · era la sesión `797b0a1c`, que no pudo escribir aquí su reclamo porque el tablón estuvo cogido de principio a fin del trabajo |
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
-| T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | **hecha salvo `calabozo.ts`** · `56f5f21` + `29e079c` · 2026-09-05 · relevada de `946ca4aa`, que la reclamó y murió sin dejar nada · **lo que falta es su firma**, no código |
+| T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 · lo de `56f5f21`+`29e079c` está en `main`; **ya tiene su firma** y lo que falta es la colocación por cercanía · `calabozo.ts` no se toca |
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
@@ -870,6 +870,21 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   los cuatro héroes se taponaban; era un parche, no diseño. **Se hace dentro de T2 y en el
   mismo commit que la regla**, nunca antes: con la regla vieja en pie, el atasco vuelve.
 
+- **2026-09-05 — Los héroes que no caben en `mision.entrada` salen por las casillas más
+  cercanas a ella.** Es su respuesta literal a la pregunta de T16: «lo de los 8 héroes creo
+  que se puede solucionar poniéndolos en las 8 casillas más cercanas a la entrada». Resuelve
+  el choque entre el tope de ocho y la autorización del 22 de agosto **sin tocar ninguna de
+  las dos**: la entrada de «El calabozo del guardián» sigue siendo el pasillo de una casilla
+  de ancho que dejó T2, y quien sobra se coloca a continuación, hacia fuera. Con esto,
+  `calabozo.ts` no se toca: era el único fichero que T16 tenía pendiente.
+
+  **Ojo, y no es lo mismo:** esto decide **dónde empieza** el grupo, no qué cuenta como
+  salida. El objetivo «salir» (`reducer.ts`) sigue pidiendo que todos los héroes vivos estén
+  sobre una casilla de `mision.entrada`, así que en una misión de salir con ocho héroes y
+  cuatro casillas la victoria seguiría siendo imposible. Hoy no afecta a nadie —«El calabozo
+  del guardián» se gana matando al guardián— y queda escrito para quien escriba la primera
+  misión de salir.
+
 ### Pendientes de su palabra
 
 **Las dos firmas de la fase de red (T30 y T34).** Las cuatro decisiones de diseño ya están
@@ -920,25 +935,15 @@ monstruo ataca con 2. Cambiarlo es una línea en `conPenalizacionDeFoso`
   está escrita la regla de arriba, que sí se extiende explícitamente, y evita el único
   caso raro. Sería regla de la casa, y habría que decirlo en el comentario.
 
-**La entrada del calabozo, con ocho héroes (T16).** El 2026-09-05 pidió que se puedan elegir
-hasta ocho héroes. La autorización del 2026-08-22, cuatro líneas más arriba, manda estrechar
-esa misma entrada a **una casilla de ancho** dentro de T2. Las dos cosas están pedidas por él
-y no caben a la vez: hoy hay cuatro casillas de entrada, y `crearPartida` colocaría a los
-ocho **apilados de dos en dos** —medido: 4 casillas distintas de 8—, que es un estado ilegal
-desde el turno cero. Y `mision.entrada` decide además el objetivo «salir» (`reducer.ts:145`):
-con ocho héroes y cuatro casillas, esa victoria pasa a ser **imposible**, no difícil.
-Tres salidas, y la elección es suya:
+~~**La entrada del calabozo, con ocho héroes (T16).**~~ **Contestada el 2026-09-05.** Su
+respuesta está arriba, entre las autorizaciones: los héroes que no caben en `mision.entrada`
+salen por las casillas más cercanas a ella. No hizo falta ni estrechar ni ensanchar nada.
 
-1. **Fila india por el pasillo de una casilla.** Se puede en cuanto T2 deje pasar por encima
-   de un compañero, que es justo lo que T2 hace. Respeta la autorización de agosto.
-2. **La entrada crece** a ocho casillas y la autorización de agosto se revisa.
-3. **El tope de ocho es para misiones futuras** y «El calabozo del guardián» se queda con
-   cuatro, con la pantalla avisando de que en esta misión no caben más.
-
-Hasta que conteste, T16 hace todo lo demás y **no toca `calabozo.ts`**.
-
-**Las cuatro del libro de hechizos (T15).** Lo propuso él el 2026-09-05 y es regla de la
-casa, no del reglamento, así que nada se puede deducir de una fuente:
+**Aparcada por decisión suya: las cuatro del libro de hechizos (T15).** El 2026-09-05 dijo
+que **no lo tiene claro y que de momento no se haga nada de eso**. La tarea queda escrita y
+sin tocar; estas cuatro preguntas siguen aquí para cuando la retome, no para que alguien las
+conteste por él. Es regla de la casa, no del reglamento, así que nada de esto se puede
+deducir de una fuente:
 
 1. ¿Los hechizos del libro **se suman** a los nueve con los que ya empieza el mago, o
    **devuelven** los que ya gastó? Son dos juegos distintos.
@@ -949,7 +954,8 @@ casa, no del reglamento, así que nada se puede deducir de una fuente:
    de buscar tesoro? Y si falla, ¿puede reintentarlo, o esa estantería queda agotada?
 
 De la 4 depende si la acción consume el `rng` del estado, y de eso dependen los tests y el
-deshacer. T15 está bloqueada hasta que estas cuatro estén firmadas aquí.
+deshacer. **T15 está aparcada**: no está esperando estas firmas, está esperando a que él
+decida si quiere la regla. No la cojas.
 
 **Y un aviso que no es una pregunta:** si el tope sube a ocho, hacen falta **ocho figuras de
 héroe en cartón**. Hoy hay cuatro.
