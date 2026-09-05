@@ -237,6 +237,61 @@ describe("trampas", () => {
   });
 });
 
+describe("los monstruos no disparan las trampas ocultas", () => {
+  // Reglamento p. 17: «Monsters do not spring hidden traps». Las pone Zargon,
+  // que sabe dónde están. Lo que se juega aquí no es el daño al monstruo sino
+  // que la trampa siga entera: si sus orcos la gastasen, Zargon estaría
+  // despejándoles el camino a los héroes sin querer.
+  type TipoTrampa = "foso" | "lanza" | "bloque";
+
+  /** El orco cruza de (1,1) a (1,3) pisando la trampa de (1,2) por el camino. */
+  const cruza = (tipo: TipoTrampa) => {
+    const base = partida({
+      trampas: [{ id: "t1", tipo, celda: c(1, 2), descubierta: false, gastada: false }],
+      monstruos: [{ id: "orco1", especie: "orco", celda: c(1, 1) }],
+    });
+    // El bárbaro entra en (0,1) y no estorba la columna 1.
+    let e = hacer(base, { tipo: "terminarTurno" }); // le toca a Zargon
+    e = hacer(e, { tipo: "activarMonstruo", monstruo: "orco1" });
+    const r = aplicarAccion(e, { tipo: "mover", destino: c(1, 3) });
+    if (!r.ok) throw new Error(`el orco no pudo cruzar: ${r.motivo}`);
+    return r;
+  };
+
+  it("el orco cruza el foso oculto sin caerse, y el foso sigue sin gastar", () => {
+    const r = cruza("foso");
+    // El orco tiene un solo punto de cuerpo: si la trampa saltara, estaría muerto.
+    expect(r.estado.monstruos[0]!.cuerpo).toBe(1);
+    expect(r.estado.monstruos[0]!.celda).toEqual(c(1, 3)); // ni se ha parado en el foso
+    expect(r.eventos.some((x) => x.tipo === "trampaDisparada")).toBe(false);
+    expect(r.estado.trampas[0]!.gastada).toBe(false);
+    expect(r.estado.trampas[0]!.descubierta).toBe(false); // y los héroes siguen sin verlo
+  });
+
+  it("y el héroe que pisa ese mismo foso después sí se cae", () => {
+    let e = hacer(cruza("foso").estado, { tipo: "terminarTurno" }); // cierra el turno de Zargon
+    e = conMovimiento(situar(e, "barbaro", c(1, 1)), 6);
+    const r = aplicarAccion(e, { tipo: "mover", destino: c(1, 2) });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.estado.heroes[0]!.cuerpo).toBe(7);
+    expect(r.eventos.some((x) => x.tipo === "trampaDisparada")).toBe(true);
+  });
+
+  it("la lanza tampoco hiere al orco", () => {
+    const r = cruza("lanza");
+    expect(r.estado.monstruos[0]!.cuerpo).toBe(1);
+    expect(r.estado.trampas[0]!.gastada).toBe(false);
+  });
+
+  it("el bloque no le cae encima: la casilla no queda cegada", () => {
+    const r = cruza("bloque");
+    expect(r.estado.celdasBloqueadas).not.toContainEqual(c(1, 2));
+    expect(r.estado.monstruos[0]!.celda).toEqual(c(1, 3)); // ni retrocede
+    expect(r.estado.trampas[0]!.gastada).toBe(false);
+  });
+});
+
 describe("búsquedas", () => {
   it("no se busca tesoro en un pasillo", () => {
     const e = conMovimiento(situar(partida(), "barbaro", c(0, 5)), 6);
