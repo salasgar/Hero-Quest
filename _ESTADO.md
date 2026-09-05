@@ -110,9 +110,15 @@ coger en cualquier orden desde hoy.
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
 | T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
+| T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | en curso · `66e4a4ea` · 2026-09-05 · la misma sesión que escribió esta fase sigue con ella; **no toca el motor ni la pantalla, así que cabe en paralelo con cualquier cosa** |
+| T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 | `src/red/cliente.ts`, `usePartida.ts` | bloqueada |
+| T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 · y T18, **cumplida** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | bloqueada |
+| T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 | `TurnPanel.tsx`, `DiceInput.tsx` | bloqueada |
+| T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **falta su autorización** | `.github/workflows/`, `vite.config.ts`, `README.md` | pendiente · esperando su firma |
 
-Las cinco salen de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la
-lista original de divergencias. Vienen con dos hallazgos que no eran lo que parecía:
+Las cinco de la tanda de septiembre —**T13 a T17**, no las de red, que empiezan en T30— salen
+de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la lista original de
+divergencias. Vienen con dos hallazgos que no eran lo que parecía:
 
 - **El mago sí tiene sus nueve hechizos.** Medido con `crearPartida`: `mago@13,18 hechizos=9`.
   Lo que faltaba era el botón para lanzarlos. La pregunta «¿cómo los consigue?» ya tenía
@@ -122,6 +128,36 @@ lista original de divergencias. Vienen con dos hallazgos que no eran lo que pare
   estado inicial: al empezar, `ps`, `pt` y `pr` las ve algún héroe desde la escalera y `pq`
   no la ve nadie. Eso es T13. **La captura no llegó al chat**: la puerta se identificó
   midiendo, no mirando, y está sin confirmar por él.
+
+### La fase de red: jugar con alguien que está en otro sitio (T30–T34)
+
+El 5 de septiembre de 2026 Juan Luis pidió «que se pueda jugar online con otra persona que
+esté en otro lugar». Son cinco tareas y **cuatro decisiones suyas, ya firmadas**, que están
+copiadas enteras en la cabecera de [T30](tareas/T30-relevo-de-acciones.md): quien está lejos
+es **un héroe más** del grupo (la mesa física sigue aquí); **ve el tablero con niebla**, solo
+lo descubierto; la aplicación se publica en **`salasgar.github.io`** y las acciones pasan por
+un **relevo alojado y gratuito** (descartados el túnel al portátil y el navegador a
+navegador); y **los dados de quien juega desde casa admiten las dos opciones**, tirarlos él o
+que se los tire la aplicación.
+
+**Por qué esto sale barato, y es lo que hay que entender antes de coger ninguna de las
+cinco:** el motor ya es determinista. `aplicarAccion` es pura, el generador vive dentro del
+estado y `Accion` es JSON plano; medido, en `src/engine/` no hay ni un `Math.random()` ni un
+`Date.now()`. Por tanto **jugar en red no es sincronizar el estado: es repartir la lista de
+acciones**, y cada pantalla rehace la partida con `repetir(inicial, acciones)`, que es
+exactamente lo que ya hace el «deshacer». El motor **no se toca en toda la fase**.
+
+Tres cosas que conviene no descubrir a mitad:
+
+- **El único `Date.now()` del proyecto está en `Juego.tsx:54`**, eligiendo la semilla. En red
+  la semilla viene del montaje: si se calcula en cada navegador, las dos casas barajan
+  distinto el mazo de tesoros y **divergen desde el turno cero, sin error visible**.
+- **La niebla es de pantalla, no de red.** Quien juega desde su casa recibe el registro
+  entero y puede reconstruir el estado completo en su navegador. Taparlo de verdad sería otra
+  aplicación —el servidor dueño del estado, sirviendo una vista por jugador— y no lo pide
+  nadie. Está escrito como límite conocido, no como fallo pendiente.
+- **La numeración salta de T18 a T30 a propósito.** Los nombres T19–T22 los reclamó otra
+  sesión el mismo día para cuatro tareas de reglas. Se renumeró el bloque de red, no el suyo.
 
 ### Banda de modelo de las tareas nuevas
 
@@ -134,6 +170,14 @@ semanas. ALTO = el más capaz que haya; MEDIO = el intermedio.
   firmada, y el choque hay que resolverlo, no rodearlo).
 - **MEDIO** — T14 (el motor ya está escrito y probado; esto es conectarlo), T17 (una
   heurística corta y reversible).
+
+Y las cinco de la fase de red:
+
+- **ALTO** — T30 (el protocolo lo heredan las otras tres y cambiarlo obliga a redesplegar
+  con partidas vivas), T31 (es donde dos casas divergen sin dar un error), T32 (decide qué
+  ve un jugador y qué no, y esa regla la heredan las misiones futuras).
+- **MEDIO** — T33 (el motor ya admite las dos formas de tirar: esto es pantalla), T34 (el
+  despliegue es mecánico; lo que pide criterio es la cadena de versión).
 
 T1–T12 se escribieron sin banda y **no se les pone ahora**: no sale de sus ficheros, así que
 ponérsela sería inventarla.
@@ -163,6 +207,14 @@ tenía reservados `types.ts`, `partida.ts`, `reducer.ts`, `selectors.ts` y `visi
 son exactamente los que necesitan T3 y T6. **No quedaba ninguna tarea reclamable.** Si
 llegas y te pasa lo mismo, no fuerces: mira `.claude/sesiones/`, y si está todo cogido, la
 respuesta correcta es esperar, no abrir una sesión que va a chocar.
+
+**La fase de red rompe ese techo, y es su mayor virtud operativa.** T30 vive entera en
+`server/` y en `src/red/protocolo.ts`, ficheros que **no existían y que no toca ninguna otra
+tarea del tablón**; T34 vive en `.github/`, `vite.config.ts` y `README.md`. Ninguna de las
+dos roza el motor ni la pantalla, así que **se pueden coger hoy, a la vez, y a la vez que
+cualquier tarea de reglas**. Cuando T30 cierre, T31 añade una tercera vía —`usePartida.ts` y
+`src/red/`— que tampoco pisa `reducer.ts`. Las que sí compiten por la pantalla son T32 y T33:
+esas dos van de una en una, y no a la vez que T15.
 
 **Y hay un cuello de botella que no está en esta cuenta: `_ESTADO.md`.** Todas las tareas
 lo escriben dos veces —al reclamar y al terminar—, así que una sesión que lo deje
@@ -514,6 +566,21 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   mismo commit que la regla**, nunca antes: con la regla vieja en pie, el atasco vuelve.
 
 ### Pendientes de su palabra
+
+**Las dos firmas de la fase de red (T30 y T34).** Las cuatro decisiones de diseño ya están
+firmadas y copiadas en la cabecera de T30; lo que falta es lo que sale de esta casa, y ninguna
+sesión se lo puede autorizar a sí misma:
+
+1. **Activar GitHub Pages y publicar la aplicación** en `salasgar.github.io/Hero-Quest/`.
+   Medido el 2026-09-05: el repositorio ya es **público** y Pages **no está activado**. Es
+   hacia fuera y es su cuenta.
+2. **Crear la cuenta de Cloudflare y desplegar el relevo**, que es donde quedan guardadas las
+   partidas —el montaje y la lista de acciones— en un servicio de terceros. No hay datos
+   personales dentro más allá de los nombres que los niños les pongan a sus héroes, pero es un
+   dato que sale de casa y por eso se pregunta.
+
+Las dos tareas se pueden **escribir y probar enteras sin ninguna de las dos firmas**: lo que
+requiere su palabra es el `wrangler deploy` y el encendido de Pages, no el código.
 
 **¿El suelo de un dado dentro del foso vale también para los monstruos? (T5).** El
 reglamento (p. 17) da la penalización del foso para todos —«you must roll one fewer combat
