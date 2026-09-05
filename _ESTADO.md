@@ -100,10 +100,10 @@ coger en cualquier orden desde hoy.
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | **hecha** · `0dc95d5` · 2026-09-05 · **cambia la forma del estado**: `buscadoTesoro` son pares `{heroe, sala}`, no salas |
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
-| T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 · **cumplida entera** | `src/ai/` | **la está escribiendo `66e4a4ea`**: a las 21:45 del 2026-09-05 tenía reservados `src/ai/targeting.ts`, `src/ai/zargon.ts` y sus tests, y no llegó a escribir esta fila. Mira si sigue viva antes de cogerla |
-| T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
-| T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
-| T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
+| T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 · **cumplida entera** | `src/ai/` | **hecha** · `2203e01` · 2026-09-05 · **desbloquea T9, T10 y T11** |
+| T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 · **cumplida** | `src/ai/` | libre · tuerce los pesos de `targeting.ts`, que están puestos para eso |
+| T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 · **cumplida** | `scripts/` | libre · **y es la que dice si los pesos de T8 valen**; no toca `src/ai/`, así que va en paralelo con T9 |
+| T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8 · **cumplida** · y T9 | `src/ui/` | bloqueada solo por T9 · el punto de entrada ya existe: `siguienteAccionDeZargon` |
 | T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | **hecha** · `de466ec` · 2026-09-05 · era la sesión `797b0a1c`, que no pudo escribir aquí su reclamo porque el tablón estuvo cogido de principio a fin del trabajo |
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
 | T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | **hecha salvo `calabozo.ts`** · `56f5f21` + `29e079c` · 2026-09-05 · relevada de `946ca4aa`, que la reclamó y murió sin dejar nada · **lo que falta es su firma**, no código |
@@ -359,6 +359,53 @@ van aquí y no se pierden en la tabla:
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T8 · sesión `66e4a4ea` · 2026-09-05 · `2203e01`.** Zargon decide. Es la tarea que quita
+  del medio lo último que hacía un humano en el turno de los monstruos.
+  - **Qué hay y cómo se usa.** `siguienteAccionDeZargon(estado)` devuelve **una** acción
+    legal —activar, mover, atacar o cerrar— y se llama en bucle: **ese es el punto de
+    entrada de T11**, y despacha por `usePartida` como todo lo demás. `turnoDeZargon(estado)`
+    juega el turno entero de golpe y la usarán los tests y T10; en la mesa no, porque ahí
+    conviene ver moverse cada figura y que dé tiempo a mover la miniatura.
+  - **Los pesos, que es lo que T9 tuerce y T10 mide.** En `targeting.ts`, separados y con
+    nombre: `danoEsperado` 10, `remate` 25 × la probabilidad de conseguirlo, `heridoPrimero`
+    3 por punto perdido, `lanzaHechizos` 1 por hechizo **sin gastar**,
+    `porCasillaDeDistancia` 1 y `descuentoPorNoLlegar` 15. **Ninguna cifra está medida**:
+    están puestas para poder medirlas, y eso es T10.
+  - **`distancia()` no sirve para apuntar, y cuesta una tarde descubrirlo.** Mide hasta una
+    casilla **libre**, y la del héroe la ocupa el héroe: devuelve `Infinity` contra
+    cualquier objetivo vivo. La primera versión dejaba a los cuatro héroes en `-Infinity` y
+    a los monstruos sin nadie a quien ir. Lo que hace falta es `pasosParaAtacar`, hasta la
+    casilla más barata desde la que se le puede pegar, exigiendo `pasoAbierto`: estar pared
+    con pared no es estar al lado.
+  - **Rematar no se decide con la media.** «Daño esperado ≥ cuerpo que le queda» **nunca**
+    se cumple para un orco contra un héroe con 1 de cuerpo, porque su media es 0,83: el
+    monstruo pasaba de largo del moribundo. Ahora es la probabilidad exacta de tumbarlo,
+    que con estos dados se calcula en diez líneas. La media dice cuánto se saca por término
+    medio; rematar es una pregunta de cola.
+  - **El sesgo del mago iba por puntos de mente, y la pantalla mentía.** Jugando un turno de
+    verdad, decía **«el enano lanza hechizos»**: el enano tiene 3 de mente y no lanza
+    ninguno. Ahora cuenta los hechizos que le quedan sin gastar, así que la frase es cierta
+    y, además, **un mago que ha gastado sus nueve cartas deja de ser la presa preferida**,
+    que es como debe ser. Aviso para T9: un mago creado sin elementos no tiene hechizos, así
+    que en un test no atrae a nadie y la escena no prueba lo que dice.
+  - **Un monstruo con un héroe al lado no se va andando a por otro mejor.** Sin
+    `descuentoPorNoLlegar`, la casilla intermedia puntúa por la promesa del objetivo lejano
+    y el monstruo acaba el turno **sin atacar a nadie**. En la mesa eso se lee como que la
+    aplicación se ha despistado.
+  - **Sin monstruos que activar, el turno de Zargon se cerraba con `null`** y la partida se
+    quedaba parada esperando a alguien que no existe. Es el caso del principio de la misión,
+    con los seis todavía en sus salas.
+  - **La prueba de T1, hecha por partida doble**: desconectando el sesgo de los hechizos
+    fallan dos tests; sin el descuento por no llegar, uno. Y hay un test que juega cinco
+    turnos de Zargon sobre la misión de verdad comprobando que **el motor acepta todas y
+    cada una** de las acciones propuestas: una jugada ilegal no se ve como un test rojo, se
+    ve como un monstruo que no se mueve con cuatro niños mirando.
+  - **`tareas/_COMUN.md` tiene un dato equivocado y no se ha tocado por no ser mi fichero:
+    dice que la sala `a` mide 4 × 4 y mide 4 × 3** —columnas 1-4, filas **1-3**; la fila 4 ya
+    es la sala `g`, medido sobre `MAPA_TABLERO`—. Un héroe colocado en la fila 4 queda detrás
+    de un muro y sin camino, y la escena pasa a probar otra cosa. Aquí costó dos verdes
+    falsos. Queda avisado en la cabecera de `tests/zargon.test.ts`.
 
 - **T16 · sesión `86ebd3db` · 2026-09-05 · dentro de `56f5f21`, explicada en `29e079c`.**
   Ocho héroes y clases repetidas, **todo menos `calabozo.ts`**, que sigue esperando su firma.
