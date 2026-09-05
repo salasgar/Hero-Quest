@@ -139,6 +139,29 @@ export function salasDeLaPuerta(p: { a: Celda; b: Celda }): IdSala[] {
   return [...new Set(salas)];
 }
 
+/**
+ * Añade a `puertasVistas` las que algún héroe vivo alcance a ver ahora mismo.
+ *
+ * Acumula y nunca quita: ver una puerta es un hecho, y una vez puesta la ficha
+ * de cartón sobre la mesa ya no se retira. Basta con ver **una** de sus dos
+ * casillas; la de este lado se ve desde el pasillo aunque la de detrás dé a una
+ * sala todavía a oscuras.
+ *
+ * Los monstruos no cuentan: lo que vea Zargon no lo pinta el espejo del grupo.
+ */
+export function conPuertasVistas(estado: EstadoPartida): EstadoPartida {
+  const heroes = estado.heroes.filter((h) => h.cuerpo > 0);
+  const nuevas = estado.puertas
+    .filter(
+      (p) =>
+        !estado.puertasVistas.includes(p.id) &&
+        heroes.some((h) => puedeVer(estado, h.celda, p.a) || puedeVer(estado, h.celda, p.b)),
+    )
+    .map((p) => p.id);
+  if (nuevas.length === 0) return estado;
+  return { ...estado, puertasVistas: [...estado.puertasVistas, ...nuevas] };
+}
+
 /** Comprueba si el objetivo es visible desde donde está una figura. */
 export function figurasVisiblesPara(
   estado: EstadoPartida,

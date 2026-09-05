@@ -6,6 +6,7 @@ import {
   salaEn,
 } from "../data/board-base";
 import { MONSTRUOS } from "../data/monsters";
+import { puertasVisibles } from "../engine/selectors";
 import { colorDeSala } from "./paleta";
 import { claveCelda, mismaCelda, type Celda, type EstadoPartida, type Figura } from "../engine/types";
 
@@ -214,9 +215,8 @@ export function BoardMirror({
           ))}
         </g>
 
-        {/* Puertas */}
-        {estado.puertas
-          .filter((p) => !p.secreta || p.descubierta)
+        {/* Puertas: cuáles se pintan lo decide el motor, no esta pantalla. */}
+        {puertasVisibles(estado)
           .map((p) => {
             const horizontal = p.a.y === p.b.y;
             const x = (Math.max(p.a.x, p.b.x)) * LADO;

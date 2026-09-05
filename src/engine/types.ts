@@ -179,6 +179,14 @@ export interface EstadoPartida {
   muebles: Mueble[];
   trampas: Trampa[];
   salasReveladas: IdSala[];
+  /**
+   * Puertas que algún héroe ha llegado a ver, por id. Es acumulativo y nunca
+   * quita: en la mesa, la puerta de cartón se pone encima del tablero cuando el
+   * grupo la ve y ahí se queda aunque después doblen la esquina. Calcularlo al
+   * vuelo con `puedeVer` haría parpadear la pantalla y el espejo dejaría de
+   * corresponderse con lo que hay en la mesa.
+   */
+  puertasVistas: string[];
   buscadoTesoro: IdSala[];
   buscadoTrampas: IdSala[];
   /** Casillas cegadas por un bloque que ha caído. */

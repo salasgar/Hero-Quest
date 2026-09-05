@@ -30,7 +30,7 @@ import {
 } from "./combat";
 import { tirarD6, tirarMovimiento as tirarDadosMovimiento } from "./dice";
 import { elegir } from "./rng";
-import { puedeVer, salasDeLaPuerta } from "./vision";
+import { conPuertasVistas, puedeVer, salasDeLaPuerta } from "./vision";
 import {
   esHeroe,
   mismaCelda,
@@ -151,9 +151,19 @@ function comprobarDesenlace(e: EstadoPartida): [EstadoPartida, Evento[]] {
   return [e, []];
 }
 
-/** Envoltorio final: comprueba el desenlace y añade los eventos al registro. */
+/**
+ * Envoltorio final: apunta las puertas que se han visto, comprueba el desenlace
+ * y añade los eventos al registro.
+ *
+ * Las puertas se actualizan aquí, y no en cada acción que pueda descubrirlas,
+ * porque este es el único embudo por el que pasan todas las acciones legales sin
+ * excepción: mover, abrir, atravesar la roca y lo que venga después. La lista de
+ * sitios siempre se queda corta. Y va **después** de revelar la sala, que ocurre
+ * dentro de la acción: al revés, la puerta recién abierta tardaría un turno en
+ * aparecer.
+ */
 function terminar(e: EstadoPartida, eventos: Evento[]): Resultado {
-  const [conDesenlace, masEventos] = comprobarDesenlace(e);
+  const [conDesenlace, masEventos] = comprobarDesenlace(conPuertasVistas(e));
   const todos = [...eventos, ...masEventos];
   return { ok: true, estado: { ...conDesenlace, registro: [...conDesenlace.registro, ...todos] }, eventos: todos };
 }

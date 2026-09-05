@@ -5,6 +5,7 @@ import { MONSTRUOS, type EspecieMonstruo } from "../data/monsters";
 import { hechizosDelElemento, type Elemento, type IdHechizo } from "../data/spells";
 import { MAZO_COMPLETO } from "../data/treasure";
 import { crearRng, entero, type Rng } from "./rng";
+import { conPuertasVistas } from "./vision";
 import type {
   Celda,
   EstadoPartida,
@@ -103,7 +104,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
     crearRng(op.semilla ?? 1),
   );
 
-  return {
+  const inicial: EstadoPartida = {
     rng,
     mision: op.mision,
     heroes,
@@ -112,6 +113,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
     muebles: op.muebles ?? [],
     trampas: op.trampas ?? [],
     salasReveladas: [],
+    puertasVistas: [],
     buscadoTesoro: [],
     buscadoTrampas: [],
     celdasBloqueadas: [],
@@ -130,4 +132,8 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
     registro: [],
     desenlace: null,
   };
+
+  // El grupo ya está mirando el pasillo antes de que nadie mueva ficha: si esto
+  // saliera vacío, la primera pantalla de la partida no enseñaría ni una puerta.
+  return conPuertasVistas(inicial);
 }

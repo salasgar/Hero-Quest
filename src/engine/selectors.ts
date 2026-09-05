@@ -68,6 +68,23 @@ export function puertasAlAlcance(e: EstadoPartida): Puerta[] {
   );
 }
 
+/**
+ * Puertas que el espejo del tablero debe pintar.
+ *
+ * Son dos condiciones distintas y las dos tienen que cumplirse, así que van
+ * juntas y no mezcladas:
+ *
+ *  - Una puerta **normal** se pinta cuando alguien del grupo ha llegado a verla
+ *    alguna vez (`puertasVistas`).
+ *  - Una **secreta** se pinta cuando está descubierta, y da igual quién la vea:
+ *    hasta entonces se comporta como muro por mucho que el grupo pase por
+ *    delante, y a partir de entonces **descubrirla es un hecho tan bueno como
+ *    haberla visto**, así que sigue pintada cuando el grupo se aleja.
+ */
+export function puertasVisibles(e: EstadoPartida): Puerta[] {
+  return e.puertas.filter((p) => (p.secreta ? p.descubierta : e.puertasVistas.includes(p.id)));
+}
+
 /** Hechizos que el héroe de turno puede lanzar, con sus objetivos posibles. */
 export function hechizosLanzables(e: EstadoPartida): Array<{ hechizo: IdHechizo; objetivos: Figura[] }> {
   const f = figuraActiva(e);
