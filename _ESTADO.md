@@ -93,7 +93,7 @@ coger en cualquier orden desde hoy.
 | # | Tarea | Precondición | Ficheros que toca | Estado |
 |---|---|---|---|---|
 | T1 | [Las figuras cortan la línea de visión](tareas/T1-linea-de-vision.md) | — | `vision.ts` | **hecha** · `a24b396` · 2026-08-22 |
-| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | **pendiente** · `board.ts` está en `main` desde `d3dced0` y el retroceso del `reducer.ts` desde `8b0b7dc`; le faltan sus tests y la entrada de la misión |
+| T2 | [Los héroes pasan por encima de otros héroes](tareas/T2-pasar-sobre-heroes.md) · *+ la entrada de la misión* | — | `board.ts`, `quests/`, **`reducer.ts`** | en curso · `b63aa070` · 2026-09-05 · `board.ts` está en `main` desde `d3dced0` y el retroceso del `reducer.ts` desde `8b0b7dc`; le faltan sus tests y la entrada de la misión |
 | T3 | [Buscar trampas exige no ver monstruos](tareas/T3-buscar-trampas.md) | — | `selectors.ts`, **`reducer.ts`** | pendiente |
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **hecha** · `9bcd7d1` · 2026-09-05 |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | en curso · `2921da7f` · 2026-09-05 |
@@ -108,7 +108,7 @@ coger en cualquier orden desde hoy.
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
 | T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 |
 | T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
-| T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | en curso · `b63aa070` · 2026-09-05 |
+| T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | **hecha** · `8fbd674` · 2026-09-05 |
 
 Las cinco salen de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la
 lista original de divergencias. Vienen con dos hallazgos que no eran lo que parecía:
@@ -139,22 +139,24 @@ ponérsela sería inventarla.
 
 ### Cuántas sesiones caben a la vez
 
-**Hoy, dos.** No es una cifra prudente: es lo que dan los ficheros.
+**Hoy, una.** No es una cifra prudente: es lo que dan los ficheros. Al final de la tarde del
+5 de septiembre ha bajado de dos a una, y conviene saber por qué antes de abrir sesiones que
+se van a estorbar.
 
-`reducer.ts` sigue siendo el cuello: lo tocan **T2, T3, T5, T6, T13 y T15**. Van de una en
-una. Lo que ha cambiado el 5 de septiembre es de dónde sale la segunda sesión: **T7 y T14
-ya están hechas**, y quien hacía de tarea libre ahora es **T17**, que toca `src/ai/orden.ts`,
-`TurnPanel.tsx` y `Juego.tsx` y no pisa el motor. De ahí la combinación que va sobre seguro:
+`reducer.ts` es el cuello, y lo tocan **todas las tareas libres que quedan**: T2, T3, T6,
+T13 y T15. Van de una en una. Las que no lo pisaban —**T7, T14 y T17**— ya están hechas, y
+con ellas se ha acabado el hueco para una segunda sesión cómoda.
 
-> **T17 + una cualquiera del grupo de `reducer.ts`.**
+Lo que queda fuera del motor no da una segunda sesión de verdad:
 
-Cuidado con dos cosas al contar: **T15 y T17 comparten `TurnPanel.tsx` y `Juego.tsx`**, así
-que no pueden ir a la vez; y **T16 no cuenta como tercera** aunque sus ficheros estén
-libres, porque está esperando una decisión de Juan Luis y `partida.ts` lo tocan también
-T6 y T13. Una tercera sesión sobre `reducer.ts` es posible —cada tarea toca funciones
-distintas y `git` las suele fusionar— pero ya es apostar a que el rebase salga limpio. Si
-lo intentas, que sea T2, que es la que menos toca el fichero: su regla ya está commiteada
-y solo le faltan los tests y la entrada de la misión.
+- **T16** tiene sus ficheros libres, pero espera una decisión de Juan Luis y además
+  `partida.ts` lo tocan T6 y T13.
+- **T15** depende de T13 y comparte `TurnPanel.tsx` y `Juego.tsx` con lo ya hecho.
+
+Una segunda sesión sobre `reducer.ts` sigue siendo posible —cada tarea toca funciones
+distintas y `git` las suele fusionar— pero ya es apostar a que el rebase salga limpio. Si lo
+intentas, mira cuál de las dos toca menos el fichero: **T2** solo necesita tests y la
+entrada de la misión, porque su regla ya está commiteada, y **T3** cambia una condición.
 
 **Y hay un cuello de botella que no está en esta cuenta: `_ESTADO.md`.** Todas las tareas
 lo escriben dos veces —al reclamar y al terminar—, así que una sesión que lo deje
@@ -220,6 +222,43 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **La divergencia del foso en pantalla, cerrada · sesión `b63aa070` · 2026-09-05 ·
+  `aa403fd`.** T5 dejó el `estado` opcional al final de `dadosDeAtaque` y `dadosDeDefensa`
+  porque los seis sitios de `src/ui/` que las llaman estaban reservados por T14. La
+  consecuencia era que **la pantalla enseñaba un dado que el motor no iba a tirar** a quien
+  estuviera en un foso, y el diálogo le pedía al héroe un escudo de más al defender.
+  Hecha T14, esta misma sesión tenía los tres ficheros y lo ha cerrado: seis llamadas, una
+  palabra cada una. El motor no cambia. **Si vuelves a ver un `estado?` opcional en una
+  firma del motor, es una divergencia esperando, no una comodidad.**
+
+- **T17 · sesión `b63aa070` · 2026-09-05 · `8fbd674`.** El orden de los monstruos.
+  - **Los tres criterios, y por qué ese orden**, que es lo que T8 hereda y T10 mide:
+    1. **quien ya puede atacar sin moverse.** Si se le deja para el final, el héroe puede
+       haberse ido y pierde un ataque que tenía servido.
+    2. **quien está más cerca**, en línea recta y sin contar muros. Es una cuenta a ojo, no
+       un camino: los caminos son T8. Aprieta al grupo por el flanco que ya está cerca en
+       vez de repartir monstruos sueltos.
+    3. **quien más aguanta**, para que absorba los golpes antes que los frágiles.
+  - **La distancia va por geometría, no por lo que el monstruo ve**, y es deliberado:
+    Zargon sabe dónde está todo el mundo, y si midiera visión los monstruos de las salas
+    sin revelar empatarían todos a ciegas y el orden lo acabaría dando el desempate.
+  - **El desempate está escrito, por identificador.** Con las salas sin revelar los empates
+    son la norma, y `sort` solo promete estabilidad respecto al orden de entrada, que aquí
+    es el del fichero de la misión.
+  - **Aviso para T9 y T10: entre los monstruos básicos el tercer criterio casi nunca actúa.**
+    Orco, goblin, esqueleto y zombi tienen todos cuerpo 1. Solo el fimir, la momia, el
+    hechicero (2), el guerrero del Caos y la gárgola (3) lo mueven.
+  - **La primera versión de los tests no probaba nada, y merece contarse.** Usaba
+    identificadores `orco1`/`orco2`, el orden esperado coincidía con el desempate
+    alfabético, y los siete pasaban con los criterios desconectados. Ahora, en cada caso, el
+    que debe ir primero es el **último** alfabéticamente y el **segundo** en la lista de la
+    misión; desconectando los criterios fallan cuatro. **Si tu test ordena cosas, comprueba
+    que el orden que esperas no sea el que sale solo.**
+  - **La activación manual se queda**, detrás de un «Cambiar», como manda T11.
+  - **Jugado un turno entero de Zargon sobre la misión real** antes de darlo por bueno: los
+    seis monstruos salen en orden y los cuatro empatados a distancia 4 no enseñan motivo,
+    que es lo correcto —no lo hay— en vez de inventarse uno.
 
 - **T14 · sesión `b63aa070` · 2026-09-05 · `d9c4f00`.** El botón de lanzar hechizos.
   - **Ningún hechizo se queda sin poderse lanzar desde la pantalla.** Los doce salen.
