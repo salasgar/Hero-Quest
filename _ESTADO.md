@@ -98,17 +98,17 @@ coger en cualquier orden desde hoy.
 | T4 | [Los monstruos no disparan las trampas ocultas](tareas/T4-monstruos-y-trampas.md) | — | **`reducer.ts`** | **hecha** · `9bcd7d1` · 2026-09-05 |
 | T5 | [El foso: un dado menos, y no se desarma](tareas/T5-foso.md) | — | `combat.ts`, `selectors.ts`, **`reducer.ts`** | en curso · `2921da7f` · 2026-09-05 |
 | T6 | [Cada héroe registra una sala una vez](tareas/T6-registrar-sala.md) | — | `types.ts`, `partida.ts`, `selectors.ts`, **`reducer.ts`** | pendiente |
-| T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | pendiente |
+| T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
 | T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 (falta T2–T7) | `src/ai/` | bloqueada |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 | `src/ai/` | bloqueada |
 | T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 | `scripts/` | bloqueada |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8, T9 | `src/ui/` | bloqueada |
 | T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | pendiente · **no la cojas mientras T5 esté en curso**: comparten `reducer.ts` y `selectors.ts` |
-| T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | en curso · `b63aa070` · 2026-09-05 · sin commitear; apuntado aquí por sus reservas de fichero, no por su mano |
+| T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
 | T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 |
-| T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada |
-| T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada |
+| T15 | [Buscar libro de hechizos en una estantería](tareas/T15-buscar-libro-de-hechizos.md) | T13, T14 · y sus cuatro decisiones firmadas | `types.ts`, **`reducer.ts`**, `selectors.ts`, `calabozo.ts`, `TurnPanel.tsx`, `Juego.tsx` | bloqueada · **T14 ya está hecha**; le falta T13 y las firmas |
+| T17 | [Zargon elige qué monstruo actúa](tareas/T17-zargon-elige-el-orden.md) | T14 · **cumplida** | `src/ai/orden.ts`, `TurnPanel.tsx`, `Juego.tsx` | en curso · `b63aa070` · 2026-09-05 |
 
 Las cinco salen de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la
 lista original de divergencias. Vienen con dos hallazgos que no eran lo que parecía:
@@ -141,17 +141,20 @@ ponérsela sería inventarla.
 
 **Hoy, dos.** No es una cifra prudente: es lo que dan los ficheros.
 
-`reducer.ts` lo tocan **cinco de las siete** tareas. Las únicas dos que no lo tocan son
-**T1** y **T7**, y T1 ya está hecha, así que solo queda **una** tarea que no pise el
-fichero grande. De ahí la única combinación que va sobre seguro:
+`reducer.ts` sigue siendo el cuello: lo tocan **T2, T3, T5, T6, T13 y T15**. Van de una en
+una. Lo que ha cambiado el 5 de septiembre es de dónde sale la segunda sesión: **T7 y T14
+ya están hechas**, y quien hacía de tarea libre ahora es **T17**, que toca `src/ai/orden.ts`,
+`TurnPanel.tsx` y `Juego.tsx` y no pisa el motor. De ahí la combinación que va sobre seguro:
 
-> **T7 + una cualquiera del grupo de `reducer.ts`.**
+> **T17 + una cualquiera del grupo de `reducer.ts`.**
 
-Cuando T7 esté hecha, la cifra baja a **una**: lo que quede son cuatro tareas sobre el
-mismo fichero. Una tercera sesión hoy es posible —las cuatro tocan funciones distintas del
-fichero, y `git` las suele fusionar sin quejarse— pero ya es apostar a que el rebase salga
-limpio. Si lo intentas, que sea T2, que es la que menos toca el fichero: su regla ya está
-commiteada y solo le faltan los tests y la entrada de la misión.
+Cuidado con dos cosas al contar: **T15 y T17 comparten `TurnPanel.tsx` y `Juego.tsx`**, así
+que no pueden ir a la vez; y **T16 no cuenta como tercera** aunque sus ficheros estén
+libres, porque está esperando una decisión de Juan Luis y `partida.ts` lo tocan también
+T6 y T13. Una tercera sesión sobre `reducer.ts` es posible —cada tarea toca funciones
+distintas y `git` las suele fusionar— pero ya es apostar a que el rebase salga limpio. Si
+lo intentas, que sea T2, que es la que menos toca el fichero: su regla ya está commiteada
+y solo le faltan los tests y la entrada de la misión.
 
 **Y hay un cuello de botella que no está en esta cuenta: `_ESTADO.md`.** Todas las tareas
 lo escriben dos veces —al reclamar y al terminar—, así que una sesión que lo deje
@@ -217,6 +220,50 @@ tener T1, T4 y T5 significa escribirla contra unas reglas que van a cambiar, y r
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T14 · sesión `b63aa070` · 2026-09-05 · `d9c4f00`.** El botón de lanzar hechizos.
+  - **Ningún hechizo se queda sin poderse lanzar desde la pantalla.** Los doce salen.
+  - **El genio es el único que abre diálogo de dados**, y está razonado, no elegido a ojo.
+    Bola de fuego y fuego de la ira tiran los dados de **salvación**, que los tira quien los
+    recibe, y los dos apuntan a un enemigo: los tira la aplicación. Viento veloz no tira
+    nada al lanzarse —los dos dados de más los añade `tirarMovimientoAccion`, y esa tirada
+    ya pasa por `pedirMovimiento`—. El genio son cinco dados de combate del bando de los
+    héroes, y aquí los dados de los héroes se tiran de verdad en la mesa; que
+    `resolverDanoDirecto` acepte unos `dados` opcionales existe justo para esto.
+  - **Los hechizos sin objetivo a la vista no se pintan, pero se explica el hueco.** Si el
+    héroe tiene hechizos y ninguno alcanza, sale una línea diciéndolo. Sin ella, un panel
+    vacío se lee como «la aplicación se los ha comido», que es literalmente el malentendido
+    que abrió esta tarea.
+  - **`hechizosLanzables` no tenía ni un test** pese a estar escrita hace semanas. Ahora
+    tiene cuatro, en `tests/hechizos-lanzables.test.ts`. Uno para quien escriba T13 o T15:
+    **dentro de una sala `puedeVer` da por visto todo sin trazar rectas**, así que la regla
+    de T1 —las figuras tapan— solo se nota en el pasillo. Montar ese caso dentro de la sala
+    `a` da un falso verde.
+  - **No se tocó `estilos.css`**, que lo tenía reclamado `6f2f1053`: todo con las clases que
+    ya había, y el tachado con `<s>`.
+
+- **T7 · sesión `b63aa070` · 2026-09-05 · `85948b1`.** El equipo del mago.
+  - **La mitad de la regla no se puede implementar, y por eso no se ha implementado.** El
+    reglamento (p. 13) dice que el mago no puede «wear normal armor or use large weapons».
+    Lo primero está hecho: veta la ranura `armadura` entera. Lo segundo, no: se leyó el
+    reglamento inglés completo —24 páginas, los 13 pliegos del PDF— y **en ninguna se
+    enumera qué es un arma grande**. La p. 13, en «A Trip to the Armory», remite a las
+    cartas de equipo, que no tenemos. `equipoVetado` queda vacía con la marca
+    `armasGrandesPorConfirmar`, y hay un test que fija que está vacía **a propósito**, para
+    que nadie la rellene de memoria. Quien consiga las cartas: rellena, cita y quita la
+    marca.
+  - **Segunda cita, que confirma el alcance:** p. 22, «Wizard: Since there are so few things
+    that you can buy from the armory, it would be wise for you to save your money».
+  - **El hada va con las mismas trabas que el mago, y es decisión nuestra, no regla.** No
+    sale en el reglamento: es añadido nuestro. Va así porque su propia carta promete que es
+    «la más frágil de todos» y con cuerpo 3 la armadura es justo lo que borraría esa
+    fragilidad, que es lo único que paga sus dos grupos de hechizos y el vuelo. Sin traba
+    quedaría por encima del elfo —más magia, y encima vuela— sin ninguna desventaja a
+    cambio. El porqué está también en su plantilla, junto al dato.
+  - **El elfo no lleva ninguna traba** aunque lance magia: la restricción es del mago, no de
+    saber magia. Está puesto como comentario porque es la pregunta que hará el siguiente.
+  - **Comprobado que los tests prueban algo**, con la receta de T1: quitando el veto al
+    mago, dos de ellos fallan.
 
 - **T12 · sesión `46312c98` · 2026-08-22 · `8b0b7dc`.** La incidencia del commit cruzado.
   Cuatro cosas que conviene saber:
