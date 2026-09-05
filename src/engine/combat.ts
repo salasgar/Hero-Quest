@@ -122,12 +122,12 @@ export function modoDeAtaqueContra(
  * Dados de ataque de una figura en este modo, más los bonus activos.
  *
  * `estado` es opcional y solo sirve para una cosa: descontar el dado del foso.
- * Va al final y no delante porque los tres sitios de la interfaz que llaman a
- * esta función están cogidos por T14 y no se pueden tocar desde aquí; quien
- * termine T14 solo tiene que pasarles el estado. Mientras tanto, **la pantalla
- * enseña el dado sin descontar a quien está en un foso**, y está apuntado como
- * divergencia en `_ESTADO.md`. El motor sí lo descuenta: pasa por
- * `resolverAtaque`, que siempre lo recibe.
+ * Va al final y no delante para no romper a quien llama sin él, que son cinco
+ * sitios de `src/ui/`: cuando se escribió esto estaban reservados por otra
+ * sesión y no se podían tocar. **Consecuencia viva: la pantalla enseña el dado
+ * sin descontar a quien está en un foso**, y está apuntada como divergencia en
+ * `_ESTADO.md`. Arreglarlo es pasarles el estado, una palabra por sitio. El
+ * motor no la tiene: pasa por `resolverAtaque`, que siempre recibe el estado.
  */
 export function dadosDeAtaque(
   figura: Figura,
