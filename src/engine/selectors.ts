@@ -154,10 +154,20 @@ export function puedeBuscarTesoro(e: EstadoPartida): boolean {
   return !vivos(e.monstruos).some((m) => puedeVer(e, f.celda, m.celda));
 }
 
-/** Buscar trampas y pasadizos vale en cualquier sitio, incluido el pasillo. */
+/**
+ * Buscar trampas y pasadizos vale en cualquier sitio, incluido el pasillo, pero
+ * **no con un monstruo a la vista**.
+ *
+ * Reglamento p. 16, y lo dice dos veces con las mismas palabras, una para las
+ * trampas y otra para los pasadizos: «As a hero, you can only search for traps
+ * if there are no monsters visible to you». Es la misma condición que
+ * `puedeBuscarTesoro` de aquí arriba, y por eso se lee igual: quien la cambie
+ * en un sitio tiene que cambiarla en el otro.
+ */
 export function puedeBuscarTrampas(e: EstadoPartida): boolean {
   const f = figuraActiva(e);
-  return !!f && esHeroe(f) && !e.turno.haActuado;
+  if (!f || !esHeroe(f) || e.turno.haActuado) return false;
+  return !vivos(e.monstruos).some((m) => puedeVer(e, f.celda, m.celda));
 }
 
 /** Todo lo que la figura activa puede hacer, para pintar los botones. */

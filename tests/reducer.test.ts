@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { dadosDeAtaque } from "../src/engine/combat";
 import { aplicarAccion, repetir } from "../src/engine/reducer";
+import { puedeBuscarTrampas } from "../src/engine/selectors";
 import type { IdEquipo } from "../src/data/equipment";
 import type { Accion, Celda } from "../src/engine/types";
 import { c, conMovimiento, hacer, MISION_PRUEBA, partida, rechaza, situar } from "./ayuda";
@@ -332,6 +333,44 @@ describe("búsquedas", () => {
     e = hacer(e, { tipo: "buscarTesoro" });
     e = { ...e, turno: { ...e.turno, haActuado: false } };
     expect(rechaza(e, { tipo: "buscarTesoro" })).toMatch(/ya se ha registrado/i);
+  });
+
+  // Reglamento p. 16, dos veces con las mismas palabras —una para las trampas y
+  // otra para los pasadizos—: «As a hero, you can only search for traps if there
+  // are no monsters visible to you».
+  //
+  // La escena vale por la puerta y por nada más: el héroe se queda quieto en el
+  // pasillo, en el vano de (0,2), y el orco quieto dentro de la sala. Lo único
+  // que cambia entre los dos casos es si la puerta está abierta. Así, si un test
+  // falla, no hay que preguntarse cuál de las tres cosas lo movió.
+  const conOrcoTrasLaPuerta = (abierta: boolean) => {
+    const base = partida({
+      monstruos: [{ id: "orco1", especie: "orco", celda: c(2, 2) }],
+      puertas: [{ id: "p", a: c(0, 2), b: c(1, 2), abierta, secreta: false, descubierta: true }],
+    });
+    return {
+      ...conMovimiento(situar(base, "barbaro", c(0, 2)), 6),
+      salasReveladas: ["a"],
+    };
+  };
+
+  it("con un monstruo a la vista no se buscan trampas ni pasadizos", () => {
+    const e = conOrcoTrasLaPuerta(true);
+    expect(puedeBuscarTrampas(e)).toBe(false);
+    expect(rechaza(e, { tipo: "buscarTrampas" })).toMatch(/monstruo a la vista/i);
+  });
+
+  it("con la puerta cerrada delante, el mismo orco no impide buscar", () => {
+    const e = conOrcoTrasLaPuerta(false);
+    expect(puedeBuscarTrampas(e)).toBe(true);
+    expect(aplicarAccion(e, { tipo: "buscarTrampas" }).ok).toBe(true);
+  });
+
+  it("y un monstruo derrotado no cuenta como monstruo a la vista", () => {
+    const e = conOrcoTrasLaPuerta(true);
+    const caido = { ...e, monstruos: e.monstruos.map((m) => ({ ...m, cuerpo: 0 })) };
+    expect(puedeBuscarTrampas(caido)).toBe(true);
+    expect(aplicarAccion(caido, { tipo: "buscarTrampas" }).ok).toBe(true);
   });
 
   it("buscar trampas descubre las de la sala y las puertas secretas", () => {

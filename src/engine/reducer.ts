@@ -592,6 +592,13 @@ function buscarTrampas(e: EstadoPartida): Resultado {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f)) return fallo("Solo los héroes buscan trampas.");
   if (e.turno.haActuado) return fallo("Ya has actuado este turno.");
+  // Reglamento p. 16: «As a hero, you can only search for traps if there are no
+  // monsters visible to you», y la misma frase para los pasadizos. La condición
+  // es idéntica a la de `puedeBuscarTesoro`, y el selector `puedeBuscarTrampas`
+  // tiene que responder lo mismo que esto: si la pantalla pinta el botón y el
+  // motor lo rechaza, en la mesa es un clic perdido y una discusión.
+  if (vivos(e.monstruos).some((m) => puedeVer(e, f.celda, m.celda)))
+    return fallo("No se busca con un monstruo a la vista.");
 
   const sala = salaEn(f.celda.x, f.celda.y);
   const eventos: Evento[] = [];

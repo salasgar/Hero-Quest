@@ -81,7 +81,11 @@ describe("qué puertas se pintan", () => {
     expect(e.puertasVistas).toContain("psecreta");
     expect(ids(puertasVisibles(e))).not.toContain("psecreta");
 
-    e = hacer(situar(e, "barbaro", c(2, 16)), { tipo: "buscarTrampas" });
+    // Sin monstruos delante: desde T3, buscar exige no ver ninguno (reglamento
+    // p. 16), y la sala `q` que se acaba de abrir tiene los suyos. Este test va
+    // de puertas, no de monstruos, así que se quitan de en medio en vez de
+    // buscarle al bárbaro un rincón ciego que mañana deje de serlo.
+    e = hacer(situar({ ...e, monstruos: [] }, "barbaro", c(2, 16)), { tipo: "buscarTrampas" });
     expect(e.puertas.find((p) => p.id === "psecreta")!.descubierta).toBe(true);
     expect(ids(puertasVisibles(e))).toContain("psecreta");
 
