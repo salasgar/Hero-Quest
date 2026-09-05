@@ -12,15 +12,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  MISION_CALABOZO,
-  MONSTRUOS_CALABOZO,
-  MUEBLES_CALABOZO,
-  PUERTAS_CALABOZO,
-  TRAMPAS_CALABOZO,
-} from "../src/data/quests/calabozo";
-import { crearPartida, type OpcionesPartida } from "../src/engine/partida";
 import { aplicarAccion, repetir } from "../src/engine/reducer";
+import { partidaDelMontaje as conversor } from "../src/red/cliente";
 import type { Accion, EstadoPartida } from "../src/engine/types";
 import {
   ALFABETO,
@@ -52,24 +45,16 @@ const registro = (m: Montaje = montaje()): Registro => {
 const mover: Accion = { tipo: "mover", destino: { x: 12, y: 17 } };
 
 /**
- * De montaje a partida.
- *
- * Vive aquí y no en `src/` a propósito: el conversor de verdad lo escribe T31, y
- * **en un solo sitio**, porque dos sitios que construyan las opciones acabarán
- * construyendo dos partidas distintas. Esto es lo mínimo para poder probar la
- * idea del reparto de acciones sin adelantarle el trabajo.
+ * De montaje a partida. Este fichero llevaba su propio conversor provisional
+ * con la nota de que el de verdad lo escribiría T31 en un solo sitio; ya
+ * existe —`partidaDelMontaje`, en `src/red/cliente.ts`— y se usa ese, porque
+ * dos sitios que construyan las opciones acabarán construyendo dos partidas
+ * distintas.
  */
 const partidaDelMontaje = (m: Montaje): EstadoPartida => {
-  const op: OpcionesPartida = {
-    mision: MISION_CALABOZO,
-    heroes: m.heroes,
-    monstruos: MONSTRUOS_CALABOZO,
-    puertas: PUERTAS_CALABOZO,
-    muebles: MUEBLES_CALABOZO,
-    trampas: TRAMPAS_CALABOZO,
-    semilla: m.semilla,
-  };
-  return crearPartida(op);
+  const r = conversor(m);
+  if (!r.ok) throw new Error(r.motivo);
+  return r.valor;
 };
 
 describe("crear la partida en el relevo", () => {
