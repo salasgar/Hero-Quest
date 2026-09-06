@@ -24,10 +24,12 @@ npm run typecheck
 
 **Las dos cosas tienen que estar en verde antes de dar nada por hecho.**
 
-Cuántos tests hay lo dice `_ESTADO.md`, y solo ahí. La cifra cambia con cada tarea, y
+Cuántos tests hay no lo dice ningún fichero: se mide. La cifra cambia con cada tarea, y
 tenerla copiada en cuatro ficheros garantiza que tres estén mintiendo: ya pasó, con 174,
-197 y 204 conviviendo a la vez. Antes de empezar, anota el número que te sale; si al
-terminar hay menos, has roto algo.
+197 y 204 conviviendo a la vez. Antes de empezar, anota el número que te sale (con el
+`--exclude` de la trampa de vitest de abajo, o contarás los worktrees ajenos); si al
+terminar hay menos, has roto algo. El número va en tu terminada de `hechos/`, que es de un
+solo escritor.
 
 ## Trampas del entorno
 
@@ -53,9 +55,12 @@ terminar hay menos, has roto algo.
   `exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**']` (hay que repetir los
   dos primeros: dar `exclude` sustituye el valor por defecto). Lo encontraron por separado
   las sesiones de la T40 y la T11 el 2026-09-06; está sin hacer porque no es de ninguna ficha.
-- **Varias sesiones comparten este mismo directorio de trabajo.** No hay un worktree por
-  sesión: el árbol es uno solo. Lo que tú ves en `git status` incluye lo que otra sesión
-  está escribiendo ahora mismo, y tu `git add` se lo lleva.
+- **Al cerrar vuelves al árbol principal, y allí sí lo compartes con las demás sesiones.**
+  Con otra sesión viva, el código se edita en un worktree propio (`CLAUDE.md`), pero el
+  reclamo se abre en el árbol principal antes de entrar y `hechos/` y el tablón se
+  comitean allí al cerrar (`proyecto.md`): en ese momento lo que ves en `git status`
+  incluye lo que otras sesiones están escribiendo ahora mismo, y tu `git add` se lo lleva.
+  Una sesión se encontró el 2026-09-06 los ficheros de cuatro sesiones en su `git status`.
 
   El 22 de agosto de 2026 esto ocurrió **tres veces en una tarde, por tres causas
   distintas**. Importa separarlas, porque no se arreglan igual:
