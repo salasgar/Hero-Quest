@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
-import { crearPartida, type OpcionesPartida } from "../engine/partida";
+import { crearPartida, type HeroeElegido, type OpcionesPartida } from "../engine/partida";
 import { aplicarAccion, repetir } from "../engine/reducer";
 import type { Accion, EstadoPartida, Evento } from "../engine/types";
 import { SesionDeRed } from "../red/cliente";
+import {
+  construir,
+  guardarEnCurso,
+  type AccionRechazada,
+  type PartidaGuardada,
+} from "./registroDePartida";
 
 /**
  * El estado de la partida en la interfaz.
@@ -27,6 +33,36 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
   const [estado, setEstado] = useState<EstadoPartida>(() => (sesion ? sesion.estado : inicial));
   const [acciones, setAcciones] = useState<Accion[]>([]);
   const [error, setError] = useState<string | null>(null);
+  /**
+   * Lo que el motor rechazó, para el registro descargable (T57).
+   *
+   * Es la mitad del fichero que no se puede deducir repitiendo la partida: una
+   * acción rechazada no cambia el estado y no deja ningún rastro, así que
+   * «pulsé y no pasó nada» —el fallo que Juan Luis más se encuentra en la
+   * tableta— se pierde entero en cuanto el aviso desaparece de la pantalla.
+   */
+  const [rechazadas, setRechazadas] = useState<AccionRechazada[]>([]);
+
+  /**
+   * Con qué se montó esta partida, leído **una sola vez**.
+   *
+   * `Juego.tsx` construye las opciones en cada render y la semilla sale de
+   * `Date.now() % 100000`: la de este render no es la de la partida que se está
+   * jugando. La que vale es la del primero, que es la que recibió
+   * `crearPartida`, y sin ella el fichero descargado no se puede repetir.
+   *
+   * `crearPartida` toma 1 cuando no le dan semilla, así que aquí se anota lo
+   * mismo y no «ninguna»: se guarda lo que de verdad se usó.
+   */
+  const [montaje] = useState<{ mision: string; semilla: number; heroes: HeroeElegido[] }>(() =>
+    sesion
+      ? { mision: sesion.montaje.mision, semilla: sesion.montaje.semilla, heroes: sesion.montaje.heroes }
+      : {
+          mision: (fuente as OpcionesPartida).mision.id,
+          semilla: (fuente as OpcionesPartida).semilla ?? 1,
+          heroes: (fuente as OpcionesPartida).heroes,
+        },
+  );
 
   // En red, la sesión es la fuente de verdad: cada vez que su registro cambie
   // —una acción ajena que llegó por el sondeo, un deshacer de la mesa— la
@@ -43,9 +79,13 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
 
   const ejecutar = useCallback(
     (a: Accion): Evento[] | null => {
+      // Cuántas acciones aceptadas van: es lo que sitúa una rechazada en su
+      // sitio al repetir la partida, porque ella no entra en la lista.
+      const aceptadas = sesion ? sesion.acciones.length : acciones.length;
       const r = aplicarAccion(estado, a);
       if (!r.ok) {
         setError(r.motivo);
+        setRechazadas((previas) => [...previas, { tras: aceptadas, accion: a, motivo: r.motivo }]);
         return null;
       }
       setEstado(r.estado);
@@ -57,6 +97,12 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
           if (!res.ok) {
             setEstado(sesion.estado);
             setError(res.motivo);
+            // También cuenta como rechazada, y es la que más falta hace: el
+            // motor la aceptó y aun así la jugada se deshizo sola en pantalla.
+            setRechazadas((previas) => [
+              ...previas,
+              { tras: sesion.acciones.length, accion: a, motivo: res.motivo },
+            ]);
           }
         });
       } else {
@@ -65,7 +111,7 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
       setError(null);
       return r.eventos;
     },
-    [estado, sesion],
+    [estado, sesion, acciones],
   );
 
   const deshacer = useCallback(() => {
@@ -92,7 +138,42 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
     setAcciones([]);
     setEstado(inicial);
     setError(null);
+    setRechazadas([]);
   }, [sesion, inicial]);
+
+  /**
+   * El registro descargable de esta partida, a día de hoy.
+   *
+   * Se monta al vuelo y no se guarda en un estado: es un derivado del estado y
+   * de las dos listas, y tenerlo duplicado sería un tercer sitio que puede
+   * quedarse atrás.
+   */
+  const partidaGuardada = useCallback(
+    (): PartidaGuardada =>
+      construir({
+        estado,
+        mision: montaje.mision,
+        semilla: montaje.semilla,
+        heroes: montaje.heroes,
+        acciones: sesion ? sesion.acciones : acciones,
+        rechazadas,
+      }),
+    [estado, montaje, sesion, acciones, rechazadas],
+  );
+
+  /**
+   * Deja el registro en el navegador en cada cambio.
+   *
+   * Es lo que permite que el botón «Descargar partida» viva en `App.tsx`, que
+   * es donde está la barra, sin que la partida tenga que subir hasta allí; y de
+   * paso una pestaña cerrada sin querer no se lleva el registro. **Solo
+   * escribe**: cargar una partida guardada es otra cosa —la Fase 8 de
+   * `TRASPASO.md`— y hacerlo a medias aquí dejaría un «continuar» que unas
+   * veces funciona y otras no.
+   */
+  useEffect(() => {
+    guardarEnCurso(partidaGuardada());
+  }, [partidaGuardada]);
 
   return {
     estado,
@@ -101,6 +182,7 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
     reiniciar,
     error,
     limpiarError: () => setError(null),
+    partidaGuardada,
     puedeDeshacer: sesion ? sesion.esLaMesa && sesion.acciones.length > 0 : acciones.length > 0,
     numeroDeAcciones: sesion ? sesion.acciones.length : acciones.length,
     /**

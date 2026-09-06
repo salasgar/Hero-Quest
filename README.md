@@ -67,6 +67,31 @@ y no corre ningún proceso, así que dos navegadores que la abran no se ven entr
 sí. Para eso hace falta el relevo (`server/`), que se despliega aparte y todavía
 no lo está.
 
+#### Cuando algo salga mal: descargar la partida
+
+Por lo mismo —al otro lado no hay ningún proceso que recoja nada—, la aplicación
+no puede mandar a ningún sitio lo que ha ido pasando. Lo que hace es guardarlo en
+el navegador según se juega, y el botón **«Descargar partida»** de la barra baja
+un `.json` con todo: la semilla, el grupo, la lista de acciones, **las acciones
+que la aplicación rechazó** —«pulsé y no pasó nada», que es lo más difícil de
+reconstruir después— y el diario tal cual salió en pantalla.
+
+Ese fichero se guarda en `partidas/` de este repositorio (ya está en
+`.gitignore`, así que no se sube a git) y se repite con:
+
+```sh
+npm run repetir partidas/heroquest-calabozo-2026-09-06-1830.json
+```
+
+El guion rehace la partida acción a acción y va imprimiendo lo que la pantalla
+enseñaba en cada paso: quién actuaba, el movimiento que le quedaba, las casillas
+verdes, los objetivos a tiro, las puertas al alcance y las pintadas, y los
+monstruos puestos sobre el tablero. Nada de eso se guarda en el fichero: se
+recalcula, porque el motor es determinista y el generador aleatorio va dentro del
+estado. Al final compara una huella de la partida; si no cuadra, es que el código
+de este Mac no es el que corría en la página, y el propio fichero dice desde qué
+commit se publicó (`git worktree add /tmp/repro <commit>`).
+
 Hay dos pantallas:
 
 - **Partida**: primero se elige el grupo (clase, género, nombre y elementos de hechizos) y

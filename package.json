@@ -10,6 +10,7 @@
     "server": "tsx server/index.ts",
     "relevo": "vite-node server/relevo-local.ts",
     "sim": "vite-node scripts/simular.ts",
+    "repetir": "vite-node scripts/repetir.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",

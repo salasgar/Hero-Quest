@@ -8,6 +8,7 @@ import { EleccionDeHeroes } from "./ui/EleccionDeHeroes";
 import { codigoDelEnlace, CrearPartidaEnRed, UnirseAPartida } from "./ui/EntrarEnPartida";
 import { Instrucciones } from "./ui/Instrucciones";
 import { Juego } from "./ui/Juego";
+import { leerEnCurso, nombreDeFichero } from "./ui/registroDePartida";
 import { Transicion } from "./ui/Transicion";
 import { VistaDeHeroe } from "./ui/VistaDeHeroe";
 
@@ -20,6 +21,45 @@ import { VistaDeHeroe } from "./ui/VistaDeHeroe";
  */
 const comoSeLlaman = (grupo: HeroeElegido[]) =>
   grupo.map((h) => h.nombre?.trim() || nombreDeClase(h.clase, h.genero));
+
+/**
+ * Baja la partida en curso como fichero, para poder adjuntarla.
+ *
+ * El registro lo va dejando `usePartida` en `localStorage` a cada cambio, así
+ * que el botón puede vivir aquí arriba, en la barra, sin que la partida —que es
+ * de `Juego`— tenga que subir hasta `App`.
+ *
+ * Se descarga y no se manda a ningún sitio: en Pages no hay ningún proceso al
+ * otro lado que pudiera recogerlo, y aunque lo hubiera, esto es la partida de
+ * una familia y no tiene por qué salir de su tableta. En la tableta la descarga
+ * cae en «Archivos», que es de donde él la adjunta.
+ */
+function descargarPartida(): void {
+  const partida = leerEnCurso();
+  if (!partida) {
+    // Sin registro no hay nada que bajar: pasa con `localStorage` bloqueado
+    // —Safari en modo privado— y no tiene arreglo desde aquí. Decirlo es mejor
+    // que un botón que no hace nada.
+    alert("No hay ninguna partida guardada en este navegador todavía.");
+    return;
+  }
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify(partida, null, 2)], { type: "application/json" }),
+  );
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = nombreDeFichero(partida);
+  // Puesto en el documento antes de pulsarlo: un enlace suelto no siempre
+  // dispara la descarga, y el navegador de la mesa es el de una tableta.
+  document.body.appendChild(enlace);
+  enlace.click();
+  enlace.remove();
+  // El blob hay que soltarlo o se queda en memoria mientras viva la pestaña,
+  // pero **no en la misma vuelta**: revocarlo antes de que el navegador haya
+  // empezado a leerlo cancela la descarga, y ahí no hay error, simplemente no
+  // se baja nada. Safari es el que lo hace.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
 
 export default function App() {
   // Las instrucciones se abren **encima** de lo que haya, no en lugar de ello:
@@ -101,6 +141,11 @@ export default function App() {
             }}
           >
             Cambiar héroes
+          </button>
+        )}
+        {grupo && (
+          <button onClick={descargarPartida} title="Baja un fichero con todo lo que ha pasado">
+            Descargar partida
           </button>
         )}
         {grupo && !creandoRed && (
