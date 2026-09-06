@@ -17,7 +17,7 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-06 12:00Z · por la sesión `s-20260906T103034-b376065f` (la que migró el
+Regenerado: 2026-09-06 12:50Z · por la sesión `s-20260906T103034-b376065f` (la que migró el
 reparto; no reclamó ninguna tarea)
 
 ## Antes de hacer nada
@@ -197,7 +197,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 08 | T8 · Zargon decide: objetivos y caminos | tareas/T8-zargon-decide.md | 01–07 LISTA | 4 h | ALTO | — | `src/ai/` (nuevo), tests | manual | LISTA (`2203e01`) | |
 | 09 | T9 · Personalidades y dificultades | tareas/T9-personalidades.md | 08 LISTA | 3 h | ALTO | — | `src/ai/`, `scripts/`, tests | manual | LISTA (`4a68069`) | |
 | 10 | T10 · El simulador que mide si la IA está bien | tareas/T10-simulador.md | 08 LISTA | 2 h | MEDIO | — | `scripts/`, `package.json` | manual | LISTA (`694e4b2`) | |
-| 11 | T11 · El turno de Zargon sin clics | tareas/T11-turno-automatico.md | 08 y 09 LISTA · **cumplida** | 3 h | MEDIO | 22 | `src/ui/Juego.tsx`, `TurnPanel.tsx`, `useAccionesDeTurno.ts`, tests | manual | **PENDIENTE** | |
+| 11 | T11 · El turno de Zargon sin clics | tareas/T11-turno-automatico.md | 08 y 09 LISTA · **cumplida** | 3 h | MEDIO | 22, 36 | `src/ui/Juego.tsx`, `TurnPanel.tsx`, `useAccionesDeTurno.ts`, tests | manual | **PENDIENTE** | |
 | 12 | T12 · Incidencia: un commit se llevó trabajo ajeno | tareas/T12-incidencia-commit-cruzado.md | ninguna | 2 h | ALTO | — | tablón viejo, `reducer.ts` | manual | LISTA (`8b0b7dc`) | |
 | 13 | T13 · Solo se pintan las puertas que alguien ha visto | tareas/T13-puertas-solo-las-vistas.md | ninguna | 3 h | ALTO | — | `types.ts`, `partida.ts`, `reducer.ts`, `selectors.ts`, `BoardMirror.tsx`, tests | manual | LISTA (`de466ec`) | |
 | 14 | T14 · El botón de lanzar hechizos | tareas/T14-lanzar-hechizos-en-la-interfaz.md | ninguna | 2 h | MEDIO | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx`, tests | manual | LISTA (`d9c4f00`) | |
@@ -208,21 +208,32 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 19 | T19 · Una puerta se abre también desde la diagonal | tareas/T19-abrir-puertas-en-diagonal.md | regla de la casa firmada (2026-09-05) | 2 h | MEDIO | — | `board.ts`, `reducer.ts`, `selectors.ts`, tests | manual | LISTA (`c08bbc0`) | |
 | 20 | T20 · El turno de Zargon pasa sin que el diario lo cuente | tareas/T20-el-turno-de-zargon-no-se-cuenta.md | ninguna | 2 h | MEDIO | — | `types.ts`, `reducer.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`740f54a`) | |
 | 21 | T21 · Siete hechizos de doce no dejan rastro | tareas/T21-hechizos-sin-rastro-en-el-diario.md | ninguna (no a la vez que 20) | 2 h | MEDIO | — | `types.ts`, `reducer.ts`, `narrator/local.ts`, tests | manual | LISTA (`72a7c7f`) | |
-| 22 | T22 · Saber qué hace cada hechizo antes de lanzarlo | tareas/T22-que-hace-cada-hechizo.md | `src/ui/Instrucciones.tsx` en `main` · **cumplida** (`b47310f`) | 2 h | MEDIO | 11 | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css`, tests | manual | **PENDIENTE** | |
+| 22 | T22 · Saber qué hace cada hechizo antes de lanzarlo | tareas/T22-que-hace-cada-hechizo.md | `src/ui/Instrucciones.tsx` en `main` · **cumplida** (`b47310f`) | 2 h | MEDIO | 11, 36 | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css`, tests | manual | **PENDIENTE** | |
 | 30 | T30 · El relevo de acciones | tareas/T30-relevo-de-acciones.md | ninguna | 4 h | ALTO | — | `server/`, `src/red/protocolo.ts`, `tests/red-protocolo.test.ts` | manual | LISTA (`6b07f82`) · el despliegue espera firma en `autorizaciones.md` | |
 | 31 | T31 · La partida en red, en el cliente | tareas/T31-sesion-de-red.md | 30 LISTA | 4 h | ALTO | — | `src/red/cliente.ts`, `usePartida.ts`, `tests/red-cliente.test.ts` | manual | LISTA (`15c852a`) | |
 | 32 | T32 · La pantalla de quien juega desde su casa | tareas/T32-vista-del-heroe-remoto.md | 31 y 18 LISTA | 4 h | ALTO | — | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `App.tsx`, `estilos.css`, tests | manual | LISTA (`be4adf6`) | |
 | 33 | T33 · Quién tira los dados de quien juega desde su casa | tareas/T33-quien-tira-los-dados.md | 31 LISTA | 2 h | MEDIO | — | `TurnPanel.tsx`, `DiceInput.tsx`, `useAccionesDeTurno.ts`, tests | manual | LISTA (`db96bf2`) | |
 | 34 | T34 · Publicar la aplicación en GitHub Pages | tareas/T34-publicar-en-pages.md | firma de Pages (firmada 2026-09-06) | 2 h | MEDIO | — | `.github/workflows/pages.yml`, `vite.config.ts`, `README.md`, `main.tsx`, `BoardVerify.tsx` | manual | LISTA (`2994ffc`) | |
 | 35 | T35 · La salida crece con el grupo | tareas/T35-la-salida-crece-con-el-grupo.md | 16 LISTA | 1 h | MEDIO | — | `partida.ts`, `tests/ocho-heroes.test.ts` | manual | LISTA (`87ea055`) | |
+| 36 | T36 · Todos los dados los tira la aplicación | tareas/T36-dados-siempre-automaticos.md | ninguna (firma del 2026-09-06 en `autorizaciones.md`) | 2 h | MEDIO | 22 | `useAccionesDeTurno.ts`, `DiceInput.tsx`, `VistaDeHeroe.tsx`, `Juego.tsx`, `TurnPanel.tsx`, tests | manual | **PENDIENTE** | |
+| 37 | T37 · Un icono para cada héroe | tareas/T37-iconos-de-heroes.md | ninguna · no a la vez que 42, 38, 41 | 3 h | MEDIO | 41 | `iconos.tsx` (nuevo), `BoardMirror.tsx`, `EleccionDeHeroes.tsx`, `types.ts`, `partida.ts`, `estilos.css`, tests | manual | **PENDIENTE** | |
+| 38 | T38 · Monstruos agresivos, miedosos y prudentes | tareas/T38-monstruos-agresivos-y-miedosos.md | 42 LISTA | 4 h | ALTO | — | `src/ai/`, `types.ts`, `partida.ts`, `scripts/simular.ts`, tests | manual | **BLOQUEADA** (42) | |
+| 39 | T39 · El diario en dos modos: informe y relato | tareas/T39-diario-informe-y-relato.md | 42 LISTA (firma del relato, 2026-09-06) | 4 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts` y `frases.ts` (nuevos), `MasterLog.tsx`, tests | manual | **BLOQUEADA** (42) | |
+| 40 | T40 · Todas las salas con puerta en la primera misión | tareas/T40-todas-las-salas-con-puerta.md | ninguna | 2 h | MEDIO | 42 | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | **PENDIENTE** | |
+| 41 | T41 · El logotipo y las imágenes de ambientación | tareas/T41-logotipo-y-ambientacion-visual.md | ninguna (firma del 2026-09-06) · no a la vez que 37, 43 | 3 h | MEDIO | 37 | `public/`, `App.tsx`, `EleccionDeHeroes.tsx`, `Transicion.tsx` (nuevo), `estilos.css` | manual | **PENDIENTE** | |
+| 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | **PENDIENTE** | |
+| 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | **PENDIENTE** | |
+| 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 11, 36 | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres ahora:** 11 y 22, las dos de banda MEDIO, encadenables entre sí (comparten
-`TurnPanel.tsx`: seguidas en una sesión, nunca en paralelo). **Sesiones que caben a la vez
-sin estorbarse: una.** Ninguna tarea libre de banda ALTO ni BAJO; 15 espera la palabra de
-Juan Luis.
+**Libres ahora:** 43 (BAJO); 11, 22, 36, 37, 40, 41, 42 y 44 (MEDIO). Ninguna de banda ALTO
+hasta que 42 esté LISTA (entonces 38); 15 espera la palabra de Juan Luis. **Encadenables:**
+40+42 (sin ficheros en común); 11+22+36 (comparten `TurnPanel.tsx`: seguidas, nunca en
+paralelo); 37+41 (comparten `EleccionDeHeroes.tsx` y `estilos.css`: seguidas). **Sesiones
+que caben a la vez sin estorbarse: cuatro** — una en 43, una en 40+42, una en 11+22+36 y
+una en 37+41; 44 espera a que termine la de 11+36 (comparte `Juego.tsx`), y 39 y 38 a 42.
 
 ## Registro de finalizaciones
 
@@ -285,6 +296,9 @@ la migración:
    la firma de Juan Luis del 2026-09-06 que ese commit transcribía está en
    `autorizaciones.md`. Ese trabajo no tiene número de tarea y no lleva terminada; su
    registro está en el tablón antiguo.
+8. **Ocho filas T36–T43 en el tablón viejo, en la rama `worktree-nuevas-tareas-sep-06`**
+   (sesión de banda BAJO, `4df18dd`), sin fichas detrás y sin banda. Las fichas se
+   escribieron después en `main` (T36–T44) respetando esos números; la rama no se fusiona.
 
 Los automatismos activos y las rutas del proyecto están en `proyecto.md`, no aquí: este
 fichero se regenera entero y se los llevaría por delante.

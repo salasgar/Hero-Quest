@@ -9,9 +9,9 @@ mitad de una partida sin tapar el tablero.
 **Ficheros que bloquea:** `src/ui/TurnPanel.tsx`, `src/ui/Instrucciones.tsx`,
 `src/ui/HeroSheet.tsx`, `src/estilos.css` (mira su candado: lo ha tenido reservado otra
 sesión).
-**Duración esperada:** 2 h · **Encadenable con:** T11 (misma banda, corta, y comparte
-`TurnPanel.tsx` con esta: **no van en paralelo**, van seguidas en la misma sesión o de una
-en una).
+**Duración esperada:** 2 h · **Encadenable con:** T11 y T36 (misma banda, cortas, y
+comparten `TurnPanel.tsx` con esta: **no van en paralelo**, van seguidas en la misma sesión
+o de una en una).
 **Ficheros que toca:** `src/ui/TurnPanel.tsx`, `src/ui/Instrucciones.tsx`,
 `src/ui/HeroSheet.tsx`, `src/estilos.css`, `tests/` (el test de las doce descripciones).
 **Precondición, al día de la migración del 2026-09-06:** `src/ui/Instrucciones.tsx` **ya está

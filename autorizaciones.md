@@ -104,6 +104,27 @@ texto completo de cada una sigue en `_ESTADO-antiguo-2026-09-06.md`.
   devuelve el registro entero. Cierra la incidencia del `esperado` que dejó abierta T31.
   Firma y fecha: Juan Luis, 2026-09-06
 
+- **Todos los dados los tira la aplicación; sin modo manual (T36).** «Lo más probable es
+  que juegue siempre en la modalidad automática. La modalidad manual, de momento, que la
+  aplicación no la ofrezca. Que se ejecute siempre en modo automático para que no haya que
+  lanzar dados reales y los jugadores nos centremos únicamente en la estrategia a seguir.»
+  Y una libertad de diseño para las tareas que vengan: «puedes usar dados de más (o menos)
+  de 6 caras cuando lo consideres oportuno a la hora de diseñar las capacidades de los
+  héroes, de los monstruos, los hechizos, etc.»
+  Firma y fecha: Juan Luis, 2026-09-06
+
+- **El relato literario del diario se genera ensamblando frases prefabricadas (T39)**, no
+  con un modelo de lenguaje: «Dejas escritas distintas expresiones para cada posible
+  situación […] Que se lo invente la sesión que coja la tarea.»
+  Firma y fecha: Juan Luis, 2026-09-06
+
+- **El logotipo y las imágenes de ambientación los coloca la sesión a su criterio (T41)**,
+  incluido retocar el PNG, generar imágenes o descargarlas de Internet: «Piensa dónde queda
+  mejor, y si hay que cambiarle el fondo, el tamaño, el color, descargar otra imagen
+  diferente de Internet, generar tú otra… de manera que no quiten espacio al juego.» Lo
+  descargado, con licencia que permita usarlo y con su origen apuntado.
+  Firma y fecha: Juan Luis, 2026-09-06
+
 ## Pendientes de su palabra
 
 Eran la sección «Pendientes de su palabra» del tablón viejo. Ninguna sesión se las puede

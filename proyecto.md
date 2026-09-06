@@ -154,6 +154,17 @@ que dura la sesión.
   toque va de una en una con las demás que lo toquen, y la ficha lo declara.
 - **El número de tests no se escribe en ningún fichero fijo** (ya mintió tres veces); se mide
   con `npx vitest run` al empezar y al terminar cada tarea.
+- **T36 a T44 salen del encargo de Juan Luis del 2026-09-06** (ocho puntos), escritas por
+  la sesión `s-20260906T103034-b376065f` el mismo día. Su punto 6 (ambientación) se partió
+  en T41 (imágenes) y T44 (sonidos); los iconos son T37. Su punto 1 cambió al preguntarle:
+  ya no hay tres modos de dados, la aplicación los tira siempre (T36, firmado). Su punto 3
+  se reparte entre T11 (verlo despacio) y T38 (huir). Una sesión de banda BAJO había dejado
+  ocho filas T36–T43 en el tablón viejo, en la rama `worktree-nuevas-tareas-sep-06`, sin
+  fichas: esos números se respetan, esa rama no se fusiona y se puede borrar.
+- **Orden por ficheros compartidos entre las nuevas**: `types.ts` y `partida.ts` los tocan
+  T42, T37 y T38, en ese orden; `TurnPanel.tsx`, T11, T22 y T36; `EleccionDeHeroes.tsx` y
+  `estilos.css`, T37 y T41; `App.tsx`, T41 y T43; `Juego.tsx`, T11, T36 y T44. Está en cada
+  ficha y en el tablón.
 - **El tablón viejo se conserva renombrado** (`_ESTADO-antiguo-2026-09-06.md`) para que los
   rastros que lo citan —commits, fichas, TRASPASO.md— sigan teniendo a dónde apuntar. Todo lo
   que decía de estado se ha derivado a `hechos/`; lo que decía de firmas, a
