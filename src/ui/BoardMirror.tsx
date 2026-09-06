@@ -169,7 +169,31 @@ export function BoardMirror({
           />
         ))}
 
-        {/* Trampas ya descubiertas */}
+        {/* Fosos abiertos: el agujero se queda toda la misión (reglamento p. 17)
+            y quien está dentro pelea con un dado menos, así que la mesa tiene
+            que verlo. Va antes que las figuras para que el héroe caído se pinte
+            encima. Los otros dos tipos gastados no se pintan: la lanza ya no
+            existe y el bloque caído es una casilla cegada. */}
+        {estado.trampas
+          .filter((t) => t.tipo === "foso" && t.gastada)
+          .map((t) => (
+            // Del tamaño de la casilla y con el borde de piedra: la ficha de
+            // quien está dentro tapa el centro, y lo que se ve es el anillo.
+            <rect
+              key={`f${t.id}`}
+              x={t.celda.x * LADO + 1.5}
+              y={t.celda.y * LADO + 1.5}
+              width={LADO - 3}
+              height={LADO - 3}
+              rx={LADO / 3}
+              fill="#05070a"
+              stroke="#8a7048"
+              strokeWidth={2}
+              pointerEvents="none"
+            />
+          ))}
+
+        {/* Trampas encontradas y todavía sin saltar */}
         {estado.trampas
           .filter((t) => t.descubierta && !t.gastada)
           .map((t) => (

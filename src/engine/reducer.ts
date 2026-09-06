@@ -28,8 +28,7 @@ import {
   resolverAtaque,
   resolverDanoDirecto,
 } from "./combat";
-import { tirarD6, tirarMovimiento as tirarDadosMovimiento } from "./dice";
-import { elegir } from "./rng";
+import { tirarD6, tirarDadoCombate, tirarDadosCombate, tirarMovimiento as tirarDadosMovimiento } from "./dice";
 import { conMonstruosEnTablero, conPuertasVistas, puedeVer, salasDeLaPuerta } from "./vision";
 import {
   esHeroe,
@@ -197,25 +196,62 @@ function terminar(e: EstadoPartida, eventos: Evento[]): Resultado {
 
 // ------------------------------------------------------------ trampas
 
+/**
+ * Lo que hay en una casilla que pueda hacerle algo a quien la pisa: una trampa
+ * sin gastar, o un foso ya abierto. El foso disparado no es una trampa gastada,
+ * es un agujero que se queda toda la misión y sigue tragándose a quien se mete
+ * o falla el salto (reglamento p. 19: «once a pit trap has been sprung, the
+ * hole in the ground, though dangerous, can be jumped»). La lanza gastada ya
+ * no existe («gone forever», p. 18) y el bloque caído es una casilla cegada.
+ */
 const trampaEn = (e: EstadoPartida, c: Celda): Trampa | undefined =>
-  e.trampas.find((t) => !t.gastada && mismaCelda(t.celda, c));
+  e.trampas.find((t) => (!t.gastada || t.tipo === "foso") && mismaCelda(t.celda, c));
 
 /**
- * Efecto de pisar una trampa.
+ * Efecto de que una trampa salte sobre una figura, según su tipo (reglamento
+ * pp. 17-18): el foso hace 1 de daño y acaba el turno; la lanza tira 1 dado de
+ * combate y solo hiere —y acaba el turno— con calavera, si no se esquiva y se
+ * sigue andando; el bloque tira 3 dados sin defensa, una herida por calavera,
+ * y ciega la casilla para siempre.
  *
- * Devuelve si el movimiento se corta ahí y si la figura tiene que retroceder:
- * el bloque que cae ciega la casilla, así que quien lo dispara no puede
- * quedarse encima; vuelve a la casilla de la que venía.
+ * `calaveraYaTirada`: la trampa salta porque una tirada previa —el salto o el
+ * desarme, p. 19— sacó calavera. Esa calavera ya es la de la lanza: no se tira
+ * otra vez, hiere.
+ *
+ * Devuelve si el movimiento se corta ahí, si además se acaba el turno y si la
+ * figura tiene que retroceder: el bloque que cae ciega la casilla, así que
+ * quien lo dispara no puede quedarse encima; vuelve a la casilla de la que
+ * venía. El reglamento (p. 18) deja elegir entre seguir adelante o volver;
+ * aquí se vuelve siempre, que es lo que se puede decidir sin una acción nueva.
  */
 function dispararTrampa(
   e: EstadoPartida,
   t: Trampa,
   f: Figura,
-): [EstadoPartida, Evento[], { corta: boolean; retrocede: boolean }] {
-  const dano = 1;
+  calaveraYaTirada = false,
+): [EstadoPartida, Evento[], { corta: boolean; terminaTurno: boolean; retrocede: boolean }] {
   let estado = { ...e, trampas: e.trampas.map((x) => (x.id === t.id ? { ...x, gastada: true, descubierta: true } : x)) };
+  let dados: import("./dice").CaraCombate[] = [];
+  if (t.tipo === "lanza" && !calaveraYaTirada) {
+    const [cara, rng] = tirarDadoCombate(estado.rng);
+    estado = { ...estado, rng };
+    dados = [cara];
+  } else if (t.tipo === "bloque") {
+    const [caras, rng] = tirarDadosCombate(estado.rng, 3);
+    estado = { ...estado, rng };
+    dados = caras;
+  }
+  const dano =
+    t.tipo === "foso"
+      ? 1
+      : t.tipo === "lanza"
+        ? calaveraYaTirada || dados[0] === "calavera"
+          ? 1
+          : 0
+        : dados.filter((d) => d === "calavera").length;
+
   const eventos: Evento[] = [
-    { tipo: "trampaDisparada", trampa: t.id, tipoTrampa: t.tipo, figura: f.id, dano },
+    { tipo: "trampaDisparada", trampa: t.id, tipoTrampa: t.tipo, figura: f.id, dano, dados, yaAbierta: t.gastada },
   ];
   const actual = figuraPorId(estado, f.id)!;
   const [trasDano, evDano] = aplicarDano(estado, actual, dano);
@@ -226,8 +262,12 @@ function dispararTrampa(
     // El bloque cae y ciega la casilla para el resto de la misión.
     estado = { ...estado, celdasBloqueadas: [...estado.celdasBloqueadas, t.celda] };
   }
-  // El foso y el bloque cortan el movimiento; la lanza no.
-  return [estado, eventos, { corta: t.tipo !== "lanza", retrocede: t.tipo === "bloque" }];
+  // La lanza esquivada deja seguir («You may then continue with your move»,
+  // p. 18). El foso («This ends your turn», p. 17) y la lanza que acierta
+  // (p. 18) acaban el turno entero. El bloque corta el movimiento y el
+  // reglamento no dice que acabe el turno al pisarlo.
+  const corta = t.tipo !== "lanza" || dano > 0;
+  return [estado, eventos, { corta, terminaTurno: corta && t.tipo !== "bloque", retrocede: t.tipo === "bloque" }];
 }
 
 // ------------------------------------------------------------ el reductor
@@ -357,24 +397,59 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
   let estado = e;
   const eventos: Evento[] = [];
   let recorrido: Celda[] = [];
+  let turnoAcabado = false;
   const desde = f.celda;
 
-  for (const paso of ruta) {
+  for (const [i, paso] of ruta.entries()) {
     const actual = figuraPorId(estado, f.id)!;
     estado = conFigura(estado, { ...actual, celda: paso } as Figura);
     recorrido.push(paso);
 
-    // Tres excepciones, cada una por su motivo: la trampa descubierta ya se ve y
-    // no sorprende a nadie; las trampas las coloca Zargon, que sabe dónde están,
-    // así que sus monstruos no las disparan (reglamento p. 17: «Monsters do not
-    // spring hidden traps»); y quien vuela no pisa el suelo, así que el foso no la
-    // traga —la lanza sale de la pared y el bloque cae del techo, y esas dos
-    // alcanzan igual a quien vuela—.
+    // Dos excepciones, cada una por su motivo: las trampas las coloca Zargon,
+    // que sabe dónde están, así que sus monstruos no las disparan (reglamento
+    // p. 17: «Monsters do not spring hidden traps»; y por un foso abierto
+    // «always successfully jump over», p. 19); y quien vuela no pisa el suelo,
+    // así que el foso no la traga —la lanza sale de la pared y el bloque cae
+    // del techo, y esas dos alcanzan igual a quien vuela—.
+    // Y una tercera, que es una simplificación y conviene saberlo: si en la
+    // casilla de la trampa hay otra figura —un compañero caído en el foso,
+    // sobre todo—, el héroe pasa por encima del compañero, no del agujero, y
+    // ni tira ni cae. El reglamento (p. 12) sí deja compartir casilla «in a
+    // pit trap», pero el motor no admite dos figuras en una desde T2
+    // (`celdaLibre` y la invariante del juego al azar), y abrir esa puerta es
+    // otra tarea.
     const trampa = trampaEn(estado, paso);
-    const laAfecta =
-      trampa && !trampa.descubierta && esHeroe(f) && !(trampa.tipo === "foso" && vuela(f));
+    const ocupada = [...estado.heroes, ...estado.monstruos].some(
+      (x) => x.id !== f.id && x.cuerpo > 0 && mismaCelda(x.celda, paso),
+    );
+    const laAfecta = trampa && esHeroe(f) && !ocupada && !(trampa.tipo === "foso" && vuela(f));
     if (trampa && laAfecta) {
-      const [tras, ev, efecto] = dispararTrampa(estado, trampa, figuraPorId(estado, f.id)!);
+      // Una trampa que nadie ha encontrado salta sin más («you automatically
+      // spring the trap», p. 17). Una encontrada —o un foso ya abierto— se
+      // salta si el camino sigue más allá: 1 dado de combate, cualquier cosa
+      // menos calavera, y el salto cuesta las dos casillas que ya cuesta la
+      // ruta (p. 19). Si es el destino, el héroe se mete a propósito y la
+      // trampa salta igual (pp. 17-18); en el foso abierto, se cae («you must
+      // voluntarily fall into the pit (suffering damage)», p. 19).
+      const esElDestino = i === ruta.length - 1;
+      let calavera = false;
+      let salta = !trampa.descubierta || esElDestino;
+      if (!salta) {
+        const [cara, rng] = tirarDadoCombate(estado.rng);
+        estado = { ...estado, rng };
+        calavera = cara === "calavera";
+        salta = calavera;
+        eventos.push({
+          tipo: "saltoDeTrampa",
+          trampa: trampa.id,
+          tipoTrampa: trampa.tipo,
+          figura: f.id,
+          dado: cara,
+          logrado: !calavera,
+        });
+      }
+      if (!salta) continue;
+      const [tras, ev, efecto] = dispararTrampa(estado, trampa, figuraPorId(estado, f.id)!, calavera);
       estado = tras;
       eventos.push(...ev);
 
@@ -390,6 +465,9 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
         const atras = recorrido[recorrido.length - 1] ?? desde;
         estado = conFigura(estado, { ...figuraPorId(estado, f.id)!, celda: atras } as Figura);
       }
+      // Un salto fallido acaba el turno sea cual sea la trampa («You are then
+      // put on the trap square. This ends your turn», p. 19).
+      if (efecto.terminaTurno || calavera) turnoAcabado = true;
       if (efecto.corta || figuraPorId(estado, f.id)!.cuerpo === 0) break;
     }
   }
@@ -427,12 +505,16 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
     eventos.push(...ev);
   }
 
+  // Caer al foso o llevarse la lanza acaba el turno («This ends your turn»,
+  // pp. 17-18): ni un paso más ni acción. Se cierra como si ya hubiera actuado;
+  // el turno sigue siendo suyo hasta que lo termine, como cuando ataca.
   estado = {
     ...estado,
     turno: {
       ...estado.turno,
-      movimientoRestante: estado.turno.movimientoRestante - gastado,
+      movimientoRestante: turnoAcabado ? 0 : estado.turno.movimientoRestante - gastado,
       haMovido: true,
+      ...(turnoAcabado ? { haActuado: true, movimientoCerrado: true } : {}),
     },
   };
   return terminar(estado, eventos);
@@ -721,14 +803,18 @@ function desarmarTrampa(e: EstadoPartida, idTrampa: string): Resultado {
     return terminar(estado, eventos);
   }
 
-  // Los demás la desarman con una calavera; si no, les salta encima.
-  const [cara, rng] = elegir(estado.rng, ["calavera", "escudoBlanco", "escudoNegro", "calavera", "calavera", "escudoBlanco"] as const);
+  // Los demás tiran 1 dado de combate: con escudo, blanco o negro, la trampa
+  // queda desarmada; con calavera les salta encima. Reglamento p. 19: «If you
+  // roll a skull, you have sprung the trap, suffering body damage. If you roll
+  // either a black or white shield, the trap is disarmed». Y esa calavera ya
+  // es la de la lanza: no se tira otra vez.
+  const [cara, rng] = tirarDadoCombate(estado.rng);
   estado = { ...estado, rng };
-  if (cara === "calavera") {
+  if (cara !== "calavera") {
     estado = { ...estado, trampas: estado.trampas.map((x) => (x.id === t.id ? { ...x, gastada: true } : x)) };
     eventos.push({ tipo: "trampaDesarmada", trampa: t.id });
   } else {
-    const [tras, ev] = dispararTrampa(estado, t, figuraPorId(estado, f.id)!);
+    const [tras, ev] = dispararTrampa(estado, t, figuraPorId(estado, f.id)!, true);
     estado = tras;
     eventos.push(...ev);
   }

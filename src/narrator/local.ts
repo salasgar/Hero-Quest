@@ -110,9 +110,26 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
 
     case "trampaDisparada": {
       const quien = nombreDe(e, ev.figura);
-      if (ev.tipoTrampa === "foso") return `¡El suelo se hunde! ${mayus(quien)} cae al foso y se hace daño.`;
-      if (ev.tipoTrampa === "lanza") return `¡Una lanza sale disparada de la pared y alcanza ${aA(quien)}!`;
-      return `¡Un bloque de piedra se desprende del techo sobre ${quien} y bloquea el paso!`;
+      if (ev.tipoTrampa === "foso")
+        return ev.yaAbierta
+          ? `${mayus(quien)} cae al foso abierto y se hace daño.`
+          : `¡El suelo se hunde! ${mayus(quien)} cae al foso y se hace daño.`;
+      if (ev.tipoTrampa === "lanza")
+        return ev.dano === 0
+          ? `¡Una lanza sale disparada de la pared, pero ${quien} la esquiva!`
+          : `¡Una lanza sale disparada de la pared y alcanza ${aA(quien)}!`;
+      return ev.dano === 0
+        ? `¡Un bloque de piedra se desprende del techo y ${quien} lo esquiva por un pelo! El paso queda bloqueado.`
+        : `¡Un bloque de piedra se desprende del techo sobre ${quien} y bloquea el paso! ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
+    }
+
+    case "saltoDeTrampa": {
+      const quien = mayus(nombreDe(e, ev.figura));
+      const que =
+        ev.tipoTrampa === "foso" ? "el foso" : ev.tipoTrampa === "lanza" ? "la casilla de la lanza" : "la casilla del bloque";
+      return ev.logrado
+        ? `${quien} salta ${que} de un brinco.`
+        : `${quien} intenta saltar ${que}, pero le sale una calavera y tropieza.`;
     }
 
     case "trampaDescubierta":

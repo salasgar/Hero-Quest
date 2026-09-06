@@ -56,6 +56,21 @@ describe("frases del narrador", () => {
     expect(narrar(e, { ...base, tipoTrampa: "bloque" })).toMatch(/bloque de piedra/);
   });
 
+  it("la lanza esquivada, el foso abierto y el salto tienen la suya", () => {
+    const e = estado();
+    const base = { trampa: "t", figura: "barbaro" };
+    expect(narrar(e, { tipo: "trampaDisparada", ...base, tipoTrampa: "lanza", dano: 0 })).toMatch(/esquiva/);
+    expect(narrar(e, { tipo: "trampaDisparada", ...base, tipoTrampa: "foso", dano: 1, yaAbierta: true })).toMatch(
+      /foso abierto/,
+    );
+    expect(narrar(e, { tipo: "saltoDeTrampa", ...base, tipoTrampa: "foso", dado: "escudoBlanco", logrado: true })).toMatch(
+      /salta el foso/,
+    );
+    expect(narrar(e, { tipo: "saltoDeTrampa", ...base, tipoTrampa: "foso", dado: "calavera", logrado: false })).toMatch(
+      /calavera/,
+    );
+  });
+
   it("no cuenta los movimientos de cero casillas", () => {
     const e = estado();
     expect(

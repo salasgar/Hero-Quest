@@ -2,12 +2,26 @@ import { describe, it, expect } from "vitest";
 import { dadosDeAtaque } from "../src/engine/combat";
 import { aplicarAccion, repetir } from "../src/engine/reducer";
 import { puedeBuscarTesoro, puedeBuscarTrampas } from "../src/engine/selectors";
+import { tirarDadoCombate, tirarDadosCombate } from "../src/engine/dice";
+import { crearRng } from "../src/engine/rng";
 import type { IdEquipo } from "../src/data/equipment";
-import type { Accion, Celda } from "../src/engine/types";
+import type { Accion, Celda, EstadoPartida, Evento, TipoTrampa } from "../src/engine/types";
 import { c, conMovimiento, enTablero, hacer, MISION_PRUEBA, partida, rechaza, situar } from "./ayuda";
 
 const CAL = "calavera" as const;
 const BLA = "escudoBlanco" as const;
+
+/** El mismo estado con otro generador: para fijar lo que va a salir en el dado. */
+const conRng = (e: EstadoPartida, semilla: number): EstadoPartida => ({ ...e, rng: crearRng(semilla) });
+
+/** Una semilla cuyo primer dado de combate saca calavera, o no la saca. */
+function semillaCon(calavera: boolean): number {
+  for (let s = 1; s < 1000; s++)
+    if ((tirarDadoCombate(crearRng(s))[0] === "calavera") === calavera) return s;
+  throw new Error("ninguna de las primeras mil semillas sirve");
+}
+const SEMILLA_CALAVERA = semillaCon(true);
+const SEMILLA_ESCUDO = semillaCon(false);
 
 const puerta = (id: string, a: Celda, b: Celda, abierta = false) => ({
   id, a, b, abierta, secreta: false, descubierta: true,
@@ -182,59 +196,207 @@ describe("ataque", () => {
 });
 
 describe("trampas", () => {
-  const conFoso = (tipo: "foso" | "lanza" | "bloque") =>
+  // Reglamento pp. 17-19. Las tiradas las hace el motor con el generador del
+  // estado, así que cada caso fija una semilla cuyo primer dado sale como pide.
+
+  /** El héroe en (1,1) con 6 de movimiento y una trampa en (1,2). */
+  const conTrampa = (
+    tipo: TipoTrampa,
+    { descubierta = false, gastada = false, heroe = "barbaro" as "barbaro" | "hada" } = {},
+  ) =>
     conMovimiento(
       situar(
-        partida({ trampas: [{ id: "t1", tipo, celda: c(1, 2), descubierta: false, gastada: false }] }),
-        "barbaro",
+        partida({
+          heroes: [heroe === "hada" ? { clase: "hada", elementos: ["agua", "aire"] } : { clase: "barbaro" }],
+          trampas: [{ id: "t1", tipo, celda: c(1, 2), descubierta, gastada }],
+        }),
+        heroe,
         c(1, 1),
       ),
       6,
     );
+  const mueve = (e: EstadoPartida, destino: Celda) => {
+    const r = aplicarAccion(e, { tipo: "mover", destino });
+    if (!r.ok) throw new Error(r.motivo);
+    return r;
+  };
+  const cuerpo = (r: { estado: EstadoPartida }) => r.estado.heroes[0]!.cuerpo;
+  const trampa = (r: { estado: EstadoPartida }) => r.estado.trampas[0]!;
+  const salto = (r: { eventos: Evento[] }) =>
+    r.eventos.find((x): x is Extract<Evento, { tipo: "saltoDeTrampa" }> => x.tipo === "saltoDeTrampa");
+  const disparo = (r: { eventos: Evento[] }) =>
+    r.eventos.find((x): x is Extract<Evento, { tipo: "trampaDisparada" }> => x.tipo === "trampaDisparada");
 
-  it("el foso salta al pisarlo, hace daño y corta el movimiento", () => {
-    const r = aplicarAccion(conFoso("foso"), { tipo: "mover", destino: c(1, 3) });
-    expect(r.ok).toBe(true);
-    if (!r.ok) return;
+  it("el foso sin descubrir salta al pisarlo: 1 de daño y se acaba el turno (p. 17)", () => {
+    const r = mueve(conTrampa("foso"), c(1, 3));
     expect(r.estado.heroes[0]!.celda).toEqual(c(1, 2)); // se queda en el foso
-    expect(r.estado.heroes[0]!.cuerpo).toBe(7); // 8 - 1
-    expect(r.eventos.some((x) => x.tipo === "trampaDisparada")).toBe(true);
+    expect(cuerpo(r)).toBe(7); // 8 - 1
+    expect(disparo(r)).toBeTruthy();
+    // «This ends your turn»: ni un paso más ni acción.
+    expect(r.estado.turno.movimientoRestante).toBe(0);
+    expect(r.estado.turno.haActuado).toBe(true);
+    expect(rechaza(r.estado, { tipo: "mover", destino: c(1, 3) })).toMatch(/cerrado|no te queda/i);
   });
 
-  it("la lanza hiere pero deja seguir andando", () => {
-    const r = aplicarAccion(conFoso("lanza"), { tipo: "mover", destino: c(1, 3) });
-    expect(r.ok).toBe(true);
-    if (!r.ok) return;
-    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 3)); // ha seguido
-    expect(r.estado.heroes[0]!.cuerpo).toBe(7);
+  it("la lanza sin descubrir tira un dado: con calavera hiere y acaba el turno (p. 18)", () => {
+    const r = mueve(conRng(conTrampa("lanza"), SEMILLA_CALAVERA), c(1, 3));
+    expect(disparo(r)?.dados).toEqual(["calavera"]);
+    expect(cuerpo(r)).toBe(7);
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 2));
+    expect(r.estado.turno.haActuado).toBe(true);
+    expect(trampa(r).gastada).toBe(true);
   });
 
-  it("el bloque ciega la casilla para el resto de la misión", () => {
-    const r = aplicarAccion(conFoso("bloque"), { tipo: "mover", destino: c(1, 3) });
-    expect(r.ok).toBe(true);
-    if (!r.ok) return;
+  it("y con escudo la esquiva, sigue andando y la lanza desaparece igual", () => {
+    const r = mueve(conRng(conTrampa("lanza"), SEMILLA_ESCUDO), c(1, 3));
+    expect(disparo(r)?.dano).toBe(0);
+    expect(cuerpo(r)).toBe(8);
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 3));
+    expect(r.estado.turno.haActuado).toBe(false);
+    expect(trampa(r).gastada).toBe(true); // «gone forever»
+  });
+
+  it("el bloque tira tres dados sin defensa: una herida por calavera (p. 18)", () => {
+    const e = conRng(conTrampa("bloque"), 7);
+    const [caras] = tirarDadosCombate(e.rng, 3);
+    const r = mueve(e, c(1, 3));
+    expect(disparo(r)?.dados).toEqual(caras);
+    expect(cuerpo(r)).toBe(8 - caras.filter((x) => x === "calavera").length);
     expect(r.estado.celdasBloqueadas).toContainEqual(c(1, 2));
   });
 
   it("quien dispara el bloque retrocede: no puede quedarse bajo la piedra", () => {
-    const r = aplicarAccion(conFoso("bloque"), { tipo: "mover", destino: c(1, 3) });
-    expect(r.ok).toBe(true);
-    if (!r.ok) return;
+    const r = mueve(conTrampa("bloque"), c(1, 3));
     // Entró desde (1,1) y la piedra cae en (1,2): tiene que volver a (1,1).
     expect(r.estado.heroes[0]!.celda).toEqual(c(1, 1));
     expect(r.estado.celdasBloqueadas).toContainEqual(c(1, 2));
-    expect(r.estado.heroes[0]!.cuerpo).toBe(7);
   });
 
-  it("una trampa ya descubierta no vuelve a saltar", () => {
+  it("una trampa encontrada salta igual si el héroe se mete en su casilla (pp. 17-18)", () => {
+    // Este test afirmaba lo contrario —«una trampa ya descubierta no vuelve a
+    // saltar»— sin cita. El reglamento dice «you automatically spring the
+    // trap»: encontrarla sirve para saltarla o desarmarla, no para pisarla.
+    const r = mueve(conRng(conTrampa("lanza", { descubierta: true }), SEMILLA_CALAVERA), c(1, 2));
+    expect(salto(r)).toBeUndefined();
+    expect(cuerpo(r)).toBe(7);
+  });
+
+  it("un foso encontrado en mitad del camino se salta: sin calavera se pasa de largo (p. 19)", () => {
+    const r = mueve(conRng(conTrampa("foso", { descubierta: true }), SEMILLA_ESCUDO), c(1, 3));
+    expect(salto(r)?.logrado).toBe(true);
+    expect(disparo(r)).toBeUndefined();
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 3));
+    expect(cuerpo(r)).toBe(8);
+    expect(trampa(r).gastada).toBe(false); // sigue tapado
+    expect(r.estado.turno.movimientoRestante).toBe(4); // el salto cuesta las dos casillas
+  });
+
+  it("y con calavera se cae dentro: 1 de daño y se acaba el turno", () => {
+    const r = mueve(conRng(conTrampa("foso", { descubierta: true }), SEMILLA_CALAVERA), c(1, 3));
+    expect(salto(r)?.logrado).toBe(false);
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 2));
+    expect(cuerpo(r)).toBe(7);
+    expect(trampa(r).gastada).toBe(true);
+    expect(r.estado.turno.haActuado).toBe(true);
+  });
+
+  it("un foso encontrado que es el destino se pisa a propósito, y se cae", () => {
+    const r = mueve(conRng(conTrampa("foso", { descubierta: true }), SEMILLA_ESCUDO), c(1, 2));
+    expect(salto(r)).toBeUndefined();
+    expect(cuerpo(r)).toBe(7);
+  });
+
+  it("el foso abierto se queda: cruzarlo es volver a saltarlo, y se puede caer otra vez (p. 19)", () => {
+    const r = mueve(conRng(conTrampa("foso", { descubierta: true, gastada: true }), SEMILLA_CALAVERA), c(1, 3));
+    expect(salto(r)).toBeTruthy();
+    expect(disparo(r)?.yaAbierta).toBe(true);
+    expect(cuerpo(r)).toBe(7);
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 2));
+  });
+
+  it("meterse en un foso abierto a propósito cuesta 1 de cuerpo y el turno (p. 19)", () => {
+    const r = mueve(conRng(conTrampa("foso", { descubierta: true, gastada: true }), SEMILLA_ESCUDO), c(1, 2));
+    expect(salto(r)).toBeUndefined();
+    expect(cuerpo(r)).toBe(7);
+    expect(r.estado.turno.haActuado).toBe(true);
+  });
+
+  it("el hada pasa volando por encima del foso encontrado sin tirar nada", () => {
+    const r = mueve(conRng(conTrampa("foso", { descubierta: true, heroe: "hada" }), SEMILLA_CALAVERA), c(1, 3));
+    expect(salto(r)).toBeUndefined();
+    expect(disparo(r)).toBeUndefined();
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 3));
+  });
+
+  it("un bloque encontrado que se salta con calavera cae encima: tres dados, vuelta atrás y fin del turno", () => {
+    const e = conRng(conTrampa("bloque", { descubierta: true }), SEMILLA_CALAVERA);
+    const [, trasElSalto] = tirarDadoCombate(e.rng);
+    const [caras] = tirarDadosCombate(trasElSalto, 3);
+    const r = mueve(e, c(1, 3));
+    expect(salto(r)?.logrado).toBe(false);
+    expect(disparo(r)?.dados).toEqual(caras);
+    expect(cuerpo(r)).toBe(8 - caras.filter((x) => x === "calavera").length);
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 1));
+    expect(r.estado.turno.haActuado).toBe(true);
+  });
+
+  it("un foso con un compañero dentro se pasa por encima del compañero, no del agujero", () => {
+    // Dos figuras no caben en una casilla: el que pasa no tira ni cae.
+    const base = partida({
+      heroes: [{ clase: "barbaro" }, { clase: "enano" }],
+      trampas: [{ id: "t1", tipo: "foso", celda: c(1, 2), descubierta: true, gastada: true }],
+    });
+    const e = conRng(conMovimiento(situar(situar(base, "barbaro", c(1, 1)), "enano", c(1, 2)), 6), SEMILLA_CALAVERA);
+    const r = mueve(e, c(1, 3));
+    expect(salto(r)).toBeUndefined();
+    expect(disparo(r)).toBeUndefined();
+    expect(r.estado.heroes[0]!.celda).toEqual(c(1, 3));
+  });
+
+  it("un monstruo cruza el foso abierto sin caerse: los monstruos siempre lo saltan (p. 19)", () => {
+    const base = partida({
+      trampas: [{ id: "t1", tipo: "foso", celda: c(1, 2), descubierta: true, gastada: true }],
+      monstruos: [{ id: "orco1", especie: "orco", celda: c(1, 1) }],
+    });
+    let e = hacer(enTablero(base), { tipo: "terminarTurno" }); // le toca a Zargon
+    e = hacer(e, { tipo: "activarMonstruo", monstruo: "orco1" });
+    const r = mueve(e, c(1, 3));
+    expect(r.estado.monstruos[0]!.celda).toEqual(c(1, 3));
+    expect(salto(r)).toBeUndefined();
+    expect(disparo(r)).toBeUndefined();
+  });
+});
+
+describe("desarmar una trampa con herramientas", () => {
+  // Reglamento p. 19: un dado de combate; con escudo queda desarmada, con
+  // calavera salta encima. El código lo leía al revés: la calavera desarmaba.
+  const conHerramientas = (semilla: number): EstadoPartida => {
     const base = partida({
       trampas: [{ id: "t1", tipo: "lanza", celda: c(1, 2), descubierta: true, gastada: false }],
     });
     const e = conMovimiento(situar(base, "barbaro", c(1, 1)), 6);
-    const r = aplicarAccion(e, { tipo: "mover", destino: c(1, 3) });
+    return {
+      ...conRng(e, semilla),
+      heroes: e.heroes.map((h) => ({ ...h, equipo: [...h.equipo, "herramientas" as IdEquipo] })),
+    };
+  };
+
+  it("con escudo la trampa queda desarmada", () => {
+    const r = aplicarAccion(conHerramientas(SEMILLA_ESCUDO), { tipo: "desarmarTrampa", trampa: "t1" });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
+    expect(r.eventos.some((x) => x.tipo === "trampaDesarmada")).toBe(true);
+    expect(r.estado.trampas[0]!.gastada).toBe(true);
     expect(r.estado.heroes[0]!.cuerpo).toBe(8);
+  });
+
+  it("con calavera la lanza salta y hiere, sin segunda tirada", () => {
+    const r = aplicarAccion(conHerramientas(SEMILLA_CALAVERA), { tipo: "desarmarTrampa", trampa: "t1" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.eventos.some((x) => x.tipo === "trampaDesarmada")).toBe(false);
+    expect(r.estado.heroes[0]!.cuerpo).toBe(7);
+    expect(r.estado.trampas[0]!.gastada).toBe(true);
   });
 });
 

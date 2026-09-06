@@ -287,7 +287,25 @@ export type Evento =
       dano: number;
     }
   | { tipo: "figuraDerrotada"; figura: IdFigura }
-  | { tipo: "trampaDisparada"; trampa: string; tipoTrampa: TipoTrampa; figura: IdFigura; dano: number }
+  | {
+      tipo: "trampaDisparada";
+      trampa: string;
+      tipoTrampa: TipoTrampa;
+      figura: IdFigura;
+      dano: number;
+      /** Los dados de la propia trampa: uno la lanza, tres el bloque, ninguno el foso. */
+      dados?: CaraCombate[];
+      /** El foso ya estaba abierto: no se hunde el suelo, el héroe se mete o falla el salto. */
+      yaAbierta?: boolean;
+    }
+  | {
+      tipo: "saltoDeTrampa";
+      trampa: string;
+      tipoTrampa: TipoTrampa;
+      figura: IdFigura;
+      dado: CaraCombate;
+      logrado: boolean;
+    }
   | { tipo: "trampaDescubierta"; trampa: string; tipoTrampa: TipoTrampa; celda: Celda }
   | { tipo: "trampaDesarmada"; trampa: string }
   | { tipo: "puertaSecretaDescubierta"; puerta: string }
