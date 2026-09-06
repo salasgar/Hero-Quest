@@ -116,15 +116,16 @@ describe("curar a quien no lo necesita", () => {
   });
 });
 
-describe("la Tempestad dice a quién alcanza", () => {
+describe("la Tempestad envuelve a uno solo", () => {
   /**
-   * Está implementada sobre **toda la sala** y su carta dice «el monstruo
-   * elegido». La divergencia no se resuelve aquí y no es un descuido: el
-   * reglamento de 2021 no describe los hechizos uno a uno —p. 14: «A spell and
-   * its effects are explained in detail on its corresponding spell card»— y las
-   * cartas no las tenemos. Queda esperando la palabra de Juan Luis, apuntada en
-   * el tablón. Este test **fija lo que hace hoy**, para que el día que él
-   * conteste se vea exactamente qué cambia.
+   * La divergencia que T21 dejó abierta —el código marcaba toda la sala y la
+   * carta decía «el monstruo elegido»— la cerró Juan Luis el 2026-09-06, después
+   * de buscarla: «un pequeño remolino que envuelve a un único ser al que se le
+   * lanza y lo deja un turno sin jugar». El reglamento no la decidía: su p. 14
+   * remite a la carta del hechizo, y las cartas no las tenemos.
+   *
+   * Estos tests son los mismos que fijaban el comportamiento viejo, dados la
+   * vuelta: si alguien vuelve a extenderlo a la sala, caen.
    */
   const escena = () =>
     conMago({
@@ -135,24 +136,27 @@ describe("la Tempestad dice a quién alcanza", () => {
       ],
     });
 
-  it("hoy alcanza a los de la sala del objetivo, y solo a ésos", () => {
+  it("al elegido sí, y al que tiene al lado en la misma sala no", () => {
     const { estado, eventos, frases } = lanzar(escena(), "tempestad", "orco1");
 
     const efecto = eventos.find((x) => x.tipo === "efectoDeHechizo");
     if (efecto?.tipo !== "efectoDeHechizo") throw new Error("la Tempestad no contó nada");
-    expect(efecto.objetivos.sort()).toEqual(["orco1", "orco2"]);
+    expect(efecto.objetivos).toEqual(["orco1"]);
 
     expect(monstruo(estado, "orco1").pierdeTurno).toBe(true);
-    expect(monstruo(estado, "orco2").pierdeTurno).toBe(true);
+    // `orco2` está en la misma sala, pegado. Antes perdía el turno también, y
+    // eso era el hechizo que ganaba una partida él solo.
+    expect(monstruo(estado, "orco2").pierdeTurno).toBeFalsy();
     expect(monstruo(estado, "lejano").pierdeTurno).toBeFalsy();
     expect(frases[1]).toMatch(/torbellino/i);
-    expect(frases[1]).toMatch(/Orco y Orco/);
+    expect(frases[1]).not.toMatch(/Orco y Orco/);
   });
 
   it("en el pasillo alcanza al elegido y a nadie más", () => {
-    // `salaEn` devuelve null fuera de las salas, y comparar null con null metía
-    // en el hechizo a todos los monstruos de todos los pasillos del tablero. Un
-    // pasillo no es una sala.
+    // Este caso venía de un fallo real: `salaEn` devuelve null fuera de las
+    // salas, y comparar null con null metía en el hechizo a todos los monstruos
+    // de todos los pasillos del tablero. Con un solo objetivo ya no puede pasar,
+    // y el test se queda como red: si alguien vuelve a razonar por salas, cae.
     const base = conMago({
       monstruos: [
         { id: "enPasillo", especie: "orco", celda: c(12, 16) },
@@ -170,17 +174,16 @@ describe("la Tempestad dice a quién alcanza", () => {
     expect(monstruo(estado, "otroPasillo").pierdeTurno).toBeFalsy();
   });
 
-  it("no alcanza a un monstruo que ya está derrotado", () => {
+  it("sobre un monstruo ya derrotado gasta la carta y lo dice", () => {
     const base = escena();
     const conCaido = {
       ...base,
       monstruos: base.monstruos.map((m) => (m.id === "orco2" ? { ...m, cuerpo: 0 } : m)),
     };
-    const { eventos } = lanzar(conCaido, "tempestad", "orco1");
+    const { eventos, frases } = lanzar(conCaido, "tempestad", "orco2");
 
-    const efecto = eventos.find((x) => x.tipo === "efectoDeHechizo");
-    if (efecto?.tipo !== "efectoDeHechizo") throw new Error("la Tempestad no contó nada");
-    expect(efecto.objetivos).toEqual(["orco1"]);
+    expect(tipos(eventos)).toEqual(["hechizoLanzado", "hechizoSinEfecto"]);
+    expect(frases[1]).toMatch(/no encuentra a nadie/i);
   });
 });
 

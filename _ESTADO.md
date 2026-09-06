@@ -123,7 +123,7 @@ coger en cualquier orden desde hoy.
 | T18 | [Un monstruo no actúa hasta que lo descubren](tareas/T18-monstruos-solo-los-descubiertos.md) | T13 · **cumplida** | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `TurnPanel.tsx` | **hecha** · `632d089` · 2026-09-05 |
 | T19 | [Una puerta se abre también desde la diagonal](tareas/T19-abrir-puertas-en-diagonal.md) | — · regla de la casa, **firmada** | `board.ts`, **`reducer.ts`**, `selectors.ts` | **hecha** · `c08bbc0` · 2026-09-05 · seis casillas por puerta, y la diagonal no atraviesa el muro |
 | T20 | [El turno de Zargon pasa sin que el diario lo cuente](tareas/T20-el-turno-de-zargon-no-se-cuenta.md) | — | `types.ts`, **`reducer.ts`**, `narrator/local.ts`, `TurnPanel.tsx` | **hecha** · `740f54a` · 2026-09-05 · **no escribe la IA: eso es T8**, que ya estaba libre |
-| T21 | [Siete hechizos de doce no dejan rastro en el diario](tareas/T21-hechizos-sin-rastro-en-el-diario.md) | — · **no cabe a la vez que T20**: mismos tres ficheros | `types.ts`, **`reducer.ts`**, `narrator/local.ts` | **hecha** · `72a7c7f` · 2026-09-05 · la Tempestad **espera su palabra**: mira abajo |
+| T21 | [Siete hechizos de doce no dejan rastro en el diario](tareas/T21-hechizos-sin-rastro-en-el-diario.md) | — · **no cabe a la vez que T20**: mismos tres ficheros | `types.ts`, **`reducer.ts`**, `narrator/local.ts` | **hecha** · `72a7c7f` · 2026-09-05 · la Tempestad la cerró él el 2026-09-06: **un solo ser**, no la sala |
 | T22 | [Saber qué hace cada hechizo antes de lanzarlo](tareas/T22-que-hace-cada-hechizo.md) | `Instrucciones.tsx` en `main` | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css` | pendiente · **a la cola**, por decisión suya |
 | T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | **hecha** · `6b07f82` · 2026-09-05 · escrita y probada; **falta desplegarla**, y eso pide su firma |
 | T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | **hecha** · `15c852a` · 2026-09-05 · el sondeo pide desde cero a propósito; ver el registro |
@@ -1078,6 +1078,15 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   hay ninguna rama `gh-pages` que mantener. Se apaga con `gh api -X DELETE …/pages` o desde
   Settings → Pages. **Esto no autoriza el relevo**: sigue pendiente, justo debajo.
 
+- **2026-09-06 — La Tempestad envuelve a un solo ser, no a la sala entera (T21).** Lo buscó
+  él y lo dijo así: «un pequeño remolino que envuelve a un único ser (monstruo o héroe) a
+  quien se le lanza y lo deja un turno sin jugar». Cierra la divergencia que T21 dejó
+  abierta —el código marcaba a todos los monstruos de la sala y la carta decía «el monstruo
+  elegido»— y que el reglamento no podía cerrar, porque su p. 14 remite a la carta del
+  hechizo y las cartas no las tenemos. Implementado en el `case "perderTurno"` de
+  `reducer.ts`: ya no razona por salas. **Lo del héroe no está hecho** y está preguntado
+  abajo: `pierdeTurno` vive en `Monstruo`, no en `Heroe`.
+
 ### Pendientes de su palabra
 
 **La firma que queda de la fase de red (T30).** Las cuatro decisiones de diseño ya están
@@ -1095,22 +1104,18 @@ autorizar a sí misma:
 Las dos tareas se pueden **escribir y probar enteras sin ninguna de las dos firmas**: lo que
 requiere su palabra es el `wrangler deploy` y el encendido de Pages, no el código.
 
-**¿A quién alcanza la Tempestad: al monstruo elegido o a toda su sala? (T21).** El código la
-aplica a **todos los monstruos de la sala del objetivo**; la descripción de su carta, en
-`spells.ts`, dice «el monstruo elegido», en singular, y su campo `objetivo` es `unEnemigo`.
-Una de las dos miente y con el diario mudo no se notaba jugando; ahora sí, porque el diario
-dice a quién ha alcanzado. **El reglamento no lo decide**: la p. 14 remite a la carta del
-hechizo y las cartas no las tenemos (es el mismo caso que las armas grandes del mago, T7).
-Dos opciones:
+~~**¿A quién alcanza la Tempestad: al monstruo elegido o a toda su sala? (T21).**~~
+**Cerrada el 2026-09-06 por él.** La firma está arriba, entre las autorizaciones: un solo
+ser. El código ya no razona por salas.
 
-- **Un solo monstruo.** Es lo que dicen los dos datos que tenemos escritos, y deja la
-  Tempestad como un «pierde su turno» a cambio de una carta.
-- **Toda la sala.** Es lo que hace hoy, y con seis monstruos en una sala es un hechizo que
-  gana una partida él solo.
-
-Cambiarlo es el `case "perderTurno"` de `reducer.ts` y su test, que hoy fija el
-comportamiento de la sala entera. Si tienes la carta de Tempestad a mano, la respuesta está
-en ella.
+**¿La Tempestad se puede lanzar también sobre un héroe?** Sale de su propia respuesta —«un
+único ser (monstruo o héroe)»— y **no está implementado**, así que se pregunta en vez de
+darlo por hecho. Hoy `tempestad` declara `objetivo: "unEnemigo"` y el remolino solo prende
+en un monstruo, porque `pierdeTurno` vive en `Monstruo` y no en `Heroe`. Hacerlo no es una
+línea: cambia la forma del estado, el paso de turno tiene que saltarse a ese héroe y la
+pantalla tiene que ofrecer a los compañeros como objetivo de un hechizo de ataque. Y hay una
+pregunta de diseño detrás: en la mesa, quitarle el turno a un niño no es lo mismo que
+quitárselo a un goblin. Si lo quieres, es tarea aparte.
 
 ~~**¿El suelo de un dado dentro del foso vale también para los monstruos? (T5).**~~
 **Cerrada el 2026-09-05 por delegación suya.** La firma está arriba, entre las

@@ -845,25 +845,21 @@ function lanzarHechizo(
       break;
     }
     case "perderTurno": {
-      // OJO: esto alcanza a **toda la sala**, y la carta dice «el monstruo
-      // elegido». La divergencia está sin resolver y no se resuelve aquí: el
-      // reglamento de 2021 no describe los hechizos uno a uno —remite a la
-      // carta, p. 14: «A spell and its effects are explained in detail on its
-      // corresponding spell card»—, así que no hay fuente que lo decida y
-      // inventarla está prohibido. Queda escrita en el tablón, esperando a Juan
-      // Luis. Lo que sí cambia es que ahora el diario dice a quién ha alcanzado,
-      // que era justo lo que impedía notarlo jugando.
-      const sala = salaEn(objetivo.celda.x, objetivo.celda.y);
-      const afectados = estado.monstruos.filter(
-        (m) =>
-          m.cuerpo > 0 &&
-          // Un pasillo no es una sala: `salaEn` devuelve null fuera de las
-          // salas, y comparar null con null metía en el hechizo a todos los
-          // monstruos de todos los pasillos del tablero.
-          (m.id === objetivo.id || (sala !== null && salaEn(m.celda.x, m.celda.y) === sala)),
-      );
+      // **Un solo objetivo, no la sala entera.** Hasta el 2026-09-06 esto
+      // marcaba a todos los monstruos de la sala del objetivo, y la descripción
+      // de la carta decía «el monstruo elegido»: una divergencia que T21 dejó
+      // escrita sin resolver porque el reglamento no la decide —la p. 14 remite
+      // a la carta del hechizo, y las cartas no las tenemos—. La resolvió Juan
+      // Luis, que la buscó: «un pequeño remolino que envuelve a un único ser al
+      // que se le lanza y lo deja un turno sin jugar». Está en el tablón, entre
+      // sus autorizaciones.
+      const o = figuraPorId(estado, objetivo.id)!;
 
-      if (afectados.length === 0) {
+      // Un héroe no tiene `pierdeTurno` —solo `Monstruo` lo lleva—, así que hoy
+      // el remolino solo prende en un monstruo. Que se pueda lanzar también
+      // sobre un héroe es tarea aparte: cambia la forma del estado y el paso de
+      // turno, no esta línea.
+      if (o.tipo !== "monstruo" || o.cuerpo <= 0) {
         eventos.push({
           tipo: "hechizoSinEfecto",
           hechizo: idHechizo,
@@ -873,16 +869,12 @@ function lanzarHechizo(
         break;
       }
 
-      const alcanzados = new Set(afectados.map((m) => m.id));
-      estado = {
-        ...estado,
-        monstruos: estado.monstruos.map((m) => (alcanzados.has(m.id) ? { ...m, pierdeTurno: true } : m)),
-      };
+      estado = conFigura(estado, { ...o, pierdeTurno: true });
       eventos.push({
         tipo: "efectoDeHechizo",
         hechizo: idHechizo,
         clase: "perderTurno",
-        objetivos: afectados.map((m) => m.id),
+        objetivos: [o.id],
       });
       break;
     }
