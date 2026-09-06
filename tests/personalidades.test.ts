@@ -28,6 +28,7 @@ import {
 } from "../src/ai/difficulty";
 import { conPersonalidad, PERSONALIDADES } from "../src/ai/personalities";
 import { PESOS } from "../src/ai/targeting";
+import { turnoDeZargon } from "../src/ai/zargon";
 import { aplicarAccion } from "../src/engine/reducer";
 import { esTurnoDeZargon } from "../src/engine/selectors";
 import type { EstadoPartida, Mision } from "../src/engine/types";
@@ -143,6 +144,28 @@ describe("la personalidad tuerce la jugada de la especie", () => {
       tipo: "atacar",
       objetivo: "mago",
     });
+  });
+});
+
+describe("el pega-y-se-va que midió T10", () => {
+  it("tras atacar, el monstruo no abandona la casilla desde la que pegaba", () => {
+    // La escena mínima del fallo: un orco pegado al único héroe. Antes del
+    // arreglo, tras el ataque ninguna casilla ganaba por quedarse —todas
+    // puntuaban «sin poder atacar»— y el orco se iba a la casilla de al lado,
+    // que en la mesa se leía como huir. Se prueba sobre el turnoDeZargon de T8,
+    // con los pesos base: el fallo era de la capa de decisión, no de un nivel.
+    let e = turnoDeZargonEn(
+      partida({
+        mision: MISION,
+        heroes: [{ clase: "barbaro" }],
+        monstruos: [{ id: "orco", especie: "orco", celda: c(2, 2) }],
+      }),
+    );
+    e = situar(e, "barbaro", c(2, 1));
+
+    const { acciones } = turnoDeZargon(e);
+    expect(acciones.some((a) => a.tipo === "atacar" && a.objetivo === "barbaro")).toBe(true);
+    expect(acciones.some((a) => a.tipo === "mover")).toBe(false);
   });
 });
 

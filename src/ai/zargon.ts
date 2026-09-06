@@ -131,9 +131,17 @@ function destinos(e: EstadoPartida, pesos: Pesos): Candidata[] {
  *    monstruo que ya tiene a un héroe al lado y se va a buscar otro mejor regala
  *    el ataque que tenía servido, y en la mesa se lee como que la aplicación se
  *    ha despistado.
- * 2. **Si moverse le pone en una situación mejor, se mueve.** La siguiente vuelta
- *    del bucle vuelve a mirar y normalmente ataca ya desde ahí.
+ * 2. **Si moverse le pone en una situación mejor que la casilla en la que ya
+ *    está, se mueve.** La siguiente vuelta del bucle vuelve a mirar y
+ *    normalmente ataca ya desde ahí.
  * 3. **Si no, termina.** Quedarse quieto gastando movimiento no es una jugada.
+ *
+ * La casilla actual entra en la comparación **aunque desde ella ya no se pueda
+ * atacar**, y esa media línea es la que paró el «pega y se va» que midió T10: el
+ * 48 % de los ataques acababan con el monstruo yéndose de donde pegaba, porque
+ * tras atacar todas las casillas puntuaban «sin poder atacar» y ninguna ganaba
+ * por quedarse. En la mesa se leía como que huía, y les regalaba a los héroes
+ * juntarse cuatro contra uno sin que nadie los sujetara.
  */
 export function siguienteAccionDelMonstruo(
   e: EstadoPartida,
@@ -143,6 +151,9 @@ export function siguienteAccionDelMonstruo(
   if (!monstruo || esHeroe(monstruo)) return null;
 
   const quieto = mejorAtaqueDesdeAqui(e, pesos);
+  // Lo que vale no irse: el ataque servido si lo hay y, si no, lo mismo que se
+  // le puntúa a cualquier otra casilla, medido desde esta.
+  const valorDeQuedarse = quieto ? quieto.puntos : valorDeLaCasilla(e, pesos);
   const moviendose = destinos(e, pesos);
 
   const mejorMovimiento = moviendose.sort(
@@ -155,10 +166,11 @@ export function siguienteAccionDelMonstruo(
       a.clave.localeCompare(b.clave),
   )[0];
 
-  // Quedarse a pegar gana los empates: es la jugada que no gasta nada y la que
-  // se entiende sola al verla en el tablero.
-  if (quieto && (!mejorMovimiento || mejorMovimiento.puntos <= quieto.puntos)) return quieto.accion;
-  if (mejorMovimiento && Number.isFinite(mejorMovimiento.puntos)) return mejorMovimiento.accion;
+  // Quedarse gana los empates: es la jugada que no gasta nada y la que se
+  // entiende sola al verla en el tablero.
+  if (mejorMovimiento && Number.isFinite(mejorMovimiento.puntos) && mejorMovimiento.puntos > valorDeQuedarse) {
+    return mejorMovimiento.accion;
+  }
   return quieto ? quieto.accion : null;
 }
 
