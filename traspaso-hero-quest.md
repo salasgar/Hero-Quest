@@ -20,16 +20,12 @@ La fase de red son cinco tareas, T30 a T34. Cuatro están hechas y empujadas: el
 desde su casa (T32) y quién tira los dados (T33). **Se puede jugar en red de punta a punta
 en local.** Falta T34: publicar en GitHub Pages y desplegar el relevo.
 
-**Un cabo suelto que hay que atar el primero:** la fila de **T33 en el tablón sigue
-diciendo «en curso · 66e4a4ea»** aunque la tarea está hecha y empujada en `db96bf2`. El
-tablón lo tenía reservado la sesión `946ca4aa` cada vez que se intentó escribir. Hay que
-cambiar esa fila a `**hecha** · db96bf2 · 2026-09-06`, o T33 quedará bloqueada para todos
-sin motivo.
+El tablón queda al día: las cinco filas y los registros de T32 y T33 están escritos y
+empujados, y esta sesión no retiene ningún candado.
 
 ## Siguiente paso
 
-1. **Arreglar la fila de T33 en `_ESTADO.md`** (ver arriba). Un minuto.
-2. **Probar la partida en red con dos navegadores.** Es lo que T32 exige para darse por
+1. **Probar la partida en red con dos navegadores.** Es lo que T32 exige para darse por
    buena y ninguna sesión lo ha hecho todavía: lo que hay que comprobar no es que compile,
    sino que una jugada hecha en una ventana aparece en la otra y que la niebla no enseña
    de más.
@@ -40,8 +36,9 @@ sin motivo.
    Se abre `http://localhost:5173/?relevo=http://localhost:8787`, se eligen héroes, se
    pulsa «Jugar con alguien fuera», se escribe un nombre junto a un héroe y se copia el
    enlace que sale. Ese enlace, abierto en una ventana de incógnito, es la casa de fuera.
-3. **T34**, cuando Juan Luis firme las dos autorizaciones que están apuntadas en el
-   tablón, en «Pendientes de su palabra».
+2. **T34**, cuando Juan Luis firme las dos autorizaciones que están apuntadas en el
+   tablón, en «Pendientes de su palabra»: activar GitHub Pages y crear la cuenta de
+   Cloudflare para desplegar el relevo.
 
 Banda de modelo para retomar: **MEDIO** — probar con dos navegadores y corregir lo que
 salga es trabajo de entender y ajustar, no de diseñar; el diseño de la fase ya está
