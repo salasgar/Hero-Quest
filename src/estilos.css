@@ -228,3 +228,40 @@ kbd {
 .eleccion-pie { display: flex; align-items: center; gap: .8rem; margin-top: 1.4rem; }
 .empezar { font-size: 1rem; padding: .55rem 1.1rem; background: #2f5a45; border-color: #3d8b68; }
 .eleccion-pie .pista { margin: 0; }
+
+/* --------------------------------------------- entrar en una partida en red */
+.entrar {
+  max-width: 40rem; margin: 0 auto; padding: 2rem 1rem 4rem;
+}
+.entrar h1 { font-size: 1.25rem; margin: 0 0 .8rem; }
+.entrar p { line-height: 1.55; font-size: .92rem; }
+
+/* El código se dicta por teléfono y se teclea desde un móvil: grande, muy
+   espaciado y con la fuente de ancho fijo, que es lo que evita confundir una
+   letra al leerla en voz alta. */
+.codigo-partida {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 2.6rem; letter-spacing: .35em; text-indent: .35em;
+  text-align: center; color: #ffd76a; margin: .6rem 0 1rem;
+}
+.enlace-partida code {
+  display: block; word-break: break-all; font-size: .8rem; color: #b6bdcb;
+  background: var(--fondo); border: 1px solid var(--borde); border-radius: 6px; padding: .5rem .6rem;
+}
+.reparto { list-style: none; margin: 1rem 0; padding: 0; }
+.reparto li { margin-bottom: .4rem; }
+.reparto label {
+  display: flex; align-items: center; gap: .6rem;
+  border: 1px solid var(--borde); border-radius: 6px; padding: .45rem .6rem;
+}
+.reparto label span { min-width: 8rem; font-size: .9rem; }
+.reparto input {
+  font: inherit; font-size: .85rem; padding: .3rem .5rem; border-radius: 5px;
+  border: 1px solid var(--borde); background: var(--fondo); color: var(--tinta); flex: 1;
+}
+.botonera.columna { flex-direction: column; align-items: stretch; }
+.botonera.columna button { text-align: left; padding: .6rem .8rem; }
+
+/* Cuando no te toca. Apagado a propósito: tiene que verse que la partida sigue
+   sin gritar desde la pantalla de un niño que está esperando su turno. */
+.turno.esperando h2 { color: #b6bdcb; font-size: 1rem; }
