@@ -130,6 +130,7 @@ coger en cualquier orden desde hoy.
 | T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 y T18 · **cumplidas** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | **hecha** · `be4adf6` · 2026-09-06 · **falta la prueba con dos navegadores**; hay `npm run relevo` para hacerla sin desplegar |
 | T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 · **cumplida** | `TurnPanel.tsx`, `DiceInput.tsx` · **y `useAccionesDeTurno.ts`**, que no existía al escribir la tarea y es donde vive ahora el reparto de dados | en curso · `66e4a4ea` · 2026-09-06 |
 | T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **falta su autorización** | `.github/workflows/`, `vite.config.ts`, `README.md` | pendiente · esperando su firma |
+| T35 | [La salida crece con el grupo](tareas/T35-la-salida-crece-con-el-grupo.md) | T16 · **cumplida** | `partida.ts`, `tests/ocho-heroes.test.ts` · **no toca `reducer.ts`** | en curso · `946ca4aa` · 2026-09-06 |
 
 Las cinco de la tanda de septiembre —**T13 a T17**, no las de red, que empiezan en T30— salen
 de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la lista original de
@@ -990,8 +991,9 @@ De la 4 depende si la acción consume el `rng` del estado, y de eso dependen los
 deshacer. **T15 está aparcada**: no está esperando estas firmas, está esperando a que él
 decida si quiere la regla. No la cojas.
 
-**Y un aviso que no es una pregunta:** si el tope sube a ocho, hacen falta **ocho figuras de
-héroe en cartón**. Hoy hay cuatro.
+~~**Y un aviso que no es una pregunta:** si el tope sube a ocho, hacen falta ocho figuras de
+héroe en cartón.~~ **Resuelto el 2026-09-06:** «ya he confeccionado suficientes figuras de
+cartón». La mesa aguanta el grupo de ocho.
 
 ---
 
