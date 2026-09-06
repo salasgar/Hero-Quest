@@ -128,7 +128,7 @@ coger en cualquier orden desde hoy.
 | T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | **hecha** · `6b07f82` · 2026-09-05 · escrita y probada; **falta desplegarla**, y eso pide su firma |
 | T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | **hecha** · `15c852a` · 2026-09-05 · el sondeo pide desde cero a propósito; ver el registro |
 | T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 y T18 · **cumplidas** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | **hecha** · `be4adf6` · 2026-09-06 · **falta la prueba con dos navegadores**; hay `npm run relevo` para hacerla sin desplegar |
-| T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 · **cumplida** | `TurnPanel.tsx`, `DiceInput.tsx` · **y `useAccionesDeTurno.ts`**, que no existía al escribir la tarea y es donde vive ahora el reparto de dados | en curso · `66e4a4ea` · 2026-09-06 |
+| T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 · **cumplida** | `TurnPanel.tsx`, `DiceInput.tsx` · **y `useAccionesDeTurno.ts`**, que no existía al escribir la tarea y es donde vive ahora el reparto de dados | **hecha** · `db96bf2` · 2026-09-06 |
 | T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **falta su autorización** | `.github/workflows/`, `vite.config.ts`, `README.md` | pendiente · esperando su firma |
 | T35 | [La salida crece con el grupo](tareas/T35-la-salida-crece-con-el-grupo.md) | T16 · **cumplida** | `partida.ts`, `tests/ocho-heroes.test.ts` · **no toca `reducer.ts`** | **hecha** · `87ea055` · 2026-09-06 · **`estado.mision.entrada` pasa a ser un dato derivado**: lee el registro antes de escribir una misión |
 
@@ -394,6 +394,23 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
     cuatro son guardas de regresión de los grupos de dos y de cuatro, no la prueba de la
     regla nueva. Distinguirlo importa, porque un test que pasa igual con el código viejo no
     prueba nada de lo que se acaba de escribir —lo que no quiere decir que sobre—.
+
+- **T33 · sesión `66e4a4ea` · 2026-09-06 · `db96bf2`.** Quién tira los dados. Cuatro cosas:
+  - **Las dos modalidades son la misma acción**, con el campo `dados` o sin él: el motor ya
+    lo preveía. Sin `dados` tira el generador que vive **dentro** del estado, así que sigue
+    siendo reproducible, el deshacer sigue saliendo exacto y las dos casas siguen viendo la
+    misma partida. Si alguien cambiara eso por un azar de verdad, se romperían las tres
+    cosas a la vez y en silencio; hay un test que lo fija.
+  - **En la mesa no se pregunta, y no es por gusto.** `localStorage` es por navegador, así
+    que quien pruebe las dos pantallas en el mismo navegador vería a la pantalla de la mesa
+    heredar el «que los tire la aplicación» y ponerse a tirar sola. Lo fija la pantalla
+    —`dadosPropios: "siempreYo" | "aEleccion"`— y no la preferencia guardada.
+  - **Cuando tira la aplicación se enseñan las caras, no solo el total.** Quien no ve los
+    dados solo puede fiarse; viéndolas comprueba la tirada igual que sobre la mesa. `⇧T`,
+    que ya tiraba a ciegas desde antes, ahora también las enseña.
+  - **El dibujo de las caras se mudó de `Instrucciones.tsx` a `DiceInput.tsx`** en vez de
+    copiarse: dos copias son cómo la hoja de ayuda y la partida acaban dibujando escudos
+    distintos, que es justo lo que esa hoja existe para evitar.
 
 - **T32 · sesión `66e4a4ea` · 2026-09-06 · `be4adf6`.** La pantalla de quien juega desde su
   casa. Seis cosas para quien siga:
