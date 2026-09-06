@@ -117,6 +117,28 @@ cogido» termina el turno ahí, con el reclamo vivo, y en el tablón no se disti
 que trabaja. El «o soltarla» es para que una que descubre una tarea mal cortada, o se
 agota, no lo lea como orden de terminar a toda costa.
 
+**Si van a abrirse varias sesiones a la vez, hay una frase por sesión, no una por banda**,
+y cada una nombra la tarea o la cadena que esa sesión reclama, en el sitio de «reclama una
+tarea libre de esa banda»:
+
+> … reclama la tarea NN siguiendo el protocolo del tablón y, al cerrarla, encadena la MM …
+
+Una sesión cuya frase nombra una cadena encadena por defecto; solo deja de hacerlo si el
+semáforo está en ámbar o rojo, y entonces lo dice. Quien cierra una tarea escribe tantas
+frases como sesiones quepan a la vez sin estorbarse, con banda y tarea puestas, para pegar
+sin editar (el 2026-09-06 cuatro sesiones MEDIO con la misma frase genérica eligieron
+cada una lo que quiso).
+
+**Con un worktree por sesión, `hechos/` tiene una copia por worktree.** Tu reclamo no
+existe para las demás sesiones hasta que está en `origin/main`: nada más escribirlo,
+`git commit -m "Reclamo NN" -- hechos/reclamos/NN--<sid>.md && git push origin HEAD:main`,
+y el «esperar y volver a mirar» es `sleep 30 && git fetch origin && git ls-tree --name-only
+origin/main hechos/reclamos/`, nunca un `ls` de tu copia. Lo mismo con `CERRADA` o
+`ABANDONADA`: se empujan en el acto. Si el `push` se rechaza, `git pull --rebase` (los
+ficheros de `hechos/` tienen un solo escritor y no dan conflicto) y otra vez. Ese mismo día
+cuatro sesiones trabajaban en cuatro worktrees y `origin/main` no tenía ni un reclamo
+vivo: tres no lo habían escrito y la cuarta lo tenía en su copia, donde nadie lo veía.
+
 Para coger una tarea MAL CORTADA que Juan Luis haya decidido tratar como larga, la frase la
 nombra: «… reclama la tarea NN, que está MAL CORTADA y se continúa como larga …».
 

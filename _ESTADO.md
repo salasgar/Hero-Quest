@@ -46,10 +46,15 @@ reparto; no reclamó ninguna tarea; recoge el cierre de la 43 por `s-20260906T12
    mismos ficheros. A partir de ahí tu sid es el del nombre de tu reclamo: léelo de ahí,
    nunca de un fichero de nombre fijo como `/tmp/sid.txt` — otra sesión de esta máquina
    elige el mismo nombre y os intercambiáis el sid.
-5. Reclama tu tarea: crea el reclamo, ejecuta `sleep 30 && ls hechos/reclamos/` —el
-   comando, no la intención; en segundo plano si el entorno bloquea `sleep`— y cede si
-   otra sesión llegó antes. Aquí todas las sesiones están en el mismo Mac, así que
-   `sleep 30` basta aunque la carpeta esté en iCloud (`proyecto.md`).
+5. Reclama tu tarea —**la que te nombre la frase de arranque**, si nombra una—: crea el
+   reclamo y, **como aquí cada sesión tiene su worktree y por tanto su copia de
+   `hechos/`, empújalo en el acto**: `git commit -m "Reclamo NN" --
+   hechos/reclamos/NN--<sid>.md && git push origin HEAD:main`. Después `sleep 30 && git
+   fetch origin && git ls-tree --name-only origin/main hechos/reclamos/` —el comando, no
+   la intención; nunca un `ls` de tu copia, que solo te ve a ti— y cede si otra sesión
+   llegó antes. Si el `push` se rechaza, `git pull --rebase` y otra vez. `CERRADA` y
+   `ABANDONADA` se empujan igual, en el acto. Todas las sesiones están en el mismo Mac,
+   así que `sleep 30` basta aunque la carpeta esté en iCloud (`proyecto.md`).
 6. Si ganas, **regenera este tablón entero** —todas las filas contra `hechos/` y la hora
    real, no solo la tuya— antes de empezar: es lo que Juan Luis mira para abrir
    sesiones, y si dijera «libre» de una tarea cogida abriría una sesión para nada. Y
@@ -146,9 +151,12 @@ regenera a partir de los demás.
     (releer lo ya leído, lentitud, una tarea entera ya hecha y la siguiente más larga, una
     espera por delante, aviso de límite), y con una tarea libre de **tu misma banda**,
     corta y que no dependa de nada EN CURSO ni de una firma. La columna «Encadenable con»
-    lo sugiere; no obliga. La anterior tiene que estar `CERRADA` antes de reclamar la
-    siguiente, y para la siguiente se repite «Antes de hacer nada» entero, con reclamo
-    nuevo. Si no estás en verde, cierra, da la frase de arranque y para.
+    lo sugiere; **si tu frase de arranque nombra la cadena, encadenas por defecto** y solo
+    dejas de hacerlo en ámbar o rojo, diciéndolo. La anterior tiene que estar `CERRADA`
+    antes de reclamar la siguiente, y para la siguiente se repite «Antes de hacer nada»
+    entero, con reclamo nuevo. Si no estás en verde, cierra, da las frases de arranque
+    —**una por sesión que quepa a la vez, con su tarea o cadena dentro**, nunca una
+    genérica por banda— y para.
 14. **Repositorio git.** Cada ficha declara los ficheros que toca; dos tareas que compartan
     uno no van en paralelo. Con otra sesión viva, **worktree propio** (`CLAUDE.md`). `add`
     nunca separado de `commit` (`git commit -m "…" -- rutas`); orden de cierre: pruebas en
