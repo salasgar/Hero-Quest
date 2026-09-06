@@ -70,6 +70,12 @@ export interface Monstruo {
   tipo: "monstruo";
   id: IdFigura;
   especie: EspecieMonstruo;
+  /**
+   * Nombre de pila, único dentro de la partida. Obligatorio a propósito: si
+   * fuera opcional, el sitio que se olvidara de ponerlo saldría en la mesa como
+   * «el orco undefined» en vez de fallar al compilar.
+   */
+  nombre: string;
   celda: Celda;
   cuerpo: number;
   cuerpoMax: number;
@@ -221,6 +227,20 @@ export interface EstadoPartida {
    * exacto y para que no puedan salir cinco pociones seguidas.
    */
   mazoTesoros: string[];
+  /**
+   * Nombres sorteados y todavía sin usar, por especie.
+   *
+   * Está en el estado por el monstruo errante: nace en el reductor, mucho
+   * después de `crearPartida`, y necesita un nombre que no repita ninguno de los
+   * ya dados. Sorteárselo allí obligaría al reductor a consumir el generador de
+   * la partida al robar una carta, y eso movería todas las tiradas siguientes.
+   * Así el reductor solo lee de esta lista y quita lo que gasta.
+   *
+   * En red importa además que los dos lados vean lo mismo: las dos casas rehacen
+   * la partida desde el montaje, y con la reserva dentro del estado les sale el
+   * mismo nombre. Sorteado al vuelo, cada casa vería uno distinto y sin error.
+   */
+  nombresLibres: Record<EspecieMonstruo, string[]>;
   turno: Turno;
   registro: Evento[];
   desenlace: null | { victoria: boolean; motivo: string };

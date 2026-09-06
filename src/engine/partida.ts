@@ -5,6 +5,7 @@ import { HEROES, type ClaseHeroe, type Genero } from "../data/heroes";
 import { MONSTRUOS, type EspecieMonstruo } from "../data/monsters";
 import { hechizosDelElemento, type Elemento, type IdHechizo } from "../data/spells";
 import { MAZO_COMPLETO } from "../data/treasure";
+import { repartirNombres } from "../data/nombres";
 import { crearRng, entero, type Rng } from "./rng";
 import { conMonstruosEnTablero, conPuertasVistas } from "./vision";
 import { claveCelda } from "./types";
@@ -32,7 +33,11 @@ export interface HeroeElegido {
 export interface OpcionesPartida {
   mision: Mision;
   heroes: HeroeElegido[];
-  monstruos: Array<{ id: string; especie: EspecieMonstruo; celda: Celda }>;
+  /**
+   * `nombre` lo fija la misión cuando le hace falta nombrar a uno concreto —«el
+   * medallón está en manos de un orco llamado Jújrur»—. Si no viene, se sortea.
+   */
+  monstruos: Array<{ id: string; especie: EspecieMonstruo; celda: Celda; nombre?: string }>;
   puertas?: Puerta[];
   muebles?: Mueble[];
   trampas?: Trampa[];
@@ -177,12 +182,27 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
     };
   });
 
-  const monstruos: Monstruo[] = op.monstruos.map((m) => {
+  // El sorteo de nombres va sobre un generador DERIVADO de la semilla, no sobre
+  // el de la partida.
+  //
+  // El de la partida lo consume el barajado del mazo de tesoros y de ahí pasa al
+  // estado; si los nombres tirasen de él, cada tirada posterior de cada partida
+  // cambiaría, y con ella el resultado de los cuarenta y tantos tests con
+  // semilla fija —incluido el juego al azar de `integracion.test.ts`, que es el
+  // que encuentra los fallos de verdad—. Derivarlo cuesta una línea y deja los
+  // nombres igual de repetibles: misma semilla, mismos nombres.
+  //
+  // El desplazamiento no tiene nada de especial salvo no ser cero: solo hace
+  // falta que la corriente de los nombres no sea la misma que la de los dados.
+  const { nombres, libres } = repartirNombres(op.monstruos, crearRng((op.semilla ?? 1) + 0x5bf03635));
+
+  const monstruos: Monstruo[] = op.monstruos.map((m, i) => {
     const plantilla = MONSTRUOS[m.especie];
     return {
       tipo: "monstruo",
       id: m.id,
       especie: m.especie,
+      nombre: nombres[i]!,
       celda: m.celda,
       cuerpo: plantilla.cuerpo,
       cuerpoMax: plantilla.cuerpo,
@@ -218,6 +238,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
     buscadoTrampas: [],
     celdasBloqueadas: [],
     mazoTesoros,
+    nombresLibres: libres,
     turno: {
       orden: [...heroes.map((h) => h.id), "zargon"],
       indice: 0,

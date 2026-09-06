@@ -8,22 +8,48 @@
  */
 
 import { HECHIZOS } from "../data/spells";
-import { MONSTRUOS } from "../data/monsters";
+import { conArticulo } from "../data/nombres";
 import type { EstadoPartida, Evento, IdFigura } from "../engine/types";
 
 const elegir = (opciones: string[], semilla: number): string =>
   opciones[Math.abs(semilla) % opciones.length]!;
 
-/** Nombre legible de una figura. */
+/**
+ * Nombre legible de una figura.
+ *
+ * Los héroes van solo con su nombre —se lo pone quien los juega— y los
+ * monstruos con especie y nombre de pila: «el orco Górbak», «la gárgola
+ * Vórtiga». Los dos goblins de la misma sala dejaron de ser «Goblin» y
+ * «Goblin» el 2026-09-06, que es lo que pidió Juan Luis.
+ *
+ * El artículo va en minúscula y pegado al nombre porque casi todas las frases
+ * lo llevan dentro; para las que empiezan por él está `mayus`, y para las que
+ * lo llevan tras «a» o «de», `aA` y `deDe`.
+ */
 export function nombreDe(e: EstadoPartida, id: IdFigura): string {
   const h = e.heroes.find((x) => x.id === id);
   if (h) return h.nombre;
   const m = e.monstruos.find((x) => x.id === id);
-  if (m) return MONSTRUOS[m.especie].nombre;
+  if (m) return `${conArticulo(m.especie)} ${m.nombre}`;
   return id;
 }
 
-/** «Goblin», «Goblin y Orco», «Goblin, Orco y Fimir». */
+/**
+ * Las tres costuras del artículo.
+ *
+ * Con el nombre de la figura metido en mitad de las frases, el castellano pide
+ * tres cosas que antes no hacían falta: mayúscula al empezar la frase, «al» en
+ * vez de «a el» y «del» en vez de «de el». Sin esto el diario dice «Le toca a el
+ * orco Górbak», y lo va a leer un niño en voz alta.
+ *
+ * Los héroes no llevan artículo, así que `aA("Aldric")` da «a Aldric» y todo
+ * sigue funcionando igual que antes de T42.
+ */
+const mayus = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+const aA = (s: string): string => (s.startsWith("el ") ? `al ${s.slice(3)}` : `a ${s}`);
+const deDe = (s: string): string => (s.startsWith("el ") ? `del ${s.slice(3)}` : `de ${s}`);
+
+/** «el goblin Snik», «el goblin Snik y el orco Górbak». */
 function lista(e: EstadoPartida, ids: readonly IdFigura[]): string {
   const nombres = ids.map((id) => nombreDe(e, id));
   if (nombres.length <= 1) return nombres[0] ?? "nadie";
@@ -50,13 +76,13 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       // Cuando la tirada se mete a mano desde la mesa solo se conoce el total,
       // y se guarda como [total, 0]. No inventamos dos dados que nadie ha visto.
       return ev.dados[1] === 0
-        ? `${nombreDe(e, String(ev.actor))} saca ${ev.total} casillas de movimiento.`
-        : `${nombreDe(e, String(ev.actor))} saca ${ev.dados[0]} y ${ev.dados[1]}: ${ev.total} casillas.`;
+        ? `${mayus(nombreDe(e, String(ev.actor)))} saca ${ev.total} casillas de movimiento.`
+        : `${mayus(nombreDe(e, String(ev.actor)))} saca ${ev.dados[0]} y ${ev.dados[1]}: ${ev.total} casillas.`;
 
     case "movimiento":
       return ev.ruta.length === 0
         ? null
-        : `${nombreDe(e, ev.actor)} avanza ${ev.ruta.length} ${ev.ruta.length === 1 ? "casilla" : "casillas"}.`;
+        : `${mayus(nombreDe(e, ev.actor))} avanza ${ev.ruta.length} ${ev.ruta.length === 1 ? "casilla" : "casillas"}.`;
 
     case "puertaAbierta":
       return "La puerta cede con un chirrido.";
@@ -69,23 +95,23 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     }
 
     case "ataque": {
-      const a = nombreDe(e, ev.atacante);
+      const a = mayus(nombreDe(e, ev.atacante));
       const o = nombreDe(e, ev.objetivo);
-      if (ev.dano === 0) return `${a} ataca a ${o} ${elegir(fallos, n + ev.calaveras)}.`;
-      return `${a} ${elegir(golpes, n + ev.calaveras)} a ${o}: ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
+      if (ev.dano === 0) return `${a} ataca ${aA(o)} ${elegir(fallos, n + ev.calaveras)}.`;
+      return `${a} ${elegir(golpes, n + ev.calaveras)} ${aA(o)}: ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
     }
 
     case "figuraDerrotada": {
       const esHeroe = e.heroes.some((h) => h.id === ev.figura);
       return esHeroe
-        ? `${nombreDe(e, ev.figura)} cae al suelo y ya no se levanta.`
-        : `${nombreDe(e, ev.figura)} se desploma.`;
+        ? `${mayus(nombreDe(e, ev.figura))} cae al suelo y ya no se levanta.`
+        : `${mayus(nombreDe(e, ev.figura))} se desploma.`;
     }
 
     case "trampaDisparada": {
       const quien = nombreDe(e, ev.figura);
-      if (ev.tipoTrampa === "foso") return `¡El suelo se hunde! ${quien} cae al foso y se hace daño.`;
-      if (ev.tipoTrampa === "lanza") return `¡Una lanza sale disparada de la pared y alcanza a ${quien}!`;
+      if (ev.tipoTrampa === "foso") return `¡El suelo se hunde! ${mayus(quien)} cae al foso y se hace daño.`;
+      if (ev.tipoTrampa === "lanza") return `¡Una lanza sale disparada de la pared y alcanza ${aA(quien)}!`;
       return `¡Un bloque de piedra se desprende del techo sobre ${quien} y bloquea el paso!`;
     }
 
@@ -105,18 +131,18 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
         : "Ni trampas ni pasadizos. La sala está limpia.";
 
     case "tesoroEncontrado":
-      return `${nombreDe(e, ev.actor)} se guarda ${ev.oro} monedas de oro.`;
+      return `${mayus(nombreDe(e, ev.actor))} se guarda ${ev.oro} monedas de oro.`;
 
     case "cartaDeTesoro":
-      return `${nombreDe(e, ev.actor)} registra la sala y encuentra: ${ev.nombre}. ${ev.texto}`;
+      return `${mayus(nombreDe(e, ev.actor))} registra la sala y encuentra: ${ev.nombre}. ${ev.texto}`;
 
     case "monstruoErrante":
-      return `¡No estabais solos! ${nombreDe(e, ev.monstruo)} aparece a vuestro lado.`;
+      return `¡No estabais solos! ${mayus(nombreDe(e, ev.monstruo))} aparece a vuestro lado.`;
 
     case "hechizoLanzado": {
       const h = HECHIZOS[ev.hechizo];
       const contra = ev.objetivo ? ` contra ${nombreDe(e, ev.objetivo)}` : "";
-      return `${nombreDe(e, ev.actor)} lanza ${h.nombre}${contra}.`;
+      return `${mayus(nombreDe(e, ev.actor))} lanza ${h.nombre}${contra}.`;
     }
 
     case "danoDeHechizo": {
@@ -124,14 +150,14 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       const o = nombreDe(e, ev.objetivo);
       return ev.dano === 0
         ? `${h.nombre} estalla contra ${o} y no le hace ni un rasguño.`
-        : `${h.nombre} alcanza a ${o}: ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
+        : `${h.nombre} alcanza ${aA(o)}: ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
     }
 
     case "movimientoExtra":
-      return `Un viento repentino empuja a ${nombreDe(e, ev.figura)}: ${ev.casillas} casillas más.`;
+      return `Un viento repentino empuja ${aA(nombreDe(e, ev.figura))}: ${ev.casillas} casillas más.`;
 
     case "curacion":
-      return `${nombreDe(e, ev.figura)} recupera ${ev.puntos} ${ev.puntos === 1 ? "punto" : "puntos"} de cuerpo.`;
+      return `${mayus(nombreDe(e, ev.figura))} recupera ${ev.puntos} ${ev.puntos === 1 ? "punto" : "puntos"} de cuerpo.`;
 
     case "efectoDeHechizo": {
       // Las frases son para la mesa: se entienden sin saber qué es un
@@ -140,19 +166,19 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       const varios = ev.objetivos.length > 1;
       switch (ev.clase) {
         case "dormir":
-          return `${quienes} ${varios ? "caen dormidos" : "cabecea y se queda dormido"}.`;
+          return `${mayus(quienes)} ${varios ? "caen dormidos" : "cabecea y se queda dormido"}.`;
         case "perderTurno":
-          return `Un torbellino envuelve a ${quienes}: ${varios ? "pierden" : "pierde"} su siguiente turno.`;
+          return `Un torbellino envuelve ${aA(quienes)}: ${varios ? "pierden" : "pierde"} su siguiente turno.`;
         case "bonusAtaque":
-          return `${quienes} ${varios ? "golpearán" : "golpeará"} más fuerte en su próximo ataque.`;
+          return `${mayus(quienes)} ${varios ? "golpearán" : "golpeará"} más fuerte en su próximo ataque.`;
         case "bonusDefensa":
-          return `La piel de ${quienes} se vuelve de piedra: ${varios ? "aguantan" : "aguanta"} mejor el próximo golpe.`;
+          return `La piel ${deDe(quienes)} se vuelve de piedra: ${varios ? "aguantan" : "aguanta"} mejor el próximo golpe.`;
         case "atravesarMuros":
-          return `${quienes} ${varios ? "podrán" : "podrá"} cruzar la roca en su próximo movimiento.`;
+          return `${mayus(quienes)} ${varios ? "podrán" : "podrá"} cruzar la roca en su próximo movimiento.`;
         case "atravesarFiguras":
-          return `${quienes} se ${varios ? "difuminan" : "difumina"}: en su próximo movimiento ${varios ? "pasan" : "pasa"} entre los monstruos sin que lo vean.`;
+          return `${mayus(quienes)} se ${varios ? "difuminan" : "difumina"}: en su próximo movimiento ${varios ? "pasan" : "pasa"} entre los monstruos sin que lo vean.`;
         case "movimientoExtra":
-          return `El viento se pone detrás de ${quienes}: ${varios ? "tirarán" : "tirará"} cuatro dados de movimiento.`;
+          return `El viento se pone detrás ${deDe(quienes)}: ${varios ? "tirarán" : "tirará"} cuatro dados de movimiento.`;
       }
     }
 
@@ -163,9 +189,9 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
         case "noMuerto":
           return `Los no muertos no duermen: ${h.nombre} se pierde sobre ${quien}.`;
         case "menteSuperior":
-          return `${quien} resiste: su mente es más fuerte que la de quien lanza el hechizo.`;
+          return `${mayus(quien)} resiste: su mente es más fuerte que la de quien lanza el hechizo.`;
         case "yaEstabaSano":
-          return `${quien} no tiene ni un rasguño: ${h.nombre} se gasta sin curar nada.`;
+          return `${mayus(quien)} no tiene ni un rasguño: ${h.nombre} se gasta sin curar nada.`;
         case "sinObjetivo":
           return `${h.nombre} no encuentra a nadie a quien afectar.`;
       }
@@ -175,13 +201,13 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       // En la mesa, saber cuál de los seis se está moviendo es la mitad de la
       // información. El motivo por el que le toca a ése lo enseña la pantalla
       // (T17): aquí no se repite, que el diario se lee entero.
-      return `Le toca a ${nombreDe(e, ev.monstruo)}.`;
+      return `Le toca ${aA(nombreDe(e, ev.monstruo))}.`;
 
     case "monstruoSinActuar":
       return elegir(
         [
-          `${nombreDe(e, ev.monstruo)} no se mueve ni ataca.`,
-          `${nombreDe(e, ev.monstruo)} se queda donde está, vigilando.`,
+          `${mayus(nombreDe(e, ev.monstruo))} no se mueve ni ataca.`,
+          `${mayus(nombreDe(e, ev.monstruo))} se queda donde está, vigilando.`,
         ],
         n,
       );
@@ -192,7 +218,7 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
         : "Zargon no tiene ya a quién mover.";
 
     case "cambioDeTurno":
-      return ev.actor === "zargon" ? "— Turno de Zargon —" : `— Turno de ${nombreDe(e, String(ev.actor))} —`;
+      return ev.actor === "zargon" ? "— Turno de Zargon —" : `— Turno ${deDe(nombreDe(e, String(ev.actor)))} —`;
 
     case "finDePartida":
       return ev.victoria ? `¡Victoria! ${ev.motivo}` : `Derrota. ${ev.motivo}`;

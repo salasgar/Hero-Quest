@@ -614,12 +614,21 @@ function buscarTesoro(e: EstadoPartida): Resultado {
       if (hueco) {
         const plantilla = MONSTRUOS[carta.efecto.especie];
         const id = `errante${estado.monstruos.length + 1}`;
+        // El nombre sale de la reserva que dejó `crearPartida`, no de un sorteo
+        // aquí: sortearlo obligaría a consumir el generador del estado al robar
+        // una carta, y eso movería todas las tiradas siguientes de la partida.
+        // Si la reserva se agotara —hoy no puede: el mazo trae cuatro cartas de
+        // errante y la reserva son cuatro por especie— se queda con el nombre de
+        // la especie, que es lo que se decía antes de T42.
+        const reserva = estado.nombresLibres[carta.efecto.especie] ?? [];
+        const nombre = reserva[0] ?? plantilla.nombre;
         estado = {
           ...estado,
+          nombresLibres: { ...estado.nombresLibres, [carta.efecto.especie]: reserva.slice(1) },
           monstruos: [
             ...estado.monstruos,
             {
-              tipo: "monstruo", id, especie: carta.efecto.especie, celda: hueco,
+              tipo: "monstruo", id, especie: carta.efecto.especie, nombre, celda: hueco,
               cuerpo: plantilla.cuerpo, cuerpoMax: plantilla.cuerpo,
               efectos: [], dormido: false, pierdeTurno: false,
             },

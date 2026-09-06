@@ -49,6 +49,25 @@ function eventosDe(e: EstadoPartida, a: Accion): [EstadoPartida, Evento[]] {
 
 const tipos = (evs: readonly Evento[]) => evs.map((x) => x.tipo);
 
+/**
+ * Cómo nombra el diario a un monstruo de esta escena.
+ *
+ * Desde T42 el nombre de pila se sortea con la semilla, así que estos tests no
+ * pueden escribir «Goblin» a mano: lo leen del estado. Comprobar la frase entera
+ * sigue mereciendo la pena —es lo que se lee en la mesa—, pero la parte que
+ * cambia con la semilla se pide prestada, no se copia.
+ */
+const comoLoLlama = (e: EstadoPartida, id: string) => {
+  const m = e.monstruos.find((x) => x.id === id)!;
+  return `el ${m.especie === "goblin" ? "goblin" : "orco"} ${m.nombre}`;
+};
+
+/** El mismo, tras «a»: «al goblin Snik». */
+const aComoLoLlama = (e: EstadoPartida, id: string) => `al ${comoLoLlama(e, id).slice(3)}`;
+
+/** Y al empezar la frase: «El goblin Snik». */
+const mayus = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 describe("se sabe qué monstruo está actuando", () => {
   it("activar un monstruo lo anuncia con su nombre", () => {
     const e = enZargon();
@@ -57,7 +76,7 @@ describe("se sabe qué monstruo está actuando", () => {
     const [tras, evs] = eventosDe(e, { tipo: "activarMonstruo", monstruo: "goblin1" });
 
     expect(tipos(evs)).toEqual(["monstruoActiva"]);
-    expect(narrarTodos(tras, evs)).toEqual(["Le toca a Goblin."]);
+    expect(narrarTodos(tras, evs)).toEqual([`Le toca ${aComoLoLlama(tras, "goblin1")}.`]);
   });
 
   it("antes de T20 esta acción no emitía ni un evento", () => {
@@ -76,7 +95,7 @@ describe("un monstruo que no hace nada lo dice", () => {
 
     expect(tipos(evs)).toContain("monstruoSinActuar");
     const frases = narrarTodos(tras, evs);
-    expect(frases[0]).toMatch(/Goblin/);
+    expect(frases[0]).toContain(tras.monstruos.find((m) => m.id === "goblin1")!.nombre);
     expect(frases[0]).toMatch(/no se mueve ni ataca|se queda donde está/);
   });
 
@@ -128,12 +147,12 @@ describe("un turno de Zargon entero", () => {
     // Dos activaciones, dos «no ha hecho nada» y el cambio de turno. Ni una más:
     // seis monstruos por tres líneas es un diario que en la mesa no lee nadie.
     expect(frases).toEqual([
-      "Le toca a Goblin.",
-      "Goblin no se mueve ni ataca.",
-      "Le toca a Orco.",
+      `Le toca ${aComoLoLlama(e, "goblin1")}.`,
+      `${mayus(comoLoLlama(e, "goblin1"))} no se mueve ni ataca.`,
+      `Le toca ${aComoLoLlama(e, "orco1")}.`,
       // La segunda frase es la misma variante porque cada tanda se narra desde
       // su propio índice. En el diario, que numera seguido, alternan.
-      "Orco no se mueve ni ataca.",
+      `${mayus(comoLoLlama(e, "orco1"))} no se mueve ni ataca.`,
       "— Turno de Bárbaro —",
     ]);
   });

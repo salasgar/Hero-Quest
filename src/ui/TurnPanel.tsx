@@ -4,6 +4,7 @@ import { dadosDeAtaque, dadosDeDefensa } from "../engine/combat";
 import { esHeroe, type Accion, type EstadoPartida, type Figura, type Puerta } from "../engine/types";
 import { DIFICULTADES, type Dificultad } from "../ai/difficulty";
 import { MONSTRUOS } from "../data/monsters";
+import { conArticulo, especieEnMinuscula } from "../data/nombres";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { puedeBuscarTesoro, puedeBuscarTrampas } from "../engine/selectors";
 import type { QuienTiraLosDados } from "./DiceInput";
@@ -100,8 +101,25 @@ function frase(e: EstadoPartida, accion: Accion | null): string | null {
 
 const Tecla = ({ children }: { children: React.ReactNode }) => <kbd>{children}</kbd>;
 
-const nombreDeMonstruo = (m: Figura) =>
-  MONSTRUOS[(m as { especie: keyof typeof MONSTRUOS }).especie].nombre;
+/**
+ * «al orco Górbak», para la línea de a quién le toca.
+ *
+ * Con la especie a secas, los dos goblins de la sala eran «Goblin» y «Goblin» y
+ * en la mesa no se sabía cuál de las dos figuras había que mover: es lo que
+ * arregla T42. Va con «al» y no con «a el» porque esto lo lee alguien en voz
+ * alta, igual que el diario.
+ */
+const aMonstruo = (f: Figura) => {
+  const m = f as Extract<Figura, { tipo: "monstruo" }>;
+  const con = `${conArticulo(m.especie)} ${m.nombre}`;
+  return con.startsWith("el ") ? `al ${con.slice(3)}` : `a ${con}`;
+};
+
+/** «Górbak, orco» para los botones, donde el artículo solo estorba. */
+const nombreDeMonstruo = (f: Figura) => {
+  const m = f as Extract<Figura, { tipo: "monstruo" }>;
+  return `${m.nombre}, ${especieEnMinuscula(m.especie)}`;
+};
 
 export function TurnPanel({
   estado,
@@ -178,7 +196,7 @@ export function TurnPanel({
           ) : (
             <>
               <p>
-                Le toca a <span className="turno-nombre">{nombreDeMonstruo(orden[0]!)}</span>
+                Le toca <span className="turno-nombre">{aMonstruo(orden[0]!)}</span>
                 {motivo && <span className="apagado">: {motivo}</span>}
               </p>
               <div className="botonera">

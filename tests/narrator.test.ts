@@ -7,10 +7,14 @@ const estado = () =>
   situar(partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(2, 1) }] }), "barbaro", c(1, 1));
 
 describe("nombres", () => {
-  it("usa el nombre del héroe y la especie del monstruo", () => {
+  // Hasta T42 esto afirmaba `nombreDe(e, "orco1") === "Orco"`. La regla cambió:
+  // ahora cada monstruo tiene nombre de pila y se le nombra con su especie
+  // delante, para que dos orcos de la misma sala no sean los dos «Orco».
+  it("usa el nombre del héroe y, del monstruo, especie y nombre de pila", () => {
     const e = estado();
     expect(nombreDe(e, "barbaro")).toBe("Bárbaro");
-    expect(nombreDe(e, "orco1")).toBe("Orco");
+    const orco = e.monstruos.find((m) => m.id === "orco1")!;
+    expect(nombreDe(e, "orco1")).toBe(`el orco ${orco.nombre}`);
   });
 });
 
@@ -32,7 +36,8 @@ describe("frases del narrador", () => {
   it("distingue el golpe que hiere del que falla", () => {
     const e = estado();
     const base = { tipo: "ataque" as const, atacante: "barbaro", objetivo: "orco1", dadosAtaque: [], dadosDefensa: [], escudos: 0 };
-    expect(narrar(e, { ...base, calaveras: 0, dano: 0 })).toMatch(/Bárbaro ataca a Orco/);
+    // «ataca al orco X», no «ataca a el orco X»: lo lee alguien en voz alta.
+    expect(narrar(e, { ...base, calaveras: 0, dano: 0 })).toMatch(/Bárbaro ataca al orco /);
     expect(narrar(e, { ...base, calaveras: 2, dano: 2 })).toMatch(/2 puntos de cuerpo/);
     expect(narrar(e, { ...base, calaveras: 1, dano: 1 })).toMatch(/1 punto de cuerpo/);
   });
