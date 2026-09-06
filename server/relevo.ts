@@ -121,7 +121,7 @@ export class Partida {
         const creado = crearRegistro(cuerpo.montaje, cuerpo.secreto);
         if (!creado.ok) return error(creado.motivo, 409);
         await this.guardar(creado.valor);
-        return json({ ok: true, total: 0 });
+        return json({ ok: true, total: 0, revision: creado.valor.revision });
       }
 
       const registro = await this.leer();
@@ -134,15 +134,15 @@ export class Partida {
 
       if (peticion.method === "POST" && operacion === "acciones") {
         const cuerpo = (await peticion.json()) as {
-          esperado?: number;
+          revision?: number;
           accion?: unknown;
           autor?: string;
         };
-        if (typeof cuerpo.esperado !== "number" || !cuerpo.accion || !cuerpo.autor) {
-          return error("Falta el esperado, la acción o el autor.", 400);
+        if (typeof cuerpo.revision !== "number" || !cuerpo.accion || !cuerpo.autor) {
+          return error("Falta la revisión, la acción o el autor.", 400);
         }
         const escrito = anadir(registro, {
-          esperado: cuerpo.esperado,
+          revision: cuerpo.revision,
           // El relevo no valida reglas: la legalidad la comprueba cada pantalla
           // con el motor, que es quien sabe. Aquí solo se guarda.
           accion: cuerpo.accion as Parameters<typeof anadir>[1]["accion"],
@@ -150,25 +150,41 @@ export class Partida {
         });
         if (!escrito.ok) {
           // 409 no es un fallo, es el caso normal de dos jugadores a la vez: se
-          // le devuelve lo que le faltaba para que se ponga al día y reintente.
-          return error(escrito.motivo, 409, { entradas: escrito.entradas, total: escrito.total });
+          // le devuelve el registro entero para que se ponga al día y reintente.
+          return error(escrito.motivo, 409, {
+            entradas: escrito.entradas,
+            total: escrito.total,
+            revision: escrito.revision,
+          });
         }
         await this.guardar(escrito.valor);
-        return json({ ok: true, total: escrito.valor.entradas.length });
+        return json({
+          ok: true,
+          total: escrito.valor.entradas.length,
+          revision: escrito.valor.revision,
+        });
       }
 
       if (peticion.method === "POST" && operacion === "truncar") {
-        const cuerpo = (await peticion.json()) as { esperado?: number; secreto?: string };
-        if (typeof cuerpo.esperado !== "number" || !cuerpo.secreto) {
-          return error("Falta el esperado o el secreto.", 400);
+        const cuerpo = (await peticion.json()) as { revision?: number; secreto?: string };
+        if (typeof cuerpo.revision !== "number" || !cuerpo.secreto) {
+          return error("Falta la revisión o el secreto.", 400);
         }
-        const cortado = truncar(registro, { esperado: cuerpo.esperado, secreto: cuerpo.secreto });
+        const cortado = truncar(registro, { revision: cuerpo.revision, secreto: cuerpo.secreto });
         if (!cortado.ok) {
           const codigo = cortado.motivo.includes("mesa") ? 403 : 409;
-          return error(cortado.motivo, codigo, { entradas: cortado.entradas, total: cortado.total });
+          return error(cortado.motivo, codigo, {
+            entradas: cortado.entradas,
+            total: cortado.total,
+            revision: cortado.revision,
+          });
         }
         await this.guardar(cortado.valor);
-        return json({ ok: true, total: cortado.valor.entradas.length });
+        return json({
+          ok: true,
+          total: cortado.valor.entradas.length,
+          revision: cortado.valor.revision,
+        });
       }
 
       return error("Esa operación no existe.", 404);

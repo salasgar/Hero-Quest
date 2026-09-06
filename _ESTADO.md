@@ -292,19 +292,12 @@ van aquí y no se pierden en la tabla:
   las sesiones compartan directorio de trabajo esto seguirá pasando; la solución de raíz es
   un worktree por sesión, y esa es una decisión de Juan Luis.
 
-- **El candado del `esperado` no ve un deshacer seguido de una jugada, y conviene
-  decidirlo antes del `wrangler deploy`.** Lo encontró T31: el `esperado` compara
-  longitudes, y truncar una acción y añadir otra deja el registro con la misma
-  longitud. Una escritura que llegue en ese hueco entra con la cuenta buena y el
-  contenido cambiado. El cliente lo tapa —sondea desde cero y el registro del
-  relevo manda siempre, así que las dos casas convergen en un segundo como
-  mucho— pero puede colarse en el registro una acción que ya no era legal;
-  `repetir` la ignora igual en las dos casas, así que no divergen, aunque esa
-  jugada se pierde en silencio. La solución de raíz es un número de revisión en
-  el registro que `truncar` incremente y `anadir` compruebe. Es un cambio del
-  protocolo de T30, y **hoy es barato porque no hay nada desplegado**: después
-  del despliegue obligaría a redesplegar con partidas vivas. La decisión es de
-  Juan Luis (regla 4: toca el protocolo).
+- ~~**El candado del `esperado` no ve un deshacer seguido de una jugada.**~~
+  **Cerrada el 2026-09-06**, con su palabra y antes de desplegar nada, que era
+  justo la ventana barata. El registro lleva ahora un número de revisión que sube
+  con cada cambio —también al deshacer— y es lo que compara el candado, en vez de
+  cuántas acciones hay. El 409 devuelve el registro entero, no la cola. Está en el
+  registro de finalizaciones, con el test que lo fija.
 
 - **El propio tablón es el cuello de botella del protocolo, y hoy ha fallado.** Reclamar una
   tarea significa escribir una fila *en este fichero*, pero el candado de `.claude/sesiones/`
@@ -435,6 +428,27 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
   - **Los héroes del simulador son tontos a propósito** —abren, pegan al más débil que
     alcanzan y si no se acercan; ni tesoro ni hechizos— y va dicho en la salida. Eso sesga
     el número a la baja, no al alza: el 100 % es aún peor noticia de lo que parece.
+
+- **El número de revisión del relevo · sesión `6905402d` · 2026-09-06.** Cierra la incidencia
+  que dejó abierta T31 y toca el protocolo de T30, con su firma del mismo día. Cuatro cosas:
+  - **El candado compara la revisión, no la longitud.** `Registro` gana `revision`, que sube
+    con cada cambio y **también al deshacer**: esa segunda mitad es la que faltaba. Contar
+    acciones fallaba en un caso real —10 → 9 → 10 deja la misma cuenta con otro contenido—,
+    y la escritura atrasada entraba con la cuenta buena sobre un tablero que ya no existía.
+  - **El 409 devuelve el registro entero, no la cola.** Mandar «lo que te falta» solo vale
+    mientras la lista únicamente crezca; en cuanto la mesa deshace, esa cola no encaja con la
+    del otro. Son decenas de acciones pequeñas: mandarlas todas no cuesta nada. El cliente,
+    en consecuencia, **adopta** el registro del relevo y rehace la partida desde el inicio en
+    vez de añadir al final (`adoptar`, en `cliente.ts`).
+  - **Dos tests nuevos, uno por capa**, y los dos caen si se vuelve a contar: en el protocolo,
+    deshacer y volver a jugar cambia la revisión aunque la cuenta vuelva a ser la misma y la
+    escritura vieja se rechaza; en el cliente, la pestaña atrasada no cuela su jugada muerta
+    y acaba con el mismo estado que la mesa. **Comprobado mutando**: con la revisión otra vez
+    igual a la longitud fallan tres tests y solo esos tres.
+  - **Ojo con mutarlo a medias**: dejar el comparador por longitud mientras los clientes
+    mandan revisiones cuelga el reintento de `enviar` en un bucle. El bucle sale cuando la
+    acción deja de ser legal o cuando la escritura entra, y con esa mezcla no pasa ninguna de
+    las dos cosas. Si alguien prueba a revertir esto, que revierta las dos mitades.
 
 - **T34 · sesión `6905402d` · 2026-09-06.** La aplicación se publica sola en
   <https://salasgar.github.io/Hero-Quest/>. Juan Luis firmó el encendido ese mismo día
@@ -1117,6 +1131,11 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   hechizo y las cartas no las tenemos. Implementado en el `case "perderTurno"` de
   `reducer.ts`: ya no razona por salas. **Lo del héroe no está hecho** y está preguntado
   abajo: `pierdeTurno` vive en `Monstruo`, no en `Heroe`.
+
+- **2026-09-06 — El registro del relevo lleva número de revisión (T30).** Preguntado con las
+  dos opciones delante —hacerlo ahora, sin nada desplegado, o después, redesplegando y
+  cortando partidas vivas— contestó «sí». Es un cambio del protocolo, que es lo que la regla
+  4 reserva para él. Hecho el mismo día, antes del `wrangler deploy`.
 
 ### Pendientes de su palabra
 

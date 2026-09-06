@@ -64,14 +64,14 @@ const relevoEnMemoria = () => {
       const r = anadir(registro, p);
       if (!r.ok) return r;
       partidas.set(codigo, r.valor);
-      return { ok: true, valor: { total: r.valor.entradas.length } };
+      return { ok: true, valor: { total: r.valor.entradas.length, revision: r.valor.revision } };
     },
     async truncar(codigo, p) {
       const registro = partidas.get(codigo)!;
       const r = truncar(registro, p);
       if (!r.ok) return r;
       partidas.set(codigo, r.valor);
-      return { ok: true, valor: { total: r.valor.entradas.length } };
+      return { ok: true, valor: { total: r.valor.entradas.length, revision: r.valor.revision } };
     },
   };
   return { transporte, partidas };
@@ -138,7 +138,7 @@ describe("la reconciliación del 409", () => {
     if (!pestana.ok) throw new Error(pestana.motivo);
 
     await enviado(mesa, tirar(4));
-    // La pestaña no ha sondeado: envía con el esperado viejo. Terminar el turno
+    // La pestaña no ha sondeado: envía con la revisión vieja. Terminar el turno
     // es legal antes y después de ponerse al día, así que tiene que acabar
     // dentro, y una sola vez.
     await enviado(pestana.valor, terminar);
@@ -165,6 +165,40 @@ describe("la reconciliación del 409", () => {
 
     const entradas = partidas.get(mesa.codigo)!.entradas;
     expect(entradas.filter((e) => e.accion.tipo === "tirarMovimiento")).toHaveLength(1);
+  });
+
+  it("la mesa deshace y vuelve a jugar: la pestaña atrasada no cuela su jugada muerta", async () => {
+    // El caso que abrió lo de la revisión, visto desde el cliente. Con el
+    // candado viejo —comparar cuántas acciones hay— el registro quedaba con la
+    // misma cuenta después de deshacer y volver a jugar, así que la escritura
+    // atrasada entraba con la cuenta buena y el contenido cambiado.
+    const { transporte, partidas, mesa } = await dosCasas();
+    const pestana = await unirse(transporte, mesa.codigo, MESA);
+    if (!pestana.ok) throw new Error(pestana.motivo);
+
+    await enviado(mesa, tirar(4));
+    await pestana.valor.sondear(); // las dos ven una acción
+    expect(pestana.valor.acciones).toHaveLength(1);
+
+    // La mesa se arrepiente y tira otra cosa. Un cambio y otro: la cuenta
+    // vuelve a uno y la pestaña no se ha enterado de ninguno de los dos.
+    const deshecho = await mesa.truncar();
+    expect(deshecho.ok).toBe(true);
+    await enviado(mesa, tirar(6));
+    expect(partidas.get(mesa.codigo)!.entradas).toHaveLength(1);
+
+    // La pestaña envía con lo que creía tener. Su acción no se pierde: el
+    // relevo la rechaza, ella adopta el registro de verdad y reintenta sobre
+    // él, así que lo que queda guardado es la tirada de 6 de la mesa y detrás
+    // el fin de turno, no la de 4 que ya no existe.
+    await enviado(pestana.valor, terminar);
+
+    const entradas = partidas.get(mesa.codigo)!.entradas;
+    expect(entradas).toHaveLength(2);
+    expect(entradas[0]?.accion).toEqual(tirar(6));
+    expect(entradas[1]?.accion).toEqual(terminar);
+    await mesa.sondear();
+    expect(JSON.stringify(pestana.valor.estado)).toBe(JSON.stringify(mesa.estado));
   });
 });
 
@@ -240,6 +274,7 @@ describe("entrar en una partida", () => {
     partidas.set("PTVJ", {
       montaje: montaje({ version: "una-anterior" }),
       entradas: [],
+      revision: 0,
       secretoMesa: "s",
     });
     const r = await unirse(transporte, "PTVJ", "marta");
@@ -253,6 +288,7 @@ describe("entrar en una partida", () => {
     partidas.set("PTMX", {
       montaje: montaje({ mision: "la-torre-de-kellar" }),
       entradas: [],
+      revision: 0,
       secretoMesa: "s",
     });
     const r = await unirse(transporte, "PTMX", "marta");

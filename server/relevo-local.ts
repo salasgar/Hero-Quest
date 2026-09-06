@@ -111,7 +111,7 @@ createServer((req, res) => {
       if (req.method === "POST" && operacion === "acciones") {
         const cuerpo = await leerCuerpo(req);
         const escrito = anadir(registro, {
-          esperado: cuerpo.esperado as number,
+          revision: cuerpo.revision as number,
           accion: cuerpo.accion as Parameters<typeof anadir>[1]["accion"],
           autor: cuerpo.autor as string,
         });
@@ -121,15 +121,20 @@ createServer((req, res) => {
             motivo: escrito.motivo,
             entradas: escrito.entradas,
             total: escrito.total,
+            revision: escrito.revision,
           });
         partidas.set(codigo, escrito.valor);
-        return responder(res, 200, { ok: true, total: escrito.valor.entradas.length });
+        return responder(res, 200, {
+          ok: true,
+          total: escrito.valor.entradas.length,
+          revision: escrito.valor.revision,
+        });
       }
 
       if (req.method === "POST" && operacion === "truncar") {
         const cuerpo = await leerCuerpo(req);
         const cortado = truncar(registro, {
-          esperado: cuerpo.esperado as number,
+          revision: cuerpo.revision as number,
           secreto: cuerpo.secreto as string,
         });
         if (!cortado.ok)
@@ -138,9 +143,14 @@ createServer((req, res) => {
             motivo: cortado.motivo,
             entradas: cortado.entradas,
             total: cortado.total,
+            revision: cortado.revision,
           });
         partidas.set(codigo, cortado.valor);
-        return responder(res, 200, { ok: true, total: cortado.valor.entradas.length });
+        return responder(res, 200, {
+          ok: true,
+          total: cortado.valor.entradas.length,
+          revision: cortado.valor.revision,
+        });
       }
     }
 

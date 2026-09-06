@@ -1,9 +1,13 @@
 /**
  * T30 · El protocolo del relevo de acciones.
  *
- * Dos familias de pruebas. Las primeras son del candado de escritura —el
- * `esperado`—, que es lo que impide que dos jugadores que pulsan a la vez dejen
- * el registro en un orden que ninguna de las dos pantallas ha visto.
+ * Dos familias de pruebas. Las primeras son del candado de escritura —la
+ * **revisión** del registro—, que es lo que impide que dos jugadores que pulsan a
+ * la vez dejen el registro en un orden que ninguna de las dos pantallas ha visto.
+ * Hasta el 2026-09-06 ese candado comparaba *cuántas* acciones había, y ahí tenía
+ * un agujero: deshacer y volver a jugar deja la misma cuenta con otro contenido.
+ * El test que lo fija es «deshacer y jugar cambia la revisión aunque la cuenta
+ * vuelva a ser la misma».
  *
  * La última es la que sostiene la fase entera: **partiendo del mismo montaje, la
  * lista de acciones basta para llegar al mismo estado**. Si esa se rompe, jugar
@@ -77,28 +81,61 @@ describe("crear la partida en el relevo", () => {
   });
 });
 
-describe("el candado de escritura: el esperado", () => {
-  it("con el esperado al día, la acción entra", () => {
-    const r = anadir(registro(), { esperado: 0, accion: mover, autor: "marta" });
+describe("el candado de escritura: la revisión", () => {
+  it("con la revisión al día, la acción entra", () => {
+    const r = anadir(registro(), { revision: 0, accion: mover, autor: "marta" });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.valor.entradas).toHaveLength(1);
     expect(r.valor.entradas[0]?.autor).toBe("marta");
   });
 
-  it("con el esperado viejo se rechaza, y devuelve lo que faltaba", () => {
-    const primero = anadir(registro(), { esperado: 0, accion: mover, autor: "mesa" });
+  it("con la revisión vieja se rechaza, y devuelve el registro entero", () => {
+    const primero = anadir(registro(), { revision: 0, accion: mover, autor: "mesa" });
     if (!primero.ok) throw new Error(primero.motivo);
 
-    const segundo = anadir(primero.valor, { esperado: 0, accion: mover, autor: "marta" });
+    const segundo = anadir(primero.valor, { revision: 0, accion: mover, autor: "marta" });
     expect(segundo.ok).toBe(false);
     if (segundo.ok) return;
-    // Lo que faltaba viaja en el propio rechazo: quien se quedó atrás se pone al
-    // día sin una segunda petición, que es medio segundo menos con un niño
-    // esperando.
+    // El registro viaja en el propio rechazo: quien se quedó atrás se pone al día
+    // sin una segunda petición, que es medio segundo menos con un niño esperando.
+    // Va **entero** y no solo la cola: en cuanto la mesa deshace, «lo que te
+    // falta» ya no encaja con lo que el otro tiene.
     expect(segundo.entradas).toHaveLength(1);
     expect(segundo.entradas?.[0]?.autor).toBe("mesa");
     expect(segundo.total).toBe(1);
+    expect(segundo.revision).toBe(1);
+  });
+
+  it("deshacer y jugar cambia la revisión aunque la cuenta vuelva a ser la misma", () => {
+    // **El agujero que cierra esto**, y por el que existe la revisión: Marta
+    // mira el tablero con una acción hecha; la mesa deshace esa acción y juega
+    // otra. La cuenta vuelve a uno, así que con el candado viejo —comparar
+    // cuántas hay— la jugada de Marta entraba con la cuenta buena y el contenido
+    // cambiado: la había decidido sobre un tablero que ya no existe. No hacía
+    // divergir a las dos casas, porque `repetir` descarta lo que ya no es legal,
+    // pero la jugada se perdía sin decir una palabra.
+    const uno = anadir(registro(), { revision: 0, accion: mover, autor: "mesa" });
+    if (!uno.ok) throw new Error(uno.motivo);
+
+    const deshecho = truncar(uno.valor, { revision: 1, secreto: "secreto-de-la-mesa" });
+    if (!deshecho.ok) throw new Error(deshecho.motivo);
+
+    const otra: Accion = { tipo: "terminarTurno" };
+    const rehecho = anadir(deshecho.valor, { revision: 2, accion: otra, autor: "mesa" });
+    if (!rehecho.ok) throw new Error(rehecho.motivo);
+
+    // Misma cuenta que veía Marta, distinto contenido, distinta revisión.
+    expect(rehecho.valor.entradas).toHaveLength(1);
+    expect(uno.valor.entradas).toHaveLength(1);
+    expect(rehecho.valor.revision).toBe(3);
+
+    const deMarta = anadir(rehecho.valor, { revision: 1, accion: mover, autor: "marta" });
+    expect(deMarta.ok).toBe(false);
+    if (deMarta.ok) return;
+    // Y el rechazo le da con qué ponerse al día: el registro de verdad.
+    expect(deMarta.entradas?.[0]?.accion).toEqual(otra);
+    expect(deMarta.revision).toBe(3);
   });
 
   it("dos jugadores a la vez: solo entra el primero en llegar", () => {
@@ -116,19 +153,19 @@ describe("el candado de escritura: el esperado", () => {
     // por otra cosa, esto es lo que hay que conservar.
     let guardado = registro();
 
-    const primera = anadir(guardado, { esperado: 0, accion: mover, autor: "mesa" });
+    const primera = anadir(guardado, { revision: 0, accion: mover, autor: "mesa" });
     expect(primera.ok).toBe(true);
     if (!primera.ok) return;
     guardado = primera.valor;
 
-    const segunda = anadir(guardado, { esperado: 0, accion: mover, autor: "marta" });
+    const segunda = anadir(guardado, { revision: 0, accion: mover, autor: "marta" });
     expect(segunda.ok).toBe(false);
   });
 
-  it("el que se quedó atrás entra a la segunda, ya con el esperado bueno", () => {
-    const primero = anadir(registro(), { esperado: 0, accion: mover, autor: "mesa" });
+  it("el que se quedó atrás entra a la segunda, ya con la revisión buena", () => {
+    const primero = anadir(registro(), { revision: 0, accion: mover, autor: "mesa" });
     if (!primero.ok) throw new Error(primero.motivo);
-    const reintento = anadir(primero.valor, { esperado: 1, accion: mover, autor: "marta" });
+    const reintento = anadir(primero.valor, { revision: 1, accion: mover, autor: "marta" });
     expect(reintento.ok).toBe(true);
     if (!reintento.ok) return;
     // Una sola vez: el rechazo no dejó nada a medias.
@@ -138,39 +175,43 @@ describe("el candado de escritura: el esperado", () => {
 
 describe("deshacer, que es truncar", () => {
   const conUna = (): Registro => {
-    const r = anadir(registro(), { esperado: 0, accion: mover, autor: "mesa" });
+    const r = anadir(registro(), { revision: 0, accion: mover, autor: "mesa" });
     if (!r.ok) throw new Error(r.motivo);
     return r.valor;
   };
 
-  it("la mesa deshace la última", () => {
-    const r = truncar(conUna(), { esperado: 1, secreto: "secreto-de-la-mesa" });
+  it("la mesa deshace la última, y eso también sube la revisión", () => {
+    const r = truncar(conUna(), { revision: 1, secreto: "secreto-de-la-mesa" });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.valor.entradas).toHaveLength(0);
+    // Si deshacer no subiera la revisión, el registro volvería a la marca que
+    // tenía antes de la acción y el candado no vería el cambio: es justo la
+    // mitad que faltaba.
+    expect(r.valor.revision).toBe(2);
   });
 
   it("quien no es la mesa no deshace, aunque vaya al día", () => {
-    const r = truncar(conUna(), { esperado: 1, secreto: "el-de-marta" });
+    const r = truncar(conUna(), { revision: 1, secreto: "el-de-marta" });
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(r.motivo).toContain("mesa");
   });
 
-  it("con el esperado viejo se rechaza: no se deshace a ciegas", () => {
-    const r = truncar(conUna(), { esperado: 0, secreto: "secreto-de-la-mesa" });
+  it("con la revisión vieja se rechaza: no se deshace a ciegas", () => {
+    const r = truncar(conUna(), { revision: 0, secreto: "secreto-de-la-mesa" });
     expect(r.ok).toBe(false);
   });
 
   it("sin acciones no hay nada que deshacer", () => {
-    const r = truncar(registro(), { esperado: 0, secreto: "secreto-de-la-mesa" });
+    const r = truncar(registro(), { revision: 0, secreto: "secreto-de-la-mesa" });
     expect(r.ok).toBe(false);
   });
 });
 
 describe("lo que se le manda a un cliente", () => {
   it("no lleva el secreto de la mesa", () => {
-    const r = anadir(registro(), { esperado: 0, accion: mover, autor: "mesa" });
+    const r = anadir(registro(), { revision: 0, accion: mover, autor: "mesa" });
     if (!r.ok) throw new Error(r.motivo);
     const v = vista(r.valor);
     // Se comprueba sobre el JSON, no sobre las claves que se nos ocurran: lo que
@@ -178,16 +219,19 @@ describe("lo que se le manda a un cliente", () => {
     expect(JSON.stringify(v)).not.toContain("secreto-de-la-mesa");
   });
 
-  it("desde N devuelve solo lo que falta, y el total para el siguiente esperado", () => {
+  it("desde N devuelve solo lo que falta, con el total y la revisión", () => {
     let r = registro();
     for (let i = 0; i < 3; i++) {
-      const paso = anadir(r, { esperado: i, accion: mover, autor: "mesa" });
+      const paso = anadir(r, { revision: i, accion: mover, autor: "mesa" });
       if (!paso.ok) throw new Error(paso.motivo);
       r = paso.valor;
     }
     const v = vista(r, 2);
     expect(v.entradas).toHaveLength(1);
     expect(v.total).toBe(3);
+    // La revisión va en la vista porque es lo que hay que devolver al escribir:
+    // sin ella, quien lee no sabría con qué marca mandar su jugada.
+    expect(v.revision).toBe(3);
   });
 
   it("un desde disparatado no revienta", () => {
@@ -235,7 +279,7 @@ describe("la idea que sostiene la fase: repartir acciones basta", () => {
       expect(paso.ok).toBe(true);
       if (!paso.ok) return;
       enLaMesa = paso.estado;
-      const escrito = anadir(r, { esperado: i, accion, autor: "mesa" });
+      const escrito = anadir(r, { revision: i, accion, autor: "mesa" });
       if (!escrito.ok) throw new Error(escrito.motivo);
       r = escrito.valor;
     }

@@ -72,18 +72,19 @@ export function partidaDelMontaje(m: Montaje): Resultado<EstadoPartida> {
 // ------------------------------------------------------------- el transporte
 
 /** Lo que responde el relevo a una escritura. En un rechazo por ir atrasado
- * (`esperado` viejo) vienen además `entradas` y `total`, dentro del `Resultado`. */
+ * (revisión vieja) vienen además `entradas` —el registro entero—, `total` y la
+ * `revision` buena, dentro del `Resultado`. */
 export interface Transporte {
   crear(montaje: Montaje): Promise<Resultado<{ codigo: string; secreto: string }>>;
   leer(codigo: string, desde: number): Promise<Resultado<Vista>>;
   enviar(
     codigo: string,
-    peticion: { esperado: number; accion: Accion; autor: string },
-  ): Promise<Resultado<{ total: number }>>;
+    peticion: { revision: number; accion: Accion; autor: string },
+  ): Promise<Resultado<{ total: number; revision: number }>>;
   truncar(
     codigo: string,
-    peticion: { esperado: number; secreto: string },
-  ): Promise<Resultado<{ total: number }>>;
+    peticion: { revision: number; secreto: string },
+  ): Promise<Resultado<{ total: number; revision: number }>>;
 }
 
 /** El transporte de verdad, contra `server/relevo.ts`. Sus respuestas ya traen
@@ -98,6 +99,7 @@ export function transporteHttp(base: string): Transporte {
         motivo?: string;
         entradas?: Entrada[];
         total?: number;
+        revision?: number;
       };
       if (!cuerpo.ok) {
         return {
@@ -105,6 +107,7 @@ export function transporteHttp(base: string): Transporte {
           motivo: cuerpo.motivo ?? "El relevo ha contestado algo que no se entiende.",
           entradas: cuerpo.entradas,
           total: cuerpo.total,
+          revision: cuerpo.revision,
         };
       }
       return { ok: true, valor: cuerpo as T };
@@ -137,6 +140,9 @@ const MS_ENTRE_SONDEOS = 1000;
 export class SesionDeRed {
   private acciones_: Accion[];
   private estado_: EstadoPartida;
+  /** La revisión del registro que tenemos delante. Es lo que se manda al
+   * escribir, y lo que el relevo compara para saber si vamos al día. */
+  private revision_: number;
   private readonly avisados = new Set<() => void>();
   private temporizador: ReturnType<typeof setInterval> | null = null;
 
@@ -147,11 +153,18 @@ export class SesionDeRed {
     readonly inicial: EstadoPartida,
     readonly jugador: string,
     acciones: Accion[],
+    revision: number,
     /** Solo lo tiene la mesa. Es lo único que autoriza a deshacer. */
     private readonly secreto?: string,
   ) {
     this.acciones_ = acciones;
+    this.revision_ = revision;
     this.estado_ = repetir(inicial, acciones);
+  }
+
+  /** Para las pruebas y para la pantalla: en qué revisión vamos. */
+  get revision(): number {
+    return this.revision_;
   }
 
   get estado(): EstadoPartida {
@@ -195,20 +208,22 @@ export class SesionDeRed {
   /**
    * Un paso de sondeo. Devuelve si el registro cambió.
    *
-   * Se pide **desde cero, no desde el total que ya tenemos**, y es deliberado:
-   * el registro no lleva número de revisión, así que «tengo N y el relevo tiene
-   * N» no demuestra que tengamos lo mismo. Si la mesa deshace y juega otra cosa
-   * dentro del mismo segundo, los totales coinciden y las colas difieren; con
-   * `desde=N` esa divergencia sería invisible y permanente, que es exactamente
-   * el fallo que esta tarea existe para impedir. Traer el registro entero cuesta
-   * unas decenas de acciones por segundo —nada— y lo que llega del relevo manda
-   * siempre sobre lo local.
+   * Se pide **desde cero, no desde el total que ya tenemos**, y se mantiene así
+   * aunque ahora exista la revisión: la lectura trae el registro entero de todos
+   * modos —decenas de acciones pequeñas—, y comparar la lista es lo que no puede
+   * mentir. La revisión es el candado de las **escrituras**; esto es el sondeo, y
+   * aquí lo que llega del relevo manda siempre sobre lo local.
+   *
+   * Antes de la revisión, esto era además la única red contra el caso de la mesa
+   * deshaciendo y jugando dentro del mismo segundo, que dejaba los totales
+   * iguales y las colas distintas.
    */
   async sondear(): Promise<boolean> {
     const res = await this.transporte.leer(this.codigo, 0);
     // Una wifi caída no es un estado: se reintenta al siguiente tic.
     if (!res.ok) return false;
     const recibidas = res.valor.entradas.map((e) => e.accion);
+    this.revision_ = res.valor.revision;
     if (JSON.stringify(recibidas) === JSON.stringify(this.acciones_)) return false;
     this.acciones_ = recibidas;
     this.estado_ = repetir(this.inicial, recibidas);
@@ -234,9 +249,11 @@ export class SesionDeRed {
    * incorpora lo que faltaba, se vuelve a comprobar que la acción sigue siendo
    * legal —y que sigue tocándole a quien envía, que el turno puede haber
    * cambiado— y solo entonces se reenvía. Si ya no es legal, se devuelve el
-   * motivo para la pantalla en vez de reintentar en bucle. El bucle no puede
-   * girar para siempre: cada vuelta que no entra incorpora acciones, y con cada
-   * una el `esperado` crece.
+   * motivo para la pantalla en vez de reintentar en bucle. Cada vuelta adopta el
+   * registro del relevo y vuelve a preguntarle al motor si la acción sigue
+   * siendo legal y si sigue tocándole a quien envía: en cuanto deje de serlo, se
+   * sale con el motivo. Girar para siempre exigiría que otra casa escribiera sin
+   * parar y que la acción siguiera siendo legal en todos esos tableros.
    */
   async enviar(accion: Accion): Promise<Resultado<null>> {
     for (;;) {
@@ -246,21 +263,22 @@ export class SesionDeRed {
       const legal = aplicarAccion(this.estado_, accion);
       if (!legal.ok) return { ok: false, motivo: legal.motivo };
 
-      const esperado = this.acciones_.length;
+      const revision = this.revision_;
       const res = await this.transporte.enviar(this.codigo, {
-        esperado,
+        revision,
         accion,
         autor: this.jugador,
       });
 
       if (res.ok) {
         // Mientras se esperaba la respuesta pudo terminar un sondeo y traer ya
-        // esta misma acción: solo se apunta si la lista sigue como se envió,
-        // para no apuntarla dos veces. Si no, el registro del relevo manda y el
-        // sondeo lo trae.
-        if (this.acciones_.length === esperado) {
+        // esta misma acción: solo se apunta si el registro sigue como se envió,
+        // para no apuntarla dos veces. Si no, el del relevo manda y el sondeo lo
+        // trae.
+        if (this.revision_ === revision) {
           this.acciones_ = [...this.acciones_, accion];
           this.estado_ = repetir(this.estado_, [accion]);
+          this.revision_ = res.valor.revision;
           this.avisar();
         } else {
           await this.sondear();
@@ -271,10 +289,19 @@ export class SesionDeRed {
       // Sin `entradas` no es un «te quedaste atrás»: es la red caída, un código
       // que no existe o una versión distinta, y reintentar no lo arregla.
       if (res.entradas === undefined) return { ok: false, motivo: res.motivo };
-      this.acciones_ = [...this.acciones_, ...res.entradas.map((e) => e.accion)];
-      this.estado_ = repetir(this.estado_, res.entradas.map((e) => e.accion));
-      this.avisar();
+      // El rechazo trae el registro **entero**, no la cola: si la mesa ha
+      // deshecho, añadir lo que falta al final daría una lista que no existe en
+      // ninguna parte. Se adopta el del relevo y se rehace la partida.
+      this.adoptar(res.entradas, res.revision);
     }
+  }
+
+  /** Se queda con el registro del relevo y rehace la partida desde el principio. */
+  private adoptar(entradas: readonly Entrada[], revision?: number): void {
+    this.acciones_ = entradas.map((e) => e.accion);
+    this.estado_ = repetir(this.inicial, this.acciones_);
+    if (revision !== undefined) this.revision_ = revision;
+    this.avisar();
   }
 
   /**
@@ -288,23 +315,20 @@ export class SesionDeRed {
     if (!this.secreto) return { ok: false, motivo: "Solo la mesa puede deshacer." };
     if (this.acciones_.length === 0) return { ok: false, motivo: "No hay nada que deshacer." };
 
-    const esperado = this.acciones_.length;
-    const res = await this.transporte.truncar(this.codigo, { esperado, secreto: this.secreto });
+    const revision = this.revision_;
+    const res = await this.transporte.truncar(this.codigo, { revision, secreto: this.secreto });
     if (res.ok) {
-      if (this.acciones_.length === esperado) {
+      if (this.revision_ === revision) {
         this.acciones_ = this.acciones_.slice(0, -1);
         this.estado_ = repetir(this.inicial, this.acciones_);
+        this.revision_ = res.valor.revision;
         this.avisar();
       } else {
         await this.sondear();
       }
       return { ok: true, valor: null };
     }
-    if (res.entradas !== undefined) {
-      this.acciones_ = [...this.acciones_, ...res.entradas.map((e) => e.accion)];
-      this.estado_ = repetir(this.estado_, res.entradas.map((e) => e.accion));
-      this.avisar();
-    }
+    if (res.entradas !== undefined) this.adoptar(res.entradas, res.revision);
     return { ok: false, motivo: res.motivo };
   }
 }
@@ -327,6 +351,8 @@ export async function crear(transporte: Transporte, montaje: Montaje): Promise<R
       partida.valor,
       MESA,
       [],
+      // Un registro recién creado va por la revisión 0, igual que `crearRegistro`.
+      0,
       res.valor.secreto,
     ),
   };
@@ -361,6 +387,7 @@ export async function unirse(
       partida.valor,
       jugador,
       entradas.map((e) => e.accion),
+      res.valor.revision,
     ),
   };
 }

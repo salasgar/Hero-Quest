@@ -59,6 +59,19 @@ export interface Entrada {
 export interface Registro {
   montaje: Montaje;
   entradas: Entrada[];
+  /**
+   * Sube con **cada cambio del registro**, también al deshacer. Es lo que
+   * identifica un estado del registro, y no su longitud.
+   *
+   * Antes el candado comparaba cuántas acciones había, y deshacer más jugar
+   * deja la misma cuenta con distinto contenido: 10 → 9 → 10. Quien llegaba
+   * con las diez de antes entraba con la cuenta buena y el contenido cambiado,
+   * habiendo decidido su jugada sobre un tablero que ya no existía. Las dos
+   * casas no divergían —`repetir` descarta lo que ya no es legal—, pero esa
+   * jugada se perdía **sin decir nada**, que es peor. Con la revisión, quien
+   * llega tarde recibe «ponte al día» en vez de colar una jugada muerta.
+   */
+  revision: number;
   /** Quién es la mesa. No sale nunca en una respuesta: ver `vista`. */
   secretoMesa: string;
 }
@@ -70,7 +83,20 @@ export interface Registro {
  */
 export type Resultado<T> =
   | { ok: true; valor: T }
-  | { ok: false; motivo: string; entradas?: Entrada[]; total?: number };
+  | {
+      ok: false;
+      motivo: string;
+      /**
+       * El registro **entero**, no solo lo que faltaba. Con el candado viejo se
+       * mandaba la cola desde donde el otro se había quedado, pero eso solo vale
+       * si la lista únicamente crece: en cuanto la mesa deshace, la cola de quien
+       * llega tarde ya no encaja con la suya. Una partida son decenas de acciones
+       * pequeñas, así que mandarla entera no cuesta nada y siempre es correcta.
+       */
+      entradas?: Entrada[];
+      total?: number;
+      revision?: number;
+    };
 
 export function crearRegistro(montaje: Montaje, secretoMesa: string): Resultado<Registro> {
   if (montaje.version !== VERSION) {
@@ -82,17 +108,31 @@ export function crearRegistro(montaje: Montaje, secretoMesa: string): Resultado<
   if (montaje.heroes.length === 0) {
     return { ok: false, motivo: "Una partida necesita al menos un héroe." };
   }
-  return { ok: true, valor: { montaje, entradas: [], secretoMesa } };
+  return { ok: true, valor: { montaje, entradas: [], revision: 0, secretoMesa } };
 }
+
+/** El rechazo de quien escribe con una revisión que ya no es la del registro. */
+const atrasado = (registro: Registro): Resultado<never> => ({
+  ok: false,
+  motivo: "Te habías quedado atrás: alguien jugó antes que tú.",
+  entradas: registro.entradas,
+  total: registro.entradas.length,
+  revision: registro.revision,
+});
 
 /**
  * Añade una acción si quien escribe estaba al día.
  *
- * `esperado` es cuántas acciones creía tener: si no coincide con las que hay, la
- * escritura se rechaza y se le devuelven las que le faltaban. Sin esto, dos
- * jugadores que pulsan a la vez meten dos acciones en un orden que ninguna de las
- * dos pantallas ha visto, y ahí se rompe la reproducibilidad de la que vive todo
- * el proyecto. Es el mismo candado que el `git push` del protocolo del tablón.
+ * `revision` es la del registro que tenía delante cuando decidió su jugada: si
+ * no es la de ahora, la escritura se rechaza y se le devuelve el registro entero
+ * para que se ponga al día y reintente. Sin esto, dos jugadores que pulsan a la
+ * vez meten dos acciones en un orden que ninguna de las dos pantallas ha visto, y
+ * ahí se rompe la reproducibilidad de la que vive todo el proyecto. Es el mismo
+ * candado que el `git push` del protocolo del tablón.
+ *
+ * **Compara la revisión, no cuántas acciones hay.** Contar era casi lo mismo y
+ * fallaba en un caso real: deshacer y volver a jugar deja la misma cuenta con
+ * otro contenido. Está explicado en `Registro.revision`.
  *
  * **`autor` se guarda y no se comprueba.** Una acción no nombra a su figura
  * —`{ tipo: "mover", destino }` no dice quién se mueve—, así que el relevo **no
@@ -101,22 +141,15 @@ export function crearRegistro(montaje: Montaje, secretoMesa: string): Resultado<
  */
 export function anadir(
   registro: Registro,
-  peticion: { esperado: number; accion: Accion; autor: string },
+  peticion: { revision: number; accion: Accion; autor: string },
 ): Resultado<Registro> {
-  const total = registro.entradas.length;
-  if (peticion.esperado !== total) {
-    return {
-      ok: false,
-      motivo: "Te habías quedado atrás: alguien jugó antes que tú.",
-      entradas: registro.entradas.slice(peticion.esperado),
-      total,
-    };
-  }
+  if (peticion.revision !== registro.revision) return atrasado(registro);
   return {
     ok: true,
     valor: {
       ...registro,
       entradas: [...registro.entradas, { accion: peticion.accion, autor: peticion.autor }],
+      revision: registro.revision + 1,
     },
   };
 }
@@ -131,22 +164,24 @@ export function anadir(
  */
 export function truncar(
   registro: Registro,
-  peticion: { esperado: number; secreto: string },
+  peticion: { revision: number; secreto: string },
 ): Resultado<Registro> {
   if (peticion.secreto !== registro.secretoMesa) {
     return { ok: false, motivo: "Solo la mesa puede deshacer." };
   }
-  const total = registro.entradas.length;
-  if (peticion.esperado !== total) {
-    return {
-      ok: false,
-      motivo: "Te habías quedado atrás: alguien jugó antes que tú.",
-      entradas: registro.entradas.slice(peticion.esperado),
-      total,
-    };
-  }
-  if (total === 0) return { ok: false, motivo: "No hay nada que deshacer." };
-  return { ok: true, valor: { ...registro, entradas: registro.entradas.slice(0, -1) } };
+  if (peticion.revision !== registro.revision) return atrasado(registro);
+  if (registro.entradas.length === 0) return { ok: false, motivo: "No hay nada que deshacer." };
+  // Deshacer **también sube la revisión**, y esa es la mitad que faltaba: si no
+  // subiera, deshacer y jugar dejaría el registro con la misma marca que antes y
+  // el candado no vería el cambio.
+  return {
+    ok: true,
+    valor: {
+      ...registro,
+      entradas: registro.entradas.slice(0, -1),
+      revision: registro.revision + 1,
+    },
+  };
 }
 
 /** Lo que se le manda a un cliente. Aquí es donde el secreto de la mesa NO sale. */
@@ -154,8 +189,10 @@ export interface Vista {
   montaje: Montaje;
   /** Solo las que le faltaban, desde `desde`. */
   entradas: Entrada[];
-  /** Cuántas hay en total, que es el `esperado` de su siguiente escritura. */
+  /** Cuántas hay en total. Es cuenta para la pantalla, no el candado. */
   total: number;
+  /** La marca del registro, que es lo que hay que devolver al escribir. */
+  revision: number;
 }
 
 export function vista(registro: Registro, desde = 0): Vista {
@@ -164,6 +201,7 @@ export function vista(registro: Registro, desde = 0): Vista {
     montaje: registro.montaje,
     entradas: registro.entradas.slice(inicio),
     total: registro.entradas.length,
+    revision: registro.revision,
   };
 }
 

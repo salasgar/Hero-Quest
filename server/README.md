@@ -21,24 +21,35 @@ por el cable son decenas de objetos pequeños, no un tablero.
 
 ```
 POST /partidas
-     { montaje }                        → 200 { codigo, secreto }
+     { montaje }                        → 200 { codigo, secreto, revision }
 GET  /partidas/:codigo?desde=N
-                                        → 200 { montaje, entradas, total }
+                                        → 200 { montaje, entradas, total, revision }
 POST /partidas/:codigo/acciones
-     { esperado: N, accion, autor }     → 200 { total }
-                                        | 409 { motivo, entradas, total }
+     { revision: N, accion, autor }     → 200 { total, revision }
+                                        | 409 { motivo, entradas, total, revision }
 POST /partidas/:codigo/truncar
-     { esperado: N, secreto }           → 200 { total } | 409 | 403
+     { revision: N, secreto }           → 200 { total, revision } | 409 | 403
 ```
 
 Tres cosas que no son evidentes leyendo la lista:
 
-- **`esperado` es el mecanismo entero.** Es cuántas acciones creía tener quien
-  escribe. Si no coincide, se rechaza y se le devuelve lo que le faltaba, para que
-  se ponga al día y reintente. Es el mismo candado que el `git push` del protocolo
-  del tablón, y por el mismo motivo.
+- **`revision` es el mecanismo entero.** Es la marca del registro que tenía
+  delante quien escribe cuando decidió su jugada. Si no es la de ahora, se
+  rechaza y se le devuelve el registro entero para que se ponga al día y
+  reintente. Es el mismo candado que el `git push` del protocolo del tablón, y por
+  el mismo motivo.
+
+  **Sube con cada cambio, también al deshacer**, y esa segunda mitad es la que
+  importa: hasta el 2026-09-06 el candado comparaba *cuántas* acciones había, y
+  deshacer más jugar deja la misma cuenta con distinto contenido (10 → 9 → 10).
+  Quien llegaba con las diez viejas entraba con la cuenta buena y el contenido
+  cambiado. Las dos casas no divergían —`repetir` descarta lo que ya no es
+  legal—, pero esa jugada se perdía **sin decir una palabra**.
 - **El 409 no es un fallo**, es el caso normal de dos jugadores que pulsan a la
-  vez.
+  vez. Trae el registro **entero**, no solo la cola que le faltaba a quien
+  escribe: en cuanto la mesa deshace, «lo que te falta» ya no encaja con lo que
+  el otro tiene. Son decenas de acciones pequeñas; mandarlas todas no cuesta nada
+  y siempre es correcto.
 - **`autor` se guarda y no se comprueba.** Una acción no nombra a su figura
   —`{ tipo: "mover", destino }` no dice quién se mueve—, así que el relevo no
   **puede** validar de quién es el turno. Eso lo hace el cliente (T31). No es un
