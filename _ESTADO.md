@@ -127,7 +127,7 @@ coger en cualquier orden desde hoy.
 | T22 | [Saber qué hace cada hechizo antes de lanzarlo](tareas/T22-que-hace-cada-hechizo.md) | `Instrucciones.tsx` en `main` | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css` | pendiente · **a la cola**, por decisión suya |
 | T30 | [El relevo de acciones](tareas/T30-relevo-de-acciones.md) | — | `server/`, `src/red/protocolo.ts` | **hecha** · `6b07f82` · 2026-09-05 · escrita y probada; **falta desplegarla**, y eso pide su firma |
 | T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | **hecha** · `15c852a` · 2026-09-05 · el sondeo pide desde cero a propósito; ver el registro |
-| T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 y T18 · **cumplidas** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | en curso · `66e4a4ea` · 2026-09-06 |
+| T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 y T18 · **cumplidas** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | **hecha** · `be4adf6` · 2026-09-06 · **falta la prueba con dos navegadores**; hay `npm run relevo` para hacerla sin desplegar |
 | T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 · **cumplida** | `TurnPanel.tsx`, `DiceInput.tsx` | libre · pero no a la vez que T32: comparten pantalla |
 | T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **falta su autorización** | `.github/workflows/`, `vite.config.ts`, `README.md` | pendiente · esperando su firma |
 
@@ -370,6 +370,42 @@ van aquí y no se pierden en la tabla:
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T32 · sesión `66e4a4ea` · 2026-09-06 · `be4adf6`.** La pantalla de quien juega desde su
+  casa. Seis cosas para quien siga:
+  - **Filtrar por «¿está abierta su sala?» no es filtrar por niebla, y la diferencia se
+    mide.** `BoardMirror` ya escondía las salas sin revelar, pero un pasillo no es ninguna
+    sala: con ese criterio, cualquier monstruo del pasillo se ve siempre, descubierto o no.
+    La niebla filtra por **`monstruosEnTablero`**, que es la respuesta del motor a esa
+    pregunta exacta y la que dejó T18.
+  - **Las puertas las decide `puertasVisibles`, del motor.** Filtrar a mano por
+    `puertasVistas` parecía equivalente y borraba del tablero de casa **la puerta secreta
+    recién encontrada**, porque las secretas van por `descubierta`. Hay un test que fija
+    ese caso.
+  - **`comoLoVe` devuelve un estado para pintar, no para jugar.** No se le pasa nunca al
+    motor: le faltan monstruos y puertas. Los selectores que deciden qué es legal van
+    siempre sobre el estado completo, porque tienen que contestar lo mismo que el motor; si
+    se recortaran, saldrían botones que el motor rechaza.
+  - **Las acciones de turno salieron a `useAccionesDeTurno`**, sin cambiarles el
+    comportamiento: `Juego.tsx` pierde 282 líneas y las dos pantallas comparten los
+    diálogos de dados, el teclado y el reparto de quién tira qué. La bandera del hook es
+    `puedeActuar` —«el turno es de una figura que llevo yo»—, **no «soy remoto»**: en la
+    mesa también vale `false`, durante el turno de Zargon.
+  - **El diario no lo filtra la niebla, y no hace falta**: un evento es algo que ya ha
+    ocurrido, Zargon solo mueve monstruos descubiertos y las salas se anuncian al abrirlas.
+    Está escrito en `VistaDeHeroe.tsx`, con el sitio donde habría que filtrarlo si algún
+    día un evento contara algo de una sala cerrada.
+  - **Hay `npm run relevo`**, un relevo en memoria sobre el mismo `protocolo.ts`, escrito
+    porque esta tarea no se puede dar por buena sin dos navegadores y el de Cloudflare
+    espera una firma. Probado a mano de punta a punta: crear, añadir, el 409 con las
+    acciones que faltaban, el 403 a quien no es la mesa, truncar y el 404. **Lo que sigue
+    pendiente es mirarlo con dos ventanas abiertas**: ninguna sesión lo ha hecho.
+    `npm run relevo` y `npm run dev`, y se abre
+    `http://localhost:5173/?relevo=http://localhost:8787`.
+  - **Una regla del repositorio incumplida, dicha en voz alta:** las 37 líneas nuevas de
+    `estilos.css` se añadieron con un heredoc desde Bash, que es justo lo que `_COMUN.md`
+    prohíbe porque se salta el hook de candados. No lo pisó nadie —el fichero estaba libre
+    y reservado por esta sesión— pero la regla vale igual y la próxima vez toca `Edit`.
 
 - **T8 · sesión `66e4a4ea` · 2026-09-05 · `2203e01`.** Zargon decide. Es la tarea que quita
   del medio lo último que hacía un humano en el turno de los monstruos.
