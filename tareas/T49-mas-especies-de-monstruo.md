@@ -109,3 +109,15 @@ Diez es lo que hay hoy.
 El orden de cierre es el de `proyecto.md`. En el mensaje a Juan Luis, la tabla de especies
 nuevas con sus números en una línea cada una, las figuras que hacen falta, y los poderes que
 quedan apuntados para T50.
+
+## Hecho (2026-09-06, `s-20260906T174538-5671d1b5`)
+
+Ocho especies: brujo, bruja, araña gigante, monstruo de arena, rata gigante, espectro, ogro
+y serpiente de las tumbas. Trampa para quien repita este patrón: **el ataque de la especie
+nueva no puede valer 1**, o empata con el troll y rompe su test («pega menos que cualquier
+otro» exige que sea estrictamente el único con ataque 1); pasó con el primer borrador del
+brujo y de la rata gigante. Y **`tests/nombres.test.ts` tenía el total de nombres fijado a
+120** (diez especies × doce): con especies nuevas hay que dejarlo en
+`ESPECIES.length * 12`, no en el número de hoy, o la próxima tarea que añada especies vuelve
+a tropezar con lo mismo. `npm run cartas` no hace falta tocarlo: itera `ESPECIES` solo y saca
+las 18 especies en la tabla del bestiario sin cambiar el script.
