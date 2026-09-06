@@ -130,7 +130,7 @@ coger en cualquier orden desde hoy.
 | T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 y T18 · **cumplidas** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | **hecha** · `be4adf6` · 2026-09-06 · **falta la prueba con dos navegadores**; hay `npm run relevo` para hacerla sin desplegar |
 | T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 · **cumplida** | `TurnPanel.tsx`, `DiceInput.tsx` · **y `useAccionesDeTurno.ts`**, que no existía al escribir la tarea y es donde vive ahora el reparto de dados | en curso · `66e4a4ea` · 2026-09-06 |
 | T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **falta su autorización** | `.github/workflows/`, `vite.config.ts`, `README.md` | pendiente · esperando su firma |
-| T35 | [La salida crece con el grupo](tareas/T35-la-salida-crece-con-el-grupo.md) | T16 · **cumplida** | `partida.ts`, `tests/ocho-heroes.test.ts` · **no toca `reducer.ts`** | en curso · `946ca4aa` · 2026-09-06 |
+| T35 | [La salida crece con el grupo](tareas/T35-la-salida-crece-con-el-grupo.md) | T16 · **cumplida** | `partida.ts`, `tests/ocho-heroes.test.ts` · **no toca `reducer.ts`** | **hecha** · `87ea055` · 2026-09-06 · **`estado.mision.entrada` pasa a ser un dato derivado**: lee el registro antes de escribir una misión |
 
 Las cinco de la tanda de septiembre —**T13 a T17**, no las de red, que empiezan en T30— salen
 de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la lista original de
@@ -371,6 +371,29 @@ van aquí y no se pierden en la tabla:
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T35 · sesión `946ca4aa` · 2026-09-06 · `87ea055`.** La salida crece con el grupo. Cuatro
+  cosas que no estaban escritas:
+  - **`estado.mision.entrada` ya no es lo que declara la misión: es un dato derivado.** Con
+    un grupo grande, `crearPartida` guarda en el estado una copia de la misión con la entrada
+    crecida hasta tener una casilla por héroe. Quien escriba una misión nueva declara la
+    escalera que quiera y el motor la estira sola; quien lea `estado.mision.entrada`
+    esperando encontrar exactamente lo de `quests/` se llevará una sorpresa con ocho héroes.
+    **Es la parte que hay que saber antes de tocar misiones.**
+  - **El arreglo evitó `reducer.ts` a propósito.** El objetivo «salir» ya preguntaba por
+    `e.mision.entrada`, así que cambiando lo que se guarda ahí funciona sin entrar en el
+    fichero que más sesiones se disputan. Cuando algo se pueda arreglar en el constructor en
+    vez de en el reductor, merece la pena mirarlo: es una reserva que no hay que pedir.
+  - **Se le llevó la contraria a Juan Luis en un punto, y con test.** Dijo «N casillas para N
+    héroes». Al pie de la letra, `casillasDeSalida` recorta cuando le pides menos de las
+    declaradas, así que un grupo de dos habría dejado la salida en dos casillas y salir
+    sería **más** difícil que hoy: una regresión silenciosa para los grupos pequeños, que son
+    los normales. Va el máximo entre héroes y casillas declaradas, y hay un test que lo fija
+    para que nadie lo «simplifique» leyendo solo su frase.
+  - **De seis tests nuevos, solo dos fallan con el código viejo**, y es correcto: los otros
+    cuatro son guardas de regresión de los grupos de dos y de cuatro, no la prueba de la
+    regla nueva. Distinguirlo importa, porque un test que pasa igual con el código viejo no
+    prueba nada de lo que se acaba de escribir —lo que no quiere decir que sobre—.
 
 - **T32 · sesión `66e4a4ea` · 2026-09-06 · `be4adf6`.** La pantalla de quien juega desde su
   casa. Seis cosas para quien siga:
