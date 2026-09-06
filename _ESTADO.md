@@ -49,15 +49,17 @@ reclamos estaban en las copias de `hechos/` de los worktreks y no en este árbol
    mismos ficheros. A partir de ahí tu sid es el del nombre de tu reclamo: léelo de ahí,
    nunca de un fichero de nombre fijo como `/tmp/sid.txt` — otra sesión de esta máquina
    elige el mismo nombre y os intercambiáis el sid.
-5. Reclama tu tarea —**la que te nombre la frase de arranque**, si nombra una—: crea el
-   reclamo y, **como aquí cada sesión tiene su worktree y por tanto su copia de
-   `hechos/`, empújalo en el acto**: `git commit -m "Reclamo NN" --
-   hechos/reclamos/NN--<sid>.md && git push origin HEAD:main`. Después `sleep 30 && git
+5. Reclama tu tarea —**la que te nombre la frase de arranque**, si nombra una— **desde el
+   árbol principal y antes de entrar en tu worktree**: desde dentro no se puede escribir
+   fuera, y un reclamo en la copia de un worktree no lo ve nadie. En
+   `/Users/salasgar/Documents/git/Hero-Quest`: crea el reclamo, `git commit -m "Reclamo
+   NN" -- hechos/reclamos/NN--<sid>.md && git push origin main`, después `sleep 30 && git
    fetch origin && git ls-tree --name-only origin/main hechos/reclamos/` —el comando, no
-   la intención; nunca un `ls` de tu copia, que solo te ve a ti— y cede si otra sesión
-   llegó antes. Si el `push` se rechaza, `git pull --rebase` y otra vez. `CERRADA` y
-   `ABANDONADA` se empujan igual, en el acto. Todas las sesiones están en el mismo Mac,
-   así que `sleep 30` basta aunque la carpeta esté en iCloud (`proyecto.md`).
+   la intención; nunca un `ls` de una copia— y cede si otra sesión llegó antes (si el
+   `push` se rechaza, `git pull --rebase` y otra vez). Solo entonces `EnterWorktree`. Los
+   latidos, `CERRADA` y la terminada van a la copia de tu worktree y los publica **la
+   fusión de tu rama en `main`, que es parte del cierre**. Todas las sesiones están en el
+   mismo Mac, así que `sleep 30` basta aunque la carpeta esté en iCloud (`proyecto.md`).
 6. Si ganas, **regenera este tablón entero** —todas las filas contra `hechos/` y la hora
    real, no solo la tuya— antes de empezar: es lo que Juan Luis mira para abrir
    sesiones, y si dijera «libre» de una tarea cogida abriría una sesión para nada. Y
@@ -232,7 +234,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 39 | T39 · El diario en dos modos: informe y relato | tareas/T39-diario-informe-y-relato.md | 42 LISTA (firma del relato, 2026-09-06) | 4 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts` y `frases.ts` (nuevos), `MasterLog.tsx`, tests | manual | **BLOQUEADA** (42) | |
 | 40 | T40 · Todas las salas con puerta en la primera misión | tareas/T40-todas-las-salas-con-puerta.md | ninguna | 2 h | MEDIO | 42 | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | LISTA (`3eef6dc`) | |
 | 41 | T41 · El logotipo y las imágenes de ambientación | tareas/T41-logotipo-y-ambientacion-visual.md | ninguna (firma del 2026-09-06) · no a la vez que 37, 43 | 3 h | MEDIO | 37 | `public/`, `App.tsx`, `EleccionDeHeroes.tsx`, `Transicion.tsx` (nuevo), `estilos.css` | manual | **EN CURSO** | `s-20260906T125522-43d82a6b` · caduca 18:55Z |
-| 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | **EN CURSO** · el código está empujado en la rama `worktree-t42-nombres-monstruos-0cdb5d41` (`d84a710`, 448 tests) pero **no fusionado en `main`** y sin terminada en el `hechos/` de `main`: no es LISTA todavía | `s-20260906T124412-0cdb5d41` · caduca 16:44Z |
+| 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | **EN CURSO** · el código está empujado en la rama `worktree-t42-nombres-monstruos-0cdb5d41` (`d84a710`, 448 tests) pero **no fusionado en `main`** y sin terminada en el `hechos/` de `main`: no es LISTA todavía. **Lo que falta es que su propia sesión fusione la rama en `main`** (conflicto probable en `TurnPanel.tsx` con la 11) y empuje | `s-20260906T124412-0cdb5d41` · caduca 16:44Z |
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 11, 36 | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | **PENDIENTE** | |
 | 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 11, 36, 37, 38, 41, 44 | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** | |

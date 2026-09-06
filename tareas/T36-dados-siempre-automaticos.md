@@ -65,6 +65,11 @@ Si `siempreYo` ya no existe y nadie usa la preferencia, está hecha.
 
 ## Trampas conocidas
 
+- **Encargo heredado de la 42 y la 11 (2026-09-06):** `nombreDeFigura` en
+  `useAccionesDeTurno.ts` sigue diciendo «Orco» a secas, así que el diario dice «Górbak» y
+  el anuncio de la jugada «Orco» en la misma pantalla. Es una línea, y el parche está
+  copiado en las terminadas de las dos (`hechos/terminadas/42--*` y `11--*`); se arregla
+  aquí porque este fichero es de esta tarea.
 - **Los componentes de React no se prueban** (`vite.config.ts`: `environment: "node"`).
   Prueba el dato: que la acción que sale del hook no lleva `dados`, y que el motor tira.
 - **La preferencia en `localStorage` es por navegador**: T33 avisó de que probar las dos

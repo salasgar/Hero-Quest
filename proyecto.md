@@ -129,15 +129,21 @@ frases como sesiones quepan a la vez sin estorbarse, con banda y tarea puestas, 
 sin editar (el 2026-09-06 cuatro sesiones MEDIO con la misma frase genérica eligieron
 cada una lo que quiso).
 
-**Con un worktree por sesión, `hechos/` tiene una copia por worktree.** Tu reclamo no
-existe para las demás sesiones hasta que está en `origin/main`: nada más escribirlo,
-`git commit -m "Reclamo NN" -- hechos/reclamos/NN--<sid>.md && git push origin HEAD:main`,
-y el «esperar y volver a mirar» es `sleep 30 && git fetch origin && git ls-tree --name-only
-origin/main hechos/reclamos/`, nunca un `ls` de tu copia. Lo mismo con `CERRADA` o
-`ABANDONADA`: se empujan en el acto. Si el `push` se rechaza, `git pull --rebase` (los
-ficheros de `hechos/` tienen un solo escritor y no dan conflicto) y otra vez. Ese mismo día
-cuatro sesiones trabajaban en cuatro worktrees y `origin/main` no tenía ni un reclamo
-vivo: tres no lo habían escrito y la cuarta lo tenía en su copia, donde nadie lo veía.
+**Con un worktree por sesión, `hechos/` tiene una copia por worktree, y desde dentro de un
+worktree no se puede escribir en el árbol principal.** Así que **el worktree es para el
+código; el reclamo se abre en el árbol principal, antes de entrar**: en
+`/Users/salasgar/Documents/git/Hero-Quest`, escribe `hechos/reclamos/NN--<sid>.md`, `git
+commit -m "Reclamo NN" -- hechos/reclamos/NN--<sid>.md && git push origin main`, y solo
+después `EnterWorktree`. El «esperar y volver a mirar» es `sleep 30 && git fetch origin &&
+git ls-tree --name-only origin/main hechos/reclamos/`, nunca un `ls` de una copia. Los
+latidos, `CERRADA` y la terminada van a la copia de `hechos/` de tu worktree, en la misma
+rama que el código, y **los publica la fusión de tu rama en `main`, que es parte del
+cierre**: una rama empujada y sin fusionar no cierra nada (la 42 lo vivió el 2026-09-06).
+Por eso la caducidad inicial se pone con margen: es la única que las demás ven hasta que
+fusiones. `ABANDONADA` sin fusión de código: escríbela y empújala desde el árbol
+principal, que para eso sí se puede salir del worktree. Ese día cuatro sesiones trabajaban
+en cuatro worktrees y `origin/main` no tenía ni un reclamo vivo; tres reclamos de la 42
+convivieron en tres copias y se resolvieron por mensajes entre sesiones.
 
 Para coger una tarea MAL CORTADA que Juan Luis haya decidido tratar como larga, la frase la
 nombra: «… reclama la tarea NN, que está MAL CORTADA y se continúa como larga …».
