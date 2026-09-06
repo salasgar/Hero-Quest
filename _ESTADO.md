@@ -1057,8 +1057,19 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   salida. El objetivo «salir» (`reducer.ts`) sigue pidiendo que todos los héroes vivos estén
   sobre una casilla de `mision.entrada`, así que en una misión de salir con ocho héroes y
   cuatro casillas la victoria seguiría siendo imposible. Hoy no afecta a nadie —«El calabozo
-  del guardián» se gana matando al guardián— y queda escrito para quien escriba la primera
-  misión de salir.
+  del guardián» se gana matando al guardián—. **Resuelto el 2026-09-06: mira la firma
+  siguiente.**
+
+- **2026-09-06 — En una misión de «salir», la salida lleva tantas casillas como héroes
+  pueda llevar el grupo.** Respuesta literal de Juan Luis al aviso de la firma anterior:
+  «Los 8 héroes podrán salir si ponemos suficientes casillas de salida. Basta hacer
+  coincidir el número de casillas de entrada con el número de casillas de salida». Es una
+  regla de **diseño de misiones**, no un cambio de motor: el objetivo «salir» sigue pidiendo
+  a todos los héroes vivos sobre `mision.entrada`, y lo que se exige es que esa lista tenga
+  al menos tantas casillas como el tope del grupo (hoy ocho). No toca al calabozo ni a
+  ninguna misión existente. Para quien escriba la primera misión de salir: acompáñala de un
+  test que exija `entrada.length >= 8` cuando el objetivo sea «salir», que es lo que
+  convierte esta firma en algo que no se puede olvidar.
 
 - **2026-09-05 — El suelo de un dado en el foso queda solo para los héroes (T5).** Decidido
   por la sesión `205592a2` por delegación de Juan Luis, 2026-09-05. Se queda la lectura
