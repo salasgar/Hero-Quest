@@ -227,3 +227,106 @@ describe("la misión cabe en el cartón que hay construido", () => {
     expect(TOTAL_PIEZAS).toBeGreaterThanOrEqual(MUEBLES_CALABOZO.length);
   });
 });
+
+// -------------------------------------------------------------- todas las salas se pisan
+
+import { celdasDeSala, idsDeSalas } from "../src/data/board-base";
+import { alcanzables } from "../src/engine/board";
+import type { Puerta } from "../src/engine/types";
+
+/**
+ * La lista de puertas que tenía la misión antes de la T40.
+ *
+ * Está copiada aquí a propósito y no importada: es lo que hace que el test de
+ * alcanzabilidad tenga una mitad negativa de verdad. Sin ella, un test que
+ * afirma «se llega a las 22 salas» pasa igual de verde estando bien la misión
+ * que estando mal la medida, y no habría manera de notarlo.
+ */
+const PUERTAS_ANTES_DE_T40: Puerta[] = [
+  { id: "ps", a: { x: 12, y: 15 }, b: { x: 11, y: 15 }, abierta: false, secreta: false, descubierta: true },
+  { id: "pt", a: { x: 13, y: 14 }, b: { x: 14, y: 14 }, abierta: false, secreta: false, descubierta: true },
+  { id: "pr", a: { x: 6, y: 18 }, b: { x: 6, y: 17 }, abierta: false, secreta: false, descubierta: true },
+  { id: "pq", a: { x: 0, y: 15 }, b: { x: 1, y: 15 }, abierta: false, secreta: false, descubierta: true },
+  { id: "psecreta", a: { x: 4, y: 13 }, b: { x: 4, y: 14 }, abierta: false, secreta: true, descubierta: false },
+];
+
+/**
+ * Salas a cuyas casillas pisables llega un héroe desde la escalera con todas
+ * las puertas abiertas, las secretas incluidas.
+ *
+ * Va por el motor de verdad (`alcanzables`) y no por un recorrido propio, para
+ * que cuente como camino exactamente lo que contará en la mesa. Sin monstruos,
+ * porque un monstruo no es un muro: se mata y se sigue. El mobiliario sí, que
+ * no se quita de en medio, así que sus casillas no entran en la cuenta.
+ */
+function salasQueSePisan(puertas: Puerta[]): Set<string> {
+  const e = crearPartida({
+    mision: MISION_CALABOZO,
+    heroes: [{ clase: "barbaro" }],
+    monstruos: [],
+    puertas: puertas.map((p) => ({ ...p, abierta: true, descubierta: true })),
+    muebles: MUEBLES_CALABOZO,
+    trampas: TRAMPAS_CALABOZO,
+    semilla: 1,
+  });
+  const heroe = e.heroes[0]!;
+  // 500 puntos: el tablero entero son 494 casillas, así que nada se queda
+  // fuera por falta de movimiento y solo cuentan los muros.
+  const mapa = alcanzables(e, heroe, 500);
+  const ocupadas = new Set(
+    MUEBLES_CALABOZO.filter((m) => m.bloqueaPaso).flatMap((m) => m.celdas).map(claveCelda),
+  );
+  const enteras = new Set<string>();
+  for (const sala of idsDeSalas()) {
+    const pisables = celdasDeSala(sala).filter((c) => !ocupadas.has(claveCelda(c)));
+    if (pisables.every((c) => mapa.has(claveCelda(c)))) enteras.add(sala);
+  }
+  return enteras;
+}
+
+describe("todas las salas del tablero son accesibles", () => {
+  it("desde la escalera se llega a las 22 salas enteras", () => {
+    const enteras = salasQueSePisan(PUERTAS_CALABOZO);
+    const sinAlcanzar = idsDeSalas().filter((s) => !enteras.has(s));
+    expect(sinAlcanzar, `salas sin alcanzar: ${sinAlcanzar.join(" ")}`).toEqual([]);
+    expect(enteras.size).toBe(22);
+  });
+
+  it("con la lista de puertas vieja solo se llegaba a cinco", () => {
+    const enteras = salasQueSePisan(PUERTAS_ANTES_DE_T40);
+    expect([...enteras].sort()).toEqual(["l", "q", "r", "s", "t"]);
+    expect(idsDeSalas().length - enteras.size).toBe(17);
+  });
+
+  it("ninguna sala depende de una puerta secreta para entrar", () => {
+    // Si la única entrada de una sala fuese secreta, un grupo que no registre
+    // en busca de puertas secretas se quedaría sin poder terminar la misión.
+    const conNormal = new Set(
+      PUERTAS_CALABOZO.filter((p) => !p.secreta).flatMap((p) => [
+        salaEn(p.a.x, p.a.y),
+        salaEn(p.b.x, p.b.y),
+      ]),
+    );
+    for (const sala of idsDeSalas())
+      expect(conNormal.has(sala), `a la sala '${sala}' solo se entra por una secreta`).toBe(true);
+  });
+
+  it("sin abrir las secretas se sigue llegando a las 22 salas", () => {
+    const soloNormales = PUERTAS_CALABOZO.filter((p) => !p.secreta);
+    expect(salasQueSePisan(soloNormales).size).toBe(22);
+  });
+
+  it("no hay dos puertas sobre la misma casilla", () => {
+    // Dos puertas que comparten vano son dos marcadores de cartón peleándose
+    // por una casilla del tablero físico.
+    const vanos = PUERTAS_CALABOZO.flatMap((p) => [p.a, p.b]).map(claveCelda);
+    expect(new Set(vanos).size).toBe(vanos.length);
+  });
+
+  it("ninguna trampa cae debajo del vano de una puerta", () => {
+    const trampas = new Set(TRAMPAS_CALABOZO.map((t) => claveCelda(t.celda)));
+    for (const p of PUERTAS_CALABOZO)
+      for (const v of [p.a, p.b])
+        expect(trampas.has(claveCelda(v)), `una trampa está en el vano de '${p.id}'`).toBe(false);
+  });
+});

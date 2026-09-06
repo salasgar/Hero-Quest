@@ -35,12 +35,18 @@ const todosLejos = (e: ReturnType<typeof calabozo>) =>
   e.heroes.reduce((acc, h, i) => situar(acc, h.id, c(20 + i, 18)), e);
 
 describe("qué puertas se pintan", () => {
-  it("al empezar el calabozo se ven tres puertas, y la del fondo del pasillo no", () => {
+  it("al empezar el calabozo se ven las del pasillo de abajo, y la del fondo no", () => {
     const e = calabozo();
 
     // `pq` está en (0,15), a doce casillas de la entrada y detrás de una esquina.
     // Es la puerta que Juan Luis vio pintada sin que nadie la hubiera visto.
-    expect(ids(puertasVisibles(e))).toEqual(["pr", "ps", "pt"]);
+    //
+    // Eran tres hasta la T40, que puso puerta a las veintidós salas: `pu`
+    // (19,18) y `pv` (22,18) están en la misma fila de pasillo por la que
+    // entran los héroes, en línea recta y sin nada delante, así que se ven
+    // desde el primer momento igual que `pr` (6,18). Lo correcto es que se
+    // pinten: en la mesa, esas dos fichas de cartón se ponen al empezar.
+    expect(ids(puertasVisibles(e))).toEqual(["pr", "ps", "pt", "pu", "pv"]);
 
     // Ojo al escribir esto: no basta con apagar `pq`. Si el cambio apaga también
     // `ps`, `pt` y `pr`, la partida se ha roto, no se ha arreglado.

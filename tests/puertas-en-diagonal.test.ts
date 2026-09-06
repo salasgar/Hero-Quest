@@ -159,7 +159,21 @@ describe("el selector y el motor no divergen", () => {
         const e = situar(base, "barbaro", c(x, y));
         if (puertasAlAlcance(e).length > 0) conPuerta.push(clave(c(x, y)));
       }
-    // Cuatro puertas de seis casillas y una secreta de cuatro, sin solapes.
-    expect(conPuerta.length).toBe(28);
+    // El número sale de la misión, no de la regla, así que cambia cuando cambia
+    // la lista de puertas del calabozo: la T40 la subió de cinco a veinticinco
+    // para que se pueda entrar en las veintidós salas, y esto pasó de 28 a 134.
+    // Si vuelve a fallar por aquí, vuelve a medirlo antes de tocar nada.
+    //
+    // De las veinticinco, este montaje solo cuenta veintitrés: las dos secretas
+    // nuevas siguen sin descubrir y el selector no las ofrece. Veinte abren
+    // desde seis casillas, dos desde cinco (`pm` y `pn`, con una diagonal al
+    // otro lado del muro) y `psecreta` desde cuatro. 20·6 + 2·5 + 4 = 134, sin
+    // una sola casilla compartida entre dos puertas.
+    expect(conPuerta.length).toBe(134);
+    // Y esto es lo que de verdad quería decir el número, escrito de forma que
+    // no haya que volver a medirlo: toda puerta ofrecida se abre al menos desde
+    // sus dos casillas del vano.
+    const ofrecidas = conSecretaDescubierta.filter((p) => !p.secreta || p.descubierta);
+    expect(conPuerta.length).toBeGreaterThanOrEqual(ofrecidas.length * 2);
   });
 });
