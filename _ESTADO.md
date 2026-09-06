@@ -260,7 +260,7 @@ espera la palabra de Juan Luis.
 anterior de «cuatro sesiones a la vez» estaba mal: daba por independientes 40+42 y 11+22+36, y
 la 42 toca `TurnPanel.tsx` igual que la 11, la 22 y la 36 (lo dijo
 `hechos/incidencias/s-20260906T124412-0cdb5d41.md`). **Sesiones que caben a la vez sin
-estorbarse ahora mismo: dos nuevas** (44 y 48), además de las dos vivas (41 y 42).
+estorbarse ahora mismo: cuatro nuevas** (22+36, 39, 49 y 48), además de la viva (41).
 
 ## Registro de finalizaciones
 
@@ -272,7 +272,7 @@ terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
 
-- LISTA · tarea 42 · 2026-09-06 13:15 · `s-20260906T124412-0cdb5d41` · doce nombres por especie; asignación en `crearPartida` con el generador del estado; 467 tests con T11 y T40 dentro · `data/nombres.ts`, `partida.ts`, `types.ts`, `reducer.ts`, `narrator/local.ts`, `TurnPanel.tsx` · `372a0f0` (hechos en `7a4f0ee`)
+- LISTA · tarea 42 · 2026-09-06 13:15 · `s-20260906T124412-0cdb5d41` · doce nombres por especie; asignación en `crearPartida` con un generador **derivado** de la semilla (`crearRng(semilla + 0x5bf03635)`), para no mover el del estado ni el barajado ni las tiradas (hay un test que lo fija); 467 tests con T11 y T40 dentro · `data/nombres.ts`, `partida.ts`, `types.ts`, `reducer.ts`, `narrator/local.ts`, `TurnPanel.tsx` · `372a0f0` (hechos en `7a4f0ee`)
 - LISTA · tarea 40 · 2026-09-06 13:01 · `s-20260906T124430-0169046b` · sin puerta: 0 (25 puertas); 437 tests; medido con `npm run sim`: la misión pasa de 8 a 15-18 rondas de media · `quests/calabozo.ts`, `tests/quest.test.ts` · `3eef6dc`
 - LISTA · tarea 11 · 2026-09-06 13:01 · `s-20260906T124421-acb9871f` · el turno de Zargon se juega solo a ritmo de mesa; 431 → 444 tests, 12 nuevos; typecheck y build en verde · `useTurnoDeZargon.ts` (nuevo), `useAccionesDeTurno.ts`, `Juego.tsx`, `TurnPanel.tsx` · `02499a8`, fusionado en `649b35b`
 - LISTA · tarea 43 · 2026-09-06 12:49 · `s-20260906T124346-dd4060bd` · 431 tests (sin cambios); botón y rama de render quitados, `BoardVerify.tsx` intacto, puerta trasera con `?verificar` · `src/App.tsx` · `cd93174`

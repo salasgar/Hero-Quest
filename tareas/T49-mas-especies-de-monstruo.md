@@ -68,7 +68,10 @@ Diez es lo que hay hoy.
    todo salvo el troll, que ya es el techo de resistencia. Un test que lo fije, como el del
    troll.
 3. **Doce nombres por especie** en `nombres.ts`, con la fonética que T42 dejó decidida por
-   familia (no muertos, bestias, humanoides).
+   familia (no muertos, bestias, humanoides). El sorteo de nombres de T42 usa un generador
+   **derivado** de la semilla (`crearRng(semilla + 0x5bf03635)`), no el del estado, para no
+   mover el barajado ni las tiradas; si el temperamento de T38 o cualquier dato nuevo se
+   sortea, se hace igual, con otro desplazamiento, y hay un test de T42 que lo fija.
 4. **`npm run cartas`** para ver que el bestiario impreso sigue saliendo, y avisar en el
    cierre de qué figuras faltan.
 5. Si alguna especie **necesita una regla nueva** para tener sentido (la araña teje, el de
