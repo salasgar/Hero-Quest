@@ -131,6 +131,14 @@ coger en cualquier orden desde hoy.
 | T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 · **cumplida** | `TurnPanel.tsx`, `DiceInput.tsx` · **y `useAccionesDeTurno.ts`**, que no existía al escribir la tarea y es donde vive ahora el reparto de dados | **hecha** · `db96bf2` · 2026-09-06 |
 | T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **firmada el 2026-09-06** | `.github/workflows/`, `vite.config.ts`, `README.md`, `main.tsx`, `BoardVerify.tsx` | **hecha** · `6905402d` · 2026-09-06 · <https://salasgar.github.io/Hero-Quest/> · la cadena de versión **no** pasa a ser el hash, y el motivo está en el registro |
 | T35 | [La salida crece con el grupo](tareas/T35-la-salida-crece-con-el-grupo.md) | T16 · **cumplida** | `partida.ts`, `tests/ocho-heroes.test.ts` · **no toca `reducer.ts`** | **hecha** · `87ea055` · 2026-09-06 · **`estado.mision.entrada` pasa a ser un dato derivado**: lee el registro antes de escribir una misión |
+| T36 | [Varias opciones de tirada de dados: manual, automática y mixta](tareas/T36-opciones-tirada-dados.md) | — | `DiceInput.tsx`, `TurnPanel.tsx`, `types.ts` | libre |
+| T37 | [Iconos para representar a los héroes en el tablero](tareas/T37-iconos-heroes.md) | — | `BoardMirror.tsx`, `EleccionDeHeroes.tsx`, `types.ts`, `estilos.css` | libre |
+| T38 | [Comportamiento autónomo de monstruos: agresividad y huida](tareas/T38-ia-monstruos.md) | T8 · **cumplida** | `src/ai/zargon.ts`, `types.ts` | libre |
+| T39 | [Dos modos del diario: Informe y Relato literario](tareas/T39-diario-dos-modos.md) | — | `narrator/local.ts`, `Diario.tsx`, `types.ts` | libre |
+| T40 | [Accesibilidad de todas las habitaciones en la primera misión](tareas/T40-habitaciones-accesibles.md) | — | `quests/mision-prueba.ts` | libre |
+| T41 | [Ambientación: imagen de letras, más iconos, sonidos y decoración](tareas/T41-ambientacion.md) | — | `assets/`, `estilos.css`, componentes varios | libre |
+| T42 | [Nombres aleatorios de monstruos por especie](tareas/T42-nombres-monstruos.md) | — | `src/engine/nombres.ts`, `types.ts`, `reducer.ts` | libre |
+| T43 | [Quitar la pestaña «Verificar tablero» de la interfaz](tareas/T43-quitar-verificar-tablero.md) | — | `App.tsx`, `estilos.css`, `BoardVerify.tsx` · **no borrar el código** | libre |
 
 Las cinco de la tanda de septiembre —**T13 a T17**, no las de red, que empiezan en T30— salen
 de dos ratos de juego de Juan Luis el 2026-09-05 y ninguna estaba en la lista original de
