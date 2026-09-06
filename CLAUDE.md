@@ -43,7 +43,9 @@ para lo que sirve.
   repositorio: dos sesiones en worktrees distintos pueden editar el mismo archivo sin
   bloquearse. Solo se bloquean las que comparten árbol. Lo lleva el hook
   `~/.claude/hooks/sesiones.sh` y los candados viven en `<repo>/.claude/sesiones/`, que es
-  común a todos los worktrees: desde tu worktree sigues viendo a las demás sesiones.
+  común a todos los worktrees: desde tu worktree sigues viendo a las demás sesiones. Ese
+  hook está fuera de git y es global a todos los proyectos; hay copia para el registro en
+  `scripts/hooks/`, con instrucciones para restaurarlo si se pierde.
 - **Reclamar la tarea en `_ESTADO.md` sigue siendo obligatorio**, y sigue siendo lo que
   evita que dos sesiones hagan lo mismo. El worktree evita que se pisen los archivos, no
   que dupliquen el trabajo.
