@@ -88,6 +88,30 @@ el test de la línea 229 cita la página), está hecha.
 - **T52 pondrá el aviso en pantalla** leyendo el evento `trampaDisparada` de lo que
   devuelve `ejecutar`: no cambies la forma de ese evento sin decirlo en la terminada.
 
+Lo que encontró la sesión que la hizo (`s-20260906T174714-651b3481`, 2026-09-06):
+
+- **El reglamento dice más de lo que la ficha recordaba, en pp. 17-19**: la trampa
+  encontrada salta igual al pisarla, se salta con 1 dado si el camino sigue, la lanza tira
+  su propio dado (calavera hiere, escudo esquiva), el bloque tira 3 sin defensa, y caer al
+  foso o llevarse la lanza **acaba el turno entero** («This ends your turn»), no solo el
+  movimiento. Y el desarme estaba **al revés** (calavera desarmaba). Todo está citado en
+  `reducer.ts`.
+- **El reglamento (p. 12) deja compartir casilla dentro de un foso; el motor no** (T2,
+  `celdaLibre`, invariante del juego al azar). Un héroe que pasa sobre un compañero
+  caído en el foso no tira ni cae: pasa sobre el compañero. Es una simplificación
+  declarada en el código; abrirla es otra tarea.
+- **El bloque caído deja elegir «adelante o atrás» (p. 18)**; el motor vuelve atrás
+  siempre, porque elegir exigiría una acción nueva. Sigue igual.
+- **`desarmarTrampa` no comprueba dónde está el héroe**: el reglamento pide moverse a
+  la casilla de la trampa (p. 19). No se tocó; que lo sepa quien lo coja.
+- **Verificar en la página sin navegador**: `renderToStaticMarkup(<BoardMirror …/>)`
+  con `npx vite-node`, `qlmanage -t` para pasar el SVG a PNG y `sips -c` para recortar.
+  Sirve para ver lo que pinta el tablero con un estado fabricado; no sustituye a jugar.
+- **El guardián del worktree rechaza comandos compuestos con «git» en cualquier ruta
+  o glob** (`**/node_modules/**` incluido): el script de verificación fue a `/tmp` y se
+  lanzó con `sh /tmp/script.sh`. Y `node_modules/` del `.gitignore` no cubre el enlace
+  simbólico: sale como `??` y no hay que añadirlo.
+
 ## Prohibido
 
 - Inventarse la regla del salto o del daño: cita o no se implementa.
