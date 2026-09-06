@@ -1,6 +1,12 @@
 # T2 · Los héroes pasan por encima de otros héroes
 
 **Precondición:** ninguna. **Fichero que bloquea:** `src/engine/board.ts`.
+**Banda de modelo:** MEDIO · **Duración esperada:** 2 h · **Encadenable con:** — ·
+**Ficheros que toca:** `src/engine/board.ts`, `src/data/quests/calabozo.ts` (la entrada),
+`src/engine/reducer.ts`, `tests/`.
+(Cabecera añadida a posteriori en la migración del reparto del 2026-09-06; la tarea ya estaba
+LISTA —`hechos/terminadas/02--*`— y la banda no sale de su texto original. El cierre de una
+tarea es hoy el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Antes de empezar: mira si ya está hecho

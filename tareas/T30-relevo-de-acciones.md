@@ -12,6 +12,11 @@ obliga a redesplegar el servicio mientras hay partidas vivas.
 `server/README.md` (nuevo), `src/red/protocolo.ts` (nuevo),
 `tests/red-protocolo.test.ts` (nuevo). **No toca ni un fichero del motor ni de la
 pantalla**, y por eso puede ir en paralelo con cualquier otra tarea del tablón.
+**Duración esperada:** 4 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/30--*`. El `wrangler deploy` sigue esperando firma en `autorizaciones.md`.
+El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que pidió Juan Luis

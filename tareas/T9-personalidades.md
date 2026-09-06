@@ -1,6 +1,12 @@
 # T9 · Personalidades por especie y tres dificultades
 
 **Precondición:** T8 terminada. **Fichero que bloquea:** `src/ai/`.
+**Banda de modelo:** ALTO · **Duración esperada:** 3 h · **Encadenable con:** — ·
+**Ficheros que toca:** `src/ai/personalities.ts` (nuevo), `src/ai/difficulty.ts` (nuevo),
+`src/ai/zargon.ts`, `scripts/simular.ts` (solo la línea que elige la entrada de la IA), `tests/`.
+(Cabecera añadida a posteriori en la migración del reparto del 2026-09-06; la tarea ya estaba
+LISTA —`hechos/terminadas/09--*`— y la banda no sale de su texto original. El cierre de una
+tarea es hoy el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que hay que escribir

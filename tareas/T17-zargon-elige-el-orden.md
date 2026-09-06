@@ -8,6 +8,10 @@ dónde ponerla para que T8 la herede en vez de tirarla.
 **Ficheros que bloquea:** `src/ai/orden.ts` (nuevo), `src/ui/TurnPanel.tsx`,
 `src/ui/Juego.tsx`. **`src/ai/` es el territorio de T8**, que está bloqueada: lee abajo el
 apartado de cómo no estorbarla.
+**Duración esperada:** 2 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `tests/`.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/17--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que pidió Juan Luis

@@ -1,7 +1,13 @@
 # T7 · El mago no lleva armadura ni armas grandes
 
 **Precondición:** ninguna. **Fichero que bloquea:** `src/data/` (ninguna otra tarea lo
-toca). Lee `_COMUN.md` primero.
+toca).
+**Banda de modelo:** MEDIO · **Duración esperada:** 1 h · **Encadenable con:** — ·
+**Ficheros que toca:** `src/data/heroes.ts`, `src/data/equipment.ts`, `tests/`.
+(Cabecera añadida a posteriori en la migración del reparto del 2026-09-06; la tarea ya estaba
+LISTA —`hechos/terminadas/07--*`— y la banda no sale de su texto original. El cierre de una
+tarea es hoy el de `proyecto.md`, con terminada en `hechos/`.)
+Lee `_COMUN.md` primero.
 
 ## Antes de empezar: mira si ya está hecho
 

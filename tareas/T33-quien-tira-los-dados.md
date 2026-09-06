@@ -5,6 +5,11 @@ ofrecérsela.
 **Banda de modelo:** MEDIO — el motor ya lo soporta entero; esto es pantalla y ajuste.
 **Ficheros que bloquea:** `src/ui/TurnPanel.tsx`, `src/ui/DiceInput.tsx`. Comparte
 `TurnPanel.tsx` con T14, T17 y T32: **no la cojas a la vez que ninguna de ellas.**
+**Duración esperada:** 2 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `src/ui/useAccionesDeTurno.ts` (no existía al escribir
+la tarea; es donde vive el reparto de dados) y `tests/`.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/33--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que pidió Juan Luis

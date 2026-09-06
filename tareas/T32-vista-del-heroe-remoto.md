@@ -7,6 +7,12 @@ misiones futuras.
 **Ficheros que bloquea:** `src/ui/VistaDeHeroe.tsx` (nuevo), `src/ui/BoardMirror.tsx`,
 `src/ui/Juego.tsx`, `src/App.tsx`, `src/estilos.css`. **Es la tarea con más ficheros de
 pantalla de todo el tablón: mira los candados antes de reclamarla.**
+**Duración esperada:** 4 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `src/ui/useAccionesDeTurno.ts` (nuevo, salió de
+`Juego.tsx`), `server/` (el relevo en memoria de `npm run relevo`) y `tests/`.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/32--*`, con la prueba de dos navegadores todavía por hacer. El cierre es
+el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero, y la cabecera de `tareas/T30-relevo-de-acciones.md`.
 
 ## Lo que pidió Juan Luis

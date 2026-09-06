@@ -11,7 +11,9 @@ Juan Luis, para jugar con sus hijos. El motor (`src/engine/`) es un reductor pur
 aleatorio **dentro** del estado. Las acciones ilegales devuelven `{ ok: false, motivo }`;
 no lanzan excepciones.
 
-Contexto completo en `TRASPASO.md`. Estado del reparto en `_ESTADO.md`.
+Contexto completo en `TRASPASO.md`. Ficha fija del reparto —rutas, dónde está `hechos/`,
+bandas de modelo, protocolo de cierre en git y frase de arranque—: `proyecto.md`. Estado del
+reparto en `_ESTADO.md`, que es una vista derivada de `hechos/`.
 
 ## Cómo se verifica
 

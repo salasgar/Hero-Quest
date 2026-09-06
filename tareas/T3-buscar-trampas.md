@@ -1,6 +1,11 @@
 # T3 · Buscar trampas exige no ver monstruos
 
 **Precondición:** ninguna. **Fichero que bloquea:** `src/engine/selectors.ts`.
+**Banda de modelo:** MEDIO · **Duración esperada:** 1 h · **Encadenable con:** — ·
+**Ficheros que toca:** `src/engine/selectors.ts`, `src/engine/reducer.ts`, `tests/`.
+(Cabecera añadida a posteriori en la migración del reparto del 2026-09-06; la tarea ya estaba
+LISTA —`hechos/terminadas/03--*`— y la banda no sale de su texto original. El cierre de una
+tarea es hoy el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Antes de empezar: mira si ya está hecho

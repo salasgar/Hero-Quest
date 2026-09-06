@@ -1,6 +1,12 @@
 # T1 · Las figuras cortan la línea de visión
 
 **Precondición:** ninguna. **Fichero que bloquea:** `src/engine/vision.ts`.
+**Banda de modelo:** MEDIO · **Duración esperada:** 2 h · **Encadenable con:** — ·
+**Ficheros que toca:** `src/engine/vision.ts`, `tests/vision.test.ts`, `tests/reducer.test.ts`.
+(Cabecera añadida a posteriori en la migración del reparto del 2026-09-06; la tarea ya estaba
+LISTA —`hechos/terminadas/01--*`— y la banda no sale de su texto original. El cierre de una
+tarea es hoy el de `proyecto.md`, con terminada en `hechos/`; la «línea en el registro de
+`_ESTADO.md`» de abajo es del reparto viejo.)
 Lee `_COMUN.md` primero.
 
 ## Antes de empezar: mira si ya está hecho

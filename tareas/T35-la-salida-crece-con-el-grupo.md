@@ -5,6 +5,10 @@
 las misiones de cuatro héroes al arreglar las de ocho.
 **Ficheros que bloquea:** `src/engine/partida.ts`, `tests/ocho-heroes.test.ts`.
 **No toca `reducer.ts`**: esa es justo la gracia del arreglo.
+**Duración esperada:** 1 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/35--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que pidió Juan Luis

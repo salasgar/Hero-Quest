@@ -7,6 +7,12 @@ una autorización ya firmada y hay que resolver ese choque, no rodearlo.
 **Ficheros que bloquea:** `src/ui/EleccionDeHeroes.tsx`, `src/engine/partida.ts`,
 `src/data/quests/calabozo.ts`, `tests/quest.test.ts`, `tests/integracion.test.ts`.
 Ojo: `partida.ts` lo toca también **T13**, y `calabozo.ts` lo tocan **T2** y **T15**.
+**Duración esperada:** 3 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `tests/ocho-heroes.test.ts`; `calabozo.ts` al final no
+hizo falta (firma del 2026-09-05 en `autorizaciones.md`).
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea está LISTA en dos
+commits, `56f5f21` y `d3d01e1`: `hechos/terminadas/16--*`. La decisión de Juan Luis que
+esta ficha pide está firmada en `autorizaciones.md`. El cierre es el de `proyecto.md`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que pidió Juan Luis

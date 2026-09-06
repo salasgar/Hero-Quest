@@ -14,6 +14,10 @@ tumbar**: la mayoría de los que montan un monstruo a mano dejarán de poder act
 `src/engine/reducer.ts`, `src/engine/selectors.ts`, `src/ui/TurnPanel.tsx`.
 Mira en `_ESTADO.md` quién tiene `reducer.ts`, que lo tocan T2, T3, T4, T5, T6, T13 y T15.
 **No puede ir a la vez que T17**, que reordena `monstruosPorActivar` y toca `TurnPanel.tsx`.
+**Duración esperada:** 3 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `tests/` (incluido `tests/ayuda.ts`).
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/18--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que vio Juan Luis

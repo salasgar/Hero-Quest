@@ -9,6 +9,17 @@ mitad de una partida sin tapar el tablero.
 **Ficheros que bloquea:** `src/ui/TurnPanel.tsx`, `src/ui/Instrucciones.tsx`,
 `src/ui/HeroSheet.tsx`, `src/estilos.css` (mira su candado: lo ha tenido reservado otra
 sesión).
+**Duración esperada:** 2 h · **Encadenable con:** T11 (misma banda, corta, y comparte
+`TurnPanel.tsx` con esta: **no van en paralelo**, van seguidas en la misma sesión o de una
+en una).
+**Ficheros que toca:** `src/ui/TurnPanel.tsx`, `src/ui/Instrucciones.tsx`,
+`src/ui/HeroSheet.tsx`, `src/estilos.css`, `tests/` (el test de las doce descripciones).
+**Precondición, al día de la migración del 2026-09-06:** `src/ui/Instrucciones.tsx` **ya está
+en `main`** desde `b47310f` (el rescate de la sesión `6f2f1053`), así que la precondición se
+cumple y la tarea es cogible; el «a la cola» era el orden que quiso Juan Luis entre las
+cuatro del 5 de septiembre, y las otras tres ya están LISTA. El cierre es el de
+`proyecto.md`, con terminada en `hechos/`; la «línea en el registro de `_ESTADO.md`» de abajo
+es del reparto viejo.
 Lee `_COMUN.md` primero.
 
 ## Lo que preguntó Juan Luis

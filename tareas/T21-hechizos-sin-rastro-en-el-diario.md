@@ -7,6 +7,11 @@ eventos en los mismos tres ficheros: las dos no pueden ir a la vez.
 cuando un hechizo **no** hace efecto, que hoy no se distingue de cuando sí lo hace.
 **Ficheros que bloquea:** `src/engine/types.ts`, **`src/engine/reducer.ts`**,
 `src/narrator/local.ts`, `tests/`.
+**Duración esperada:** 2 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/21--*`, y la Tempestad quedó firmada el 2026-09-06 en `autorizaciones.md`.
+El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que contó Juan Luis

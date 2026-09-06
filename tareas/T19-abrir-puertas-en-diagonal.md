@@ -6,6 +6,10 @@ cuello del reparto: mira en `_ESTADO.md` quién los tiene reservados antes de em
 un vértice» no es la que parece y equivocarse abre salas desde el otro lado de un muro.
 **Ficheros que bloquea:** `src/engine/board.ts` (la función nueva),
 **`src/engine/reducer.ts`**, `src/engine/selectors.ts`, `tests/`.
+**Duración esperada:** 2 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba. La regla de la casa está firmada en `autorizaciones.md`.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/19--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que pidió Juan Luis

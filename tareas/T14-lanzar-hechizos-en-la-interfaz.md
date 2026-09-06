@@ -5,6 +5,10 @@ esto es conectar la interfaz, con criterio pero sin decidir reglas.
 **Ficheros que bloquea:** `src/ui/TurnPanel.tsx`, `src/ui/Juego.tsx`, `src/ui/HeroSheet.tsx`
 — ninguna otra tarea los toca hoy. **No toca `reducer.ts`**, así que puede ir en paralelo
 con cualquiera.
+**Duración esperada:** 2 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `tests/hechizos-lanzables.test.ts`.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/14--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Qué vio Juan Luis y qué pasa de verdad

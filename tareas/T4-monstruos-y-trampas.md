@@ -2,6 +2,11 @@
 
 **Precondición:** ninguna. **Fichero que bloquea:** `src/engine/reducer.ts` — mira en
 `_ESTADO.md` si T5 o T6 están «en curso» antes de coger esta.
+**Banda de modelo:** MEDIO · **Duración esperada:** 1 h · **Encadenable con:** — ·
+**Ficheros que toca:** `src/engine/reducer.ts`, `tests/`.
+(Cabecera añadida a posteriori en la migración del reparto del 2026-09-06; la tarea ya estaba
+LISTA —`hechos/terminadas/04--*`— y la banda no sale de su texto original. El cierre de una
+tarea es hoy el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Antes de empezar: mira si ya está hecho

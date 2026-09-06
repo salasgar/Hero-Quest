@@ -5,6 +5,10 @@
 se descubre media hora después, en mitad de una partida con niños delante.
 **Ficheros que bloquea:** `src/red/cliente.ts` (nuevo), `src/ui/usePartida.ts`,
 `tests/red-cliente.test.ts` (nuevo). **No toca el motor.**
+**Duración esperada:** 4 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `tests/red-protocolo.test.ts` (su conversor provisional).
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/31--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero, y la cabecera de `tareas/T30-relevo-de-acciones.md`, que es donde
 están las cuatro decisiones firmadas de la fase.
 

@@ -1,6 +1,20 @@
 # T11 · El turno de Zargon, sin un solo clic
 
 **Precondición:** T8 y T9 terminadas. **Fichero que bloquea:** `src/ui/`.
+**Banda de modelo:** MEDIO — el motor y la IA ya están escritos y probados; esto es
+conectarlos a la pantalla con el ritmo de la mesa, que pide criterio pero no decide reglas.
+**Duración esperada:** 3 h · **Encadenable con:** T22 (misma banda, corta, y comparte
+`TurnPanel.tsx` con esta: **no van en paralelo**, van seguidas en la misma sesión o de una
+en una).
+**Ficheros que toca:** `src/ui/Juego.tsx`, `src/ui/TurnPanel.tsx`,
+`src/ui/useAccionesDeTurno.ts`, `tests/`; `src/ui/usePartida.ts` solo si hace falta, y
+**nada de `src/engine/` ni de `src/ai/`**. Ajusta esta lista en tu reclamo si al empezar ves
+que es otra. El punto de entrada con dificultad es `accionDeZargon(e, nivel)`, en
+`src/ai/difficulty.ts` (lo dejó dicho el registro de T9); la pantalla necesita un selector
+de nivel o fijar `normal` hasta que se pida.
+(Cabecera añadida en la migración del reparto del 2026-09-06; la banda no sale del texto
+original. El cierre es el de `proyecto.md`, con terminada en `hechos/`; la «línea en el
+registro de `_ESTADO.md`» de abajo es del reparto viejo.)
 Lee `_COMUN.md` primero.
 
 ## Qué hay que hacer

@@ -5,6 +5,10 @@ una regla que luego heredan T15 y toda la Fase 4.
 **Ficheros que bloquea:** `src/engine/types.ts`, `src/engine/partida.ts`,
 `src/engine/reducer.ts`, `src/engine/selectors.ts`, `src/ui/BoardMirror.tsx` — mira en
 `_ESTADO.md` quién tiene `reducer.ts`, que lo tocan T2, T3, T4, T5, T6 y T15.
+**Duración esperada:** 3 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `tests/`.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/13--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## El fallo, medido

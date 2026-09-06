@@ -8,6 +8,11 @@
 **Urgente:** hazla antes de coger cualquier otra, porque el tablón está desactualizado y
 hay trabajo sin commitear que se pierde si alguien limpia el árbol.
 
+**Banda de modelo:** ALTO (juzgar trabajo ajeno sin tests) · **Duración esperada:** 2 h ·
+**Encadenable con:** — · **Ficheros que toca:** `_ESTADO.md` (hoy
+`_ESTADO-antiguo-2026-09-06.md`), `src/engine/reducer.ts`.
+(Cabecera añadida a posteriori en la migración del reparto del 2026-09-06; la tarea ya estaba
+LISTA —`hechos/terminadas/12--*`— y la banda no sale de su texto original.)
 Lee `tareas/_COMUN.md` primero.
 
 ## Qué pasó

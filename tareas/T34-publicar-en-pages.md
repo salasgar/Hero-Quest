@@ -7,6 +7,11 @@ de versión, de la que depende que dos casas no diverjan.
 **Ficheros que bloquea:** `.github/workflows/pages.yml` (nuevo), `vite.config.ts`,
 `README.md`. **No toca `src/`** salvo el fichero de configuración que decidas para la URL
 del relevo.
+**Duración esperada:** 2 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `src/main.tsx` y `src/ui/BoardVerify.tsx` (la `base`).
+La firma que pide vive en `autorizaciones.md`, no en el tablón (firmada el 2026-09-06).
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/34--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## De dónde sale

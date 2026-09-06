@@ -1,6 +1,11 @@
 # T8 · Zargon decide: a quién ataca y por dónde va
 
 **Precondición:** T1 a T7 terminadas. **Fichero que bloquea:** `src/ai/` (nuevo).
+**Banda de modelo:** ALTO · **Duración esperada:** 4 h · **Encadenable con:** — ·
+**Ficheros que toca:** `src/ai/targeting.ts` (nuevo), `src/ai/zargon.ts` (nuevo), `tests/`.
+(Cabecera añadida a posteriori en la migración del reparto del 2026-09-06; la tarea ya estaba
+LISTA —`hechos/terminadas/08--*`— y la banda no sale de su texto original. El cierre de una
+tarea es hoy el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 Esta es la tarea que convierte el proyecto en lo que prometía: **que la aplicación sea el

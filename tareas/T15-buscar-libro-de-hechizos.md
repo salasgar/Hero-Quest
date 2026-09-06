@@ -8,6 +8,13 @@ su equilibrio se paga en la mesa durante toda la campaña.
 **Ficheros que bloquea:** `src/engine/types.ts`, `src/engine/reducer.ts`,
 `src/engine/selectors.ts`, `src/data/quests/calabozo.ts`, `src/ui/TurnPanel.tsx`,
 `src/ui/Juego.tsx`.
+**Duración esperada:** 4 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba, más `tests/`.
+**Precondición añadida en la migración del 2026-09-06:** las cuatro decisiones del libro de
+hechizos están en `autorizaciones.md` («Pendientes de su palabra») con la línea `Firma y
+fecha:` vacía, y Juan Luis dijo el 2026-09-05 que de momento no se haga nada de esto. Mientras
+esa línea esté vacía la tarea está BLOQUEADA y **no se reclama**, sea cual sea la banda. El
+cierre, cuando llegue, es el de `proyecto.md`, con terminada en `hechos/`.
 Lee `_COMUN.md` primero.
 
 ## De dónde sale, y por qué eso importa

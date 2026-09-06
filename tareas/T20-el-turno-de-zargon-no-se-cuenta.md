@@ -6,6 +6,10 @@ candado de ficheros en `_ESTADO.md` antes de empezar.
 romper el `switch` exhaustivo del narrador ni llenar el diario de ruido.
 **Ficheros que bloquea:** `src/engine/types.ts`, **`src/engine/reducer.ts`**,
 `src/narrator/local.ts`, `src/ui/TurnPanel.tsx`, `tests/`.
+**Duración esperada:** 2 h · **Encadenable con:** — · **Ficheros que toca:** los de
+«Ficheros que bloquea», arriba.
+(Líneas añadidas en la migración del reparto del 2026-09-06; la tarea ya estaba LISTA,
+`hechos/terminadas/20--*`. El cierre es el de `proyecto.md`, con terminada en `hechos/`.)
 Lee `_COMUN.md` primero.
 
 ## Lo que contó Juan Luis
