@@ -1,106 +1,108 @@
 # Traspaso — HeroQuest
 
-Actualizado: 2026-09-06 · Sesión que lo escribe: `66e4a4ea`
+Actualizado: 2026-09-06 · Sesión que lo escribe: `s-20260906T103034-b376065f` (la que migró
+el reparto al diseño actual de la skill `reparto` y escribió las tareas T36–T50)
 
 ## Objetivo
 
-Que se pueda jugar a HeroQuest **con alguien que está en otra casa**, sin renunciar a lo
-que es el proyecto: el tablero físico en la mesa del salón y la aplicación haciendo de
-máster. Quien está lejos es un héroe más del grupo y juega desde su pantalla.
-
-Es una fase dentro del proyecto grande, que está descrito en `README.md` y `TRASPASO.md`.
+Una aplicación que hace de máster de HeroQuest sobre el tablero físico del salón, para
+jugar con niños, con la posibilidad de que alguien juegue desde otra casa. El proyecto
+grande está en `README.md` y `TRASPASO.md`. Lo que persigue la tanda de trabajo en curso
+es el encargo de Juan Luis del 2026-09-06: dados siempre automáticos, iconos, monstruos
+que deciden solos y huyen, diario en dos modos, todas las salas con puerta, ambientación,
+nombres de monstruos, más misiones ordenadas por dificultad, más especies, y una lista de
+mejoras para que él elija.
 
 ## Estado actual
 
-**El estado de cada tarea está en `_ESTADO.md`, que es la fuente de verdad.** Aquí solo lo
-que el tablón no recoge.
+**El estado de cada tarea está en `_ESTADO.md`, que es una vista derivada de `hechos/`**
+(la verdad). Aquí solo lo que el tablón no recoge.
 
-La fase de red son cinco tareas, T30 a T34. Cuatro están hechas y empujadas: el relevo
-(T30), la partida en red en el cliente (T31, de otra sesión), la pantalla de quien juega
-desde su casa (T32) y quién tira los dados (T33). **Se puede jugar en red de punta a punta
-en local.** Falta T34: publicar en GitHub Pages y desplegar el relevo.
-
-El tablón queda al día: las cinco filas y los registros de T32 y T33 están escritos y
-empujados, y esta sesión no retiene ningún candado.
+- El reparto se migró el 2026-09-06 al diseño actual de la skill: `hechos/`,
+  `autorizaciones.md`, `proyecto.md`, tablón regenerable; el tablón viejo está en
+  `_ESTADO-antiguo-2026-09-06.md`, intacto.
+- 43 fichas (T1–T22, T30–T50). Cerradas y en `main` todas hasta T35 más la 11, la 40 y la
+  43. **La 42 está cerrada en su rama `worktree-t42-nombres-monstruos-0cdb5d41` (`d84a710`)
+  pero sin fusionar en `main`**: hasta que su sesión la fusione, 38, 39 y 49 siguen
+  bloqueadas y el tablón la pinta EN CURSO. La 41 está en curso (caduca 18:55Z).
+- Un arreglo de una línea sin dueño: `exclude: ['**/node_modules/**', '**/dist/**',
+  '**/.claude/**']` en `vite.config.ts` (`test`), para que vitest no cuente los tests de los
+  worktrees ajenos. Está en `tareas/_COMUN.md`, «Trampas del entorno».
 
 ## Siguiente paso
 
-1. **Probar la partida en red con dos navegadores.** Es lo que T32 exige para darse por
-   buena y ninguna sesión lo ha hecho todavía: lo que hay que comprobar no es que compile,
-   sino que una jugada hecha en una ventana aparece en la otra y que la niebla no enseña
-   de más.
-   ```sh
-   npm run relevo     # el relevo en memoria, en localhost:8787
-   npm run dev        # la aplicación, en localhost:5173
-   ```
-   Se abre `http://localhost:5173/?relevo=http://localhost:8787`, se eligen héroes, se
-   pulsa «Jugar con alguien fuera», se escribe un nombre junto a un héroe y se copia el
-   enlace que sale. Ese enlace, abierto en una ventana de incógnito, es la casa de fuera.
-2. **T34**, cuando Juan Luis firme las dos autorizaciones que están apuntadas en el
-   tablón, en «Pendientes de su palabra»: activar GitHub Pages y crear la cuenta de
-   Cloudflare para desplegar el relevo.
+1. **Que la sesión de la T42 fusione su rama en `main`** (conflicto probable en
+   `TurnPanel.tsx` con la 11) y empuje: es lo que desbloquea 38, 39 y 49. Si esa sesión ya
+   no existe, una sesión MEDIO lo hace relevando: fetch de la rama, merge, tests con el
+   `--exclude`, push, y el tablón regenerado.
+2. Abrir sesiones con **una frase por sesión**, cada una con su tarea o cadena dentro:
+   ahora mismo caben **44** (MEDIO) y **48** (ALTO); cuando la 42 esté en `main`, **22+36**
+   (MEDIO, encadenadas), **39** y **49** (MEDIO) y **38** (ALTO); cuando cierre la 41, **37**
+   (MEDIO) y **45** (ALTO).
+3. Asignar a alguien la línea de `vite.config.ts`.
 
-Banda de modelo para retomar: **MEDIO** — probar con dos navegadores y corregir lo que
-salga es trabajo de entender y ajustar, no de diseñar; el diseño de la fase ya está
-decidido y escrito.
+Banda de modelo para retomar: **ALTO** — lo que viene es coordinar el reparto (regenerar
+el tablón, resolver choques, escribir fichas nuevas cuando Juan Luis añada encargos), que
+es criterio; las tareas en sí las hacen las sesiones con la banda de su ficha.
 
 ## Decisiones tomadas
 
 | Decisión | Por qué |
 |---|---|
-| Quien está lejos es **un héroe más**, no otra mesa ni el árbitro | Lo eligió Juan Luis el 2026-09-05. La mesa física sigue en su salón |
-| Ve el **tablero con niebla**: solo lo descubierto | Lo eligió él, por encima de «solo su hoja». Así se juega **sin depender de una videollamada** apuntando a la mesa |
-| La aplicación se publicará en `salasgar.github.io` | Lo pidió él. El repositorio ya es público y Pages sale de un `vite build` |
-| Las acciones pasan por un **relevo alojado** (Cloudflare Worker + Durable Object) | Pages sirve ficheros y no corre ningún proceso: dos navegadores que abran esa página no se ven entre sí |
-| Los dados de quien juega fuera: **las dos opciones**, a elegir por él | Pidió expresamente las dos. Quien tenga dados querrá tirarlos; quien no los tenga no puede jugar si la app no se los tira |
-| **Jugar en red es repartir la lista de acciones**, no sincronizar el estado | El motor ya era determinista: `aplicarAccion` es pura, el generador vive dentro del estado y `Accion` es JSON plano. Cada casa rehace la partida con `repetir`, que es lo que ya hacía el deshacer. Consecuencia: **el motor no se toca en toda la fase** |
-| La semilla se decide **una vez, al crear**, y viaja en el montaje | Si cada navegador la calculara, las dos casas barajarían el mazo distinto y divergirían desde el turno cero **sin dar ningún error** |
-| El relevo **no sabe jugar** a HeroQuest | Guarda una lista y la reparte. Las reglas las aplica cada pantalla con el motor |
-| Quién puede actuar lo decide **el cliente**, no el relevo | Una acción no nombra a su figura: `{tipo:"mover", destino}` no dice quién se mueve. El relevo **no puede** comprobarlo |
-| La preferencia de dados vive en el **navegador**, no en el registro | Dice quién tiene dados en la mano, que es un dato del salón de cada uno. Si viajara, cambiarla sería una acción y ensuciaría el deshacer |
-| En la pantalla de la mesa **no se pregunta** quién tira | `localStorage` es por navegador: probando las dos pantallas en el mismo, la mesa heredaría «que los tire la aplicación» y se pondría a tirar sola |
+| `hechos/` es la verdad; `_ESTADO.md` se regenera entero y no afirma nada que no salga de `hechos/`, las fichas, `autorizaciones.md` o `proyecto.md` | Con el tablón como verdad y diez sesiones, el candado del entorno lo tuvo reservado todo el día (2026-09-05) y el protocolo dejó de ejecutarse |
+| Números de tarea en `hechos/`: dos cifras sin la T (`07--<sid>.md`) | Es lo que espera la skill (`NN--<sid>`); la equivalencia está en `proyecto.md` |
+| Con un worktree por sesión, **el reclamo se abre y se empuja en el árbol principal antes de `EnterWorktree`**; latidos, terminada y `CERRADA` van a la copia del worktree y los publica la fusión en `main` | Cada worktree tiene su copia de `hechos/` y desde dentro no se puede escribir fuera: cuatro sesiones trabajaron sin un solo reclamo visible en `origin/main`, y tres reclamos de la 42 convivieron en tres copias. Lo propuso la sesión `s-20260906T124412-0cdb5d41` |
+| **Una frase de arranque por sesión, con la tarea o la cadena dentro**; una sesión cuya frase nombra una cadena encadena por defecto | Cuatro sesiones MEDIO abiertas con la misma frase genérica eligieron cada una lo que quiso. Juan Luis no quiere editar frases. Está en la skill `reparto` (SKILL.md, plantillas, concurrencia.md) |
+| Las bandas de T1–T12 se pusieron a posteriori, marcadas como tales | Juan Luis pidió que toda ficha lleve banda; estaban todas LISTA |
+| Las 14 firmas del tablón viejo se transcribieron a `autorizaciones.md` con su fecha; las nuevas de Juan Luis en conversación se transcriben igual | Es lo que pidió al migrar, y el tablón no puede afirmar firmas |
+| Dados siempre automáticos, sin modo manual; dados de N caras permitidos al diseñar capacidades (T36) | Firma de Juan Luis del 2026-09-06 |
+| El relato literario del diario va por frases prefabricadas elegidas de forma determinista, sin modelo de lenguaje (T39) | Firma del 2026-09-06; dos casas y el deshacer tienen que dar el mismo texto |
+| Los nombres de monstruo se asignan en `crearPartida` con el generador del estado (T42) | Si salieran de `Math.random()`, las dos casas en red verían nombres distintos sin error |
+| «Más misiones» son T45 (catálogo, selector, medida con el simulador) y una tarea por misión (T46, T47, y T51 en adelante); la dificultad es la posición en el catálogo, medida, nunca un retoque de la IA | La misión estaba fijada a mano en cuatro sitios; Juan Luis firmó que la dificultad se diseña por misión y que el 100 % del calabozo está bien |
+| «Más monstruos» son T49 (especies con números) y T50 (poderes que exigen motor); un poder sobre un héroe se le pregunta antes | Ningún efecto hostil llega hoy a un héroe; quitarle el turno a un niño no es lo mismo que a un goblin |
+| La fase de red (T30–T34) no toca el motor: jugar en red es repartir la lista de acciones | El motor es determinista y `repetir` ya existía por el deshacer |
 
 ## Descartado — no volver a proponer
 
 | Se descartó | Motivo |
 |---|---|
-| **Un túnel al portátil** (cloudflared/ngrok) en vez de un relevo alojado | Lo descartó Juan Luis al elegir el relevo alojado, que da URL fija y no depende de que el portátil esté encendido |
-| **Navegador a navegador** (WebRTC/PeerJS) | También descartado por él. Es lo más frágil: hay redes donde no conecta y depende de un servicio ajeno de señalización |
-| **Guardar el estado de la partida en el servidor** | Rompe el deshacer, los tests y la reproducibilidad. Lo que viaja son acciones. Es el atajo que más veces parece buena idea |
-| **Tapar la niebla de verdad, por red** | Quien juega desde su casa recibe el registro entero y puede reconstruir el estado en su navegador. Taparlo exigiría un servidor dueño del estado sirviendo una vista por jugador: otra aplicación. **Es un límite conocido, no un fallo pendiente**; se juega en familia |
-| **Una pantalla con `if (esRemoto)` por dentro** | Son dos productos distintos. La diferencia es **qué estado se pinta**, en una línea; repartida por seis sitios es como se cuela una sala sin abrir |
-| **Filtrar la niebla por «¿está abierta su sala?»** | Parece equivalente y no lo es: un pasillo no es ninguna sala, así que deja ver a cualquier monstruo del pasillo. Se filtra por `monstruosEnTablero` |
-| **Filtrar las puertas a mano por `puertasVistas`** | Borraba del tablero de casa la **puerta secreta recién encontrada**: las secretas van por `descubierta`. Se consume `puertasVisibles`, del motor |
-| **WebSocket para el sondeo** | Un turno dura un minuto largo: un segundo de retraso no se nota, y a cambio no hay máquina de estados de reconexión |
+| Fusionar la rama `worktree-nuevas-tareas-sep-06` (Haiku) | Solo tenía ocho filas en el tablón viejo sin ficha; sus números se respetaron al escribir T36–T43 |
+| Empujar el reclamo desde el worktree con `git push origin HEAD:main` | Arrastraría a `main` los commits de código a medias de esa rama |
+| Firmar por Juan Luis una decisión que solo consta en una rama sin fusionar | Una firma cuenta cuando está en `autorizaciones.md`; se esperó a que la rama llegara a `main` |
+| Tres modos de dados (manual, automático, mixto) | Juan Luis decidió que siempre automático |
+| Relato literario con un modelo de lenguaje | Lo decidió él: frases prefabricadas |
+| Una sesión «coordinadora» vigilando el tablón | Lo regenera quien reclama y quien cierra; una sesión no ve dentro de otra |
+| Túnel al portátil o navegador a navegador para la red; estado en el servidor; tapar la niebla por red; WebSocket | Descartes de la fase de red del 2026-09-05, con motivo en `_ESTADO-antiguo-2026-09-06.md` y en la cabecera de `tareas/T30-relevo-de-acciones.md` |
 
 ## Archivos
 
-Los de esta fase. Todos con su porqué dentro, en la cabecera.
+- `_ESTADO.md` — el tablón, vista derivada. `proyecto.md` — rutas, bandas, protocolo con
+  worktrees, frase de arranque, decisiones. `autorizaciones.md` — firmas (17) y pendientes (3).
+- `hechos/` — la verdad: `terminadas/`, `reclamos/`, `incidencias/` (cuatro ficheros, con lo
+  que pasó el 2026-09-06), `notas/s-20260906T103034-b376065f.md` (lo decidido al migrar).
+- `tareas/T36-…` a `tareas/T50-…` — las fichas nuevas; `tareas/_COMUN.md` — trampas, con
+  la de vitest y el árbol compartido al cerrar.
+- `_ESTADO-antiguo-2026-09-06.md` — el tablón viejo, con los registros largos de T1–T35.
+- `~/.claude/skills/reparto/` — la skill, con los cambios del 2026-09-06 (frase por
+  sesión, reclamo en el árbol principal).
 
-- `src/red/protocolo.ts` — qué se guarda de una partida y quién puede escribir. Puro y probado.
-- `src/red/cliente.ts` — el transporte y `SesionDeRed`. De otra sesión (T31).
-- `src/red/niebla.ts` — `comoLoVe(estado, quien)`. **Devuelve un estado para pintar, nunca para pasárselo al motor.**
-- `server/relevo.ts` + `server/wrangler.toml` — el relevo de Cloudflare. Escrito y probado, **sin desplegar**.
-- `server/relevo-local.ts` — el mismo protocolo en Node, en memoria. `npm run relevo`. Es lo que permite probar sin desplegar nada.
-- `server/README.md` — el protocolo, cómo se despliega y qué comprobar antes.
-- `src/ui/VistaDeHeroe.tsx` — la pantalla de quien juega desde su casa.
-- `src/ui/EntrarEnPartida.tsx` — crear la partida y unirse por enlace.
-- `src/ui/useAccionesDeTurno.ts` — lo que comparten las dos pantallas: diálogos de dados, teclado y reparto de quién tira.
-- `tareas/T30-…` a `tareas/T34-…` — las cinco tareas, con las cuatro decisiones firmadas copiadas en la cabecera de T30.
+## Preferencias para este proyecto
+
+- Frases de arranque: una por sesión, en bloque de cita, con banda y tarea o cadena
+  puestas, para pegar sin editar.
+- Al cerrar una tarea o entregar, decir cuántas sesiones caben a la vez **por ficheros**,
+  no solo por estado.
+- Código con las herramientas de edición, nunca `sed -i` ni heredocs; `hechos/` desde el
+  shell, con sid y hora del mismo comando; commits con rutas explícitas.
 
 ## Contexto que no está en los archivos
 
-- **Un dato que nadie ha comprobado y que no se debe inventar:** si los Durable Objects
-  entran hoy en la capa gratuita de Cloudflare. Está escrito como primer paso del
-  despliegue en `server/README.md`, con la orden de parar y avisar si no entran. La
-  decisión de pagar o cambiar de servicio es de Juan Luis.
-- **Redesplegar corta las partidas vivas.** El montaje lleva la versión dentro y el relevo
-  rechaza a quien no la traiga igual. Es deliberado —dos casas con código distinto pueden
-  aplicar reglas distintas a las mismas acciones y divergir en silencio— pero conviene no
-  redesplegar un sábado por la tarde.
-- **La numeración salta de T18 a T30 a propósito.** Los nombres T19–T22 los reclamó otra
-  sesión el mismo día para cuatro tareas de reglas. Se renumeró el bloque de red.
-- **En este repositorio se edita con las herramientas de edición, no con `sed` ni
-  heredocs**, porque el hook de candados solo ve `Edit|Write`. Esta sesión lo incumplió dos
-  veces —en `estilos.css` y en `Instrucciones.tsx`—; no pisó a nadie, pero está apuntado en
-  el registro del tablón para que no se repita.
+- Juan Luis abre varias sesiones a la vez y las titula con la tarea; el sid lo da cada una
+  en su primer mensaje. Cuando una sesión le cuenta algo, él lo pega a la sesión que
+  coordina.
+- Las sesiones se mandan mensajes entre sí (`SendMessage`) y así resolvieron el triple
+  reclamo de la 42; el tablón no lo sabe.
+- Las figuras de cartón las hace Juan Luis a mano: cada especie nueva (troll, T49) es una
+  figura que no existe todavía.
+- `Letras Hero Quest.png` en la raíz, sin rastrear, es el logotipo para T41, que está en
+  curso.
