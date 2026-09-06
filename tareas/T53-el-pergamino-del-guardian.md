@@ -96,6 +96,30 @@ grep -n "recuperar\|pergamino" src/engine/types.ts src/data/quests/calabozo.ts
   algunas partidas terminarán buscando tesoro. Si una invariante se rompe, primero
   sospecha del cambio.
 
+Lo que encontró la sesión que la hizo (`s-20260906T174714-651b3481`, 2026-09-06):
+
+- **La decisión del punto 1**: la búsqueda con el custodio vivo se registra como
+  cualquier otra y **no gasta el pergamino**: ese héroe puede volver a registrar la sala
+  cuando el custodio caiga. Es la única excepción a T6 y vive en
+  `objetoDeMisionAlAlcance` (`reducer.ts`), que importa `selectors.ts`. La otra opción de
+  la ficha —no registrar esa búsqueda— dejaba robar cartas sin límite con el guardián
+  fuera de su sala.
+- **`selectors.ts` no estaba en la ficha y hubo que tocarlo**: `puedeBuscarTesoro`
+  rechazaba al héroe que ya había registrado la sala, y el botón habría desaparecido
+  justo cuando el motor sí aceptaba. Una línea, declarada en la terminada.
+- **`tests/quest.test.ts`, «registrar una sala consume una carta del mazo», buscaba en
+  la sala `q` sin monstruos**: con el objetivo nuevo ahí se encuentra el pergamino, no
+  una carta. Se movió a la sala `t`. Un custodio que no existe en la partida cuenta como
+  caído (nadie guarda el cofre).
+- **El montaje de red lleva solo el id de la misión** (`protocolo.ts`, `mision: string`):
+  cambiar `Mision` no cambia el protocolo ni `VERSION`.
+- **`objetoRecuperado` es opcional en `EstadoPartida`** para no cambiar la forma de las
+  partidas montadas antes; `crearPartida` no lo pone.
+- **El simulador va a la sala del pergamino solo si desde donde está se llega**
+  (`distanciaASala`, un `alcanzables` por candidata); si la puerta de la sala sigue
+  cerrada, vuelve a la heurística de abrir puertas. Sin esto, con el guardián muerto
+  fuera de su sala el grupo se quedaba quieto hasta el tope de rondas.
+
 ## Prohibido
 
 - Tocar `TurnPanel.tsx` o `Juego.tsx`: la pantalla ya enseña `introduccion` y
