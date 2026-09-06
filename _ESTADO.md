@@ -113,7 +113,7 @@ coger en cualquier orden desde hoy.
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
 | T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 · **cumplida entera** | `src/ai/` | **hecha** · `2203e01` · 2026-09-05 · **desbloquea T9, T10 y T11** |
 | T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 · **cumplida** | `src/ai/` | libre · tuerce los pesos de `targeting.ts`, que están puestos para eso |
-| T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 · **cumplida** | `scripts/` | en curso · `47e1fced` · 2026-09-06 · **es la que dice si los pesos de T8 valen**; no toca `src/ai/`, así que sigue en paralelo con T9 |
+| T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 · **cumplida** | `scripts/` | **hecha** · 2026-09-06 · `npm run sim` · con los pesos de T8 los héroes ganan **100/100**, y el 48 % de los ataques de monstruo acaban con el monstruo alejándose: mira el registro |
 | T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8 · **cumplida** · y T9 | `src/ui/` | bloqueada solo por T9 · el punto de entrada ya existe: `siguienteAccionDeZargon` |
 | T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | **hecha** · `de466ec` · 2026-09-05 · era la sesión `797b0a1c`, que no pudo escribir aquí su reclamo porque el tablón estuvo cogido de principio a fin del trabajo |
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
@@ -372,6 +372,29 @@ van aquí y no se pierden en la tabla:
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
 
+- **T10 · sesión `47e1fced` · 2026-09-06.** `npm run sim` juega partidas enteras por el
+  motor de verdad. **Los porcentajes medidos, que es lo que pedía la tarea:** con los pesos
+  de T8 —el único nivel que existe todavía— los héroes ganan el **100 % de 100 partidas**,
+  en 7,9 rondas de media y sin ninguna colgada. Tres cosas que hay que saber:
+  - **Ese 100 % no valida los pesos de T8: dice que hoy no hay con qué compararlos.**
+    Al medir, `src/ai/difficulty.ts` no existía todavía, así que `torpe` y `astuto` no se
+    podían comparar con nada. **Para T9 (`992c726d`, en vuelo mientras escribo esto):** el
+    simulador carga solo su tabla de pesos si se llama `PESOS_POR_NIVEL`, `PESOS_POR_DIFICULTAD`
+    o es la exportación por defecto, y entonces saca los tres niveles sin tocar nada. Lo que
+    **no** hace solo es usar vuestro `accionDeZargon(e, nivel)`: si la personalidad por
+    especie va por ahí y no por la tabla de pesos, el simulador mide la dificultad pero no
+    la personalidad, y hay que cambiarle una línea —la que elige entre
+    `siguienteAccionDeZargon` y lo vuestro, en `jugarUnTurno`—.
+  - **El hallazgo que sí es accionable: el 48 % de los ataques de monstruo terminan con el
+    monstruo yéndose de la casilla desde la que acaba de pegar.** En la mesa se lee como
+    que huye, y les regala a los héroes juntarse cuatro contra uno sin que nadie los
+    sujete. Está en `siguienteAccionDelMonstruo` (`src/ai/zargon.ts`): cuando ya ha
+    atacado, todas las casillas puntúan «sin poder atacar» y ninguna gana por quedarse
+    quieta. **No lo he tocado: `src/ai/` es el candado de T9.** El simulador saca ese
+    porcentaje en cada tirada, así que se ve solo si el arreglo funciona.
+  - **Los héroes del simulador son tontos a propósito** —abren, pegan al más débil que
+    alcanzan y si no se acercan; ni tesoro ni hechizos— y va dicho en la salida. Eso sesga
+    el número a la baja, no al alza: el 100 % es aún peor noticia de lo que parece.
 - **T35 · sesión `946ca4aa` · 2026-09-06 · `87ea055`.** La salida crece con el grupo. Cuatro
   cosas que no estaban escritas:
   - **`estado.mision.entrada` ya no es lo que declara la misión: es un dato derivado.** Con
