@@ -21,8 +21,7 @@ import { aplicarAccion, actorActual, esTurnoDeZargon, figuraActiva } from "../sr
 import { casillasDeMovimiento, objetivosDeAtaque, puertasAlAlcance } from "../src/engine/selectors";
 import { distancia } from "../src/engine/board";
 import { claveCelda, type Accion, type Celda, type EstadoPartida, type Figura } from "../src/engine/types";
-import { siguienteAccionDeZargon } from "../src/ai/zargon";
-import { PESOS, type Pesos } from "../src/ai/targeting";
+import { accionDeZargon, DIFICULTADES, type Dificultad } from "../src/ai/difficulty";
 
 /**
  * El grupo con el que se mide. Es el mismo cuarteto clásico de los tests, y va
@@ -173,7 +172,7 @@ function contarRomperContacto(e: EstadoPartida): { ataques: number; ySeVa: numbe
   return { ataques, ySeVa };
 }
 
-function jugarPartida(semilla: number, pesos: Pesos): Partida {
+function jugarPartida(semilla: number, nivel: Dificultad): Partida {
   let e = crearPartida({
     mision: MISION_CALABOZO,
     heroes: GRUPO,
@@ -187,7 +186,7 @@ function jugarPartida(semilla: number, pesos: Pesos): Partida {
   let rondas = 0;
   while (!e.desenlace && rondas < TOPE_DE_RONDAS) {
     const actor = actorActual(e);
-    e = jugarUnTurno(e, pesos);
+    e = jugarUnTurno(e, nivel);
     // La ronda se cuenta al pasar Zargon, que es como se cuenta en la mesa.
     if (actor === "zargon") rondas++;
   }
@@ -204,14 +203,17 @@ function jugarPartida(semilla: number, pesos: Pesos): Partida {
 }
 
 /** Un turno entero del actor que toque, hasta que cambie el turno o se acabe. */
-function jugarUnTurno(inicial: EstadoPartida, pesos: Pesos): EstadoPartida {
+function jugarUnTurno(inicial: EstadoPartida, nivel: Dificultad): EstadoPartida {
   let e = inicial;
   const mio = e.turno.indice;
 
   for (let i = 0; i < TOPE_POR_TURNO; i++) {
     if (e.desenlace || e.turno.indice !== mio) break;
 
-    const accion = esTurnoDeZargon(e) ? siguienteAccionDeZargon(e, pesos) : accionDelHeroe(e);
+    // El punto de entrada de T9, no el de T8 a pelo: es la línea que su registro
+    // de T10 dejó encargada. Por aquí entran las personalidades por especie y la
+    // miopía estructural del torpe, que no viven en la tabla de pesos.
+    const accion = esTurnoDeZargon(e) ? accionDeZargon(e, nivel) : accionDelHeroe(e);
     if (!accion) break;
 
     const r = aplicarAccion(e, accion);
@@ -234,34 +236,6 @@ function jugarUnTurno(inicial: EstadoPartida, pesos: Pesos): EstadoPartida {
 
 // ---------------------------------------------------------------- los niveles
 
-/**
- * Los niveles que hay que medir.
- *
- * `src/ai/difficulty.ts` es de T9 y puede no existir todavía; T10 no lo toca.
- * Si está, se miden los tres niveles; si no, se mide el único que hay y se dice
- * en la salida. Así esta misma orden empieza a dar los tres porcentajes en
- * cuanto T9 aterrice, sin volver a tocar este fichero.
- */
-async function nivelesAMedir(): Promise<{ niveles: Array<[string, Pesos]>; deT9: boolean }> {
-  try {
-    const mod = (await import("../src/ai/difficulty")) as Record<string, unknown>;
-    // Se prueban varios nombres porque cuando esto se escribió T9 todavía estaba
-    // en vuelo: `PESOS_POR_NIVEL` es el que traía su borrador. El filtro de
-    // abajo es el que manda, y descarta lo que no sea una tabla de pesos —
-    // `DIFICULTADES`, por ejemplo, es la lista de nombres y no sirve—.
-    const candidata = mod.PESOS_POR_NIVEL ?? mod.PESOS_POR_DIFICULTAD ?? mod.DIFICULTADES ?? mod.default;
-    if (candidata && typeof candidata === "object" && !Array.isArray(candidata)) {
-      const niveles = Object.entries(candidata as Record<string, Pesos>).filter(
-        ([, v]) => v && typeof v === "object" && typeof (v as Pesos).danoEsperado === "number",
-      );
-      if (niveles.length > 0) return { niveles, deT9: true };
-    }
-  } catch {
-    // No está escrita: es lo esperado mientras T9 siga libre.
-  }
-  return { niveles: [["normal (los pesos de T8)", PESOS]], deT9: false };
-}
-
 // ----------------------------------------------------------------- el informe
 
 const pct = (n: number, de: number) => (de === 0 ? "—" : `${((100 * n) / de).toFixed(0)} %`);
@@ -270,7 +244,6 @@ const media = (xs: number[]) => (xs.length === 0 ? 0 : xs.reduce((a, b) => a + b
 async function main() {
   const cuantas = Number(process.argv[2] ?? 100);
   const base = Number(process.argv[3] ?? 1000);
-  const { niveles, deT9 } = await nivelesAMedir();
 
   console.log(`\nHeroQuest · ${cuantas} partidas por nivel, semillas ${base}…${base + cuantas - 1}`);
   console.log(`Misión: «${MISION_CALABOZO.titulo}» · grupo: ${GRUPO.map((h) => h.clase).join(", ")}`);
@@ -278,17 +251,10 @@ async function main() {
     "Héroes jugados por una heurística tonta: abren lo que tienen delante, pegan al más\n" +
       "débil que alcanzan y si no se acercan. No buscan tesoro ni lanzan hechizos.",
   );
-  if (!deT9) {
-    console.log(
-      "\n⚠  `src/ai/difficulty.ts` todavía no existe (es de T9), así que solo hay un nivel\n" +
-        "   que medir. Los objetivos del plan —torpe ~80 %, astuto ~40 %— no se pueden\n" +
-        "   comprobar hasta que T9 aterrice; esta orden los sacará sola en cuanto lo haga.",
-    );
-  }
 
-  for (const [nombre, pesos] of niveles) {
+  for (const nombre of DIFICULTADES) {
     const partidas: Partida[] = [];
-    for (let i = 0; i < cuantas; i++) partidas.push(jugarPartida(base + i, pesos));
+    for (let i = 0; i < cuantas; i++) partidas.push(jugarPartida(base + i, nombre));
 
     const terminadas = partidas.filter((p) => p.termino);
     const ganadas = terminadas.filter((p) => p.victoria);
