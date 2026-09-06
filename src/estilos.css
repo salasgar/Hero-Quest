@@ -265,3 +265,25 @@ kbd {
 /* Cuando no te toca. Apagado a propósito: tiene que verse que la partida sigue
    sin gritar desde la pantalla de un niño que está esperando su turno. */
 .turno.esperando h2 { color: #b6bdcb; font-size: 1rem; }
+
+/* ------------------------------------------------- quién tira los dados */
+.quien-tira {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .4rem;
+  margin-top: .7rem; padding-top: .7rem; border-top: 1px solid var(--borde);
+  font-size: .8rem;
+}
+.quien-tira button { font-size: .78rem; padding: .3rem .5rem; }
+.quien-tira button.sel { background: var(--tinta); color: #10131a; font-weight: 600; }
+
+/* Las caras que ha sacado la aplicación. Se enseñan una a una, y no solo el
+   total, porque quien no ve los dados solo puede fiarse; viéndolas, la tirada
+   se comprueba igual que sobre la mesa. */
+.tirada-caras {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: .3rem;
+  margin: .2rem 0 .7rem;
+}
+.tirada-dado {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.9rem; height: 1.9rem; border-radius: 5px;
+  border: 1px solid var(--borde); background: var(--fondo);
+}

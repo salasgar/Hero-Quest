@@ -10,7 +10,7 @@ import { motivoDeActivacion, ordenDeActivacion } from "../ai/orden";
 import type { HeroeElegido } from "../engine/partida";
 import type { SesionDeRed } from "../red/cliente";
 import { BoardMirror } from "./BoardMirror";
-import { DiceInput } from "./DiceInput";
+import { AvisoDeTirada, DiceInput } from "./DiceInput";
 import { HeroSheet } from "./HeroSheet";
 import { MasterLog } from "./MasterLog";
 import { TurnPanel } from "./TurnPanel";
@@ -147,6 +147,7 @@ export function Juego({
       </aside>
 
       {turno.peticion && <DiceInput peticion={turno.peticion} />}
+      {turno.tirada && <AvisoDeTirada tirada={turno.tirada} alCerrar={turno.cerrarTirada} />}
     </div>
   );
 }

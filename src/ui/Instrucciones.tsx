@@ -1,4 +1,5 @@
 import { equivalenciaDeDados, type CaraCombate } from "../engine/dice";
+import { CaraDeDado, NOMBRE_DE_CARA } from "./DiceInput";
 
 /**
  * La hoja de instrucciones de la mesa.
@@ -14,32 +15,11 @@ import { equivalenciaDeDados, type CaraCombate } from "../engine/dice";
  * Escape, abrirla en mitad de una tirada la cancelaría sin querer.
  */
 
-const NOMBRE: Record<CaraCombate, string> = {
-  calavera: "Calavera",
-  escudoBlanco: "Escudo blanco",
-  escudoNegro: "Escudo negro",
-};
-
-/**
- * Los dibujos de las caras. El escudo va en SVG y no como emoji a propósito:
- * el emoji del escudo se pinta con su propio color y los dos escudos, el blanco
- * y el negro, saldrían idénticos. Aquí la diferencia entre uno y otro es
- * justamente lo que hay que ver.
- */
-function Icono({ cara }: { cara: CaraCombate }) {
-  if (cara === "calavera") return <span className="dado-simbolo">☠</span>;
-  const negro = cara === "escudoNegro";
-  return (
-    <svg className="dado-simbolo" viewBox="0 0 12 14" width="12" height="14" aria-hidden="true">
-      <path
-        d="M6 .7 11.3 2.5v5.2c0 3.1-2.3 5.2-5.3 6.1-3-.9-5.3-3-5.3-6.1V2.5Z"
-        fill={negro ? "#10131a" : "#f1ece1"}
-        stroke="#8b94a7"
-        strokeWidth="0.9"
-      />
-    </svg>
-  );
-}
+// El dibujo de cada cara y su nombre viven en `DiceInput.tsx`, que es el módulo
+// de los dados: desde T33 la aplicación también tira dados de héroe y tiene que
+// enseñar lo que ha salido, así que la misma cara se pinta en dos pantallas. Una
+// copia aquí sería la forma de que esta hoja y la partida dibujaran escudos
+// distintos, que es justo lo que esta hoja existe para evitar.
 
 const PARA_QUIEN: Record<CaraCombate, string> = {
   calavera: "hace daño",
@@ -60,7 +40,7 @@ function TablaDeDado({ lados, titulo }: { lados: number; titulo: string }) {
                 →
               </td>
               <td className={`dado-cara cara-${tramo.cara}`}>
-                <Icono cara={tramo.cara} /> {NOMBRE[tramo.cara]}
+                <CaraDeDado cara={tramo.cara} /> {NOMBRE_DE_CARA[tramo.cara]}
               </td>
               <td className="dado-para">{PARA_QUIEN[tramo.cara]}</td>
             </tr>
@@ -159,6 +139,11 @@ export function Instrucciones({ alCerrar }: { alCerrar: () => void }) {
             Los héroes tiran sus dados de verdad, sobre la mesa, y aquí solo se teclea el número
             que ha salido. Los dados de los monstruos, las trampas y los tesoros los tira la
             aplicación, que hace de Zargon.
+          </p>
+          <p>
+            Quien juegue desde otra casa puede elegir, en su propia pantalla, si tira sus dados o
+            se los tira la aplicación: puede que allí no haya dados. Lo cambia cuando quiera, en
+            mitad de la partida, y no afecta a nadie más. En la mesa no se pregunta.
           </p>
         </section>
       </div>

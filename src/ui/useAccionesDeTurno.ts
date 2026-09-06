@@ -34,7 +34,13 @@ import {
   puertasAlAlcance,
 } from "../engine/selectors";
 import { esHeroe, type Accion, type Celda, type EstadoPartida, type Evento, type Figura } from "../engine/types";
-import { calaveras, escudosBlancos, type PeticionDados } from "./DiceInput";
+import {
+  calaveras,
+  escudosBlancos,
+  usePreferenciaDeDados,
+  type PeticionDados,
+  type TiradaHecha,
+} from "./DiceInput";
 
 const rango = (desde: number, hasta: number) =>
   Array.from({ length: hasta - desde + 1 }, (_, i) => desde + i);
@@ -47,12 +53,79 @@ export interface OpcionesDeTurno {
   deshacer: () => void;
   /** Si el turno es de una figura que lleva quien mira esta pantalla. */
   puedeActuar: boolean;
+  /**
+   * Si en esta pantalla se puede elegir quién tira los dados.
+   *
+   * En la mesa **no se pregunta**: los niños tienen los dados en la mano y la
+   * decisión de siempre del proyecto es que los tiren de verdad. Y hay un motivo
+   * más concreto para que sea la pantalla quien lo fije y no la preferencia
+   * guardada: `localStorage` es por navegador, así que si alguien prueba las dos
+   * pantallas en el mismo navegador, la de la mesa heredaría el «que los tire la
+   * aplicación» de la de casa y se pondría a tirar sola.
+   */
+  dadosPropios?: "siempreYo" | "aEleccion";
 }
 
-export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: OpcionesDeTurno) {
+export function useAccionesDeTurno({
+  estado,
+  ejecutar,
+  deshacer,
+  puedeActuar,
+  dadosPropios = "siempreYo",
+}: OpcionesDeTurno) {
   const [peticion, setPeticion] = useState<PeticionDados | null>(null);
   /** El hechizo elegido que todavía no sabe a quién va. */
   const [hechizoElegido, setHechizoElegido] = useState<IdHechizo | null>(null);
+  /** Lo que salió la última vez que tiró la aplicación, mientras se enseña. */
+  const [tirada, setTirada] = useState<TiradaHecha | null>(null);
+  const [preferencia, setQuienTira] = usePreferenciaDeDados();
+  const quienTira = dadosPropios === "siempreYo" ? "yo" : preferencia;
+
+  /**
+   * Despacha una acción **sin dados** —los tira el motor, con el generador que
+   * lleva el estado dentro— y enseña lo que ha salido.
+   *
+   * Que la tirada salga del `rng` del estado y no de `Math.random()` es lo que
+   * mantiene todo lo demás en pie: el deshacer sigue siendo exacto y las dos
+   * casas siguen viendo la misma partida. Por eso «que los tire la aplicación»
+   * es exactamente la misma acción, sin el campo `dados`.
+   */
+  const tirarYEnsenar = useCallback(
+    (accion: Accion, titulo: string) => {
+      const eventos = ejecutar(accion);
+      if (!eventos) return;
+
+      const ataque = eventos.find((ev) => ev.tipo === "ataque");
+      if (ataque && ataque.tipo === "ataque") {
+        const caras = [...ataque.dadosAtaque, ...ataque.dadosDefensa];
+        setTirada({
+          titulo,
+          caras,
+          resumen:
+            `${ataque.calaveras} ${ataque.calaveras === 1 ? "calavera" : "calaveras"}` +
+            ` · ${ataque.escudos} ${ataque.escudos === 1 ? "escudo" : "escudos"}` +
+            ` · ${ataque.dano === 0 ? "sin daño" : `${ataque.dano} de daño`}`,
+        });
+        return;
+      }
+
+      const movimiento = eventos.find((ev) => ev.tipo === "tiradaMovimiento");
+      if (movimiento && movimiento.tipo === "tiradaMovimiento") {
+        setTirada({ titulo, resumen: `${movimiento.total} casillas` });
+        return;
+      }
+
+      const hechizo = eventos.find((ev) => ev.tipo === "danoDeHechizo");
+      if (hechizo && hechizo.tipo === "danoDeHechizo") {
+        setTirada({
+          titulo,
+          caras: hechizo.dados,
+          resumen: hechizo.dano === 0 ? "sin daño" : `${hechizo.dano} de daño`,
+        });
+      }
+    },
+    [ejecutar],
+  );
 
   const activa = figuraActiva(estado);
   const esZargon = esTurnoDeZargon(estado);
@@ -89,6 +162,18 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
       const objetivo = figuraPorId(estado, idObjetivo);
       if (!atacante || !objetivo) return;
 
+      // Quien no tiene dados en la mano no puede teclear lo que ha sacado. La
+      // acción es la misma sin el campo `dados`: la tira el motor, y se enseña.
+      if (quienTira === "laApp") {
+        tirarYEnsenar(
+          { tipo: "atacar", objetivo: idObjetivo },
+          esHeroe(atacante)
+            ? `${atacante.nombre} ataca a ${nombreDeFigura(objetivo)}`
+            : `${nombreDeFigura(atacante)} ataca a ${nombreDeFigura(objetivo)}`,
+        );
+        return;
+      }
+
       if (esHeroe(atacante)) {
         const n = dadosDeAtaqueContra(estado, objetivo);
         setPeticion({
@@ -119,7 +204,7 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
         });
       }
     },
-    [estado, ejecutar, cerrar],
+    [estado, ejecutar, cerrar, quienTira, tirarYEnsenar],
   );
 
   /**
@@ -149,6 +234,10 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
       }
       const n = h.efecto.dados;
       const objetivo = figuraPorId(estado, idObjetivo);
+      if (quienTira === "laApp") {
+        tirarYEnsenar({ tipo: "lanzarHechizo", hechizo, objetivo: idObjetivo }, h.nombre);
+        return;
+      }
       setPeticion({
         titulo: h.nombre,
         detalle: objetivo ? `Contra ${nombreDeFigura(objetivo)}` : "",
@@ -161,7 +250,7 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
         alCancelar: cerrar,
       });
     },
-    [estado, ejecutar, cerrar],
+    [estado, ejecutar, cerrar, quienTira, tirarYEnsenar],
   );
 
   /** Un objetivo: va directo. Varios: hay que señalar a quién. */
@@ -176,6 +265,10 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
   );
 
   const pedirMovimiento = useCallback(() => {
+    if (quienTira === "laApp") {
+      tirarYEnsenar({ tipo: "tirarMovimiento" }, "Tirada de movimiento");
+      return;
+    }
     setPeticion({
       titulo: "Tirada de movimiento",
       detalle: "",
@@ -188,7 +281,7 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
       },
       alCancelar: cerrar,
     });
-  }, [ejecutar, cerrar]);
+  }, [ejecutar, cerrar, quienTira, tirarYEnsenar]);
 
   const mover = useCallback(
     (destino: Celda) => {
@@ -217,6 +310,9 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
   // ---- teclado: es la entrada rápida, más que el ratón ----
   useEffect(() => {
     if (peticion) return; // mientras se piden dados, manda el diálogo
+    // Y mientras se enseña lo que ha salido, también: si no, el Intro que cierra
+    // el aviso terminaría además el turno, porque los dos escuchan la ventana.
+    if (tirada) return;
     // Una pantalla a la que no le toca no escucha el teclado. Sin esto, quien
     // juega desde su casa movería la figura de otro con las flechas y el relevo
     // le devolvería un rechazo que no entendería.
@@ -245,7 +341,10 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
       const tecla = ev.key.toLowerCase();
       if (tecla === "t" && !esZargon && estado.turno.movimientoTotal === null) {
         ev.preventDefault();
-        if (ev.shiftKey) ejecutar({ tipo: "tirarMovimiento" });
+        // ⇧T siempre fue «que la tire la aplicación», de antes de que existiera
+        // la preferencia. Se queda, y ahora además enseña lo que ha salido: se
+        // usaba a ciegas y el número había que buscarlo en el panel.
+        if (ev.shiftKey) tirarYEnsenar({ tipo: "tirarMovimiento" }, "Tirada de movimiento");
         else pedirMovimiento();
       } else if (tecla === "a" && objetivos.length > 0) {
         ev.preventDefault();
@@ -280,9 +379,9 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
     window.addEventListener("keydown", alPulsar);
     return () => window.removeEventListener("keydown", alPulsar);
   }, [
-    peticion, puedeActuar, activa, esZargon, estado.turno.movimientoTotal, objetivos, puertas,
+    peticion, tirada, puedeActuar, activa, esZargon, estado.turno.movimientoTotal, objetivos, puertas,
     porActivar, hechizos, hechizoElegido, mover, ejecutar, deshacer, pedirAtaque,
-    pedirMovimiento, elegirHechizo, cancelarHechizo,
+    pedirMovimiento, elegirHechizo, cancelarHechizo, tirarYEnsenar,
   ]);
 
   return {
@@ -303,5 +402,10 @@ export function useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar }: 
     elegirHechizo,
     lanzar,
     cancelarHechizo,
+    /** Lo que salió cuando tiró la aplicación, mientras se está enseñando. */
+    tirada,
+    cerrarTirada: useCallback(() => setTirada(null), []),
+    quienTira,
+    setQuienTira,
   };
 }

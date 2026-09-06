@@ -5,7 +5,7 @@ import { esHeroe } from "../engine/types";
 import type { SesionDeRed } from "../red/cliente";
 import { comoLoVe } from "../red/niebla";
 import { BoardMirror } from "./BoardMirror";
-import { DiceInput } from "./DiceInput";
+import { AvisoDeTirada, DiceInput } from "./DiceInput";
 import { HeroSheet } from "./HeroSheet";
 import { MasterLog } from "./MasterLog";
 import { TurnPanel } from "./TurnPanel";
@@ -27,7 +27,14 @@ import { usePartida } from "./usePartida";
  */
 export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
   const { estado, ejecutar, deshacer, error, limpiarError, puedeActuar } = usePartida(sesion);
-  const turno = useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar });
+  const turno = useAccionesDeTurno({
+    estado,
+    ejecutar,
+    deshacer,
+    puedeActuar,
+    // Aquí sí se pregunta: puede que en esa casa haya dados y puede que no.
+    dadosPropios: "aEleccion",
+  });
 
   // La única línea que hace de esta pantalla lo que es. Lo que se pinta va por
   // aquí; lo que decide qué es legal —los selectores de `useAccionesDeTurno`— va
@@ -100,6 +107,10 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
             // Deshacer es de la mesa: es quien tiene el secreto del relevo y
             // quien ve el tablero de verdad para saber qué se deshace.
             puedeDeshacer={false}
+            // Aquí es donde la pregunta tiene sentido de verdad: puede que en
+            // esa casa haya dados y puede que no.
+            quienTira={turno.quienTira}
+            cambiarQuienTira={turno.setQuienTira}
             acciones={{
               tirarMovimiento: turno.pedirMovimiento,
               abrirPuerta: (id) => ejecutar({ tipo: "abrirPuerta", puerta: id }),
@@ -161,6 +172,7 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
       </aside>
 
       {turno.peticion && <DiceInput peticion={turno.peticion} />}
+      {turno.tirada && <AvisoDeTirada tirada={turno.tirada} alCerrar={turno.cerrarTirada} />}
     </div>
   );
 }
