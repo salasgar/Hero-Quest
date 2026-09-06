@@ -7,7 +7,7 @@ import { nombreDe } from "../src/narrator/local";
 import { MISION_PRUEBA, c } from "./ayuda";
 
 describe("la lista de nombres", () => {
-  it("tiene doce por especie, y las diez especies", () => {
+  it("tiene doce por especie, y todas las especies", () => {
     expect(Object.keys(NOMBRES).sort()).toEqual([...ESPECIES].sort());
     for (const especie of ESPECIES) {
       expect(NOMBRES[especie]).toHaveLength(12);
@@ -16,8 +16,8 @@ describe("la lista de nombres", () => {
 
   it("no repite ningún nombre, ni dentro de una especie ni entre especies", () => {
     const todos = ESPECIES.flatMap((especie) => NOMBRES[especie]);
-    expect(todos).toHaveLength(120);
-    expect(new Set(todos).size).toBe(120);
+    expect(todos).toHaveLength(ESPECIES.length * 12);
+    expect(new Set(todos).size).toBe(ESPECIES.length * 12);
   });
 
   it("da género gramatical a todas las especies", () => {

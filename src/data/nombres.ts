@@ -37,6 +37,14 @@ export const GENERO_ESPECIE: Readonly<Record<EspecieMonstruo, "m" | "f">> = {
   gargola: "f",
   hechiceroDelCaos: "m",
   trollDeLasCavernas: "m",
+  brujo: "m",
+  bruja: "f",
+  arañaGigante: "f",
+  monstruoDeArena: "m",
+  rataGigante: "f",
+  espectro: "m",
+  ogro: "m",
+  serpienteDeLasTumbas: "f",
 };
 
 /**
@@ -96,6 +104,48 @@ export const NOMBRES: Readonly<Record<EspecieMonstruo, readonly string[]>> = {
     "Bumbarrámbulo", "Gorgotóntolo", "Trompicórrumbo", "Zampatólomo",
     "Cachiporrondo", "Mazacotrombo", "Pesadúmbrolo", "Tarambónculo",
     "Chapoteóndulo", "Retumbagorro", "Morrocotúmbalo", "Bostezónculo",
+  ],
+  // Brujo y bruja: misma familia arcana que el hechicero del Caos, con raíces
+  // de ingredientes de conjuro (tizón, acónito, azufre, beleño, salitre...).
+  brujo: [
+    "Tizonardo", "Acónitor", "Azufrán", "Beleñoso", "Salitrego", "Endrinar",
+    "Espinardo", "Ceniprado", "Resinoc", "Breáquiz", "Ortigón", "Sulfurión",
+  ],
+  bruja: [
+    "Tizona", "Acónita", "Azufrina", "Beleñosa", "Salitrera", "Endrinia",
+    "Espinela", "Cenizara", "Resinia", "Breática", "Ortigana", "Sulfúrica",
+  ],
+  // Araña gigante: raíces de tela y veneno.
+  arañaGigante: [
+    "Sedosa", "Venenaria", "Hilandra", "Patiarga", "Ponzoñela", "Telandra",
+    "Zancuda", "Pegajosa", "Vellosa", "Ocelaria", "Trampiña", "Arácnea",
+  ],
+  // Monstruo de arena: raíces de desierto y piedra.
+  monstruoDeArena: [
+    "Dunardo", "Sequión", "Pedernal", "Cuarzoso", "Silícero", "Tormentán",
+    "Arenisco", "Pedrusco", "Torbellindo", "Calcinoc", "Vendábalo", "Salobre",
+  ],
+  // Rata gigante: raíces de alcantarilla y enjambre.
+  rataGigante: [
+    "Roñosa", "Mordisca", "Alcantarina", "Escurridiza", "Dientuza", "Sarnosa",
+    "Roedora", "Grisácea", "Hocicona", "Rabolarga", "Chillona", "Purulenta",
+  ],
+  // Espectro: no muerto, raíces de bruma y penumbra en vez de las sepulcrales
+  // del esqueleto.
+  espectro: [
+    "Vaporhán", "Etérgo", "Brumindo", "Neblasco", "Umbrolar", "Diafanor",
+    "Traslucián", "Penumbrino", "Espectrán", "Vahidor", "Nebulundo", "Fantasmiro",
+  ],
+  // Ogro: guturales y pesados como el orco, pero más toscos.
+  ogro: [
+    "Gorrumbo", "Bramotor", "Zampalón", "Machácor", "Trancudo", "Golpazán",
+    "Porrazor", "Aplastón", "Machacón", "Trituro", "Bocazán", "Gruñastro",
+  ],
+  // Serpiente de las tumbas: no muerta, raíces sepulcrales como el esqueleto
+  // y la momia, cruzadas con lo reptil.
+  serpienteDeLasTumbas: [
+    "Escamosa", "Sibilina", "Reptelia", "Sarcófila", "Tumbina", "Cripteña",
+    "Mausolina", "Sepulcria", "Ponzoñosa", "Colmillara", "Escamera", "Silbadora",
   ],
 };
 

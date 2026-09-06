@@ -63,6 +63,28 @@ export const PERSONALIDADES: Readonly<Record<EspecieMonstruo, Personalidad>> = {
   // tiene más cerca, siempre. Torpe también en esto, que es como lo pidió
   // Juan Luis al firmarlo.
   trollDeLasCavernas: { nombre: "lerdo", sesgos: { porCasillaDeDistancia: 2 } },
+  // Le persigue lo mismo que al guerrero: neutralizar el hechizo antes de que
+  // se lance a él, no simplemente pegar.
+  brujo: { nombre: "rencoroso", sesgos: { lanzaHechizos: 2, danoEsperado: 0.7 } },
+  // Igual de rencorosa, pero paciente: no le penaliza tanto la distancia
+  // porque una maldición no tiene prisa.
+  bruja: { nombre: "traicionera", sesgos: { remate: 2, porCasillaDeDistancia: 0.7 } },
+  // Con diez de movimiento llega a cualquiera igual: la distancia le da casi
+  // igual, y se ceba con el que ya sangra porque no tiene fuerza para más.
+  arañaGigante: { nombre: "acechante", sesgos: { heridoPrimero: 2, porCasillaDeDistancia: 0.5 } },
+  // Guarda su sala y no se mueve por gusto: penaliza la distancia más que la
+  // gárgola y todavía más la casilla desde la que no llega.
+  monstruoDeArena: { nombre: "inamovible", sesgos: { porCasillaDeDistancia: 3, descuentoPorNoLlegar: 2 } },
+  // Un enjambre no razona: remata al que ya está herido, sin fijarse en lo
+  // demás.
+  rataGigante: { nombre: "enjambre", sesgos: { heridoPrimero: 3 } },
+  // Traslúcido y errático: la distancia casi no le cuesta.
+  espectro: { nombre: "errático", sesgos: { porCasillaDeDistancia: 0.3 } },
+  // Aplasta al que tiene más cerca, sin táctica: no distingue a quien lanza
+  // hechizos de quien no.
+  ogro: { nombre: "aplastante", sesgos: { danoEsperado: 2, lanzaHechizos: 0.3 } },
+  // Guarda su cripta como la gárgola guarda su sala, un poco más paciente.
+  serpienteDeLasTumbas: { nombre: "sigilosa", sesgos: { porCasillaDeDistancia: 2.5, heridoPrimero: 1.5 } },
 };
 
 /** Los pesos que llegan, torcidos por la especie. Puro: no toca `base`. */
