@@ -17,8 +17,8 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-06 12:49Z · por la sesión `s-20260906T124346-dd4060bd` (cerró la
-tarea 43)
+Regenerado: 2026-09-06 13:30Z · por la sesión `s-20260906T103034-b376065f` (la que migró el
+reparto; no reclamó ninguna tarea; recoge el cierre de la 43 por `s-20260906T124346-dd4060bd`)
 
 ## Antes de hacer nada
 
@@ -224,30 +224,35 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | **PENDIENTE** | |
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 11, 36 | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | **PENDIENTE** | |
+| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 11, 36, 37, 38, 41, 44 | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** | |
+| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **BLOQUEADA** (45) | |
+| 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
+| 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres ahora:** 11, 22, 36, 37, 40, 41, 42 y 44 (MEDIO); ninguna de banda BAJO (43 quedó
-LISTA, `cd93174`). Ninguna de banda ALTO hasta que 42 esté LISTA (entonces 38); 15 espera la
-palabra de Juan Luis. **Encadenables:** 40+42 (sin ficheros en común); 11+22+36 (comparten
-`TurnPanel.tsx`: seguidas, nunca en paralelo); 37+41 (comparten `EleccionDeHeroes.tsx` y
-`estilos.css`: seguidas). **Sesiones que caben a la vez sin estorbarse: tres** — una en
-40+42, una en 11+22+36 y una en 37+41; 44 espera a que termine la de 11+36 (comparte
-`Juego.tsx`), y 39 y 38 a 42.
+**Libres ahora:** 11, 22, 36, 37, 40, 41, 42 y 44 (MEDIO); 48 y 45 (ALTO; 45 mejor cuando
+cierren las cadenas de pantalla, porque toca `Juego.tsx` y `EleccionDeHeroes.tsx`).
+Ninguna de banda BAJO: 43 quedó LISTA (`cd93174`). 38 se libera con 42, y 46 con 45; 15
+espera la palabra de Juan Luis. **Encadenables:** 40+42 (sin ficheros en común); 11+22+36
+(comparten `TurnPanel.tsx`: seguidas, nunca en paralelo); 37+41 (comparten
+`EleccionDeHeroes.tsx` y `estilos.css`: seguidas). **Sesiones que caben a la vez sin
+estorbarse: cuatro** — una en 40+42, una en 11+22+36, una en 37+41 y una ALTO en 48; 44
+espera a que termine la de 11+36 (comparte `Juego.tsx`), 45 a las dos cadenas de pantalla,
+y 39 y 38 a 42.
 
 ## Registro de finalizaciones
 
 Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba. Los 25
-ficheros los escribió la sesión de la migración a partir del registro del tablón viejo; la
-sesión que de verdad hizo cada tarea va entre paréntesis, con el identificador de
-conversación que usaba el tablón viejo. Fecha: la del commit, en UTC.
+primeros ficheros los escribió la sesión de la migración a partir del registro del tablón
+viejo; la sesión que de verdad hizo cada tarea va entre paréntesis, con el identificador de
+conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la 43, cada
+terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
 
-- LISTA · tarea 43 · 2026-09-06 12:49 · `s-20260906T124346-dd4060bd` · 431 tests (sin
-  cambios); botón y rama de render quitados, `BoardVerify.tsx` intacto, puerta trasera con
-  `?verificar` en la URL · `cd93174`
+- LISTA · tarea 43 · 2026-09-06 12:49 · `s-20260906T124346-dd4060bd` · 431 tests (sin cambios); botón y rama de render quitados, `BoardVerify.tsx` intacto, puerta trasera con `?verificar` · `src/App.tsx` · `cd93174`
 - LISTA · tarea 34 · 2026-09-06 08:26 · `s-20260906T103034-b376065f` (hecha por `6905402d`) · publicada en <https://salasgar.github.io/Hero-Quest/>; `VERSION` no pasa a ser el hash · `2994ffc`
 - LISTA · tarea 09 · 2026-09-06 07:21 · `s-20260906T103034-b376065f` (hecha por `992c726d`) · 17 tests nuevos; 100 partidas por nivel, los tres niveles al 100 % de victorias; pega-y-se-va del 48 % al 6-7 % · `edc0c54`, `29e878b`, `4a68069`
 - LISTA · tarea 10 · 2026-09-06 07:14 · `s-20260906T103034-b376065f` (hecha por `47e1fced`) · `npm run sim`: 100 partidas, 100 % de victorias, 7,9 rondas de media · `694e4b2`

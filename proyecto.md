@@ -161,6 +161,13 @@ que dura la sesión.
   se reparte entre T11 (verlo despacio) y T38 (huir). Una sesión de banda BAJO había dejado
   ocho filas T36–T43 en el tablón viejo, en la rama `worktree-nuevas-tareas-sep-06`, sin
   fichas: esos números se respetan, esa rama no se fusiona y se puede borrar.
+- **«Más misiones» son varias tareas, no una** (encargo del 2026-09-06): T45 monta el
+  catálogo ordenado por dificultad, el selector y la medida con el simulador; T46 y T47 son
+  una misión cada una, y las siguientes se añaden como T49 en adelante copiando esas
+  fichas. La dificultad de una misión es su posición en el catálogo, y la decide el
+  porcentaje de victorias medido, nunca un retoque de la IA (firma del 2026-09-06). T48
+  («qué más mejorar») produce un fichero de propuestas, no código: es Juan Luis quien
+  convierte propuestas en tareas.
 - **Orden por ficheros compartidos entre las nuevas**: `types.ts` y `partida.ts` los tocan
   T42, T37 y T38, en ese orden; `TurnPanel.tsx`, T11, T22 y T36; `EleccionDeHeroes.tsx` y
   `estilos.css`, T37 y T41; `App.tsx`, T41 y T43; `Juego.tsx`, T11, T36 y T44. Está en cada
