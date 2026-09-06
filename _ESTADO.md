@@ -17,8 +17,8 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-06 12:50Z · por la sesión `s-20260906T103034-b376065f` (la que migró el
-reparto; no reclamó ninguna tarea)
+Regenerado: 2026-09-06 12:45Z · por la sesión `s-20260906T124346-dd4060bd` (reclamó la
+tarea 43)
 
 ## Antes de hacer nada
 
@@ -222,18 +222,20 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 40 | T40 · Todas las salas con puerta en la primera misión | tareas/T40-todas-las-salas-con-puerta.md | ninguna | 2 h | MEDIO | 42 | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | **PENDIENTE** | |
 | 41 | T41 · El logotipo y las imágenes de ambientación | tareas/T41-logotipo-y-ambientacion-visual.md | ninguna (firma del 2026-09-06) · no a la vez que 37, 43 | 3 h | MEDIO | 37 | `public/`, `App.tsx`, `EleccionDeHeroes.tsx`, `Transicion.tsx` (nuevo), `estilos.css` | manual | **PENDIENTE** | |
 | 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | **PENDIENTE** | |
-| 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | **PENDIENTE** | |
+| 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | **EN CURSO** | `s-20260906T124346-dd4060bd` · 2026-09-06T13:28:54Z |
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 11, 36 | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres ahora:** 43 (BAJO); 11, 22, 36, 37, 40, 41, 42 y 44 (MEDIO). Ninguna de banda ALTO
-hasta que 42 esté LISTA (entonces 38); 15 espera la palabra de Juan Luis. **Encadenables:**
-40+42 (sin ficheros en común); 11+22+36 (comparten `TurnPanel.tsx`: seguidas, nunca en
-paralelo); 37+41 (comparten `EleccionDeHeroes.tsx` y `estilos.css`: seguidas). **Sesiones
-que caben a la vez sin estorbarse: cuatro** — una en 43, una en 40+42, una en 11+22+36 y
-una en 37+41; 44 espera a que termine la de 11+36 (comparte `Juego.tsx`), y 39 y 38 a 42.
+**Libres ahora:** 11, 22, 36, 37, 40, 41, 42 y 44 (MEDIO); ninguna de banda BAJO (43 está EN
+CURSO, sesión `s-20260906T124346-dd4060bd`, caduca 2026-09-06T13:28:54Z). Ninguna de banda
+ALTO hasta que 42 esté LISTA (entonces 38); 15 espera la palabra de Juan Luis.
+**Encadenables:** 40+42 (sin ficheros en común); 11+22+36 (comparten `TurnPanel.tsx`:
+seguidas, nunca en paralelo); 37+41 (comparten `EleccionDeHeroes.tsx` y `estilos.css`:
+seguidas; nótese que 41 no va a la vez que 43, ya en curso). **Sesiones que caben a la vez
+sin estorbarse ahora mismo: tres** — una en 40+42, una en 11+22+36 y una en 37 (41 espera a
+que 43 cierre); 44 espera a que termine la de 11+36 (comparte `Juego.tsx`), y 39 y 38 a 42.
 
 ## Registro de finalizaciones
 
