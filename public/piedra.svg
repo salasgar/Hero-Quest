@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Textura de piedra para el fondo de los paneles. Generada aquí, no descargada:
+  son 700 bytes de ruido procedural en vez de una foto de varios cientos de
+  kilobytes, y no arrastra ninguna licencia que comprobar.
+
+  Sale gris oscuro con el alfa variable, no un color plano, para que sirva
+  encima de cualquier panel: lo que se ve por debajo sigue siendo `--panel`, y
+  esto solo lo ensucia un poco. Se usa con `background-repeat` a 180 px, que es
+  el tamaño al que el grano no se lee como un patrón repetido.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <filter id="piedra" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <!-- Dos frecuencias: la fina es el grano; la gruesa, las manchas de humedad. -->
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" seed="17" result="grano"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="5" result="manchas"/>
+    <feBlend in="grano" in2="manchas" mode="multiply" result="mezcla"/>
+    <!--
+      El color se fija en negro y el ruido se va entero al alfa. Así la textura
+      oscurece a manchas en vez de teñir: encima de un panel claro o de uno
+      oscuro se comporta igual.
+
+      Los números salen de mirarlo, no de calcularlo. La primera versión ponía
+      un gris (0.043 0.051 0.070) y restaba 0.28: sobre el panel `#1e222b` eso
+      da una diferencia de tres niveles, o sea un panel liso con la textura
+      cargada al pedo. Con el relleno en negro y restando 0.18, el grano se ve
+      y el texto encima no pierde contraste. Se compararon seis variantes
+      pintadas sobre el color real del panel.
+    -->
+    <feColorMatrix in="mezcla" type="matrix" values="
+      0 0 0 0 0
+      0 0 0 0 0
+      0 0 0 0 0
+      0.5 0.35 0.15 0 -0.18"/>
+  </filter>
+  <rect width="180" height="180" filter="url(#piedra)"/>
+</svg>

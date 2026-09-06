@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { nombreDeClase } from "./data/heroes";
+import { LOGOTIPO, rutaDe } from "./data/imagenes";
 import type { HeroeElegido } from "./engine/partida";
 import { MESA, type SesionDeRed } from "./red/cliente";
 import { BoardVerify } from "./ui/BoardVerify";
@@ -6,7 +8,18 @@ import { EleccionDeHeroes } from "./ui/EleccionDeHeroes";
 import { codigoDelEnlace, CrearPartidaEnRed, UnirseAPartida } from "./ui/EntrarEnPartida";
 import { Instrucciones } from "./ui/Instrucciones";
 import { Juego } from "./ui/Juego";
+import { Transicion } from "./ui/Transicion";
 import { VistaDeHeroe } from "./ui/VistaDeHeroe";
+
+/**
+ * Cómo se llama cada quien en la pantalla de paso: su nombre, o su clase.
+ *
+ * `nombreDeClase` ya sabe que el género puede faltar y que por omisión es
+ * masculino; indexar `HEROES[clase].nombre[genero]` a mano se rompe con quien
+ * no lo haya dicho.
+ */
+const comoSeLlaman = (grupo: HeroeElegido[]) =>
+  grupo.map((h) => h.nombre?.trim() || nombreDeClase(h.clase, h.genero));
 
 export default function App() {
   // Las instrucciones se abren **encima** de lo que haya, no en lugar de ello:
@@ -19,6 +32,16 @@ export default function App() {
   const [reparto, setReparto] = useState(0);
   const [sesion, setSesion] = useState<SesionDeRed | null>(null);
   const [creandoRed, setCreandoRed] = useState(false);
+  /**
+   * La pantalla de paso entre elegir el grupo y jugar.
+   *
+   * Se dibuja **encima** de `Juego`, no en su lugar, por lo mismo que las
+   * instrucciones: si sustituyera a `Juego`, la partida se montaría al
+   * terminar la transición y no al empezarla, y con el logotipo aún puesto ya
+   * habría que estar repartiendo el calabozo. Encima, la partida arranca en
+   * cuanto se pulsa «empezar» y el logotipo solo tapa mientras dura.
+   */
+  const [enTransicion, setEnTransicion] = useState(false);
 
   /**
    * El código del enlace se lee **una vez**, al montar. Si se leyera en cada
@@ -57,6 +80,12 @@ export default function App() {
   return (
     <>
       <nav className="navegacion">
+        {/*
+          El logotipo pequeño va aquí porque es el único sitio de la partida
+          donde no le quita nada al juego: la barra ya existe y tenía hueco de
+          sobra a la izquierda. Encima del tablero no va nunca.
+        */}
+        <img className="navegacion-logo" src={rutaDe(LOGOTIPO)} alt="HeroQuest" />
         <button className="sel">Partida</button>
         <button
           className={verInstrucciones ? "sel" : ""}
@@ -64,7 +93,16 @@ export default function App() {
         >
           Instrucciones
         </button>
-        {grupo && <button onClick={() => setGrupo(null)}>Cambiar héroes</button>}
+        {grupo && (
+          <button
+            onClick={() => {
+              setGrupo(null);
+              setEnTransicion(false);
+            }}
+          >
+            Cambiar héroes
+          </button>
+        )}
         {grupo && !creandoRed && (
           <button onClick={() => setCreandoRed(true)}>Jugar con alguien fuera</button>
         )}
@@ -77,12 +115,21 @@ export default function App() {
           alVolver={() => setCreandoRed(false)}
         />
       ) : grupo ? (
-        <Juego key={reparto} heroes={grupo} />
+        <>
+          <Juego key={reparto} heroes={grupo} />
+          {enTransicion && (
+            <Transicion
+              nombres={comoSeLlaman(grupo)}
+              alTerminar={() => setEnTransicion(false)}
+            />
+          )}
+        </>
       ) : (
         <EleccionDeHeroes
           alEmpezar={(heroes) => {
             setGrupo(heroes);
             setReparto((n) => n + 1);
+            setEnTransicion(true);
           }}
         />
       )}

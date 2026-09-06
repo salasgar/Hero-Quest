@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { EQUIPO, type IdEquipo } from "../data/equipment";
 import { HEROES, VARIANTES_HEROE, type ClaseHeroe, type Genero } from "../data/heroes";
+import { LOGOTIPO, rutaDe } from "../data/imagenes";
 import { MISION_CALABOZO } from "../data/quests/calabozo";
 import { ELEMENTOS, hechizosDelElemento, type Elemento } from "../data/spells";
 import type { HeroeElegido } from "../engine/partida";
@@ -101,6 +102,13 @@ export function EleccionDeHeroes({ alEmpezar }: { alEmpezar: (heroes: HeroeElegi
   return (
     <div className="eleccion">
       <header className="eleccion-cabecera">
+        {/*
+          El logotipo en grande va aquí y no en la partida: esta pantalla es la
+          primera que se ve, no tiene tablero al que quitarle sitio y es donde
+          se está esperando a que la gente se decida. En cuanto empieza la
+          misión, la pantalla es del juego.
+        */}
+        <img className="eleccion-logo" src={rutaDe(LOGOTIPO)} alt="HeroQuest" />
         <h1>¿Quién baja a la mazmorra?</h1>
         <p className="pista">
           Hasta {TOPE} héroes. Se puede repetir clase —dos magos, dos elfas—, y cada clase se

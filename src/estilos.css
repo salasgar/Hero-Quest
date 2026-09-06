@@ -4,6 +4,11 @@
   --fondo: #14161c;
   --panel: #1e222b;
   --borde: #333a48;
+  /* La textura de los paneles, en una variable para no repetir la ruta.
+     `url()` en CSS se resuelve contra la hoja de estilos, y vite reescribe lo
+     que hay en `public/` al construir, así que aquí la base de Pages ya está
+     puesta: no hace falta `import.meta.env.BASE_URL`, que es cosa del JSX. */
+  --piedra: url("/piedra.svg");
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
@@ -57,10 +62,20 @@ button:disabled { opacity: .45; cursor: default; }
 
 /* ------------------------------------------------------------ navegación */
 .navegacion {
-  display: flex; gap: .4rem; padding: .6rem 1rem;
+  display: flex; gap: .4rem; align-items: center; padding: .6rem 1rem;
   border-bottom: 1px solid var(--borde); background: var(--panel);
+  background-image: var(--piedra);
 }
 .navegacion button.sel { background: var(--tinta); color: #10131a; font-weight: 600; }
+/* 2 rem, que es justo lo que miden los botones de al lado: así la barra no
+   crece ni un píxel —lo que crezca aquí se lo come el tablero— y el logotipo
+   es lo más grande que cabe sin empujar nada. A 1,6 rem se leía como una
+   mancha roja: son dos líneas de letras, y cada una se quedaba en 10 px. */
+.navegacion-logo {
+  height: 2rem; width: auto; margin-right: .5rem;
+  /* Ahí abajo es decoración, no un botón: no se pulsa ni se arrastra. */
+  user-select: none; -webkit-user-drag: none; pointer-events: none;
+}
 
 /* ------------------------------------------------------------ partida */
 .juego { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem; }
@@ -76,8 +91,12 @@ button:disabled { opacity: .45; cursor: default; }
 .juego-cabecera p { margin: 0; font-size: .82rem; line-height: 1.45; }
 .apagado { color: #98a2b5; }
 
+/* La piedra va de fondo, no de marco: un marco alrededor del diario le quitaría
+   ancho al texto, y el diario ya es la columna estrecha. La textura ensucia el
+   panel sin mover ni un píxel de lo que hay dentro. */
 .turno, .hojas, .diario, .desenlace {
   background: var(--panel); border: 1px solid var(--borde);
+  background-image: var(--piedra);
   border-radius: 8px; padding: .75rem .85rem;
 }
 .turno h2, .diario h2 { margin: 0 0 .5rem; font-size: .95rem; font-weight: 600; }
@@ -193,8 +212,25 @@ kbd {
 
 /* ------------------------------------------------------------ elección de héroes */
 .eleccion { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+/* Un resplandor de antorcha detrás de la cabecera. Es un degradado, no una
+   imagen: no pesa nada y se adapta solo al ancho de la pantalla. */
+.eleccion-cabecera {
+  text-align: center; padding: 1rem 0 .5rem;
+  background: radial-gradient(60% 100% at 50% 0%, #3a1f18 0%, rgba(58, 31, 24, 0) 70%);
+}
 .eleccion-cabecera h1 { margin: 0 0 .25rem; font-size: 1.5rem; }
-.eleccion-cabecera .pista { max-width: 68ch; margin: 0 0 1.2rem; }
+.eleccion-cabecera .pista { max-width: 68ch; margin: 0 auto 1.2rem; }
+/* Grande, pero con tope, y el tope que manda es el de ALTO.
+   Con `width: min(420px, 70vw)` la cabecera medía 583 px de los 900 de un
+   portátil y solo entraba una fila de fichas: había que bajar para elegir,
+   que es justo lo que la ficha decía que no. Limitando el alto a 30vh, el
+   logotipo se encoge cuando la pantalla es baja en vez de empujar. */
+.eleccion-logo {
+  display: block; width: auto; height: auto;
+  max-width: min(380px, 70vw); max-height: 30vh;
+  margin: 0 auto .6rem;
+  user-select: none; -webkit-user-drag: none;
+}
 
 .fichas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .6rem; }
 .ficha {
@@ -286,4 +322,35 @@ kbd {
   display: inline-flex; align-items: center; justify-content: center;
   width: 1.9rem; height: 1.9rem; border-radius: 5px;
   border: 1px solid var(--borde); background: var(--fondo);
+}
+
+/* ------------------------------------------- la pantalla de paso a la partida */
+/* Tapa entera y opaca: la partida ya está montada debajo, y verla asomar
+   mientras se anuncia el grupo estropea justo el efecto que se busca. */
+.transicion {
+  position: fixed; inset: 0; z-index: 20;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .8rem; padding: 2rem; cursor: pointer;
+  background: #0b0d12 radial-gradient(70% 70% at 50% 40%, #241611 0%, #0b0d12 70%);
+  animation: transicion-entra .45s ease-out;
+}
+.transicion-logo {
+  width: min(560px, 78vw); height: auto;
+  filter: drop-shadow(0 0 28px #7a1f12aa);
+  animation: transicion-logo 2.2s ease-out;
+  user-select: none; -webkit-user-drag: none;
+}
+.transicion-grupo { margin: 0; font-size: 1.05rem; color: #cfd6e4; text-align: center; }
+.transicion-pista { margin: 0; font-size: .8rem; color: #6f7891; }
+
+@keyframes transicion-entra { from { opacity: 0; } to { opacity: 1; } }
+@keyframes transicion-logo {
+  from { transform: scale(.88); opacity: 0; }
+  25%  { transform: scale(1); opacity: 1; }
+}
+
+/* Quien haya pedido menos movimiento al sistema no quiere que le den un susto
+   al empezar la partida. La pantalla sigue estando; lo que se va es el salto. */
+@media (prefers-reduced-motion: reduce) {
+  .transicion, .transicion-logo { animation: none; }
 }
