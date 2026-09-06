@@ -17,7 +17,8 @@ export type EspecieMonstruo =
   | "momia"
   | "guerreroDelCaos"
   | "gargola"
-  | "hechiceroDelCaos";
+  | "hechiceroDelCaos"
+  | "trollDeLasCavernas";
 
 export interface PlantillaMonstruo {
   especie: EspecieMonstruo;
@@ -42,6 +43,19 @@ export const MONSTRUOS: Readonly<Record<EspecieMonstruo, PlantillaMonstruo>> = {
   guerreroDelCaos:  { especie: "guerreroDelCaos",  nombre: "Guerrero del Caos",  movimiento:  7, ataque: 4, defensa: 4, cuerpo: 3, mente: 3, noMuerto: false },
   gargola:          { especie: "gargola",          nombre: "Gárgola",            movimiento:  6, ataque: 4, defensa: 5, cuerpo: 3, mente: 4, noMuerto: false },
   hechiceroDelCaos: { especie: "hechiceroDelCaos", nombre: "Hechicero del Caos", movimiento:  6, ataque: 3, defensa: 4, cuerpo: 2, mente: 6, noMuerto: false },
+  /**
+   * Añadido nuestro, no de la caja: lo pidió Juan Luis el 2026-09-06 para las
+   * misiones difíciles que vendrán, y está firmado en `_ESTADO.md`. Su idea,
+   * con sus palabras: muy fuerte y resistente pero muy torpe, un solo dado de
+   * ataque y dos casillas por turno como mucho, y a cambio muchos dados de
+   * defensa. Lo que él fijó es eso —movimiento 2, ataque 1—; la defensa 6 y el
+   * cuerpo 10 son la concreción de «muchos» y «muchísimos», elegidos para que
+   * sea un muro que avanza, no un verdugo: pega poco, casi no llega, y aun así
+   * hay que decidir si el grupo lo desgasta entre cuatro o le huye. Se ajustan
+   * en esta línea si al jugarlo no cuadran; el reglamento no tiene troll, así
+   * que no hay nada que cotejar.
+   */
+  trollDeLasCavernas: { especie: "trollDeLasCavernas", nombre: "Troll de las Cavernas", movimiento: 2, ataque: 1, defensa: 6, cuerpo: 10, mente: 1, noMuerto: false },
 };
 
 export const ESPECIES = Object.keys(MONSTRUOS) as EspecieMonstruo[];

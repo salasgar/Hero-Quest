@@ -58,6 +58,11 @@ export const PERSONALIDADES: Readonly<Record<EspecieMonstruo, Personalidad>> = {
   // Piensa como Zargon: remata lo que puede morir y no pierde ataques en
   // arañazos improbables.
   hechiceroDelCaos: { nombre: "calculador", sesgos: { remate: 1.5, danoEsperado: 0.8 } },
+  // Con dos casillas por turno, elegir presa lejana es pasarse la misión andando
+  // y en la mesa se lee como que la aplicación se ha perdido: va a por el que
+  // tiene más cerca, siempre. Torpe también en esto, que es como lo pidió
+  // Juan Luis al firmarlo.
+  trollDeLasCavernas: { nombre: "lerdo", sesgos: { porCasillaDeDistancia: 2 } },
 };
 
 /** Los pesos que llegan, torcidos por la especie. Puro: no toca `base`. */
