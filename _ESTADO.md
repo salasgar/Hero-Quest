@@ -17,15 +17,14 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-06 18:11Z · por la sesión `s-20260906T174532-9cbd624b`, al cerrar la
-52 (sin encadenar: la 36 y la 22 comparten `TurnPanel.tsx` con la cadena que ya llevan
-delante otras tareas, y de todas formas siguen encadenables entre sí para quien las
-coja). Incorpora la T41 cerrada (`4baf429`, fusionada a las 13:20Z), las fichas T51–T58
-(`hechos/notas/s-20260906T141818-ff83f12c.md`), y las T48 (`a6582f9`) y T57 (`f40e415`)
-cerradas mientras se regeneraba esto para la T52 (la 52 sigue con commit pendiente de
-push; el hash se corrige en cuanto entre en `origin/main`, como T41 y T42). Reclamos
-vivos: **51** (`s-20260906T174714-651b3481`, caduca 20:47:14Z) y **56**
-(`s-20260906T174758-05906208`, caduca 18:48:14Z).
+Regenerado: 2026-09-06 18:14Z · por la sesión `s-20260906T174532-9cbd624b`, al cerrar la
+52 (`9124757`, empujada como `099dff6..7366694`; sin encadenar: la 36 y la 22 comparten
+`TurnPanel.tsx` con la cadena que ya llevan delante otras tareas, y de todas formas
+siguen encadenables entre sí para quien las coja). Incorpora la T41 cerrada (`4baf429`,
+fusionada a las 13:20Z), las fichas T51–T58 (`hechos/notas/s-20260906T141818-ff83f12c.md`),
+y las T48 (`a6582f9`), T49 (`fb40fb1`) y T57 (`f40e415`) cerradas mientras se regeneraba
+esto para la T52. Reclamos vivos: **51** (`s-20260906T174714-651b3481`, caduca
+20:47:14Z) y **56** (`s-20260906T174758-05906208`, caduca 18:48:14Z).
 
 ## Antes de hacer nada
 
@@ -251,7 +250,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | LISTA (`fb40fb1`) | |
 | 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **BLOQUEADA** (49) | |
 | 51 | T51 · Un héroe pisa una trampa y tiene que pasarle algo | tareas/T51-las-trampas-saltan-al-pisarlas.md | ninguna · no a la vez que 53, 54, 50 (`reducer.ts`) ni 37 (`BoardMirror.tsx`) | 1,5 h | ALTO | 53, 54 | `reducer.ts`, `BoardMirror.tsx`, `tests/reducer.test.ts` | manual | EN CURSO | `s-20260906T174714-651b3481` · 20:47:14Z |
-| 52 | T52 · En el turno de Zargon no salen los mandos de los héroes | tareas/T52-el-turno-de-zargon-sin-mandos-de-heroe.md | ninguna · no a la vez que 36, 22 (`TurnPanel.tsx`) ni 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 36, 22 | `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `tests/turno-automatico.test.ts` | manual | LISTA (commit pendiente de push) | |
+| 52 | T52 · En el turno de Zargon no salen los mandos de los héroes | tareas/T52-el-turno-de-zargon-sin-mandos-de-heroe.md | ninguna · no a la vez que 36, 22 (`TurnPanel.tsx`) ni 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 36, 22 | `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `tests/turno-automatico.test.ts` | manual | LISTA (`9124757`) | |
 | 53 | T53 · El pergamino del guardián: la misión tiene encargo | tareas/T53-el-pergamino-del-guardian.md | 51 LISTA · no a la vez que 54, 50 (`reducer.ts`), 37, 38 (`types.ts`), 39 (`narrator`), 45 (`simular.ts`) | 3 h | ALTO | 54 | `types.ts`, `reducer.ts`, `quests/calabozo.ts`, `narrator/local.ts`, `scripts/simular.ts`, `tests/quest.test.ts`, `tests/reducer.test.ts` | manual | **BLOQUEADA** (51) | |
 | 54 | T54 · Pociones que se guardan y equipo que se encuentra | tareas/T54-pociones-y-equipo-entre-el-tesoro.md | 53 LISTA · no a la vez que 50, 37, 38, 39, 22 (`HeroSheet.tsx`) | 4 h | ALTO | 55 | `types.ts`, `partida.ts`, `reducer.ts`, `selectors.ts`, `combat.ts`, `treasure.ts`, `narrator/local.ts`, `HeroSheet.tsx`, tests, `imprimibles/` | manual | **BLOQUEADA** (53) | |
 | 55 | T55 · Las diecisiete salas nuevas del calabozo, con algo dentro | tareas/T55-las-salas-nuevas-pobladas.md | 53 y 54 LISTA · no a la vez que 46 | 3 h | ALTO | — | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | **BLOQUEADA** (53, 54) | |
@@ -293,7 +292,7 @@ Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la
 - LISTA · tarea 57 · 2026-09-06 17:59 · `s-20260906T174336-09ec25b3` · botón «Descargar partida» junto a «Cambiar héroes», y `scripts/repetir.ts` para reproducir el fichero descargado; guardado automático en servidor no es posible hoy (Pages no ejecuta nada; el relevo de T30 espera firma); 474 → 480 tests en su worktree (+6, `tests/registro-de-partida.test.ts`); typecheck y build en verde · `src/ui/registroDePartida.ts`, `usePartida.ts`, `App.tsx`, `scripts/repetir.ts`, `package.json`, `README.md` · `f40e415`
 - LISTA · tarea 48 · 2026-09-06 17:59 · `s-20260906T174643-a6f05c61` · quince propuestas de mejora ordenadas por lo que aportan, jugadas sobre el motor real (sin navegador en el entorno); 474 tests sin cambios (no toca código) · `tareas/_PROPUESTAS-2026-09.md` · `a6582f9`
 - LISTA · tarea 49 · 2026-09-06 (hora exacta no consta en la terminada) · `s-20260906T174538-5671d1b5` · ocho especies nuevas (brujo, bruja, araña gigante, monstruo de arena, rata gigante, espectro, ogro, serpiente de las tumbas), personalidad y doce nombres cada una; 474 → 481 tests; typecheck en verde; faltan las figuras de cartón (las confecciona Juan Luis) y quedan tres poderes anotados para T50 · `src/data/monsters.ts`, `src/ai/personalities.ts`, `src/data/nombres.ts` · `fb40fb1`
-- LISTA · tarea 52 · 2026-09-06 19:59 · `s-20260906T174532-9cbd624b` · `mandosDeHeroe(estado, zargon)` en `useAccionesDeTurno.ts`, usada por `TurnPanel.tsx` y `Juego.tsx`; desaparecen atacar/puerta/buscar/hechizos, «Terminar turno», «Cambiar»/«O elige tú», casillas verdes y objetivos del tablero, y su teclado, durante el turno de Zargon en automático (vuelven en pausa o avería); de paso, `trampaDisparada` ahora se enseña en pantalla; 474 → 479 tests (+5, fichero nuevo `tests/turno-de-zargon-sin-mandos.test.ts`); typecheck en verde · `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts` · commit pendiente de push (se corrige el hash en cuanto entre en `origin/main`)
+- LISTA · tarea 52 · 2026-09-06 19:59 · `s-20260906T174532-9cbd624b` · `mandosDeHeroe(estado, zargon)` en `useAccionesDeTurno.ts`, usada por `TurnPanel.tsx` y `Juego.tsx`; desaparecen atacar/puerta/buscar/hechizos, «Terminar turno», «Cambiar»/«O elige tú», casillas verdes y objetivos del tablero, y su teclado, durante el turno de Zargon en automático (vuelven en pausa o avería); de paso, `trampaDisparada` ahora se enseña en pantalla; 474 → 479 tests (+5, fichero nuevo `tests/turno-de-zargon-sin-mandos.test.ts`); typecheck en verde · `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts` · `9124757`
 - LISTA · tarea 41 · 2026-09-06 13:20 · `s-20260906T125522-43d82a6b` · logotipo grande en la elección y en una pantalla de paso (`Transicion.tsx`, nueva), pequeño en la barra; textura de piedra en SVG; el PNG de Juan Luis tenía fondo blanco opaco y se recortó; 474 tests / 34 ficheros tras el rebase (+7 suyos, `tests/imagenes.test.ts`); typecheck y build en verde · `public/`, `App.tsx`, `EleccionDeHeroes.tsx`, `Transicion.tsx`, `estilos.css`, `data/imagenes.ts` · `4baf429` (la terminada decía `ed12384` y se corrigió en `2d1408a`)
 - LISTA · tarea 42 · 2026-09-06 13:15 · `s-20260906T124412-0cdb5d41` · doce nombres por especie; asignación en `crearPartida` con un generador **derivado** de la semilla (`crearRng(semilla + 0x5bf03635)`), para no mover el del estado ni el barajado ni las tiradas (hay un test que lo fija); 467 tests con T11 y T40 dentro · `data/nombres.ts`, `partida.ts`, `types.ts`, `reducer.ts`, `narrator/local.ts`, `TurnPanel.tsx` · `372a0f0` (hechos en `7a4f0ee`)
 - LISTA · tarea 40 · 2026-09-06 13:01 · `s-20260906T124430-0169046b` · sin puerta: 0 (25 puertas); 437 tests; medido con `npm run sim`: la misión pasa de 8 a 15-18 rondas de media · `quests/calabozo.ts`, `tests/quest.test.ts` · `3eef6dc`
