@@ -1,10 +1,14 @@
 import { useState } from "react";
+import { figuraPorId } from "../engine/board";
 import { dadosDeAtaque, dadosDeDefensa } from "../engine/combat";
-import { esHeroe, type EstadoPartida, type Figura, type Puerta } from "../engine/types";
+import { esHeroe, type Accion, type EstadoPartida, type Figura, type Puerta } from "../engine/types";
+import { DIFICULTADES, type Dificultad } from "../ai/difficulty";
 import { MONSTRUOS } from "../data/monsters";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { puedeBuscarTesoro, puedeBuscarTrampas } from "../engine/selectors";
 import type { QuienTiraLosDados } from "./DiceInput";
+import { nombreDeFigura } from "./useAccionesDeTurno";
+import type { TurnoDeZargon } from "./useTurnoDeZargon";
 
 /** Un hechizo con los objetivos que hoy tiene a la vista, tal cual lo da `hechizosLanzables`. */
 export interface HechizoConObjetivos {
@@ -50,6 +54,48 @@ export interface PropsTurno {
    */
   quienTira?: QuienTiraLosDados;
   cambiarQuienTira?: (q: QuienTiraLosDados) => void;
+  /**
+   * Los mandos del turno automático de Zargon. Opcional: la pantalla de quien
+   * juega desde su casa no lo trae, y entonces el panel es el de siempre.
+   */
+  zargon?: TurnoDeZargon;
+  nivelDeZargon?: Dificultad;
+  cambiarNivelDeZargon?: (n: Dificultad) => void;
+}
+
+/** Cómo se llama cada nivel en la mesa. «Torpe» a secas suena a insulto. */
+const NOMBRE_DE_NIVEL: Readonly<Record<Dificultad, string>> = {
+  torpe: "Fácil",
+  normal: "Normal",
+  astuto: "Difícil",
+};
+
+/**
+ * La jugada que Zargon va a hacer, dicha en voz alta.
+ *
+ * Se anuncia **antes** de hacerla, que es lo que pedía la tarea: si la pantalla
+ * resuelve seis activaciones seguidas sin decir nada, en la mesa no queda más
+ * remedio que reconstruir el turno leyendo el diario hacia atrás.
+ */
+function frase(e: EstadoPartida, accion: Accion | null): string | null {
+  if (!accion) return null;
+  if (accion.tipo === "activarMonstruo") {
+    const m = figuraPorId(e, accion.monstruo);
+    return m ? `Le toca a ${nombreDeFigura(m)}` : "Activa a un monstruo";
+  }
+  if (accion.tipo === "atacar") {
+    const o = figuraPorId(e, accion.objetivo);
+    return o ? `Ataca a ${nombreDeFigura(o)}` : "Ataca";
+  }
+  // Sin coordenadas: el tablero de la mesa es de cartón y no tiene los números
+  // pintados, así que «se mueve a 4,7» no le sirve a nadie. Dónde va se ve en el
+  // tablero de la pantalla, que es para lo que está.
+  if (accion.tipo === "mover") return "Se mueve";
+  if (accion.tipo === "terminarTurno") return "Termina";
+  // Cualquier otra cosa que la IA llegue a proponer algún día. Decir algo vago
+  // es correcto; caer al «no tiene nada que hacer» de abajo sería mentir justo
+  // cuando sí lo tiene.
+  return "Zargon juega";
 }
 
 const Tecla = ({ children }: { children: React.ReactNode }) => <kbd>{children}</kbd>;
@@ -73,6 +119,9 @@ export function TurnPanel({
   puedeDeshacer,
   quienTira,
   cambiarQuienTira,
+  zargon,
+  nivelDeZargon,
+  cambiarNivelDeZargon,
 }: PropsTurno) {
   const [eligiendoAMano, setEligiendoAMano] = useState(false);
   const t = estado.turno;
@@ -133,9 +182,20 @@ export function TurnPanel({
                 {motivo && <span className="apagado">: {motivo}</span>}
               </p>
               <div className="botonera">
-                <button onClick={() => acciones.activarMonstruo(orden[0]!.id)} className="principal">
-                  Que actúe <Tecla>↵</Tecla>
-                </button>
+                {/*
+                  Con el turno automático (T11) este botón sobra: Zargon activa
+                  solo, y dejarlo sería el primero de los «clics que sobran» que
+                  la tarea venía a quitar. Los mandos están abajo, y la salida a
+                  mano sigue entera detrás de «Cambiar».
+                */}
+                {!zargon && (
+                  <button
+                    onClick={() => acciones.activarMonstruo(orden[0]!.id)}
+                    className="principal"
+                  >
+                    Que actúe <Tecla>↵</Tecla>
+                  </button>
+                )}
                 <button onClick={() => setEligiendoAMano((x) => !x)}>
                   {eligiendoAMano ? "Dejarlo a Zargon" : "Cambiar"}
                 </button>
@@ -162,6 +222,76 @@ export function TurnPanel({
                 quién va después.
               </p>
             </>
+          )}
+        </div>
+      )}
+
+      {/*
+        Los mandos del turno automático (T11).
+
+        Se pintan también con un monstruo activo, y no solo entre activaciones:
+        el momento en que hace falta parar a Zargon es justo ese —la figura se ha
+        movido y hay que empujar la miniatura— y un botón de pausa que solo
+        aparece cuando ya no hay nada que pausar no sirve de nada.
+
+        Los tres mandos son tres cosas distintas a propósito. «Pausa» es para
+        ahora; «Paso a paso» es cómo se quiere jugar el resto de la partida —hay
+        mesas que prefieren decidir cuándo avanza cada monstruo, y con niños
+        pequeños esa es la buena—; el nivel es a qué juega Zargon.
+      */}
+      {esZargon && zargon && (
+        <div className="grupo">
+          {/*
+            La avería va en `pista` y no en `aviso-error`: esa clase está
+            posicionada en absoluto y con `pointer-events: none` para flotar
+            sobre el tablero, y metida aquí se saldría del panel. El «⚠» hace el
+            trabajo que haría el color. (`estilos.css` no es de esta tarea: lo
+            tocan T37 y T41.)
+          */}
+          <p className={zargon.averia ? "pista" : "apagado"}>
+            {zargon.averia
+              ? `⚠ ${zargon.averia}`
+              : zargon.pausado
+                ? "Zargon está en pausa."
+                : (frase(estado, zargon.proxima) ??
+                  (estado.monstruosEnTablero.length === 0
+                    ? "Zargon espera."
+                    : "Zargon no tiene nada que hacer."))}
+          </p>
+          <div className="botonera">
+            {zargon.averia ? (
+              <button onClick={zargon.reanudar}>Reintentar</button>
+            ) : zargon.pausado || zargon.modo === "paso" ? (
+              <button onClick={zargon.siguiente} className="principal">
+                Siguiente <Tecla>↵</Tecla>
+              </button>
+            ) : (
+              <button onClick={zargon.pausar}>Pausa</button>
+            )}
+            {zargon.pausado && !zargon.averia && (
+              <button onClick={zargon.reanudar}>Que siga solo</button>
+            )}
+            <button
+              onClick={() =>
+                zargon.cambiarModo(zargon.modo === "automatico" ? "paso" : "automatico")
+              }
+            >
+              {zargon.modo === "automatico" ? "Paso a paso" : "Que vaya solo"}
+            </button>
+          </div>
+          {nivelDeZargon && cambiarNivelDeZargon && (
+            <div className="quien-tira">
+              <span className="apagado">Zargon juega:</span>
+              {DIFICULTADES.map((n) => (
+                <button
+                  key={n}
+                  className={n === nivelDeZargon ? "sel" : ""}
+                  onClick={() => cambiarNivelDeZargon(n)}
+                >
+                  {NOMBRE_DE_NIVEL[n]}
+                </button>
+              ))}
+            </div>
           )}
         </div>
       )}

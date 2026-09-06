@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   MISION_CALABOZO,
   MONSTRUOS_CALABOZO,
@@ -6,6 +6,7 @@ import {
   PUERTAS_CALABOZO,
   TRAMPAS_CALABOZO,
 } from "../data/quests/calabozo";
+import { type Dificultad } from "../ai/difficulty";
 import { motivoDeActivacion, ordenDeActivacion } from "../ai/orden";
 import type { HeroeElegido } from "../engine/partida";
 import type { SesionDeRed } from "../red/cliente";
@@ -61,7 +62,24 @@ export function Juego({
   const { estado, ejecutar, deshacer, reiniciar, error, limpiarError, puedeDeshacer, puedeActuar } =
     partida;
 
-  const turno = useAccionesDeTurno({ estado, ejecutar, deshacer, puedeActuar });
+  /**
+   * A qué nivel juega Zargon. Vive en la pantalla y no en `localStorage`: es una
+   * decisión de esta partida —se sube cuando los niños ganan siempre— y no una
+   * preferencia del navegador. Cambiarlo a mitad de misión no rompe el deshacer:
+   * lo que se rehace es la lista de acciones, no las decisiones que las eligieron.
+   */
+  const [nivelDeZargon, setNivelDeZargon] = useState<Dificultad>("normal");
+
+  const turno = useAccionesDeTurno({
+    estado,
+    ejecutar,
+    deshacer,
+    puedeActuar,
+    // Esta es la pantalla de la mesa: la que tiene las miniaturas delante y la
+    // única que juega el turno de Zargon (T11). La de casa lo deja apagado.
+    zargonAutomatico: true,
+    nivelDeZargon,
+  });
 
   // Se recalcula en cada render a partir del estado, que es lo que hace que un
   // monstruo muerto o dormido a mitad del turno cambie quién va después.
@@ -119,6 +137,9 @@ export function Juego({
             orden={orden}
             motivo={motivo}
             puedeDeshacer={puedeDeshacer}
+            zargon={turno.zargon}
+            nivelDeZargon={nivelDeZargon}
+            cambiarNivelDeZargon={setNivelDeZargon}
             acciones={{
               tirarMovimiento: turno.pedirMovimiento,
               abrirPuerta: (id) => ejecutar({ tipo: "abrirPuerta", puerta: id }),
@@ -132,7 +153,10 @@ export function Juego({
               cancelarHechizo: turno.cancelarHechizo,
               activarMonstruo: (id) => ejecutar({ tipo: "activarMonstruo", monstruo: id }),
               terminarTurno: () => ejecutar({ tipo: "terminarTurno" }),
-              deshacer,
+              // El de `turno`, no el de `usePartida`: para a Zargon antes de
+              // deshacer, que es lo único que hace visible el deshacer durante
+              // su turno.
+              deshacer: turno.deshacer,
             }}
           />
         )}

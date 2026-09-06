@@ -19,6 +19,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { Dificultad } from "../ai/difficulty";
 import { MONSTRUOS } from "../data/monsters";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { figuraPorId } from "../engine/board";
@@ -41,6 +42,7 @@ import {
   type PeticionDados,
   type TiradaHecha,
 } from "./DiceInput";
+import { useTurnoDeZargon } from "./useTurnoDeZargon";
 
 const rango = (desde: number, hasta: number) =>
   Array.from({ length: hasta - desde + 1 }, (_, i) => desde + i);
@@ -64,6 +66,18 @@ export interface OpcionesDeTurno {
    * aplicación» de la de casa y se pondría a tirar sola.
    */
   dadosPropios?: "siempreYo" | "aEleccion";
+  /**
+   * Si esta pantalla juega sola el turno de Zargon.
+   *
+   * Solo la de la mesa (T11). Va apagado por defecto porque encenderlo en dos
+   * pantallas a la vez es el fallo caro: las dos despacharían la misma jugada y
+   * el relevo vería el turno de Zargon jugado dos veces. Quien lo enciende es
+   * `Juego.tsx`, y `puedeActuar` remata el cierre —durante el turno de Zargon
+   * solo la mesa lo tiene en verdadero—.
+   */
+  zargonAutomatico?: boolean;
+  /** A qué nivel juega Zargon. `normal` es la hipótesis de T8 tal cual. */
+  nivelDeZargon?: Dificultad;
 }
 
 export function useAccionesDeTurno({
@@ -72,6 +86,8 @@ export function useAccionesDeTurno({
   deshacer,
   puedeActuar,
   dadosPropios = "siempreYo",
+  zargonAutomatico = false,
+  nivelDeZargon = "normal",
 }: OpcionesDeTurno) {
   const [peticion, setPeticion] = useState<PeticionDados | null>(null);
   /** El hechizo elegido que todavía no sabe a quién va. */
@@ -307,6 +323,36 @@ export function useAccionesDeTurno({
     [pendiente, lanzar, esZargon, porActivar, objetivos, ejecutar, pedirAtaque],
   );
 
+  // ---- el turno de Zargon, que se juega solo (T11) ----
+  const zargon = useTurnoDeZargon({
+    estado,
+    // `puedeActuar` es lo que distingue la mesa de la pantalla de casa durante
+    // el turno de Zargon; sin él, los dos navegadores jugarían la misma jugada.
+    activo: zargonAutomatico && esZargon && puedeActuar && !estado.desenlace,
+    // Mientras hay dados en la mano de alguien, la aplicación no juega por
+    // encima: es el mismo cierre que usa el teclado unas líneas más abajo.
+    ocupado: peticion !== null || tirada !== null,
+    nivel: nivelDeZargon,
+    ejecutar,
+    pedirAtaque,
+  });
+
+  /**
+   * Deshacer, parando antes a Zargon.
+   *
+   * Sin esto, el deshacer «no funciona» durante el turno de Zargon y encima no
+   * se ve por qué: la acción se quita de la lista, el estado vuelve atrás y el
+   * temporizador, que sigue vivo, vuelve a proponer exactamente la misma jugada
+   * —la IA es determinista— y la despacha otra vez antes de que a nadie le dé
+   * tiempo a mirar. Pararlo es lo que convierte el deshacer en lo que la mesa
+   * espera de él.
+   */
+  const pausarZargon = zargon.pausar;
+  const deshacerYPausar = useCallback(() => {
+    pausarZargon();
+    deshacer();
+  }, [pausarZargon, deshacer]);
+
   // ---- teclado: es la entrada rápida, más que el ratón ----
   useEffect(() => {
     if (peticion) return; // mientras se piden dados, manda el diálogo
@@ -364,9 +410,17 @@ export function useAccionesDeTurno({
         elegirHechizo(hechizos[0]!.hechizo);
       } else if (tecla === "z") {
         ev.preventDefault();
-        deshacer();
+        deshacerYPausar();
       } else if (ev.key === "Enter" || ev.key === " ") {
         ev.preventDefault();
+        // Con el turno de Zargon automático, Intro es «que juegue ya lo
+        // siguiente»: la jugada entera que ha elegido la IA, no solo activar al
+        // monstruo. Es lo que hace usable el modo paso a paso, y en automático
+        // sirve para adelantar una espera que se está haciendo larga.
+        if (zargonAutomatico && esZargon && !zargon.averia) {
+          zargon.siguiente();
+          return;
+        }
         // Enter activa al que ha elegido Zargon, no al primero de la lista del
         // fichero de la misión, que era lo que hacía antes.
         if (esZargon && !activa && porActivar[0]) {
@@ -380,8 +434,9 @@ export function useAccionesDeTurno({
     return () => window.removeEventListener("keydown", alPulsar);
   }, [
     peticion, tirada, puedeActuar, activa, esZargon, estado.turno.movimientoTotal, objetivos, puertas,
-    porActivar, hechizos, hechizoElegido, mover, ejecutar, deshacer, pedirAtaque,
+    porActivar, hechizos, hechizoElegido, mover, ejecutar, deshacerYPausar, pedirAtaque,
     pedirMovimiento, elegirHechizo, cancelarHechizo, tirarYEnsenar,
+    zargonAutomatico, zargon.averia, zargon.siguiente,
   ]);
 
   return {
@@ -407,5 +462,15 @@ export function useAccionesDeTurno({
     cerrarTirada: useCallback(() => setTirada(null), []),
     quienTira,
     setQuienTira,
+    /**
+     * El turno de Zargon jugándose solo. En la pantalla de casa está ahí pero
+     * apagado (`activo` en falso), y no hace nada.
+     */
+    zargon,
+    /**
+     * Deshacer. **Es el que hay que usar en los botones y en el teclado**: para
+     * a Zargon antes, y sin eso el deshacer no se ve durante su turno.
+     */
+    deshacer: deshacerYPausar,
   };
 }
