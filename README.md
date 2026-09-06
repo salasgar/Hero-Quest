@@ -100,6 +100,21 @@ Hay dos pantallas:
 - **Verificar tablero**: compara el tablero digital con el físico, permite corregir
   casillas a mano y genera el mapa listo para pegar en `src/data/board-base.ts`.
 
+### Comprobar la construcción en local
+
+`npm run preview` no funciona en vite 7.3.6 (devuelve 404 a todo lo que el navegador
+pida como script), así que la página sale en blanco. La receta que sí funciona es servir
+`dist/` con Python:
+
+```sh
+npm run build
+mkdir -p sitio && ln -sfn "$PWD/dist" sitio/Hero-Quest
+(cd sitio && python3 -m http.server 5200 --bind 127.0.0.1)
+```
+
+La URL es `http://127.0.0.1:5200/Hero-Quest/` y se comporta exactamente como GitHub Pages.
+Agrega `sitio/` al `.gitignore` si lo creas.
+
 ### Atajos de teclado
 
 El teclado es la entrada rápida; el ratón es la alternativa. Un turno de héroe se

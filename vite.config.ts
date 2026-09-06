@@ -20,5 +20,8 @@ export default defineConfig(({ command }) => ({
   // La partida se juega en el Mac, en localhost. host: true se queda por si
   // algún día quieres abrirlo desde otro dispositivo de la casa.
   server: { host: true, port: 5173 },
-  test: { environment: "node" },
+  test: {
+    environment: "node",
+    exclude: ["**/node_modules/**", "**/dist/**", "**/.claude/**"],
+  },
 }));

@@ -44,25 +44,17 @@ solo escritor.
 - **`tsc -b` se cuelga** en este repo, porque no hay `composite: true`. Usa
   `tsc -p tsconfig.json --noEmit`, que es lo que hace `npm run typecheck`.
 - **`npx vitest run` en el árbol principal cuenta también los tests de los worktrees de las
-  demás sesiones**: `.claude/worktrees/` cuelga del repositorio y el `exclude` por defecto
-  de vitest no lo cubre. Salen 220 ficheros y 3072 tests cuando `main` tiene 32 y 450, y
-  el número cambia cuando otra sesión crea su worktree. `npx vitest run tests/` no lo
-  arregla (es un filtro de subcadena). Lo que mide `main`:
-  ```sh
-  npx vitest run --exclude "**/node_modules/**" --exclude "**/.claude/**"
-  ```
-  El arreglo de raíz es una línea en `vite.config.ts`, dentro de `test`:
-  `exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**']` (hay que repetir los
-  dos primeros: dar `exclude` sustituye el valor por defecto). Lo encontraron por separado
-  las sesiones de la T40 y la T11 el 2026-09-06; **es la T56**, y hasta que cierre vale el
-  `--exclude` de arriba.
+  demás sesiones**: `.claude/worktrees/` cuelga del repositorio. **T56 lo arregló** con
+  `exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**']` en `vite.config.ts`
+  dentro de `test` (hay que repetir los dos primeros: dar `exclude` sustituye el valor
+  por defecto).
 - **El hash de la terminada se escribe después del último `push`, no antes.** Cada rebase
   cambia el hash del commit del código; la T42 y la T41 lo escribieron antes de que el
   `push` entrara y las dos tuvieron que añadir una corrección. El orden exacto está en
   `proyecto.md`, «Orden de cierre».
 - **`npm run preview` no sirve la página** en vite 7.3.6 (404 a todo lo que pida el
-  navegador como script): la receta que sí funciona está en
-  `hechos/incidencias/s-20260906T125522-43d82a6b.md` y pasa al README con la T56.
+  navegador como script): **T56 documentó la receta en el README**, bajo «Comprobar la
+  construcción en local».
 - **Al cerrar vuelves al árbol principal, y allí sí lo compartes con las demás sesiones.**
   Con otra sesión viva, el código se edita en un worktree propio (`CLAUDE.md`), pero el
   reclamo se abre en el árbol principal antes de entrar y `hechos/` y el tablón se
