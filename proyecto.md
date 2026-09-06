@@ -212,13 +212,14 @@ que dura la sesión.
   ficha y en el tablón.
 - **T51 a T57 salen de lo que Juan Luis vio probando la página publicada el 2026-09-06**
   (cuatro fallos y el registro de partida), escritas por la sesión
-  `s-20260906T141818-ff83f12c` (`hechos/notas/`). **Las misiones nuevas empiezan en T58**,
-  no en T51 como decía el traspaso anterior: las tareas se añaden al final. Orden por
+  `s-20260906T141818-ff83f12c` (`hechos/notas/`); **T58** (la ficha flotante de cada
+  figura) la pidió el mismo día. **Las misiones nuevas empiezan en T59**, no en T51 como
+  decía el traspaso anterior: las tareas se añaden al final. Orden por
   ficheros que añaden: `reducer.ts`, T51 → T53 → T54 → T50, de una en una; `TurnPanel.tsx`
   y `useAccionesDeTurno.ts`, T52 → T36 → T22; `types.ts`, T53, T54 y después T37, T38, T50;
-  `narrator/local.ts`, T53, T54 y después T39, T50; `BoardMirror.tsx`, T51 y después T37;
-  `HeroSheet.tsx`, T54 y T22; `scripts/simular.ts`, T53 y después T38, T45. T57 (`App.tsx`,
-  `usePartida.ts`) y T48 no chocan con nadie.
+  `narrator/local.ts`, T53, T54 y después T39, T50; `BoardMirror.tsx`, T51 y después T58 y
+  T37 (`estilos.css`: T58, T37, T22); `HeroSheet.tsx`, T54 y T22; `scripts/simular.ts`, T53
+  y después T38, T45. T57 (`App.tsx`, `usePartida.ts`) y T48 no chocan con nadie.
 - **El tablón viejo se conserva renombrado** (`_ESTADO-antiguo-2026-09-06.md`) para que los
   rastros que lo citan —commits, fichas, TRASPASO.md— sigan teniendo a dónde apuntar. Todo lo
   que decía de estado se ha derivado a `hechos/`; lo que decía de firmas, a

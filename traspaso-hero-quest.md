@@ -1,6 +1,6 @@
 # Traspaso — HeroQuest
 
-Actualizado: 2026-09-06 17:40Z · Sesión que lo escribe: `s-20260906T141818-ff83f12c` (la
+Actualizado: 2026-09-06 17:45Z · Sesión que lo escribe: `s-20260906T141818-ff83f12c` (la
 que coordinó tras la migración: escribió T51–T57 con lo que Juan Luis vio probando la
 página publicada)
 
@@ -20,11 +20,12 @@ encontrar fallos.
 **El estado de cada tarea está en `_ESTADO.md`, vista derivada de `hechos/`** (la verdad).
 Aquí solo lo que el tablón no recoge.
 
-- 50 fichas (T1–T22, T30–T57). Cerradas y en `main`: todas hasta T35, más 11, 40, 41
-  (`4baf429`), 42 (`372a0f0`) y 43. **No hay ningún reclamo vivo** a las 17:40Z.
-- T51–T57 están escritas y sin empezar. T57 (descargar la partida) es la que Juan Luis
-  pidió expresamente la última; va la primera de la cola porque es lo que permite mirar
-  los demás fallos con datos.
+- 51 fichas (T1–T22, T30–T58). Cerradas y en `main`: todas hasta T35, más 11, 40, 41
+  (`4baf429`), 42 (`372a0f0`) y 43. **No hay ningún reclamo vivo** a las 17:45Z.
+- T51–T58 están escritas y sin empezar. T57 (descargar la partida) es la que Juan Luis
+  pidió expresamente; va la primera de la cola porque es lo que permite mirar los demás
+  fallos con datos. T58 (la ficha flotante de cada figura al pasar el ratón) la pidió
+  después; espera a la 51 por `BoardMirror.tsx` y va encadenada con la 37.
 - Los tres ficheros de `hechos/` de la T41 que estaban sin rastrear en el árbol principal
   eran idénticos a los de `origin/main` y se apartaron; `Letras Hero Quest.png` sigue en la
   raíz sin rastrear (lo borra Juan Luis; ya está copiado en `public/`).
@@ -34,9 +35,9 @@ Aquí solo lo que el tablón no recoge.
 1. Abrir sesiones con **una frase por sesión**, con su tarea o cadena dentro. Caben a la
    vez: **57** (MEDIO), **51 → 53 → 54 → 55** (ALTO, encadenadas), **52 → 36 → 22** (MEDIO,
    encadenadas), **49** (MEDIO), **48** (ALTO) y **56** (BAJO; o 56 → 57 en una MEDIO).
-   Después: 37 cuando cierren 51 y 54; 39 cuando cierre 54; 38 cuando cierren 54 y 49; 44 y
-   45 cuando cierre la cadena 52 → 36 → 22 (45 además espera a 53); 46 tras 45; 50 tras 49
-   y 55.
+   Después: **58 → 37** (MEDIO) en cuanto cierre la 51 (la 37 además espera a 54 por
+   `types.ts`); 39 cuando cierre 54; 38 cuando cierren 54 y 49; 44 y 45 cuando cierre la
+   cadena 52 → 36 → 22 (45 además espera a 53); 46 tras 45; 50 tras 49 y 55.
 2. Regenerar el tablón desde `hechos/` cada vez que una sesión cierre (lo hacen las
    sesiones; si lo encuentran reservado, avisan).
 3. Cuando T57 cierre, decirle a Juan Luis que baje la partida en la que vio los fallos y la
@@ -55,7 +56,8 @@ tareas en sí las hacen las sesiones con la banda de su ficha.
 | Con un worktree por sesión, **el reclamo se abre y se empuja en el árbol principal antes de `EnterWorktree`**; latidos, terminada y `CERRADA` van a la copia del worktree y los publica la fusión en `main` | Cada worktree tiene su copia de `hechos/` y desde dentro no se puede escribir fuera: cuatro sesiones trabajaron sin un solo reclamo visible en `origin/main` |
 | **El hash de la terminada se escribe después del último `push`**, como línea añadida | T42 y T41 lo escribieron antes del rebase final y las dos tuvieron que corregirlo (`0cc2cf5`, `2d1408a`) |
 | **Una frase de arranque por sesión, con la tarea o la cadena dentro** | Cuatro sesiones MEDIO con la misma frase genérica eligieron cada una lo que quiso |
-| **T51–T57 salen de la prueba de la página del 2026-09-06; las misiones nuevas empiezan en T58** | Las tareas se añaden al final y no se renumera; el traspaso anterior decía «misiones desde T51» sin ficha escrita |
+| **T51–T58 salen de la prueba de la página del 2026-09-06; las misiones nuevas empiezan en T59** | Las tareas se añaden al final y no se renumera; el traspaso anterior decía «misiones desde T51» sin ficha escrita |
+| **La ficha flotante (T58) va fuera del SVG, en HTML, y en la tableta se abre con un toque solo si la figura no es objetivo** | Dentro del SVG no hay texto con saltos ni fondo legible; y la ficha no puede costarle un clic a atacar |
 | **El registro de partida (T57) guarda semilla, grupo, acciones y rechazadas, no «lo que se pintó»**; un guion lo rehace y calcula las casillas verdes y demás | El motor es determinista con el `rng` dentro del estado: lo derivable no se guarda, y las acciones rechazadas son justo lo que hoy se pierde |
 | **Guardar la partida donde una sesión llegue no se puede hoy**; es un botón «Descargar partida» y el fichero va a `partidas/` (ya en `.gitignore`) | Pages es estático; el relevo espera firma. Cuando exista, las partidas en red tendrán sus acciones en el servidor |
 | **La trampa descubierta que no salta (T51) se resuelve leyendo la p. 17**, no decidiendo | Hay un test que fija la exención sin cita; la regla es del reglamento o no es |
@@ -95,7 +97,7 @@ tareas en sí las hacen las sesiones con la banda de su ficha.
 - `hechos/` — la verdad: `terminadas/`, `reclamos/`, `incidencias/` (cinco),
   `notas/s-20260906T103034-b376065f.md` (la migración) y
   `notas/s-20260906T141818-ff83f12c.md` (T51–T57 y por qué).
-- `tareas/T36-…` a `tareas/T57-…` — las fichas nuevas; `tareas/_COMUN.md` — trampas, con
+- `tareas/T36-…` a `tareas/T58-…` — las fichas nuevas; `tareas/_COMUN.md` — trampas, con
   la de vitest (T56), el hash tras el push y `npm run preview`.
 - `_ESTADO-antiguo-2026-09-06.md` — el tablón viejo, histórico.
 - `~/.claude/skills/reparto/` — la skill, con los cambios del 2026-09-06.

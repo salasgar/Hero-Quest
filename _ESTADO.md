@@ -17,10 +17,11 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-06 17:35Z · por la sesión `s-20260906T141818-ff83f12c` (coordina; no
+Regenerado: 2026-09-06 17:45Z · por la sesión `s-20260906T141818-ff83f12c` (coordina; no
 reclamó ninguna tarea). Incorpora la T41 cerrada (`4baf429`, fusionada a las 13:20Z) y las
-fichas T51–T57, escritas por esta sesión a partir de lo que Juan Luis vio probando la
-página publicada (`hechos/notas/s-20260906T141818-ff83f12c.md`). No hay ningún reclamo vivo.
+fichas T51–T58, escritas por esta sesión a partir de lo que Juan Luis vio y pidió probando
+la página publicada (`hechos/notas/s-20260906T141818-ff83f12c.md`). No hay ningún reclamo
+vivo.
 
 ## Antes de hacer nada
 
@@ -145,7 +146,7 @@ regenera a partir de los demás.
     cortada` y la ruta de la incidencia, suelta con `ABANDONADA` y avisa. La tabla la
     pinta MAL CORTADA y nadie la elige por banda. El recorte lo decide Juan Luis, en una
     sesión sin reclamo que firma `sustituidas/` con sid propio; las tareas nuevas se
-    añaden **al final de la numeración** (la siguiente es la T58) y la vieja se marca con
+    añaden **al final de la numeración** (la siguiente es la T59) y la vieja se marca con
     `hechos/sustituidas/NN--<sid>.md`. Renumerar dejaría apuntando a otra cosa, en
     silencio, a los ficheros de tarea y a todo `hechos/`.
 12. **No modificar nunca** `src/data/board-base.ts` ni `src/data/board-print.ts`, ni
@@ -231,7 +232,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 34 | T34 · Publicar la aplicación en GitHub Pages | tareas/T34-publicar-en-pages.md | firma de Pages (firmada 2026-09-06) | 2 h | MEDIO | — | `.github/workflows/pages.yml`, `vite.config.ts`, `README.md`, `main.tsx`, `BoardVerify.tsx` | manual | LISTA (`2994ffc`) | |
 | 35 | T35 · La salida crece con el grupo | tareas/T35-la-salida-crece-con-el-grupo.md | 16 LISTA | 1 h | MEDIO | — | `partida.ts`, `tests/ocho-heroes.test.ts` | manual | LISTA (`87ea055`) | |
 | 36 | T36 · Todos los dados los tira la aplicación | tareas/T36-dados-siempre-automaticos.md | ninguna (firma del 2026-09-06 en `autorizaciones.md`) · no a la vez que 52, 22 (`TurnPanel.tsx`), 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 52, 22 | `useAccionesDeTurno.ts`, `DiceInput.tsx`, `VistaDeHeroe.tsx`, `Juego.tsx`, `TurnPanel.tsx`, tests | manual | **PENDIENTE** | |
-| 37 | T37 · Un icono para cada héroe | tareas/T37-iconos-de-heroes.md | ninguna · no a la vez que 51 (`BoardMirror.tsx`), 53, 54, 38 (`types.ts`) | 3 h | MEDIO | — | `iconos.tsx` (nuevo), `BoardMirror.tsx`, `EleccionDeHeroes.tsx`, `types.ts`, `partida.ts`, `estilos.css`, tests | manual | **PENDIENTE** | |
+| 37 | T37 · Un icono para cada héroe | tareas/T37-iconos-de-heroes.md | ninguna · no a la vez que 51, 58 (`BoardMirror.tsx`), 53, 54, 38 (`types.ts`), 22 (`estilos.css`) | 3 h | MEDIO | 58 | `iconos.tsx` (nuevo), `BoardMirror.tsx`, `EleccionDeHeroes.tsx`, `types.ts`, `partida.ts`, `estilos.css`, tests | manual | **PENDIENTE** | |
 | 38 | T38 · Monstruos agresivos, miedosos y prudentes | tareas/T38-monstruos-agresivos-y-miedosos.md | 42 LISTA · no a la vez que 49 (`personalities.ts`), 53, 54, 37 (`types.ts`), 45 (`simular.ts`) | 4 h | ALTO | — | `src/ai/`, `types.ts`, `partida.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** (42 LISTA) | |
 | 39 | T39 · El diario en dos modos: informe y relato | tareas/T39-diario-informe-y-relato.md | 42 LISTA (firma del relato, 2026-09-06) · no a la vez que 53, 54 (`narrator/local.ts`) | 4 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts` y `frases.ts` (nuevos), `MasterLog.tsx`, tests | manual | **PENDIENTE** (42 LISTA) | |
 | 40 | T40 · Todas las salas con puerta en la primera misión | tareas/T40-todas-las-salas-con-puerta.md | ninguna | 2 h | MEDIO | 42 | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | LISTA (`3eef6dc`) | |
@@ -252,25 +253,27 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 55 | T55 · Las diecisiete salas nuevas del calabozo, con algo dentro | tareas/T55-las-salas-nuevas-pobladas.md | 53 y 54 LISTA · no a la vez que 46 | 3 h | ALTO | — | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | **BLOQUEADA** (53, 54) | |
 | 56 | T56 · Dos arreglos del entorno: vitest y `preview` | tareas/T56-dos-arreglos-del-entorno.md | ninguna | 30 min | BAJO | 57 | `vite.config.ts`, `README.md`, `tareas/_COMUN.md` | manual | **PENDIENTE** | |
 | 57 | T57 · Descargar la partida: un registro con el que encontrar los fallos | tareas/T57-descargar-la-partida.md | ninguna | 2 h | MEDIO | 56 | `registroDePartida.ts` (nuevo), `usePartida.ts`, `App.tsx`, `scripts/repetir.ts` (nuevo), `package.json`, `README.md`, tests | manual | **PENDIENTE** | |
+| 58 | T58 · Al pasar el ratón por una figura, su ficha en un cuadro flotante | tareas/T58-ficha-flotante-de-cada-figura.md | ninguna · no a la vez que 51, 37 (`BoardMirror.tsx`) ni 22 (`estilos.css`) | 2 h | MEDIO | 37 | `FichaFlotante.tsx` (nuevo), `BoardMirror.tsx`, `estilos.css`, tests | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** 22, 36, 37, 39, 44, 49, 52 y 57 (MEDIO); 38, 45, 48 y 51 (ALTO); 56
-(BAJO). **Sin ningún reclamo vivo.**
+**Libres por estado:** 22, 36, 37, 39, 44, 49, 52, 57 y 58 (MEDIO); 38, 45, 48 y 51 (ALTO);
+56 (BAJO). **Sin ningún reclamo vivo.**
 
 **Por ficheros, sin chocar entre sí, ahora mismo:** **57** (MEDIO; no choca con nadie),
 **51 → 53 → 54 → 55** (ALTO, encadenadas: `reducer.ts`, `types.ts`, `calabozo.ts`),
 **52 → 36 → 22** (MEDIO, encadenadas: `TurnPanel.tsx`), **49** (MEDIO), **48** (ALTO) y
 **56** (BAJO; una sesión MEDIO puede hacer 56 y después 57). Es decir: **seis sesiones a la
-vez**, cinco si 56 y 57 van juntas. **Esperan:** 37 (a 51 por `BoardMirror.tsx` y a 54 por
-`types.ts`), 38 (a 54 y a 49), 39 (a 54 por el narrador), 44 (a la cadena 52 → 36 → 22 por
-`Juego.tsx`), 45 (a esa misma cadena y a 53 por `simular.ts`), 46 (a 45), 47 (a 46), 50 (a
-49 y a 55). 15 espera la palabra de Juan Luis.
+vez**, cinco si 56 y 57 van juntas. **Esperan:** 58 (a 51 por `BoardMirror.tsx`; la 51 dura
+hora y media, así que una sesión MEDIO puede abrirse con **58 → 37** en cuanto la 51
+cierre), 37 (a 58 y a 54 por `types.ts`), 38 (a 54 y a 49), 39 (a 54 por el narrador), 44
+(a la cadena 52 → 36 → 22 por `Juego.tsx`), 45 (a esa misma cadena y a 53 por
+`simular.ts`), 46 (a 45), 47 (a 46), 50 (a 49 y a 55). 15 espera la palabra de Juan Luis.
 
-**Encadenables:** 51 → 53 → 54 → 55 y 52 → 36 → 22 comparten ficheros dentro de cada
-cadena: seguidas, nunca en paralelo. 56 → 57 son independientes y solo se encadenan por
-cortas.
+**Encadenables:** 51 → 53 → 54 → 55, 52 → 36 → 22 y 58 → 37 comparten ficheros dentro de
+cada cadena: seguidas, nunca en paralelo. 56 → 57 son independientes y solo se encadenan
+por cortas.
 
 ## Registro de finalizaciones
 
