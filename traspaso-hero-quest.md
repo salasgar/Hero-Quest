@@ -21,24 +21,21 @@ mejoras para que él elija.
 - El reparto se migró el 2026-09-06 al diseño actual de la skill: `hechos/`,
   `autorizaciones.md`, `proyecto.md`, tablón regenerable; el tablón viejo está en
   `_ESTADO-antiguo-2026-09-06.md`, intacto.
-- 43 fichas (T1–T22, T30–T50). Cerradas y en `main` todas hasta T35 más la 11, la 40 y la
-  43. **La 42 está cerrada en su rama `worktree-t42-nombres-monstruos-0cdb5d41` (`d84a710`)
-  pero sin fusionar en `main`**: hasta que su sesión la fusione, 38, 39 y 49 siguen
-  bloqueadas y el tablón la pinta EN CURSO. La 41 está en curso (caduca 18:55Z).
+- 43 fichas (T1–T22, T30–T50). Cerradas y en `main` todas hasta T35 más la 11, la 40, la
+  42 (`372a0f0`) y la 43. La 41 está en curso (caduca 18:55Z). Las demás, libres o
+  bloqueadas según el tablón.
 - Un arreglo de una línea sin dueño: `exclude: ['**/node_modules/**', '**/dist/**',
   '**/.claude/**']` en `vite.config.ts` (`test`), para que vitest no cuente los tests de los
   worktrees ajenos. Está en `tareas/_COMUN.md`, «Trampas del entorno».
 
 ## Siguiente paso
 
-1. **Que la sesión de la T42 fusione su rama en `main`** (conflicto probable en
-   `TurnPanel.tsx` con la 11) y empuje: es lo que desbloquea 38, 39 y 49. Si esa sesión ya
-   no existe, una sesión MEDIO lo hace relevando: fetch de la rama, merge, tests con el
-   `--exclude`, push, y el tablón regenerado.
-2. Abrir sesiones con **una frase por sesión**, cada una con su tarea o cadena dentro:
-   ahora mismo caben **44** (MEDIO) y **48** (ALTO); cuando la 42 esté en `main`, **22+36**
-   (MEDIO, encadenadas), **39** y **49** (MEDIO) y **38** (ALTO); cuando cierre la 41, **37**
-   (MEDIO) y **45** (ALTO).
+1. Abrir sesiones con **una frase por sesión**, cada una con su tarea o cadena dentro. La
+   42 ya está en `main` (`372a0f0`, 13:15Z). Caben a la vez: **22+36** (MEDIO, encadenadas),
+   **39** (MEDIO), **49** (MEDIO) y **48** (ALTO); después, **44** cuando cierre la 36 y
+   **38** cuando cierre la 49; cuando cierre la 41, **37** (MEDIO) y **45** (ALTO).
+2. Regenerar el tablón desde `hechos/` cada vez que una sesión cierre (las sesiones lo
+   hacen; si lo encuentran reservado, avisan y lo hace quien coordina).
 3. Asignar a alguien la línea de `vite.config.ts`.
 
 Banda de modelo para retomar: **ALTO** — lo que viene es coordinar el reparto (regenerar
