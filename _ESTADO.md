@@ -112,9 +112,9 @@ coger en cualquier orden desde hoy.
 | T7 | [El mago no lleva armadura ni armas grandes](tareas/T7-equipo-del-mago.md) | — | `data/` | **hecha** · `85948b1` · 2026-09-05 · la armadura sí; la lista de armas grandes no la da el reglamento y queda marcada |
 | T12 | [Incidencia: un commit se llevó trabajo ajeno](tareas/T12-incidencia-commit-cruzado.md) | — | `_ESTADO.md`, `reducer.ts` | **hecha** · `8b0b7dc` · 2026-08-22 |
 | T8 | [Zargon decide: objetivos y caminos](tareas/T8-zargon-decide.md) | T1–T7 · **cumplida entera** | `src/ai/` | **hecha** · `2203e01` · 2026-09-05 · **desbloquea T9, T10 y T11** |
-| T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 · **cumplida** | `src/ai/` | libre · tuerce los pesos de `targeting.ts`, que están puestos para eso |
-| T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 · **cumplida** | `scripts/` | **hecha** · 2026-09-06 · `npm run sim` · con los pesos de T8 los héroes ganan **100/100**, y el 48 % de los ataques de monstruo acaban con el monstruo alejándose: mira el registro |
-| T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8 · **cumplida** · y T9 | `src/ui/` | bloqueada solo por T9 · el punto de entrada ya existe: `siguienteAccionDeZargon` |
+| T9 | [Personalidades y dificultades](tareas/T9-personalidades.md) | T8 · **cumplida** | `src/ai/` | **hecha** · `992c726d` · 2026-09-06 · `edc0c54`+`29e878b` · el 100 % de victorias no lo mueve ningún nivel: mira el registro |
+| T10 | [El simulador que mide si la IA está bien](tareas/T10-simulador.md) | T8 · **cumplida** | `scripts/` | **hecha** · 2026-09-06 · `npm run sim` · el 48 % de «pega y se va» que encontró está arreglado en `29e878b`: hoy es 6–7 % |
+| T11 | [El turno de Zargon sin clics](tareas/T11-turno-automatico.md) | T8 y T9 · **cumplidas** | `src/ui/` | libre · el punto de entrada con dificultad es `accionDeZargon(e, nivel)`, en `difficulty.ts` |
 | T13 | [Solo se pintan las puertas que alguien ha visto](tareas/T13-puertas-solo-las-vistas.md) | — | `types.ts`, `partida.ts`, **`reducer.ts`**, `selectors.ts`, `BoardMirror.tsx` | **hecha** · `de466ec` · 2026-09-05 · era la sesión `797b0a1c`, que no pudo escribir aquí su reclamo porque el tablón estuvo cogido de principio a fin del trabajo |
 | T14 | [El mago no puede lanzar sus hechizos: falta el botón](tareas/T14-lanzar-hechizos-en-la-interfaz.md) | — | `TurnPanel.tsx`, `Juego.tsx`, `HeroSheet.tsx` | **hecha** · `d9c4f00` · 2026-09-05 · desbloquea T15 y T17 |
 | T16 | [Hasta ocho héroes, y repetir clase](tareas/T16-hasta-ocho-heroes.md) | — · pero espera su palabra sobre la entrada | `EleccionDeHeroes.tsx`, `partida.ts`, `calabozo.ts` | en curso · `946ca4aa` · 2026-09-05 · lo de `56f5f21`+`29e079c` está en `main`; **ya tiene su firma** y lo que falta es la colocación por cercanía · `calabozo.ts` no se toca |
@@ -371,6 +371,46 @@ van aquí y no se pierden en la tabla:
 
 Una línea por tarea terminada: quién, cuándo, el commit y qué se decidió por el camino que
 no estaba escrito. Esto es lo que lee la sesión siguiente.
+
+- **T9 · sesión `992c726d` · 2026-09-06 · `edc0c54`, `29e878b` y `4a68069`.** Personalidades
+  por especie y tres dificultades, más el arreglo que T10 dejó señalado. Es la **segunda
+  tarea de esta sesión** (T31 ayer; hoy fue a por T10 y `47e1fced` se la ganó por la mano):
+  rompe «una sesión, una tarea» a petición expresa de Juan Luis, y se dice en vez de
+  disimularlo. La fila no
+  se pudo reclamar antes de empezar porque `47e1fced` tuvo el tablón cogido toda la mañana:
+  se aplicó el remedio de la incidencia —reservar los ficheros, trabajar, escribir al
+  soltarse— y funcionó sin roce. Lo que hay que saber:
+  - **Los porcentajes medidos, que es el dato que pedía la tarea: los tres niveles empatan
+    a 100 % de victorias de los héroes** (100 partidas por nivel, ~8 rondas de media,
+    ninguna colgada, heurística de héroes tonta que ni lanza hechizos). El mando de
+    dificultad **funciona** —los tests de escena fijan que `torpe`, `normal` y `astuto`
+    juegan distinto sobre el mismo tablero— pero en «El calabozo del guardián» no mueve el
+    resultado: **la palanca del objetivo torpe ~80 % / astuto ~40 % no está en los pesos.**
+    Con ~6 ataques de monstruo por partida contra ~25 puntos de cuerpo del grupo, Zargon no
+    puede matar a nadie por bien que elija. La misión está diseñada para ganarse (lo dice
+    `calabozo.ts`), así que subir la letalidad —más monstruos, refuerzos, u otra misión de
+    referencia para medir— es una decisión de diseño de Juan Luis, no un ajuste de T9.
+  - **Cómo quedó la capa**: `PERSONALIDADES` (exhaustiva por especie, multiplicadores sobre
+    los `Pesos` de T8; el esqueleto sin sesgos, de control) y `PESOS_POR_NIVEL` +
+    `accionDeZargon(e, nivel)` / `jugarTurnoDeZargon`, que resuelve los pesos **en cada
+    acción** porque en un turno actúan especies distintas. `torpe` es miope por estructura
+    —si ya pega a alguien, pega y no se recoloca— además de por pesos; no es la IA buena
+    con ruido. La puntuación base de T8 no se toca.
+  - **El «pega y se va» del 48 % está arreglado en `zargon.ts`**, que era candado de T9 y
+    por eso T10 no lo tocó: la casilla en la que el monstruo ya está ahora también puntúa
+    (`valorDeLaCasilla`), y moverse exige superarla **estrictamente**. Medido después: 6–7 %,
+    y lo que queda son recolocaciones que sí mejoran. Ningún test de T8 se movió.
+  - **El simulador mide desde `4a68069` por `accionDeZargon`**, no por la tabla plana: es
+    la línea que el registro de T10 dejó encargada, y sin ella las personalidades y la
+    miopía del torpe quedaban fuera de la medida. Su cargador defensivo de niveles se fue
+    con el cambio: existía solo porque T9 «estaba en vuelo».
+  - **La receta de T1, pasada cuatro veces** (17 tests nuevos): personalidades
+    neutralizadas → caen los 3 de personalidad; `astuto := PESOS` → cae el de astuto; la
+    rama miope del torpe quitada → cae el del héroe acorazado; el arreglo del pega-y-se-va
+    revertido → cae su test. Ninguna mutación tumba tests ajenos a lo mutado.
+  - **Aviso para T11**: su fila decía `siguienteAccionDeZargon` como punto de entrada; con
+    dificultad, el punto de entrada es `accionDeZargon(e, nivel)` y la pantalla necesita un
+    selector de nivel (o fijar `normal` hasta que se pida).
 
 - **T10 · sesión `47e1fced` · 2026-09-06.** `npm run sim` juega partidas enteras por el
   motor de verdad. **Los porcentajes medidos, que es lo que pedía la tarea:** con los pesos
