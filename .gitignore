@@ -1,5 +1,9 @@
 node_modules/
 dist/
+# Un worktree por sesión: `EnterWorktree` los crea aquí dentro. Son copias del
+# repositorio, no contenido suyo, y sin esta línea salen en `git status` de todas
+# las sesiones —y una de ellas acabaría commiteando el worktree de otra—.
+.claude/worktrees/
 .env
 .env.local
 partidas/
