@@ -1071,6 +1071,26 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   test que exija `entrada.length >= 8` cuando el objetivo sea «salir», que es lo que
   convierte esta firma en algo que no se puede olvidar.
 
+- **2026-09-06 — El 100 % de victorias en la primera misión está bien así.** Respuesta a la
+  pregunta que dejó abierta el registro de T9: «me parece bien que en la primera misión los
+  héroes ganen el 100 % de las veces. Las siguientes misiones serán más difíciles porque
+  habrá más monstruos o los monstruos serán más letales o más resistentes.» Consecuencia
+  operativa: **la dificultad se diseña por misión, no retocando los pesos de la IA**; los
+  objetivos torpe ~80 % / astuto ~40 % del plan se medirán contra las misiones difíciles
+  cuando existan, y nadie debe «arreglar» el calabozo para que Zargon gane más.
+
+- **2026-09-06 — El troll de las cavernas entra en el bestiario**, hecho en `0e871d3`. Su
+  encargo literal: muy fuerte y resistente pero muy torpe; **un dado de ataque y dos
+  casillas por turno como mucho, y a cambio muchos dados de defensa** y muchísimos puntos
+  de vida, para alguna de esas misiones difíciles. Lo firmado es esa forma —y
+  `tests/monstruos.test.ts` la fija: el más lento, el que menos pega, el que más defiende y
+  aguanta—; **la defensa 6 y el cuerpo 10 son concreción de la sesión `992c726d`**, escritos
+  para ajustarse en una línea de `monsters.ts` cuando se pruebe jugando. Personalidad
+  «lerdo»: va siempre a por el más cercano, porque con movimiento 2 una presa lejana es
+  pasarse la misión andando. Dos avisos de mesa: **no hay figura de cartón de troll**, y
+  `generar-cartas.ts` le imprimirá carta en la próxima regeneración, con sitio para diez
+  heridas.
+
 - **2026-09-05 — El suelo de un dado en el foso queda solo para los héroes (T5).** Decidido
   por la sesión `205592a2` por delegación de Juan Luis, 2026-09-05. Se queda la lectura
   literal, que es la ya implementada: el recuadro de la p. 17 dice «As a hero» y no lleva la
