@@ -15,7 +15,7 @@ import { AvisoDeTirada, DiceInput } from "./DiceInput";
 import { HeroSheet } from "./HeroSheet";
 import { MasterLog } from "./MasterLog";
 import { TurnPanel } from "./TurnPanel";
-import { useAccionesDeTurno } from "./useAccionesDeTurno";
+import { mandosDeHeroe, useAccionesDeTurno } from "./useAccionesDeTurno";
 import { usePartida } from "./usePartida";
 
 /** El grupo con el que se juega si nadie elige: los cuatro de la caja. */
@@ -86,6 +86,11 @@ export function Juego({
   const orden = useMemo(() => ordenDeActivacion(estado), [estado]);
   const motivo = orden[0] ? motivoDeActivacion(estado, orden[0]) : null;
 
+  // Fuera del turno de Zargon, siempre. En su turno, solo si el máster ha
+  // tomado el mando (T52 punto 1): controla las casillas verdes y los
+  // objetivos que se pintan en el tablero, igual que en `TurnPanel`.
+  const mandos = mandosDeHeroe(estado, turno.zargon);
+
   useEffect(() => {
     if (!error) return;
     const t = setTimeout(limpiarError, 2600);
@@ -97,10 +102,11 @@ export function Juego({
       <div className="juego-tablero">
         <BoardMirror
           estado={estado}
-          movimiento={turno.movimiento}
+          movimiento={mandos ? turno.movimiento : []}
           // Mientras se elige a quién apuntar, el tablero marca los objetivos
           // del hechizo en vez de los del ataque: solo hay una elección viva.
-          objetivos={turno.pendiente ? turno.pendiente.objetivos : turno.objetivos}
+          // Sin mandos (turno de Zargon en automático), ninguno de los dos.
+          objetivos={mandos ? (turno.pendiente ? turno.pendiente.objetivos : turno.objetivos) : []}
           activa={turno.activa}
           alPulsarCelda={turno.mover}
           alPulsarFigura={turno.alPulsarFigura}

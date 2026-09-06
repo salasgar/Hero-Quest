@@ -8,7 +8,7 @@ import { conArticulo, especieEnMinuscula } from "../data/nombres";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { puedeBuscarTesoro, puedeBuscarTrampas } from "../engine/selectors";
 import type { QuienTiraLosDados } from "./DiceInput";
-import { nombreDeFigura } from "./useAccionesDeTurno";
+import { mandosDeHeroe, nombreDeFigura } from "./useAccionesDeTurno";
 import type { TurnoDeZargon } from "./useTurnoDeZargon";
 
 /** Un hechizo con los objetivos que hoy tiene a la vista, tal cual lo da `hechizosLanzables`. */
@@ -143,6 +143,10 @@ export function TurnPanel({
 }: PropsTurno) {
   const [eligiendoAMano, setEligiendoAMano] = useState(false);
   const t = estado.turno;
+  // Fuera del turno de Zargon, siempre. En su turno, solo si el máster ha
+  // tomado el mando (pausa o avería): entonces se puede mover a mano al
+  // monstruo activo, y elegir a mano cuál actúa.
+  const mandos = mandosDeHeroe(estado, zargon);
   const nombre = activa
     ? esHeroe(activa)
       ? activa.nombre
@@ -214,16 +218,23 @@ export function TurnPanel({
                     Que actúe <Tecla>↵</Tecla>
                   </button>
                 )}
-                <button onClick={() => setEligiendoAMano((x) => !x)}>
-                  {eligiendoAMano ? "Dejarlo a Zargon" : "Cambiar"}
-                </button>
+                {/*
+                  «Cambiar» es un mando de héroe con otro nombre: elegir a mano
+                  qué monstruo actúa. Solo sale cuando el máster ha tomado el
+                  mando (T52 punto 2); en automático, Zargon decide solo.
+                */}
+                {mandos && (
+                  <button onClick={() => setEligiendoAMano((x) => !x)}>
+                    {eligiendoAMano ? "Dejarlo a Zargon" : "Cambiar"}
+                  </button>
+                )}
               </div>
               {/*
                 La salida manual se queda, como manda T11: si la aplicación hace
                 algo raro en mitad de una partida, con niños delante no se puede
                 parar a depurar. Solo se aparta de la vista.
               */}
-              {eligiendoAMano && (
+              {mandos && eligiendoAMano && (
                 <>
                   <p className="apagado">O elige tú:</p>
                   <div className="botonera">
@@ -314,7 +325,13 @@ export function TurnPanel({
         </div>
       )}
 
-      {activa && (
+      {/*
+        Atacar, abrir puerta, buscar, hechizos: mandos de héroe. Durante el
+        turno de Zargon en automático no existen (T52 punto 1); con un
+        monstruo activo y el máster al mando (pausa o avería), sí, para que
+        pueda moverlo y actuar con él a mano.
+      */}
+      {activa && mandos && (
         <div className="botonera">
           {!esZargon && t.movimientoTotal === null && (
             <button onClick={acciones.tirarMovimiento} className="principal">
@@ -397,9 +414,12 @@ export function TurnPanel({
       )}
 
       <div className="botonera pie">
-        <button onClick={acciones.terminarTurno} className="principal">
-          Terminar turno <Tecla>↵</Tecla>
-        </button>
+        {mandos && (
+          <button onClick={acciones.terminarTurno} className="principal">
+            Terminar turno <Tecla>↵</Tecla>
+          </button>
+        )}
+        {/* Deshacer es del máster, no un mando de héroe: se queda siempre (T52, «Prohibido»). */}
         <button onClick={acciones.deshacer} disabled={!puedeDeshacer}>
           Deshacer <Tecla>Z</Tecla>
         </button>
@@ -439,7 +459,7 @@ export function TurnPanel({
         mano quien arbitra, y era justo entonces cuando la pantalla dejaba de
         decirle cómo.
       */}
-      {activa && (
+      {activa && mandos && (
         <p className="pista">
           Mueve con las flechas <Tecla>←</Tecla>
           <Tecla>↑</Tecla>

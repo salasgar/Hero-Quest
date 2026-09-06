@@ -34,7 +34,15 @@ import {
   objetivosDeAtaque,
   puertasAlAlcance,
 } from "../engine/selectors";
-import { esHeroe, type Accion, type Celda, type EstadoPartida, type Evento, type Figura } from "../engine/types";
+import {
+  esHeroe,
+  type Accion,
+  type Celda,
+  type EstadoPartida,
+  type Evento,
+  type Figura,
+  type TipoTrampa,
+} from "../engine/types";
 import {
   calaveras,
   escudosBlancos,
@@ -42,12 +50,40 @@ import {
   type PeticionDados,
   type TiradaHecha,
 } from "./DiceInput";
-import { useTurnoDeZargon } from "./useTurnoDeZargon";
+import { useTurnoDeZargon, type TurnoDeZargon } from "./useTurnoDeZargon";
 
 const rango = (desde: number, hasta: number) =>
   Array.from({ length: hasta - desde + 1 }, (_, i) => desde + i);
 
 export const nombreDeFigura = (f: Figura) => (esHeroe(f) ? f.nombre : MONSTRUOS[f.especie].nombre);
+
+/**
+ * Si los mandos de héroe —atacar, abrir puerta, buscar, hechizos, terminar
+ * turno, las casillas verdes del tablero y el teclado que los dispara— tienen
+ * que estar en pantalla. Una sola regla, en un sitio, porque la comparten
+ * `TurnPanel.tsx` (qué botones pinta) y `Juego.tsx` (qué le pasa a
+ * `BoardMirror`), y aquí mismo, para el teclado.
+ *
+ * Fuera del turno de Zargon, siempre. Durante su turno, solo si el máster ha
+ * tomado el mando —pausa o avería—: entonces puede mover a mano al monstruo
+ * activo con los mismos mandos que un héroe. En automático, no: son
+ * herramientas para manejar a los héroes, y los monstruos actúan solos o los
+ * mueve el máster, nunca los niños con un clic.
+ */
+export function mandosDeHeroe(
+  estado: EstadoPartida,
+  zargon: Pick<TurnoDeZargon, "pausado" | "averia"> | null | undefined,
+): boolean {
+  if (!esTurnoDeZargon(estado)) return true;
+  return !!zargon && (zargon.pausado || zargon.averia !== null);
+}
+
+/** Qué decir cuando una trampa se dispara al mover, por tipo. */
+const FRASE_TRAMPA: Readonly<Record<TipoTrampa, (quien: string) => string>> = {
+  foso: (quien) => `El foso se traga a ${quien}`,
+  lanza: (quien) => `Una lanza alcanza a ${quien}`,
+  bloque: (quien) => `Un bloque cae sobre ${quien}`,
+};
 
 export interface OpcionesDeTurno {
   estado: EstadoPartida;
@@ -223,6 +259,27 @@ export function useAccionesDeTurno({
     [estado, ejecutar, cerrar, quienTira, tirarYEnsenar],
   );
 
+  // ---- el turno de Zargon, que se juega solo (T11) ----
+  // Va aquí y no más abajo, junto al resto de `useState`, porque `mandos` —y
+  // con él `alPulsarFigura` y el teclado— lo necesitan antes de definirse.
+  const zargon = useTurnoDeZargon({
+    estado,
+    // `puedeActuar` es lo que distingue la mesa de la pantalla de casa durante
+    // el turno de Zargon; sin él, los dos navegadores jugarían la misma jugada.
+    activo: zargonAutomatico && esZargon && puedeActuar && !estado.desenlace,
+    // Mientras hay dados en la mano de alguien, la aplicación no juega por
+    // encima: es el mismo cierre que usa el teclado unas líneas más abajo.
+    ocupado: peticion !== null || tirada !== null,
+    nivel: nivelDeZargon,
+    ejecutar,
+    pedirAtaque,
+  });
+
+  // Fuera del turno de Zargon, siempre; en su turno, solo con el máster al
+  // mando. Gobierna el teclado, `alPulsarFigura` y lo que devuelve el hook
+  // para que `TurnPanel.tsx` y `Juego.tsx` pinten lo mismo que aceptan aquí.
+  const mandos = mandosDeHeroe(estado, zargon);
+
   /**
    * Lanzar, ya con el objetivo decidido.
    *
@@ -301,41 +358,52 @@ export function useAccionesDeTurno({
 
   const mover = useCallback(
     (destino: Celda) => {
-      ejecutar({ tipo: "mover", destino });
+      const eventos = ejecutar({ tipo: "mover", destino });
+      if (!eventos) return;
+
+      // Las trampas solo alcanzan a héroes (ver `reducer.ts`, «mover»), así que
+      // este evento nunca llega desde el turno de Zargon: sus monstruos no
+      // pasan por aquí, pasan por `paso()` de `useTurnoDeZargon`. Se enseña
+      // como se enseña una tirada, y mientras el aviso está abierto Zargon
+      // espera (`ocupado` ya lo cubre).
+      const trampa = eventos.find((ev) => ev.tipo === "trampaDisparada");
+      if (trampa && trampa.tipo === "trampaDisparada") {
+        const figura = figuraPorId(estado, trampa.figura);
+        const quien = figura ? nombreDeFigura(figura) : "alguien";
+        setTirada({
+          titulo: "¡Trampa!",
+          resumen: `${FRASE_TRAMPA[trampa.tipoTrampa](quien)}: ${
+            trampa.dano === 0 ? "sin daño" : `${trampa.dano} de daño`
+          }`,
+        });
+      }
     },
-    [ejecutar],
+    [ejecutar, estado],
   );
 
   const alPulsarFigura = useCallback(
     (id: string) => {
       // Con un hechizo a medio lanzar, el tablero señala objetivos suyos, no de
-      // ataque: pulsar una figura completa el hechizo.
+      // ataque: pulsar una figura completa el hechizo. Solo llega con
+      // `pendiente` puesto si `mandos` ya era verdad cuando se eligió el
+      // hechizo (el botón que lo elige está detrás de `mandos` en el panel).
       if (pendiente) {
         if (pendiente.objetivos.some((o) => o.id === id)) lanzar(pendiente.hechizo, id);
         return;
       }
-      if (esZargon && porActivar.some((m) => m.id === id)) {
+      // Elegir a mano qué monstruo actúa es «Cambiar» con otro gesto: solo con
+      // el máster al mando (T52 punto 2).
+      if (esZargon && mandos && porActivar.some((m) => m.id === id)) {
         ejecutar({ tipo: "activarMonstruo", monstruo: id });
         return;
       }
-      if (objetivos.some((o) => o.id === id)) pedirAtaque(id);
+      // Sin mandos, el tablero no señala objetivos y no hay nada que este
+      // clic pueda disparar: sin este freno, pulsar la figura a pelo saltaba
+      // el botón oculto y atacaba igual.
+      if (mandos && objetivos.some((o) => o.id === id)) pedirAtaque(id);
     },
-    [pendiente, lanzar, esZargon, porActivar, objetivos, ejecutar, pedirAtaque],
+    [pendiente, lanzar, esZargon, mandos, porActivar, objetivos, ejecutar, pedirAtaque],
   );
-
-  // ---- el turno de Zargon, que se juega solo (T11) ----
-  const zargon = useTurnoDeZargon({
-    estado,
-    // `puedeActuar` es lo que distingue la mesa de la pantalla de casa durante
-    // el turno de Zargon; sin él, los dos navegadores jugarían la misma jugada.
-    activo: zargonAutomatico && esZargon && puedeActuar && !estado.desenlace,
-    // Mientras hay dados en la mano de alguien, la aplicación no juega por
-    // encima: es el mismo cierre que usa el teclado unas líneas más abajo.
-    ocupado: peticion !== null || tirada !== null,
-    nivel: nivelDeZargon,
-    ejecutar,
-    pedirAtaque,
-  });
 
   /**
    * Deshacer, parando antes a Zargon.
@@ -372,6 +440,11 @@ export function useAccionesDeTurno({
         cancelarHechizo();
         return;
       }
+      // Durante el turno de Zargon en automático, el teclado de los mandos de
+      // héroe no existe: son herramientas para manejar a los héroes, y aquí no
+      // hay ninguno de turno. Solo vuelve si el máster ha tomado el mando
+      // (pausa o avería). No afecta a Z (deshacer, del máster) ni a Intro
+      // (T11, «que juegue ya lo siguiente»), que se comprueban aparte.
       const paso: Record<string, [number, number]> = {
         ArrowUp: [0, -1],
         ArrowDown: [0, 1],
@@ -379,32 +452,32 @@ export function useAccionesDeTurno({
         ArrowRight: [1, 0],
       };
       const dir = paso[ev.key];
-      if (dir && activa) {
+      if (dir && activa && mandos) {
         ev.preventDefault();
         mover({ x: activa.celda.x + dir[0], y: activa.celda.y + dir[1] });
         return;
       }
       const tecla = ev.key.toLowerCase();
-      if (tecla === "t" && !esZargon && estado.turno.movimientoTotal === null) {
+      if (tecla === "t" && mandos && !esZargon && estado.turno.movimientoTotal === null) {
         ev.preventDefault();
         // ⇧T siempre fue «que la tire la aplicación», de antes de que existiera
         // la preferencia. Se queda, y ahora además enseña lo que ha salido: se
         // usaba a ciegas y el número había que buscarlo en el panel.
         if (ev.shiftKey) tirarYEnsenar({ tipo: "tirarMovimiento" }, "Tirada de movimiento");
         else pedirMovimiento();
-      } else if (tecla === "a" && objetivos.length > 0) {
+      } else if (tecla === "a" && mandos && objetivos.length > 0) {
         ev.preventDefault();
         pedirAtaque(objetivos[0]!.id);
-      } else if (tecla === "p" && puertas.length > 0) {
+      } else if (tecla === "p" && mandos && puertas.length > 0) {
         ev.preventDefault();
         ejecutar({ tipo: "abrirPuerta", puerta: puertas[0]!.id });
-      } else if (tecla === "b") {
+      } else if (tecla === "b" && mandos) {
         ev.preventDefault();
         ejecutar({ tipo: "buscarTesoro" });
-      } else if (tecla === "r") {
+      } else if (tecla === "r" && mandos) {
         ev.preventDefault();
         ejecutar({ tipo: "buscarTrampas" });
-      } else if (tecla === "h" && hechizos.length > 0) {
+      } else if (tecla === "h" && mandos && hechizos.length > 0) {
         // T, A, P, B, R y Z estaban cogidas; H no.
         ev.preventDefault();
         elegirHechizo(hechizos[0]!.hechizo);
@@ -416,16 +489,20 @@ export function useAccionesDeTurno({
         // Con el turno de Zargon automático, Intro es «que juegue ya lo
         // siguiente»: la jugada entera que ha elegido la IA, no solo activar al
         // monstruo. Es lo que hace usable el modo paso a paso, y en automático
-        // sirve para adelantar una espera que se está haciendo larga.
+        // sirve para adelantar una espera que se está haciendo larga. No pasa
+        // por `mandos`: es un mando de Zargon, no de héroe, y sigue vivo en
+        // pausa a propósito (T52 punto 4).
         if (zargonAutomatico && esZargon && !zargon.averia) {
           zargon.siguiente();
           return;
         }
         // Enter activa al que ha elegido Zargon, no al primero de la lista del
-        // fichero de la misión, que era lo que hacía antes.
+        // fichero de la misión, que era lo que hacía antes. Solo llega aquí en
+        // avería (arriba exige `!zargon.averia`), que es cuando el máster tiene
+        // el mando.
         if (esZargon && !activa && porActivar[0]) {
           ejecutar({ tipo: "activarMonstruo", monstruo: porActivar[0].id });
-        } else {
+        } else if (mandos) {
           ejecutar({ tipo: "terminarTurno" });
         }
       }
@@ -433,10 +510,10 @@ export function useAccionesDeTurno({
     window.addEventListener("keydown", alPulsar);
     return () => window.removeEventListener("keydown", alPulsar);
   }, [
-    peticion, tirada, puedeActuar, activa, esZargon, estado.turno.movimientoTotal, objetivos, puertas,
+    peticion, tirada, puedeActuar, activa, esZargon, estado, objetivos, puertas,
     porActivar, hechizos, hechizoElegido, mover, ejecutar, deshacerYPausar, pedirAtaque,
     pedirMovimiento, elegirHechizo, cancelarHechizo, tirarYEnsenar,
-    zargonAutomatico, zargon.averia, zargon.siguiente,
+    zargonAutomatico, zargon, mandos,
   ]);
 
   return {
