@@ -17,7 +17,7 @@ import {
 } from "../src/data/quests/calabozo";
 import { crearPartida } from "../src/engine/partida";
 import { hacer, c, partida, situar, MISION_PRUEBA } from "./ayuda";
-import { claveCelda, type EstadoPartida } from "../src/engine/types";
+import { claveCelda, type EstadoPartida, type Mision } from "../src/engine/types";
 
 const OCHO = [
   { clase: "barbaro" as const },
@@ -216,5 +216,74 @@ describe("dos de la misma clase son dos héroes de verdad", () => {
     expect(e.turno.orden).toHaveLength(9); // los ocho, y Zargon al final
     expect(e.turno.orden[8]).toBe("zargon");
     expect(new Set(e.turno.orden).size).toBe(9);
+  });
+});
+
+describe("la salida crece con el grupo (T35)", () => {
+  /** Cuatro casillas declaradas, y el objetivo es salir por ellas. */
+  const CUATRO: Mision = {
+    ...MISION_PRUEBA,
+    entrada: [c(0, 1), c(0, 2), c(0, 3), c(0, 4)],
+    objetivo: { clase: "salir" },
+  };
+
+  const con = (cuantos: number, mision: Mision = CUATRO) =>
+    crearPartida({
+      mision,
+      heroes: Array.from({ length: cuantos }, () => ({ clase: "barbaro" as const })),
+      monstruos: [],
+      semilla: 42,
+    });
+
+  it("con ocho héroes, la entrada del estado pasa a tener ocho casillas", () => {
+    const e = con(8);
+    expect(e.mision.entrada).toHaveLength(8);
+    expect(new Set(e.mision.entrada.map(claveCelda)).size).toBe(8);
+  });
+
+  it("las cuatro que declara la misión van primero y en su orden", () => {
+    // Que la entrada crezca no puede reordenar lo que el autor de la misión
+    // decidió: en la mesa, el grupo entra por donde dice la escalera.
+    const e = con(8);
+    expect(e.mision.entrada.slice(0, 4).map(claveCelda)).toEqual(["0,1", "0,2", "0,3", "0,4"]);
+  });
+
+  it("los ocho héroes de pie en la entrada ganan una misión de salir", () => {
+    // El test que fija la regla, y el motivo entero de T35. Antes de esto, el
+    // objetivo «salir» preguntaba por las cuatro casillas declaradas: cuatro
+    // héroes las ocupaban y los otros cuatro no tenían dónde ponerse, así que
+    // la victoria no era difícil, era imposible. Con el cambio revertido este
+    // test falla, que es lo que le da valor.
+    const e = con(8);
+    for (const h of e.heroes)
+      expect(
+        e.mision.entrada.some((c) => c.x === h.celda.x && c.y === h.celda.y),
+        `${h.id} no empieza sobre una casilla de salida`,
+      ).toBe(true);
+    // El desenlace se comprueba al cerrar una acción, no al crear la partida.
+    const tras = hacer(e, { tipo: "terminarTurno" });
+    expect(tras.desenlace?.victoria).toBe(true);
+  });
+
+  it("con dos héroes la salida NO encoge por debajo de lo que declara la misión", () => {
+    // Su frase decía «N casillas para N héroes». Al pie de la letra, dos héroes
+    // dejarían la salida en dos casillas y salir sería MÁS difícil que hoy: una
+    // regresión silenciosa para los grupos pequeños, que son los normales. Él
+    // estaba arreglando el caso de ocho. De ahí el máximo, y de ahí este test.
+    const e = con(2);
+    expect(e.mision.entrada.map(claveCelda)).toEqual(["0,1", "0,2", "0,3", "0,4"]);
+  });
+
+  it("con cuatro héroes, la entrada es exactamente la declarada", () => {
+    // El caso de siempre no cambia: es lo que se juega en la mesa hoy.
+    const e = con(4);
+    expect(e.mision.entrada.map(claveCelda)).toEqual(["0,1", "0,2", "0,3", "0,4"]);
+  });
+
+  it("la misión declarada no se muta: es un dato de módulo compartido", () => {
+    // Escribir dentro de `op.mision` dejaría la entrada crecida para la partida
+    // siguiente, y eso solo se ve dos partidas después.
+    con(8);
+    expect(CUATRO.entrada).toHaveLength(4);
   });
 });

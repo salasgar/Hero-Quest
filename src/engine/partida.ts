@@ -129,7 +129,19 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
   // partir de ahí el movimiento, la visión y los ataques razonan sobre un
   // tablero que no existe, y el síntoma aparece tres acciones después, lejos
   // de la causa.
-  const salida = casillasDeSalida(op, op.heroes.length);
+  // La entrada crece con el grupo, y por eso se pide el máximo entre los dos.
+  //
+  // Lo pidió Juan Luis el 2026-09-06: «si hay N héroes, habrá que marcar las N
+  // casillas más cercanas a la salida como casillas de `mision.entrada`». No es
+  // solo dónde se empieza: el objetivo «salir» (`reducer.ts`) exige a todos los
+  // héroes vivos sobre una casilla de `mision.entrada`, así que con ocho héroes
+  // y cuatro casillas esa victoria no sería difícil, sería imposible.
+  //
+  // El máximo, y no el número de héroes a secas, porque `casillasDeSalida`
+  // recorta cuando le pides menos de las declaradas: con dos héroes dejaría la
+  // salida en dos casillas y salir sería MÁS difícil que hoy. Él estaba
+  // arreglando el caso de ocho, no estrechando el de dos.
+  const salida = casillasDeSalida(op, Math.max(op.heroes.length, op.mision.entrada.length));
 
   // El identificador es la clase, que basta mientras no se repita. Si dos
   // jugadores quieren la misma —dos elfas, por ejemplo— el segundo lleva un
@@ -187,7 +199,13 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
 
   const inicial: EstadoPartida = {
     rng,
-    mision: op.mision,
+    // La misión se copia con la entrada ya crecida: a partir de aquí,
+    // `estado.mision.entrada` es un dato DERIVADO del tamaño del grupo y no lo
+    // que declara `quests/`. Quien escriba misiones nuevas tiene que saberlo.
+    // Se copia y no se muta porque `op.mision` es un dato de módulo compartido
+    // entre partidas: escribir dentro dejaría la entrada crecida para la
+    // siguiente, y eso solo se ve dos partidas después.
+    mision: { ...op.mision, entrada: salida },
     heroes,
     monstruos,
     puertas: op.puertas ?? [],
