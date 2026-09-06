@@ -129,7 +129,7 @@ coger en cualquier orden desde hoy.
 | T31 | [La partida en red, en el cliente](tareas/T31-sesion-de-red.md) | T30 · **cumplida** | `src/red/cliente.ts`, `usePartida.ts` | **hecha** · `15c852a` · 2026-09-05 · el sondeo pide desde cero a propósito; ver el registro |
 | T32 | [La pantalla de quien juega desde su casa](tareas/T32-vista-del-heroe-remoto.md) | T31 y T18 · **cumplidas** | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `App.tsx`, `estilos.css` | **hecha** · `be4adf6` · 2026-09-06 · **falta la prueba con dos navegadores**; hay `npm run relevo` para hacerla sin desplegar |
 | T33 | [Quién tira los dados de quien juega desde su casa](tareas/T33-quien-tira-los-dados.md) | T31 · **cumplida** | `TurnPanel.tsx`, `DiceInput.tsx` · **y `useAccionesDeTurno.ts`**, que no existía al escribir la tarea y es donde vive ahora el reparto de dados | **hecha** · `db96bf2` · 2026-09-06 |
-| T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **falta su autorización** | `.github/workflows/`, `vite.config.ts`, `README.md` | pendiente · esperando su firma |
+| T34 | [Publicar la aplicación en GitHub Pages](tareas/T34-publicar-en-pages.md) | — · **firmada el 2026-09-06** | `.github/workflows/`, `vite.config.ts`, `README.md`, `main.tsx`, `BoardVerify.tsx` | **hecha** · `6905402d` · 2026-09-06 · <https://salasgar.github.io/Hero-Quest/> · la cadena de versión **no** pasa a ser el hash, y el motivo está en el registro |
 | T35 | [La salida crece con el grupo](tareas/T35-la-salida-crece-con-el-grupo.md) | T16 · **cumplida** | `partida.ts`, `tests/ocho-heroes.test.ts` · **no toca `reducer.ts`** | **hecha** · `87ea055` · 2026-09-06 · **`estado.mision.entrada` pasa a ser un dato derivado**: lee el registro antes de escribir una misión |
 
 Las cinco de la tanda de septiembre —**T13 a T17**, no las de red, que empiezan en T30— salen
@@ -435,6 +435,41 @@ no estaba escrito. Esto es lo que lee la sesión siguiente.
   - **Los héroes del simulador son tontos a propósito** —abren, pegan al más débil que
     alcanzan y si no se acercan; ni tesoro ni hechizos— y va dicho en la salida. Eso sesga
     el número a la baja, no al alza: el 100 % es aún peor noticia de lo que parece.
+
+- **T34 · sesión `6905402d` · 2026-09-06.** La aplicación se publica sola en
+  <https://salasgar.github.io/Hero-Quest/>. Juan Luis firmó el encendido ese mismo día
+  (arriba, en autorizaciones) y Pages quedó en `build_type: workflow`. Cinco cosas:
+  - **`base` es el fallo número uno de Pages y aquí ya estaba pagado a medias.** El sitio
+    cuelga de `/Hero-Quest/`, así que `vite.config.ts` lo pone **solo al construir**
+    (`command === "build"`), para no cambiar `npm run dev`. Y había un segundo caso que no
+    era evidente: `FOTO.archivo` valía `"/tablero-referencia.webp"`, con barra, así que la
+    pantalla «Verificar tablero» habría salido **sin foto y sin decir por qué**. Ahora el
+    dato es el nombre del fichero y quien lo pinta le antepone `import.meta.env.BASE_URL`.
+    Comprobado con `npm run preview`: `/Hero-Quest/`, su JS y la foto dan 200.
+  - **Los tests van delante de la construcción, no detrás.** `npm run typecheck` y
+    `npm test` son pasos previos del flujo de trabajo: si algo está en rojo, el sitio
+    publicado se queda como estaba. Publicar una versión rota es peor que no publicar,
+    porque quien esté jugando se la encuentra al recargar.
+  - **La cadena de versión de T30 NO pasa a ser el hash del commit, y el motivo es
+    medible.** `crearRegistro` compara la versión del montaje con la constante `VERSION`
+    del **relevo**, y el relevo se despliega con `wrangler`, que no pasa por vite y no
+    recibe ninguna variable `VITE_*`: con el hash, el relevo rechazaría **todas** las
+    partidas nuevas en cuanto una de las dos publicaciones fuera por delante de la otra.
+    Así que son dos cosas distintas: `VERSION` sigue siendo la versión de **las reglas**, a
+    mano, y el hash del commit sale **en la esquina de la pantalla**, que es lo que hace
+    falta para pillar la caché de Pages sirviendo código de ayer. Está razonado entero en
+    `server/README.md`, con lo que habría que cambiar si algún día se quiere lo otro: que
+    el relevo deje de comparar con su propia constante, que es tocar el protocolo y por
+    tanto decisión de Juan Luis.
+  - **La URL del relevo ya era configurable y no se ha tocado.** `dondeEstaElRelevo` lee
+    `VITE_RELEVO`, y el flujo de trabajo la pasa desde una variable del repositorio
+    (Settings → Secrets and variables → Actions → Variables). **Hoy está vacía y es
+    correcto**: sin relevo, la aplicación juega en local y lo dice en pantalla.
+  - **«Verificar tablero» y los imprimibles se quedan en la versión publicada**, a
+    propósito: la de verificar es la que permitió cotejar el tablero contra la foto y no
+    estorba, y los PDF no se generan en el navegador —son `npm run cartas` y
+    `npm run tablero` en el Mac—, así que no engordan la página.
+
 - **T35 · sesión `946ca4aa` · 2026-09-06 · `87ea055`.** La salida crece con el grupo. Cuatro
   cosas que no estaban escritas:
   - **`estado.mision.entrada` ya no es lo que declara la misión: es un dato derivado.** Con
@@ -1034,15 +1069,24 @@ Lo irreversible necesita una línea aquí antes de ejecutarse.
   foso ya es rareza, porque las trampas ocultas no las dispara (T4). No hay código que
   cambiar; si algún día molesta jugando, es una línea en `conPenalizacionDeFoso` y su test.
 
+- **2026-09-06 — Encender GitHub Pages y publicar la aplicación.** Preguntó cómo se
+  encendía y, con las tres advertencias delante —que encenderlo solo no publica nada, que
+  la página publicada **no** junta dos casas y que en el cliente no hay ni debe haber
+  claves—, dijo «adelante». Ejecutado por la sesión `6905402d` con
+  `gh api -X POST repos/salasgar/Hero-Quest/pages -f build_type=workflow`. Queda en
+  `build_type: workflow`, o sea que **quien publica es `.github/workflows/pages.yml`** y no
+  hay ninguna rama `gh-pages` que mantener. Se apaga con `gh api -X DELETE …/pages` o desde
+  Settings → Pages. **Esto no autoriza el relevo**: sigue pendiente, justo debajo.
+
 ### Pendientes de su palabra
 
-**Las dos firmas de la fase de red (T30 y T34).** Las cuatro decisiones de diseño ya están
-firmadas y copiadas en la cabecera de T30; lo que falta es lo que sale de esta casa, y ninguna
-sesión se lo puede autorizar a sí misma:
+**La firma que queda de la fase de red (T30).** Las cuatro decisiones de diseño ya están
+firmadas y copiadas en la cabecera de T30, y **lo de Pages ya está firmado y hecho** (arriba,
+2026-09-06). Lo que falta es lo otro que sale de esta casa, y ninguna sesión se lo puede
+autorizar a sí misma:
 
-1. **Activar GitHub Pages y publicar la aplicación** en `salasgar.github.io/Hero-Quest/`.
-   Medido el 2026-09-05: el repositorio ya es **público** y Pages **no está activado**. Es
-   hacia fuera y es su cuenta.
+1. ~~**Activar GitHub Pages y publicar la aplicación**~~ — **firmado y hecho el 2026-09-06**.
+   La aplicación está en <https://salasgar.github.io/Hero-Quest/>.
 2. **Crear la cuenta de Cloudflare y desplegar el relevo**, que es donde quedan guardadas las
    partidas —el montaje y la lista de acciones— en un servicio de terceros. No hay datos
    personales dentro más allá de los nombres que los niños les pongan a sus héroes, pero es un
