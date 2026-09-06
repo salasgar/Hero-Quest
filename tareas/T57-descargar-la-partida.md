@@ -131,3 +131,20 @@ El orden de cierre es el de `proyecto.md`. En el mensaje a Juan Luis, tres líne
 está el botón, dónde guarda el fichero para que una sesión lo lea (`partidas/`), y la
 frase que tiene que decirle a la sesión («repite `partidas/<fichero>.json` y dime qué
 ves»).
+
+## Cuatro cosas que no estaban escritas (sesión `s-20260906T174336-09ec25b3`)
+
+Hecha el 2026-09-06. El detalle está en `hechos/terminadas/57--s-20260906T174336-09ec25b3.md`.
+
+1. **Revocar la URL del blob justo después de pulsar el enlace cancela la descarga en
+   Safari**, sin error y sin fichero. Es el patrón que sale en todas partes y es el que no
+   sirve para la tableta de la mesa. El enlace, además, se pone en el documento antes de
+   pulsarlo. Va comentado en `App.tsx`, porque es la línea que alguien «limpia» luego.
+2. **En red el fichero se construye igual pero no hay dónde pulsar**: la rama de red de
+   `App.tsx` devuelve `Juego` o `VistaDeHeroe` sin barra de navegación. El registro sí se
+   escribe en `localStorage` también en red.
+3. **`guardada` quedó como «cuándo se escribió el registro»** —la última acción de la
+   partida— y no como la hora de la descarga que decía esta ficha: si la pestaña se cierra
+   el sábado y el fichero se baja el lunes, la fecha útil es la del sábado.
+4. **`crearPartida` toma semilla 1 cuando no le dan ninguna**, así que el fichero anota 1 y
+   no «sin semilla»: repetirlo tiene que dar la misma partida, y «sin semilla» no la da.
