@@ -41,6 +41,18 @@ terminar hay menos, has roto algo.
   ```
 - **`tsc -b` se cuelga** en este repo, porque no hay `composite: true`. Usa
   `tsc -p tsconfig.json --noEmit`, que es lo que hace `npm run typecheck`.
+- **`npx vitest run` en el árbol principal cuenta también los tests de los worktrees de las
+  demás sesiones**: `.claude/worktrees/` cuelga del repositorio y el `exclude` por defecto
+  de vitest no lo cubre. Salen 220 ficheros y 3072 tests cuando `main` tiene 32 y 450, y
+  el número cambia cuando otra sesión crea su worktree. `npx vitest run tests/` no lo
+  arregla (es un filtro de subcadena). Lo que mide `main`:
+  ```sh
+  npx vitest run --exclude "**/node_modules/**" --exclude "**/.claude/**"
+  ```
+  El arreglo de raíz es una línea en `vite.config.ts`, dentro de `test`:
+  `exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**']` (hay que repetir los
+  dos primeros: dar `exclude` sustituye el valor por defecto). Lo encontraron por separado
+  las sesiones de la T40 y la T11 el 2026-09-06; está sin hacer porque no es de ninguna ficha.
 - **Varias sesiones comparten este mismo directorio de trabajo.** No hay un worktree por
   sesión: el árbol es uno solo. Lo que tú ves en `git status` incluye lo que otra sesión
   está escribiendo ahora mismo, y tu `git add` se lo lleva.
