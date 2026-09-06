@@ -17,13 +17,10 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-06 18:17Z · por la sesión `s-20260906T174532-9cbd624b`, al cerrar la
-36 (segunda tarea encadenada tras la 52; commit pendiente de push, se corrige el hash en
-cuanto entre en `origin/main`, como T41 y T42). Sobre la regeneración de
-`s-20260906T174714-651b3481` (18:10Z), que incorporó la 51 LISTA (`095d031`) y el reclamo
-de la 53 que esa sesión abrió al encadenar: aquí se cierra la 36 y se confirma la 53 como
-EN CURSO (su reclamo ya estaba en `origin/main` cuando se rebasó esta rama). Reclamo
-vivo: **53** (`s-20260906T174714-651b3481`, caduca 2026-09-07T00:12:13Z) y **56**
+Regenerado: 2026-09-06 18:19Z · por la sesión `s-20260906T174532-9cbd624b`, al reclamar
+la 22 (tercera tarea de la cadena 52 → 36 → 22; la 52 y la 36 ya están LISTA, `9124757` y
+`e29b34d`). Reclamos vivos: **22** (`s-20260906T174532-9cbd624b`, caduca 22:19:03Z),
+**53** (`s-20260906T174714-651b3481`, caduca 2026-09-07T00:12:13Z) y **56**
 (`s-20260906T174758-05906208`, caduca 18:48:14Z).
 
 ## Antes de hacer nada
@@ -227,7 +224,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 19 | T19 · Una puerta se abre también desde la diagonal | tareas/T19-abrir-puertas-en-diagonal.md | regla de la casa firmada (2026-09-05) | 2 h | MEDIO | — | `board.ts`, `reducer.ts`, `selectors.ts`, tests | manual | LISTA (`c08bbc0`) | |
 | 20 | T20 · El turno de Zargon pasa sin que el diario lo cuente | tareas/T20-el-turno-de-zargon-no-se-cuenta.md | ninguna | 2 h | MEDIO | — | `types.ts`, `reducer.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`740f54a`) | |
 | 21 | T21 · Siete hechizos de doce no dejan rastro | tareas/T21-hechizos-sin-rastro-en-el-diario.md | ninguna (no a la vez que 20) | 2 h | MEDIO | — | `types.ts`, `reducer.ts`, `narrator/local.ts`, tests | manual | LISTA (`72a7c7f`) | |
-| 22 | T22 · Saber qué hace cada hechizo antes de lanzarlo | tareas/T22-que-hace-cada-hechizo.md | `src/ui/Instrucciones.tsx` en `main` · **cumplida** (`b47310f`) · no a la vez que 52, 36 (`TurnPanel.tsx`) ni 54 (`HeroSheet.tsx`) | 2 h | MEDIO | 52, 36 | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css`, tests | manual | **PENDIENTE** | |
+| 22 | T22 · Saber qué hace cada hechizo antes de lanzarlo | tareas/T22-que-hace-cada-hechizo.md | `src/ui/Instrucciones.tsx` en `main` · **cumplida** (`b47310f`) · no a la vez que 52, 36 (`TurnPanel.tsx`) ni 54 (`HeroSheet.tsx`) | 2 h | MEDIO | 52, 36 | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css`, tests | manual | EN CURSO | `s-20260906T174532-9cbd624b` · 22:19:03Z |
 | 30 | T30 · El relevo de acciones | tareas/T30-relevo-de-acciones.md | ninguna | 4 h | ALTO | — | `server/`, `src/red/protocolo.ts`, `tests/red-protocolo.test.ts` | manual | LISTA (`6b07f82`) · el despliegue espera firma en `autorizaciones.md` | |
 | 31 | T31 · La partida en red, en el cliente | tareas/T31-sesion-de-red.md | 30 LISTA | 4 h | ALTO | — | `src/red/cliente.ts`, `usePartida.ts`, `tests/red-cliente.test.ts` | manual | LISTA (`15c852a`) | |
 | 32 | T32 · La pantalla de quien juega desde su casa | tareas/T32-vista-del-heroe-remoto.md | 31 y 18 LISTA | 4 h | ALTO | — | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `App.tsx`, `estilos.css`, tests | manual | LISTA (`be4adf6`) | |
@@ -261,23 +258,23 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** 22, 37, 39 y 44 (MEDIO); 45 (ALTO). **36 acaba de cerrarse
-(LISTA)**; 53 y 56 tienen reclamo vivo (ver la tabla).
+**Libres por estado:** 37, 39 y 44 (MEDIO); 45 (ALTO). **22, 53 y 56 tienen reclamo
+vivo** (ver la tabla).
 
-**Por ficheros, sin chocar entre sí, ahora mismo:** **22** (MEDIO; `TurnPanel.tsx` ya
-libre con la 36 cerrada) y **58** (MEDIO; `BoardMirror.tsx` libre desde que cerró la 51),
-independientes entre sí. **44** espera a nada EN CURSO por `Juego.tsx` y también está
-libre. **37** y **39** siguen esperando a 53 y 54 (`types.ts`, `narrator/local.ts`); **45**
-a 53 (`simular.ts`). Dicho llanamente: **con 53 y 56 cogidas, quedan libres sin chocar
-entre sí 22, 58 y 44**. 15 espera la palabra de Juan Luis; 46, 47, 50, 54, 55 siguen
-BLOQUEADAS por sus precondiciones.
+**Por ficheros, sin chocar entre sí, ahora mismo:** **58** (MEDIO; `BoardMirror.tsx`
+libre desde que cerró la 51; comparte `estilos.css` con la 22, que ya está cogida, así
+que de todas formas no iría en paralelo con ella) y **44** (MEDIO; `Juego.tsx` sin nada
+EN CURSO que la toque). **37** y **39** siguen esperando a 53 y 54 (`types.ts`,
+`narrator/local.ts`); **45** a 53 (`simular.ts`). Dicho llanamente: **con 22, 53 y 56
+cogidas, quedan libres sin chocar entre sí 58 y 44**. 15 espera la palabra de Juan Luis;
+46, 47, 50, 54, 55 siguen BLOQUEADAS por sus precondiciones.
 
 **Encadenables:** 58 → 37 comparte ficheros dentro de la cadena: seguidas, nunca en
 paralelo (37 espera a 54 igualmente). 56 quedó sin la 57 con la que encadenaba (ya
 cerrada): al cerrar 56, su sesión puede encadenar cualquier libre de banda BAJO que
 aparezca, o parar. La cadena 51 → 53 → 54 → 55 va de una en una en la sesión
 `s-20260906T174714-651b3481`, que cerró la 51 y sigue con la 53. La cadena 52 → 36 → 22
-que traía esta sesión sigue: la 22 la reclama esta misma sesión a continuación.
+de esta sesión llega a su último tramo: la 22, reclamada ahora.
 
 ## Registro de finalizaciones
 
