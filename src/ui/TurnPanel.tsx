@@ -7,7 +7,6 @@ import { MONSTRUOS } from "../data/monsters";
 import { conArticulo, especieEnMinuscula } from "../data/nombres";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { puedeBuscarTesoro, puedeBuscarTrampas } from "../engine/selectors";
-import type { QuienTiraLosDados } from "./DiceInput";
 import { mandosDeHeroe, nombreDeFigura } from "./useAccionesDeTurno";
 import type { TurnoDeZargon } from "./useTurnoDeZargon";
 
@@ -48,13 +47,6 @@ export interface PropsTurno {
     deshacer: () => void;
   };
   puedeDeshacer: boolean;
-  /**
-   * Quién tira los dados de esta pantalla, y cómo cambiarlo. Opcionales las
-   * dos: sin ellas el interruptor no sale, que es lo que quiere una pantalla
-   * donde no haya que preguntarlo.
-   */
-  quienTira?: QuienTiraLosDados;
-  cambiarQuienTira?: (q: QuienTiraLosDados) => void;
   /**
    * Los mandos del turno automático de Zargon. Opcional: la pantalla de quien
    * juega desde su casa no lo trae, y entonces el panel es el de siempre.
@@ -135,8 +127,6 @@ export function TurnPanel({
   motivo,
   acciones,
   puedeDeshacer,
-  quienTira,
-  cambiarQuienTira,
   zargon,
   nivelDeZargon,
   cambiarNivelDeZargon,
@@ -424,34 +414,6 @@ export function TurnPanel({
           Deshacer <Tecla>Z</Tecla>
         </button>
       </div>
-
-      {/*
-        Quién tira los dados de esta pantalla. Juan Luis pidió las dos opciones
-        cuando se decidió lo de jugar con alguien que está en otra casa: quien
-        tenga dados en la mano querrá tirarlos, que es medio juego, y quien no
-        los tenga no puede jugar si la aplicación no se los tira.
-
-        Se puede cambiar en mitad de la partida, sin reiniciar nada, porque los
-        dados se caen debajo del sofá a media misión. Y se dice cuál es cuál con
-        palabras: un icono a secas no distingue estas dos.
-      */}
-      {quienTira && cambiarQuienTira && (
-        <div className="quien-tira">
-          <span className="apagado">Mis dados:</span>
-          <button
-            className={quienTira === "yo" ? "sel" : ""}
-            onClick={() => cambiarQuienTira("yo")}
-          >
-            Los tiro yo
-          </button>
-          <button
-            className={quienTira === "laApp" ? "sel" : ""}
-            onClick={() => cambiarQuienTira("laApp")}
-          >
-            Que los tire la aplicación
-          </button>
-        </div>
-      )}
 
       {/*
         La pista vale también con un monstruo activo, y hasta T20 no salía: se

@@ -5,7 +5,7 @@ import { esHeroe } from "../engine/types";
 import type { SesionDeRed } from "../red/cliente";
 import { comoLoVe } from "../red/niebla";
 import { BoardMirror } from "./BoardMirror";
-import { AvisoDeTirada, DiceInput } from "./DiceInput";
+import { AvisoDeTirada } from "./DiceInput";
 import { HeroSheet } from "./HeroSheet";
 import { MasterLog } from "./MasterLog";
 import { TurnPanel } from "./TurnPanel";
@@ -32,8 +32,6 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
     ejecutar,
     deshacer,
     puedeActuar,
-    // Aquí sí se pregunta: puede que en esa casa haya dados y puede que no.
-    dadosPropios: "aEleccion",
   });
 
   // La única línea que hace de esta pantalla lo que es. Lo que se pinta va por
@@ -107,10 +105,6 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
             // Deshacer es de la mesa: es quien tiene el secreto del relevo y
             // quien ve el tablero de verdad para saber qué se deshace.
             puedeDeshacer={false}
-            // Aquí es donde la pregunta tiene sentido de verdad: puede que en
-            // esa casa haya dados y puede que no.
-            quienTira={turno.quienTira}
-            cambiarQuienTira={turno.setQuienTira}
             acciones={{
               tirarMovimiento: turno.pedirMovimiento,
               abrirPuerta: (id) => ejecutar({ tipo: "abrirPuerta", puerta: id }),
@@ -171,7 +165,6 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
         <MasterLog estado={visto} />
       </aside>
 
-      {turno.peticion && <DiceInput peticion={turno.peticion} />}
       {turno.tirada && <AvisoDeTirada tirada={turno.tirada} alCerrar={turno.cerrarTirada} />}
     </div>
   );
