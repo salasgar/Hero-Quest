@@ -73,6 +73,18 @@ ls public/; grep -n 'letras\|logo' src/App.tsx src/ui/EleccionDeHeroes.tsx
 
 ## Trampas conocidas
 
+- **El PNG que dio Juan Luis tiene el fondo BLANCO OPACO, no transparente.** Que sea RGBA
+  no quiere decir que se haya usado el alfa: los 23 616 píxeles muestreados valen 255 y las
+  cuatro esquinas son `ffffffff`. Pegarlo tal cual sobre el fondo oscuro pone un rectángulo
+  blanco de 654 × 574 en mitad de la pantalla. Hay que recortarle el fondo —la firma lo
+  autoriza—, y la receta exacta está en `public/IMAGENES.md`. *(Medido por la sesión que
+  hizo la tarea, 2026-09-06.)*
+- **`npm run preview` no sirve la aplicación en esta versión de vite (7.3.6)**: devuelve 404
+  a toda petición con la cabecera `Sec-Fetch-Dest: script`, que es la que manda el navegador
+  para un `<script type="module">`, así que la página sale **en blanco** y parece que la has
+  roto tú. No es de esta tarea: pasa igual con `index.html`. Para mirar la construcción como
+  la sirve Pages, `ln -s "$PWD/dist" sitio/Hero-Quest` y `python3 -m http.server` dentro de
+  `sitio/`. Está en `hechos/incidencias/s-20260906T125522-43d82a6b.md`.
 - **La `base` de Pages** (T34): toda ruta a `public/` lleva `import.meta.env.BASE_URL`
   delante, o la imagen sale en `npm run dev` y no en la página publicada. `FOTO.archivo`
   ya pasó por esto.
