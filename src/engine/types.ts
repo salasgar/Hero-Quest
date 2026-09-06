@@ -147,7 +147,15 @@ export type ObjetivoMision =
   | { clase: "matarATodos" }
   | { clase: "matarA"; figura: IdFigura }
   | { clase: "llegarA"; celdas: Celda[] }
-  | { clase: "salir" };
+  | { clase: "salir" }
+  /**
+   * El tesoro de misión del reglamento (p. 14): se encuentra al registrar
+   * `sala` buscando tesoro, en vez de robar carta, y la misión termina ahí.
+   * Con `custodio`, solo cuando ese monstruo ha caído; hasta entonces la sala
+   * se registra como cualquier otra. `objeto` es lo que se encuentra, con su
+   * artículo («el pergamino del guardián»): sale tal cual en el diario.
+   */
+  | { clase: "recuperar"; objeto: string; sala: IdSala; custodio?: IdFigura };
 
 // ---------------------------------------------------------------- turno
 
@@ -244,6 +252,12 @@ export interface EstadoPartida {
   turno: Turno;
   registro: Evento[];
   desenlace: null | { victoria: boolean; motivo: string };
+  /**
+   * Quién encontró el tesoro de misión (objetivo `recuperar`). Opcional para
+   * que ninguna partida montada antes de T53 cambie de forma: ausente es «aún
+   * no».
+   */
+  objetoRecuperado?: IdFigura;
 }
 
 // ---------------------------------------------------------------- acciones
@@ -311,6 +325,7 @@ export type Evento =
   | { tipo: "puertaSecretaDescubierta"; puerta: string }
   | { tipo: "busquedaSinHallazgo"; actor: IdFigura; que: "tesoro" | "trampas" }
   | { tipo: "tesoroEncontrado"; actor: IdFigura; oro: number }
+  | { tipo: "objetoDeMision"; actor: IdFigura; objeto: string }
   | { tipo: "cartaDeTesoro"; actor: IdFigura; carta: string; nombre: string; texto: string }
   | { tipo: "monstruoErrante"; monstruo: IdFigura; celda: Celda }
   | { tipo: "hechizoLanzado"; actor: IdFigura; hechizo: IdHechizo; objetivo: IdFigura | null }

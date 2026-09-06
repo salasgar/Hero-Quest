@@ -18,9 +18,10 @@
 import { MISION_CALABOZO, MONSTRUOS_CALABOZO, MUEBLES_CALABOZO, PUERTAS_CALABOZO, TRAMPAS_CALABOZO } from "../src/data/quests/calabozo";
 import { crearPartida, type HeroeElegido } from "../src/engine/partida";
 import { aplicarAccion, actorActual, esTurnoDeZargon, figuraActiva } from "../src/engine/reducer";
-import { casillasDeMovimiento, objetivosDeAtaque, puertasAlAlcance } from "../src/engine/selectors";
-import { distancia } from "../src/engine/board";
-import { claveCelda, type Accion, type Celda, type EstadoPartida, type Figura } from "../src/engine/types";
+import { casillasDeMovimiento, objetivosDeAtaque, puedeBuscarTesoro, puertasAlAlcance } from "../src/engine/selectors";
+import { alcanzables, distancia } from "../src/engine/board";
+import { celdasDeSala, salaEn } from "../src/data/board-base";
+import { claveCelda, type Accion, type Celda, type EstadoPartida, type Figura, type IdSala } from "../src/engine/types";
 import { accionDeZargon, DIFICULTADES, type Dificultad } from "../src/ai/difficulty";
 
 /**
@@ -68,6 +69,14 @@ function accionDelHeroe(e: EstadoPartida): Accion | null {
   const aTiro = objetivosDeAtaque(e);
   if (aTiro.length > 0) return { tipo: "atacar", objetivo: masDebil(aTiro).id };
 
+  // La única búsqueda de tesoro que hace: la que termina la misión (T53). Con
+  // el custodio caído, quien esté en la sala del pergamino la registra.
+  // `puedeBuscarTesoro` es la guarda del motor, así que no propone nada que
+  // vaya a ser rechazado.
+  const salaObjetivo = salaDelObjetoPendiente(e);
+  if (salaObjetivo !== null && salaEn(heroe.celda.x, heroe.celda.y) === salaObjetivo && puedeBuscarTesoro(e))
+    return { tipo: "buscarTesoro" };
+
   if (e.turno.movimientoTotal === null) return { tipo: "tirarMovimiento" };
 
   const destino = haciaDondeIr(e, heroe);
@@ -100,9 +109,19 @@ function haciaDondeIr(e: EstadoPartida, heroe: Figura): Celda | null {
 
   const enTablero = e.monstruos.filter((m) => m.cuerpo > 0 && e.monstruosEnTablero.includes(m.id));
 
+  // Sin monstruos a la vista y con el custodio caído, a la sala del pergamino;
+  // si desde aquí no se llega (su puerta sigue cerrada), a abrir puertas como
+  // siempre. Se decide una vez por movimiento para que todas las candidatas se
+  // midan con la misma vara.
+  const salaObjetivo = salaDelObjetoPendiente(e);
+  const haciaLaSala =
+    salaObjetivo !== null && Number.isFinite(distanciaASala(e, heroe, heroe.celda, salaObjetivo));
+
   const coste = enTablero.length > 0
     ? (c: Celda) => Math.min(...enTablero.map((m) => distancia(e, m, c)))
-    : (c: Celda) => distanciaAPuertaPorAbrir(e, c);
+    : haciaLaSala
+      ? (c: Celda) => distanciaASala(e, heroe, c, salaObjetivo!)
+      : (c: Celda) => distanciaAPuertaPorAbrir(e, c);
 
   const actual = coste(heroe.celda);
   let mejor: { celda: Celda; coste: number } | null = null;
@@ -116,6 +135,31 @@ function haciaDondeIr(e: EstadoPartida, heroe: Figura): Celda | null {
     }
   }
   return mejor && mejor.coste < actual ? mejor.celda : null;
+}
+
+/**
+ * La sala donde está el tesoro de misión, si ya se puede ir a por él: el
+ * objetivo es `recuperar` y su custodio ha caído. Sin esto, con el objetivo
+ * de T53 la heurística mataría al guardián y se quedaría dando vueltas hasta
+ * el tope de rondas: un 0 % de victorias que no sería mérito de Zargon.
+ */
+function salaDelObjetoPendiente(e: EstadoPartida): IdSala | null {
+  const obj = e.mision.objetivo;
+  if (obj.clase !== "recuperar" || e.objetoRecuperado) return null;
+  const custodio = obj.custodio ? e.monstruos.find((m) => m.id === obj.custodio) : undefined;
+  if (custodio && custodio.cuerpo > 0) return null;
+  return obj.sala;
+}
+
+/**
+ * Pasos, con las reglas del motor, desde `c` hasta la casilla más cercana de
+ * la sala. Un solo recorrido del tablero por candidata, en vez de uno por
+ * casilla de la sala.
+ */
+function distanciaASala(e: EstadoPartida, heroe: Figura, c: Celda, sala: IdSala): number {
+  if (salaEn(c.x, c.y) === sala) return 0;
+  const mapa = alcanzables(e, { ...heroe, celda: c } as Figura, 60);
+  return Math.min(...celdasDeSala(sala).map((k) => mapa.get(claveCelda(k))?.coste ?? Infinity));
 }
 
 /** Pasos en línea recta hasta la puerta por abrir más cercana. */

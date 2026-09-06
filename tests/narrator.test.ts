@@ -71,6 +71,12 @@ describe("frases del narrador", () => {
     );
   });
 
+  it("el tesoro de misión tiene frase", () => {
+    expect(
+      narrar(estado(), { tipo: "objetoDeMision", actor: "barbaro", objeto: "el pergamino del guardián" }),
+    ).toMatch(/pergamino del guardián/);
+  });
+
   it("no cuenta los movimientos de cero casillas", () => {
     const e = estado();
     expect(

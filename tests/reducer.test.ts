@@ -5,7 +5,7 @@ import { puedeBuscarTesoro, puedeBuscarTrampas } from "../src/engine/selectors";
 import { tirarDadoCombate, tirarDadosCombate } from "../src/engine/dice";
 import { crearRng } from "../src/engine/rng";
 import type { IdEquipo } from "../src/data/equipment";
-import type { Accion, Celda, EstadoPartida, Evento, TipoTrampa } from "../src/engine/types";
+import type { Accion, Celda, EstadoPartida, Evento, Mision, TipoTrampa } from "../src/engine/types";
 import { c, conMovimiento, enTablero, hacer, MISION_PRUEBA, partida, rechaza, situar } from "./ayuda";
 
 const CAL = "calavera" as const;
@@ -397,6 +397,83 @@ describe("desarmar una trampa con herramientas", () => {
     expect(r.eventos.some((x) => x.tipo === "trampaDesarmada")).toBe(false);
     expect(r.estado.heroes[0]!.cuerpo).toBe(7);
     expect(r.estado.trampas[0]!.gastada).toBe(true);
+  });
+});
+
+describe("el tesoro de misión: objetivo «recuperar»", () => {
+  // T53, firma de Juan Luis del 2026-09-06 (autorizaciones.md): la misión
+  // termina al encontrar el pergamino registrando la sala del guardián con el
+  // guardián muerto. Reglamento p. 14: el tesoro de misión se encuentra en vez
+  // de robar carta.
+  const MISION: Mision = {
+    ...MISION_PRUEBA,
+    objetivo: { clase: "recuperar", objeto: "el pergamino", sala: "a", custodio: "orco1" },
+  };
+  /** El bárbaro en la sala `a`, revelada; el orco custodio lejos y fuera de la vista. */
+  const enLaSala = (custodioVivo: boolean): EstadoPartida => {
+    const e = situar(
+      partida({ mision: MISION, monstruos: [{ id: "orco1", especie: "orco", celda: c(25, 18) }] }),
+      "barbaro",
+      c(1, 1),
+    );
+    return {
+      ...e,
+      salasReveladas: ["a"],
+      monstruos: e.monstruos.map((m) => (custodioVivo ? m : { ...m, cuerpo: 0 })),
+    };
+  };
+  const encuentra = (r: { eventos: Evento[] }) => r.eventos.find((x) => x.tipo === "objetoDeMision");
+
+  it("con el custodio vivo, registrar la sala es registrar la sala: carta y nada más", () => {
+    const e = enLaSala(true);
+    const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(encuentra(r)).toBeUndefined();
+    expect(r.estado.mazoTesoros).toHaveLength(e.mazoTesoros.length - 1);
+    expect(r.estado.desenlace).toBeNull();
+    expect(r.estado.objetoRecuperado).toBeUndefined();
+  });
+
+  it("con el custodio caído, quien registra la sala encuentra el objeto en vez de robar carta, y la misión termina", () => {
+    const e = enLaSala(false);
+    const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(encuentra(r)).toEqual({ tipo: "objetoDeMision", actor: "barbaro", objeto: "el pergamino" });
+    expect(r.eventos.some((x) => x.tipo === "cartaDeTesoro")).toBe(false);
+    expect(r.estado.mazoTesoros).toHaveLength(e.mazoTesoros.length);
+    expect(r.estado.objetoRecuperado).toBe("barbaro");
+    expect(r.estado.desenlace).toEqual({ victoria: true, motivo: expect.stringMatching(/pergamino/) });
+    expect(r.eventos.some((x) => x.tipo === "finDePartida")).toBe(true);
+  });
+
+  it("y lo encuentra aunque ya hubiera registrado la sala con el custodio vivo", () => {
+    // Decisión de T53: la búsqueda anterior no gasta el pergamino. Es la única
+    // excepción a «cada héroe registra una sala una vez» (T6).
+    const e: EstadoPartida = { ...enLaSala(false), buscadoTesoro: [{ heroe: "barbaro", sala: "a" }] };
+    expect(puedeBuscarTesoro(e)).toBe(true); // la pantalla enseña el botón
+    const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(encuentra(r)).toBeTruthy();
+    expect(r.estado.buscadoTesoro).toHaveLength(1); // no se apunta dos veces
+  });
+
+  it("pero con el custodio vivo, la segunda búsqueda de ese héroe se rechaza como siempre (T6)", () => {
+    const e: EstadoPartida = { ...enLaSala(true), buscadoTesoro: [{ heroe: "barbaro", sala: "a" }] };
+    expect(puedeBuscarTesoro(e)).toBe(false);
+    expect(rechaza(e, { tipo: "buscarTesoro" })).toMatch(/ya has registrado/i);
+  });
+
+  it("sin custodio, el objeto se encuentra en cuanto alguien registra la sala", () => {
+    const sinCustodio: Mision = { ...MISION, objetivo: { clase: "recuperar", objeto: "la llave", sala: "a" } };
+    const e: EstadoPartida = { ...situar(partida({ mision: sinCustodio }), "barbaro", c(1, 1)), salasReveladas: ["a"] };
+    const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.estado.desenlace?.victoria).toBe(true);
+    expect(r.estado.desenlace?.motivo).toMatch(/la llave/);
   });
 });
 

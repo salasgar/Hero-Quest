@@ -68,11 +68,18 @@ describe("«El calabozo del guardián» encaja en el tablero", () => {
       expect(alcanzables.has(sala), `a la sala '${sala}' no se llega por ninguna puerta`).toBe(true);
   });
 
-  it("el objetivo de la misión existe entre los monstruos", () => {
-    expect(MISION_CALABOZO.objetivo.clase).toBe("matarA");
-    if (MISION_CALABOZO.objetivo.clase !== "matarA") return;
-    const objetivo = MISION_CALABOZO.objetivo.figura;
-    expect(MONSTRUOS_CALABOZO.some((m) => m.id === objetivo)).toBe(true);
+  it("el objetivo es recuperar el pergamino en la sala del guardián, y el guardián empieza en ella", () => {
+    // T53: la misión termina al registrar la sala del guardián con él muerto.
+    const obj = MISION_CALABOZO.objetivo;
+    expect(obj.clase).toBe("recuperar");
+    if (obj.clase !== "recuperar") return;
+    const custodio = MONSTRUOS_CALABOZO.find((m) => m.id === obj.custodio);
+    expect(custodio, `el custodio '${obj.custodio}' no está entre los monstruos`).toBeTruthy();
+    expect(salaEn(custodio!.celda.x, custodio!.celda.y)).toBe(obj.sala);
+    // La sala del pergamino tiene texto: es de las que se pisan, no un cuarto pintado.
+    expect(Object.keys(MISION_CALABOZO.textosDeSala)).toContain(obj.sala);
+    // Y la introducción dice a los héroes qué tienen que hacer.
+    expect(MISION_CALABOZO.introduccion).toMatch(/pergamino/);
   });
 
   it("cada monstruo está en la sala que le toca", () => {
@@ -143,7 +150,9 @@ describe("la baraja de tesoros", () => {
       monstruos: [],
       semilla: 9,
     });
-    e = { ...e, heroes: e.heroes.map((h) => ({ ...h, celda: { x: 2, y: 15 } })) };
+    // En la sala de la mesa volcada, no en la del guardián: desde T53 registrar
+    // la `q` sin el guardián encuentra el pergamino en vez de robar carta.
+    e = { ...e, heroes: e.heroes.map((h) => ({ ...h, celda: celdasDeSala("t")[0]! })) };
     const antes = e.mazoTesoros.length;
     const r = aplicarAccion(e, { tipo: "buscarTesoro" });
     expect(r.ok).toBe(true);

@@ -165,6 +165,10 @@ function comprobarDesenlace(e: EstadoPartida): [EstadoPartida, Evento[]] {
       return [{ ...e, desenlace: d }, [{ tipo: "finDePartida", ...d }]];
     }
   }
+  if (obj.clase === "recuperar" && e.objetoRecuperado) {
+    const d = { victoria: true, motivo: `Los héroes tienen ${obj.objeto}. Misión cumplida.` };
+    return [{ ...e, desenlace: d }, [{ tipo: "finDePartida", ...d }]];
+  }
   if (obj.clase === "salir") {
     const todos =
       vivos(e.heroes).length > 0 &&
@@ -627,6 +631,28 @@ const cerrarAccion = (t: EstadoPartida["turno"]) => ({
 export const yaRegistro = (e: EstadoPartida, heroe: IdFigura, sala: IdSala): boolean =>
   e.buscadoTesoro.some((r) => r.heroe === heroe && r.sala === sala);
 
+/**
+ * ¿Hay en esta sala un tesoro de misión que se pueda encontrar ahora mismo?
+ *
+ * Reglamento p. 14: el tesoro de misión lo encuentra quien registra la sala,
+ * en vez de robar carta. Aquí además puede tener custodio, y hasta que caiga
+ * la sala se registra como cualquier otra. Decisión de T53: esa búsqueda
+ * anterior **no gasta el pergamino**; el héroe que registró la sala con el
+ * custodio vivo puede volver a registrarla cuando haya caído, y es la única
+ * excepción a «cada héroe registra una sala una vez» (T6). Sin ella, un grupo
+ * de un solo héroe que hubiera buscado antes de tiempo no podría terminar.
+ *
+ * Vive aquí y la importa `selectors.ts`, igual que `yaRegistro`: la pantalla
+ * y el motor tienen que responder lo mismo.
+ */
+export const objetoDeMisionAlAlcance = (e: EstadoPartida, sala: IdSala): boolean => {
+  const obj = e.mision.objetivo;
+  if (obj.clase !== "recuperar" || obj.sala !== sala || e.objetoRecuperado) return false;
+  if (!obj.custodio) return true;
+  const custodio = figuraPorId(e, obj.custodio);
+  return !custodio || custodio.cuerpo === 0;
+};
+
 function buscarTesoro(e: EstadoPartida): Resultado {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f)) return fallo("Solo los héroes buscan tesoros.");
@@ -634,12 +660,27 @@ function buscarTesoro(e: EstadoPartida): Resultado {
 
   const sala = salaEn(f.celda.x, f.celda.y);
   if (sala === null) return fallo("Solo se busca tesoro dentro de una sala.");
+  const hayObjeto = objetoDeMisionAlAlcance(e, sala);
   // Reglamento p. 14: la sala la registran los cuatro héroes, pero cada uno una
-  // sola vez. Antes bastaba con que la hubiera registrado cualquiera.
-  if (yaRegistro(e, f.id, sala)) return fallo("Ya has registrado esta sala.");
+  // sola vez. Antes bastaba con que la hubiera registrado cualquiera. La
+  // excepción del tesoro de misión está explicada en `objetoDeMisionAlAlcance`.
+  if (!hayObjeto && yaRegistro(e, f.id, sala)) return fallo("Ya has registrado esta sala.");
 
   const monstruosALaVista = vivos(e.monstruos).some((m) => puedeVer(e, f.celda, m.celda));
   if (monstruosALaVista) return fallo("No se puede registrar la sala con monstruos a la vista.");
+
+  const obj = e.mision.objetivo;
+  if (hayObjeto && obj.clase === "recuperar") {
+    // El tesoro de misión se encuentra en vez de robar carta (p. 14), y con él
+    // la misión termina: lo decide `comprobarDesenlace` al ver `objetoRecuperado`.
+    const estado: EstadoPartida = {
+      ...e,
+      objetoRecuperado: f.id,
+      buscadoTesoro: yaRegistro(e, f.id, sala) ? e.buscadoTesoro : [...e.buscadoTesoro, { heroe: f.id, sala }],
+      turno: cerrarAccion(e.turno),
+    };
+    return terminar(estado, [{ tipo: "objetoDeMision", actor: f.id, objeto: obj.objeto }]);
+  }
 
   // Se roba la primera carta del mazo. Si se acaba, se rehace con la baraja
   // entera: en una partida larga es preferible a quedarse sin tesoros.

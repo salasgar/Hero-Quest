@@ -10,7 +10,14 @@ import { salaEn } from "../data/board-base";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { alcanzables, celdasQueAbren, figuraPorId } from "./board";
 import { dadosDeAtaque, dadosDeDefensa, modoDeAtaqueContra } from "./combat";
-import { actorActual, esTurnoDeZargon, figuraActiva, monstruosActivables, yaRegistro } from "./reducer";
+import {
+  actorActual,
+  esTurnoDeZargon,
+  figuraActiva,
+  monstruosActivables,
+  objetoDeMisionAlAlcance,
+  yaRegistro,
+} from "./reducer";
 import { puedeVer } from "./vision";
 import {
   claveCelda,
@@ -155,7 +162,10 @@ export function puedeBuscarTesoro(e: EstadoPartida): boolean {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f) || e.turno.haActuado) return false;
   const sala = salaEn(f.celda.x, f.celda.y);
-  if (sala === null || yaRegistro(e, f.id, sala)) return false;
+  if (sala === null) return false;
+  // La misma excepción que hace el motor en `buscarTesoro`: el tesoro de misión
+  // se puede encontrar aunque ese héroe ya hubiera registrado la sala (T53).
+  if (yaRegistro(e, f.id, sala) && !objetoDeMisionAlAlcance(e, sala)) return false;
   return !vivos(e.monstruos).some((m) => puedeVer(e, f.celda, m.celda));
 }
 

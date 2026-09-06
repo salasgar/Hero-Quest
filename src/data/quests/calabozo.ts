@@ -20,10 +20,14 @@ const c = (x: number, y: number): Celda => ({ x, y });
 export const MISION_CALABOZO: Mision = {
   id: "calabozo",
   titulo: "El calabozo del guardián",
+  // El encargo va dentro del texto porque Juan Luis probó la página y la
+  // introducción no decía a los héroes qué tenían que hacer (T53, firma del
+  // 2026-09-06 en autorizaciones.md).
   introduccion:
     "Bajo el castillo hay un calabozo que nadie ha vuelto a abrir en cien años. " +
     "Dicen que algo se quedó dentro montando guardia, y que todavía espera. " +
-    "Vosotros vais a averiguar qué.",
+    "Vuestra misión: encontrar el pergamino que esa bestia del inframundo custodia. " +
+    "Cuando lo tengáis en las manos, habréis terminado.",
   /**
    * Fila india por el pasillo de abajo, con el bárbaro en cabeza.
    *
@@ -44,10 +48,14 @@ export const MISION_CALABOZO: Mision = {
     s: "Una sala de piedra ámbar. Hay huesos pequeños amontonados en un rincón.",
     t: "Paredes rojizas y una mesa larga volcada. Todavía huele a humo.",
     r: "El techo gotea. Cada gota suena como un paso a tu espalda.",
-    q: "La piedra gris está cubierta de arañazos. Alguien intentó salir de aquí a manotazos.",
+    q:
+      "La piedra gris está cubierta de arañazos. Alguien intentó salir de aquí a manotazos. " +
+      "Al fondo, un cofre de hierro con un sello que nadie ha roto.",
     l: "Un cuarto dorado y silencioso. Demasiado silencioso.",
   },
-  objetivo: { clase: "matarA", figura: "guardian" },
+  // El pergamino está en la sala del guardián (la `q`, donde empieza el fimir;
+  // hay un test que lo afirma) y se encuentra registrándola con él muerto.
+  objetivo: { clase: "recuperar", objeto: "el pergamino del guardián", sala: "q", custodio: "guardian" },
 };
 
 /**

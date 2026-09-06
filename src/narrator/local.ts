@@ -153,6 +153,9 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     case "cartaDeTesoro":
       return `${mayus(nombreDe(e, ev.actor))} registra la sala y encuentra: ${ev.nombre}. ${ev.texto}`;
 
+    case "objetoDeMision":
+      return `${mayus(nombreDe(e, ev.actor))} registra la sala y encuentra ${ev.objeto}. ¡Es lo que habíais venido a buscar!`;
+
     case "monstruoErrante":
       return `¡No estabais solos! ${mayus(nombreDe(e, ev.monstruo))} aparece a vuestro lado.`;
 
