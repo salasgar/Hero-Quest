@@ -11,7 +11,13 @@
  */
 
 export const FOTO = {
-  archivo: "/tablero-referencia.webp",
+  /**
+   * El nombre del fichero dentro de `public/`, **sin barra delante**: quien lo
+   * pinta le antepone `import.meta.env.BASE_URL`. Con la barra, en GitHub Pages
+   * —donde el sitio cuelga de `/Hero-Quest/`— la foto se buscaba en la raíz del
+   * dominio y la pantalla de verificación salía sin foto y sin decir por qué.
+   */
+  archivo: "tablero-referencia.webp",
   anchoPx: 1000,
   altoPx: 1000,
   /** Esquina superior izquierda de la casilla (0,0) dentro de la foto. */

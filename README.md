@@ -51,6 +51,22 @@ npm run tablero    # imprimibles/tablero.pdf — 4 folios A4 en 2 x 2
 Los dos últimos necesitan Google Chrome instalado en `/Applications`: generan el HTML y
 lo imprimen a PDF con Chrome sin ventana.
 
+### Publicada en GitHub Pages
+
+<https://salasgar.github.io/Hero-Quest/> — para jugar desde la tableta o desde
+cualquier trasto de casa con navegador, sin arrancar nada en el Mac.
+
+Se publica sola: cada empujón a `main` dispara `.github/workflows/pages.yml`, que
+pasa `npm run typecheck` y `npm test` **antes** de construir y solo publica si
+están en verde. En la esquina de abajo a la derecha sale el hash del commit que
+está corriendo esa pestaña, que es como se pilla la caché de Pages sirviendo
+código viejo.
+
+Lo que la página publicada **no** hace es juntar dos casas: Pages sirve ficheros
+y no corre ningún proceso, así que dos navegadores que la abran no se ven entre
+sí. Para eso hace falta el relevo (`server/`), que se despliega aparte y todavía
+no lo está.
+
 Hay dos pantallas:
 
 - **Partida**: primero se elige el grupo (clase, género, nombre y elementos de hechizos) y

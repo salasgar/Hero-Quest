@@ -81,6 +81,34 @@ Antes de dar el despliegue por bueno:
 - **Las partidas caducan a los treinta días** sin tocarlas, con un `alarm` del
   Durable Object que las borra. Holgado para una campaña de fin de semana.
 
+## La cadena de versión son dos cosas, y conviene no mezclarlas (T34)
+
+T34 decía «sustituye la versión por el hash del commit publicado». **No se ha
+hecho, y el motivo es medible**, así que queda escrito aquí:
+
+`crearRegistro` compara la versión que trae el montaje con la constante `VERSION`
+del **relevo**. La página se publica desde GitHub Pages y el relevo se despliega
+en Cloudflare con `wrangler`, que no pasa por vite y por tanto no recibe ninguna
+variable `VITE_*`: si la página llevara el hash de su commit, el relevo seguiría
+con el suyo y **rechazaría todas las partidas nuevas** en cuanto una de las dos
+se volviera a publicar sin la otra. Sería un despliegue acoplado al otro para
+siempre, y en dos servicios con calendarios distintos.
+
+Así que hay dos cosas, con dos usos:
+
+- **`VERSION`, en `src/red/protocolo.ts`** — la versión de **las reglas**. Se sube
+  a mano cuando cambia algo que altere cómo se aplica una acción, y es lo que
+  impide que dos casas diverjan en silencio. Si la subes, redespliega las dos.
+- **El hash del commit, en la esquina de la pantalla** — qué construcción está
+  corriendo esa pestaña. Sirve para lo que la caché de Pages estropea: una
+  pestaña de ayer ejecutando el código de ayer. Se mira, no se compara.
+
+Si algún día quieres que la del protocolo sea el hash, lo que hay que cambiar es
+que el relevo **deje de comparar con su propia constante** y solo guarde la del
+montaje: quien se une ya compara contra la suya en `unirse` (`cliente.ts`), que es
+donde de verdad se detecta que dos casas llevan código distinto. Eso toca el
+protocolo, así que es decisión de Juan Luis (regla 4 del tablón).
+
 ## Este directorio tiene otro inquilino pendiente
 
 `server/` está reservado desde agosto para el **proxy de la API de Claude** de la

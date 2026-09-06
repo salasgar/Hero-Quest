@@ -1,0 +1,76 @@
+# Publica la aplicación en https://salasgar.github.io/Hero-Quest/
+#
+# Autorizado por Juan Luis el 2026-09-06 (está en `_ESTADO.md`). Pages está
+# encendido con «Source: GitHub Actions», así que quien publica es este fichero:
+# no hay ninguna rama `gh-pages` que mantener.
+#
+# Lo importante, y por eso los tests van DELANTE de la construcción: publicar
+# una versión rota es peor que no publicar. Quien esté jugando en otra casa se
+# la encuentra al recargar, y en mitad de una partida eso no tiene arreglo.
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Para volver a publicar sin tener que tocar el código.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Si se empujan dos commits seguidos, que salga el último; y sin cancelar una
+# publicación a medias, que deja el sitio en un estado raro.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      # Las dos redes que impiden publicar algo roto. Van antes del build a
+      # propósito: si alguna falla, el trabajo se para aquí y el sitio publicado
+      # se queda como estaba.
+      - name: Comprobar tipos
+        run: npm run typecheck
+      - name: Tests
+        run: npm test
+
+      - name: Construir
+        run: npm run build
+        env:
+          # El hash del commit publicado, para verlo en la propia página. La
+          # caché de Pages sirve código viejo sin avisar, y esto es lo que
+          # permite saber qué está corriendo de verdad esa pestaña.
+          VITE_COMMIT: ${{ github.sha }}
+          # Dónde vive el relevo de las partidas en red. Se configura en
+          # Settings → Secrets and variables → Actions → Variables, con el
+          # nombre VITE_RELEVO. Vacío es correcto y es lo que hay hoy: sin
+          # relevo, la aplicación juega en local y lo dice en pantalla.
+          VITE_RELEVO: ${{ vars.VITE_RELEVO }}
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publicar:
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4

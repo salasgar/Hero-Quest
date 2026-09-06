@@ -63,7 +63,13 @@ export function BoardVerify() {
         <svg width={anchoSVG} height={altoSVG} role="img" aria-label="Tablero de HeroQuest">
           <g transform={`translate(${MARGEN},${MARGEN})`}>
             {verFoto && (
-              <image href={FOTO.archivo} {...encaje} preserveAspectRatio="none" />
+              // `BASE_URL` es `/` en el Mac y `/Hero-Quest/` en la versión
+              // publicada. Escrito a mano, en Pages la foto no aparecería.
+              <image
+                href={`${import.meta.env.BASE_URL}${FOTO.archivo}`}
+                {...encaje}
+                preserveAspectRatio="none"
+              />
             )}
             <g opacity={verFoto ? opacidad : 1}>
               {mapa.map((fila, y) =>
