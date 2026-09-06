@@ -168,6 +168,11 @@ que dura la sesión.
   porcentaje de victorias medido, nunca un retoque de la IA (firma del 2026-09-06). T48
   («qué más mejorar») produce un fichero de propuestas, no código: es Juan Luis quien
   convierte propuestas en tareas.
+- **«Más variedad de monstruos» son dos tareas** (encargo del 2026-09-06): T49 pone
+  especies con las mecánicas de hoy (números, personalidad, nombres; MEDIO) y T50 los
+  poderes que exigen motor (hechizos enemigos, telaraña, emboscada; ALTO, y con una
+  pregunta a Juan Luis antes de que un poder afecte a un héroe). La fuente de esas
+  criaturas es él, citado en el código, porque el reglamento no las trae.
 - **Orden por ficheros compartidos entre las nuevas**: `types.ts` y `partida.ts` los tocan
   T42, T37 y T38, en ese orden; `TurnPanel.tsx`, T11, T22 y T36; `EleccionDeHeroes.tsx` y
   `estilos.css`, T37 y T41; `App.tsx`, T41 y T43; `Juego.tsx`, T11, T36 y T44. Está en cada

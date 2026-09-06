@@ -17,7 +17,7 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-06 13:30Z · por la sesión `s-20260906T103034-b376065f` (la que migró el
+Regenerado: 2026-09-06 13:45Z · por la sesión `s-20260906T103034-b376065f` (la que migró el
 reparto; no reclamó ninguna tarea; recoge el cierre de la 43 por `s-20260906T124346-dd4060bd`)
 
 ## Antes de hacer nada
@@ -228,14 +228,17 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **BLOQUEADA** (45) | |
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | **PENDIENTE** | |
+| 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | **BLOQUEADA** (42) | |
+| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **BLOQUEADA** (49) | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
 **Libres ahora:** 11, 22, 36, 37, 40, 41, 42 y 44 (MEDIO); 48 y 45 (ALTO; 45 mejor cuando
 cierren las cadenas de pantalla, porque toca `Juego.tsx` y `EleccionDeHeroes.tsx`).
-Ninguna de banda BAJO: 43 quedó LISTA (`cd93174`). 38 se libera con 42, y 46 con 45; 15
-espera la palabra de Juan Luis. **Encadenables:** 40+42 (sin ficheros en común); 11+22+36
+Ninguna de banda BAJO: 43 quedó LISTA (`cd93174`). 38 y 49 se liberan con 42, 46 con 45 y
+50 con 49; 15 espera la palabra de Juan Luis. **42 es la que más desbloquea: conviene que
+la primera sesión MEDIO empiece por ella.** **Encadenables:** 40+42 (sin ficheros en común); 11+22+36
 (comparten `TurnPanel.tsx`: seguidas, nunca en paralelo); 37+41 (comparten
 `EleccionDeHeroes.tsx` y `estilos.css`: seguidas). **Sesiones que caben a la vez sin
 estorbarse: cuatro** — una en 40+42, una en 11+22+36, una en 37+41 y una ALTO en 48; 44
