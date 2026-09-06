@@ -17,11 +17,10 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-06 13:20Z · por la sesión `s-20260906T103034-b376065f` (la que migró el
-reparto; no reclamó ninguna tarea). Las regeneraciones de las 12:50Z, 13:15Z y 13:45Z de
-esta misma sesión pintaron libres la 11, la 40 y la 42 cuando ya tenían reclamo: los
-reclamos estaban en las copias de `hechos/` de los worktreks y no en este árbol. Está en
-`hechos/incidencias/` (la 8 de la migración y la de `s-20260906T124421-acb9871f`).
+Regenerado: 2026-09-06 17:35Z · por la sesión `s-20260906T141818-ff83f12c` (coordina; no
+reclamó ninguna tarea). Incorpora la T41 cerrada (`4baf429`, fusionada a las 13:20Z) y las
+fichas T51–T57, escritas por esta sesión a partir de lo que Juan Luis vio probando la
+página publicada (`hechos/notas/s-20260906T141818-ff83f12c.md`). No hay ningún reclamo vivo.
 
 ## Antes de hacer nada
 
@@ -146,7 +145,7 @@ regenera a partir de los demás.
     cortada` y la ruta de la incidencia, suelta con `ABANDONADA` y avisa. La tabla la
     pinta MAL CORTADA y nadie la elige por banda. El recorte lo decide Juan Luis, en una
     sesión sin reclamo que firma `sustituidas/` con sid propio; las tareas nuevas se
-    añaden **al final de la numeración** (la siguiente es la T36) y la vieja se marca con
+    añaden **al final de la numeración** (la siguiente es la T58) y la vieja se marca con
     `hechos/sustituidas/NN--<sid>.md`. Renumerar dejaría apuntando a otra cosa, en
     silencio, a los ficheros de tarea y a todo `hechos/`.
 12. **No modificar nunca** `src/data/board-base.ts` ni `src/data/board-print.ts`, ni
@@ -165,13 +164,16 @@ regenera a partir de los demás.
 14. **Repositorio git.** Cada ficha declara los ficheros que toca; dos tareas que compartan
     uno no van en paralelo. Con otra sesión viva, **worktree propio** (`CLAUDE.md`). `add`
     nunca separado de `commit` (`git commit -m "…" -- rutas`); orden de cierre: pruebas en
-    verde (`npx vitest run` y `npm run typecheck`) → commit del código (sale el hash) →
-    terminada con el hash, `CERRADA`, tablón y ficha → un commit con rutas explícitas (tus
+    verde (`npx vitest run` y `npm run typecheck`) → commit del código → terminada **sin
+    hash todavía**, `CERRADA`, tablón y ficha → un commit con rutas explícitas (tus
     `hechos/` por sid, `_ESTADO.md`, la ficha) → `push`; si el `push` se rechaza, trae lo de
-    los demás y regenera el tablón otra vez en vez de fusionarlo. Un reclamo vivo es una
-    sesión viva, aunque no aparezca en `.claude/sesiones/` ni tenga ficheros reservados; lo
-    que deje preparado (índice, rama de worktree sin fusionar) no se materializa por
-    iniciativa ajena: si su reclamo está vivo, se avisa; si caducó, se releva y se verifica.
+    los demás y regenera el tablón otra vez en vez de fusionarlo → **con el `push` dentro,
+    añade a la terminada el hash que el commit del código tiene en `origin/main`** y empuja
+    esa línea: cada rebase cambia el hash, y la T42 y la T41 tuvieron que corregir el suyo
+    (`proyecto.md`, «Orden de cierre»). Un reclamo vivo es una sesión viva, aunque no
+    aparezca en `.claude/sesiones/` ni tenga ficheros reservados; lo que deje preparado
+    (índice, rama de worktree sin fusionar) no se materializa por iniciativa ajena: si su
+    reclamo está vivo, se avisa; si caducó, se releva y se verifica.
 
 ## Tabla de tareas
 
@@ -221,46 +223,54 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 19 | T19 · Una puerta se abre también desde la diagonal | tareas/T19-abrir-puertas-en-diagonal.md | regla de la casa firmada (2026-09-05) | 2 h | MEDIO | — | `board.ts`, `reducer.ts`, `selectors.ts`, tests | manual | LISTA (`c08bbc0`) | |
 | 20 | T20 · El turno de Zargon pasa sin que el diario lo cuente | tareas/T20-el-turno-de-zargon-no-se-cuenta.md | ninguna | 2 h | MEDIO | — | `types.ts`, `reducer.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`740f54a`) | |
 | 21 | T21 · Siete hechizos de doce no dejan rastro | tareas/T21-hechizos-sin-rastro-en-el-diario.md | ninguna (no a la vez que 20) | 2 h | MEDIO | — | `types.ts`, `reducer.ts`, `narrator/local.ts`, tests | manual | LISTA (`72a7c7f`) | |
-| 22 | T22 · Saber qué hace cada hechizo antes de lanzarlo | tareas/T22-que-hace-cada-hechizo.md | `src/ui/Instrucciones.tsx` en `main` · **cumplida** (`b47310f`) | 2 h | MEDIO | 11, 36 | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css`, tests | manual | **PENDIENTE** | |
+| 22 | T22 · Saber qué hace cada hechizo antes de lanzarlo | tareas/T22-que-hace-cada-hechizo.md | `src/ui/Instrucciones.tsx` en `main` · **cumplida** (`b47310f`) · no a la vez que 52, 36 (`TurnPanel.tsx`) ni 54 (`HeroSheet.tsx`) | 2 h | MEDIO | 52, 36 | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css`, tests | manual | **PENDIENTE** | |
 | 30 | T30 · El relevo de acciones | tareas/T30-relevo-de-acciones.md | ninguna | 4 h | ALTO | — | `server/`, `src/red/protocolo.ts`, `tests/red-protocolo.test.ts` | manual | LISTA (`6b07f82`) · el despliegue espera firma en `autorizaciones.md` | |
 | 31 | T31 · La partida en red, en el cliente | tareas/T31-sesion-de-red.md | 30 LISTA | 4 h | ALTO | — | `src/red/cliente.ts`, `usePartida.ts`, `tests/red-cliente.test.ts` | manual | LISTA (`15c852a`) | |
 | 32 | T32 · La pantalla de quien juega desde su casa | tareas/T32-vista-del-heroe-remoto.md | 31 y 18 LISTA | 4 h | ALTO | — | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `App.tsx`, `estilos.css`, tests | manual | LISTA (`be4adf6`) | |
 | 33 | T33 · Quién tira los dados de quien juega desde su casa | tareas/T33-quien-tira-los-dados.md | 31 LISTA | 2 h | MEDIO | — | `TurnPanel.tsx`, `DiceInput.tsx`, `useAccionesDeTurno.ts`, tests | manual | LISTA (`db96bf2`) | |
 | 34 | T34 · Publicar la aplicación en GitHub Pages | tareas/T34-publicar-en-pages.md | firma de Pages (firmada 2026-09-06) | 2 h | MEDIO | — | `.github/workflows/pages.yml`, `vite.config.ts`, `README.md`, `main.tsx`, `BoardVerify.tsx` | manual | LISTA (`2994ffc`) | |
 | 35 | T35 · La salida crece con el grupo | tareas/T35-la-salida-crece-con-el-grupo.md | 16 LISTA | 1 h | MEDIO | — | `partida.ts`, `tests/ocho-heroes.test.ts` | manual | LISTA (`87ea055`) | |
-| 36 | T36 · Todos los dados los tira la aplicación | tareas/T36-dados-siempre-automaticos.md | ninguna (firma del 2026-09-06 en `autorizaciones.md`) | 2 h | MEDIO | 22 | `useAccionesDeTurno.ts`, `DiceInput.tsx`, `VistaDeHeroe.tsx`, `Juego.tsx`, `TurnPanel.tsx`, tests | manual | **PENDIENTE** | |
-| 37 | T37 · Un icono para cada héroe | tareas/T37-iconos-de-heroes.md | ninguna · no a la vez que 42, 38, 41 | 3 h | MEDIO | 41 | `iconos.tsx` (nuevo), `BoardMirror.tsx`, `EleccionDeHeroes.tsx`, `types.ts`, `partida.ts`, `estilos.css`, tests | manual | **PENDIENTE** | |
-| 38 | T38 · Monstruos agresivos, miedosos y prudentes | tareas/T38-monstruos-agresivos-y-miedosos.md | 42 LISTA | 4 h | ALTO | — | `src/ai/`, `types.ts`, `partida.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** (42 LISTA) | |
-| 39 | T39 · El diario en dos modos: informe y relato | tareas/T39-diario-informe-y-relato.md | 42 LISTA (firma del relato, 2026-09-06) | 4 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts` y `frases.ts` (nuevos), `MasterLog.tsx`, tests | manual | **PENDIENTE** (42 LISTA) | |
+| 36 | T36 · Todos los dados los tira la aplicación | tareas/T36-dados-siempre-automaticos.md | ninguna (firma del 2026-09-06 en `autorizaciones.md`) · no a la vez que 52, 22 (`TurnPanel.tsx`), 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 52, 22 | `useAccionesDeTurno.ts`, `DiceInput.tsx`, `VistaDeHeroe.tsx`, `Juego.tsx`, `TurnPanel.tsx`, tests | manual | **PENDIENTE** | |
+| 37 | T37 · Un icono para cada héroe | tareas/T37-iconos-de-heroes.md | ninguna · no a la vez que 51 (`BoardMirror.tsx`), 53, 54, 38 (`types.ts`) | 3 h | MEDIO | — | `iconos.tsx` (nuevo), `BoardMirror.tsx`, `EleccionDeHeroes.tsx`, `types.ts`, `partida.ts`, `estilos.css`, tests | manual | **PENDIENTE** | |
+| 38 | T38 · Monstruos agresivos, miedosos y prudentes | tareas/T38-monstruos-agresivos-y-miedosos.md | 42 LISTA · no a la vez que 49 (`personalities.ts`), 53, 54, 37 (`types.ts`), 45 (`simular.ts`) | 4 h | ALTO | — | `src/ai/`, `types.ts`, `partida.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** (42 LISTA) | |
+| 39 | T39 · El diario en dos modos: informe y relato | tareas/T39-diario-informe-y-relato.md | 42 LISTA (firma del relato, 2026-09-06) · no a la vez que 53, 54 (`narrator/local.ts`) | 4 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts` y `frases.ts` (nuevos), `MasterLog.tsx`, tests | manual | **PENDIENTE** (42 LISTA) | |
 | 40 | T40 · Todas las salas con puerta en la primera misión | tareas/T40-todas-las-salas-con-puerta.md | ninguna | 2 h | MEDIO | 42 | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | LISTA (`3eef6dc`) | |
-| 41 | T41 · El logotipo y las imágenes de ambientación | tareas/T41-logotipo-y-ambientacion-visual.md | ninguna (firma del 2026-09-06) · no a la vez que 37, 43 | 3 h | MEDIO | 37 | `public/`, `App.tsx`, `EleccionDeHeroes.tsx`, `Transicion.tsx` (nuevo), `estilos.css` | manual | **EN CURSO** | `s-20260906T125522-43d82a6b` · caduca 18:55Z |
+| 41 | T41 · El logotipo y las imágenes de ambientación | tareas/T41-logotipo-y-ambientacion-visual.md | ninguna (firma del 2026-09-06) · no a la vez que 37, 43 | 3 h | MEDIO | 37 | `public/`, `App.tsx`, `EleccionDeHeroes.tsx`, `Transicion.tsx` (nuevo), `estilos.css` | manual | LISTA (`4baf429`, fusionada en `main` a las 13:20Z; 474 tests) | |
 | 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`372a0f0`, fusionada en `main` a las 13:15Z; 467 tests) | |
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
-| 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 11, 36 | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | **PENDIENTE** | |
-| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 11, 36, 37, 38, 41, 44 | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** | |
-| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **BLOQUEADA** (45) | |
+| 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | **PENDIENTE** | |
+| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** | |
+| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **BLOQUEADA** (45) | |
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | **PENDIENTE** | |
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | **PENDIENTE** (42 LISTA; no a la vez que 38) | |
-| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **BLOQUEADA** (49) | |
+| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **BLOQUEADA** (49) | |
+| 51 | T51 · Un héroe pisa una trampa y tiene que pasarle algo | tareas/T51-las-trampas-saltan-al-pisarlas.md | ninguna · no a la vez que 53, 54, 50 (`reducer.ts`) ni 37 (`BoardMirror.tsx`) | 1,5 h | ALTO | 53, 54 | `reducer.ts`, `BoardMirror.tsx`, `tests/reducer.test.ts` | manual | **PENDIENTE** | |
+| 52 | T52 · En el turno de Zargon no salen los mandos de los héroes | tareas/T52-el-turno-de-zargon-sin-mandos-de-heroe.md | ninguna · no a la vez que 36, 22 (`TurnPanel.tsx`) ni 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 36, 22 | `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `tests/turno-automatico.test.ts` | manual | **PENDIENTE** | |
+| 53 | T53 · El pergamino del guardián: la misión tiene encargo | tareas/T53-el-pergamino-del-guardian.md | 51 LISTA · no a la vez que 54, 50 (`reducer.ts`), 37, 38 (`types.ts`), 39 (`narrator`), 45 (`simular.ts`) | 3 h | ALTO | 54 | `types.ts`, `reducer.ts`, `quests/calabozo.ts`, `narrator/local.ts`, `scripts/simular.ts`, `tests/quest.test.ts`, `tests/reducer.test.ts` | manual | **BLOQUEADA** (51) | |
+| 54 | T54 · Pociones que se guardan y equipo que se encuentra | tareas/T54-pociones-y-equipo-entre-el-tesoro.md | 53 LISTA · no a la vez que 50, 37, 38, 39, 22 (`HeroSheet.tsx`) | 4 h | ALTO | 55 | `types.ts`, `partida.ts`, `reducer.ts`, `selectors.ts`, `combat.ts`, `treasure.ts`, `narrator/local.ts`, `HeroSheet.tsx`, tests, `imprimibles/` | manual | **BLOQUEADA** (53) | |
+| 55 | T55 · Las diecisiete salas nuevas del calabozo, con algo dentro | tareas/T55-las-salas-nuevas-pobladas.md | 53 y 54 LISTA · no a la vez que 46 | 3 h | ALTO | — | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | **BLOQUEADA** (53, 54) | |
+| 56 | T56 · Dos arreglos del entorno: vitest y `preview` | tareas/T56-dos-arreglos-del-entorno.md | ninguna | 30 min | BAJO | 57 | `vite.config.ts`, `README.md`, `tareas/_COMUN.md` | manual | **PENDIENTE** | |
+| 57 | T57 · Descargar la partida: un registro con el que encontrar los fallos | tareas/T57-descargar-la-partida.md | ninguna | 2 h | MEDIO | 56 | `registroDePartida.ts` (nuevo), `usePartida.ts`, `App.tsx`, `scripts/repetir.ts` (nuevo), `package.json`, `README.md`, tests | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** 22, 36, 37, 39, 44 y 49 (MEDIO); 38, 45 y 48 (ALTO). Ninguna BAJO.
-**Por ficheros, sin chocar con el único reclamo vivo (la 41, `EleccionDeHeroes.tsx`,
-`App.tsx`, `estilos.css`) ni entre sí:** **22+36** (MEDIO, encadenadas: `TurnPanel.tsx`),
-**39** (MEDIO), **44** (MEDIO; `Juego.tsx`; no a la vez que la 36), **49** (MEDIO), **38**
-(ALTO; no a la vez que 49: `personalities.ts`) y **48** (ALTO). Es decir: 22+36, 39, 49 y
-48 pueden ir a la vez; 44 espera a la 36, 38 a la 49. **Cuando cierre la 41:** 37 (MEDIO;
-también comparte `types.ts` con 38) y 45 (ALTO). 46 se libera con 45, 50 con 49; 15
-espera la palabra de Juan Luis.
+**Libres por estado:** 22, 36, 37, 39, 44, 49, 52 y 57 (MEDIO); 38, 45, 48 y 51 (ALTO); 56
+(BAJO). **Sin ningún reclamo vivo.**
 
-**Encadenables:** 22+36 (comparten `TurnPanel.tsx`: seguidas, nunca en paralelo). La cuenta
-anterior de «cuatro sesiones a la vez» estaba mal: daba por independientes 40+42 y 11+22+36, y
-la 42 toca `TurnPanel.tsx` igual que la 11, la 22 y la 36 (lo dijo
-`hechos/incidencias/s-20260906T124412-0cdb5d41.md`). **Sesiones que caben a la vez sin
-estorbarse ahora mismo: cuatro nuevas** (22+36, 39, 49 y 48), además de la viva (41).
+**Por ficheros, sin chocar entre sí, ahora mismo:** **57** (MEDIO; no choca con nadie),
+**51 → 53 → 54 → 55** (ALTO, encadenadas: `reducer.ts`, `types.ts`, `calabozo.ts`),
+**52 → 36 → 22** (MEDIO, encadenadas: `TurnPanel.tsx`), **49** (MEDIO), **48** (ALTO) y
+**56** (BAJO; una sesión MEDIO puede hacer 56 y después 57). Es decir: **seis sesiones a la
+vez**, cinco si 56 y 57 van juntas. **Esperan:** 37 (a 51 por `BoardMirror.tsx` y a 54 por
+`types.ts`), 38 (a 54 y a 49), 39 (a 54 por el narrador), 44 (a la cadena 52 → 36 → 22 por
+`Juego.tsx`), 45 (a esa misma cadena y a 53 por `simular.ts`), 46 (a 45), 47 (a 46), 50 (a
+49 y a 55). 15 espera la palabra de Juan Luis.
+
+**Encadenables:** 51 → 53 → 54 → 55 y 52 → 36 → 22 comparten ficheros dentro de cada
+cadena: seguidas, nunca en paralelo. 56 → 57 son independientes y solo se encadenan por
+cortas.
 
 ## Registro de finalizaciones
 
@@ -272,6 +282,7 @@ terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
 
+- LISTA · tarea 41 · 2026-09-06 13:20 · `s-20260906T125522-43d82a6b` · logotipo grande en la elección y en una pantalla de paso (`Transicion.tsx`, nueva), pequeño en la barra; textura de piedra en SVG; el PNG de Juan Luis tenía fondo blanco opaco y se recortó; 474 tests / 34 ficheros tras el rebase (+7 suyos, `tests/imagenes.test.ts`); typecheck y build en verde · `public/`, `App.tsx`, `EleccionDeHeroes.tsx`, `Transicion.tsx`, `estilos.css`, `data/imagenes.ts` · `4baf429` (la terminada decía `ed12384` y se corrigió en `2d1408a`)
 - LISTA · tarea 42 · 2026-09-06 13:15 · `s-20260906T124412-0cdb5d41` · doce nombres por especie; asignación en `crearPartida` con un generador **derivado** de la semilla (`crearRng(semilla + 0x5bf03635)`), para no mover el del estado ni el barajado ni las tiradas (hay un test que lo fija); 467 tests con T11 y T40 dentro · `data/nombres.ts`, `partida.ts`, `types.ts`, `reducer.ts`, `narrator/local.ts`, `TurnPanel.tsx` · `372a0f0` (hechos en `7a4f0ee`)
 - LISTA · tarea 40 · 2026-09-06 13:01 · `s-20260906T124430-0169046b` · sin puerta: 0 (25 puertas); 437 tests; medido con `npm run sim`: la misión pasa de 8 a 15-18 rondas de media · `quests/calabozo.ts`, `tests/quest.test.ts` · `3eef6dc`
 - LISTA · tarea 11 · 2026-09-06 13:01 · `s-20260906T124421-acb9871f` · el turno de Zargon se juega solo a ritmo de mesa; 431 → 444 tests, 12 nuevos; typecheck y build en verde · `useTurnoDeZargon.ts` (nuevo), `useAccionesDeTurno.ts`, `Juego.tsx`, `TurnPanel.tsx` · `02499a8`, fusionado en `649b35b`
@@ -308,16 +319,24 @@ leerlo antes de tocar el motor, la IA o la red.
 
 ## Incidencias de coordinación
 
-Derivado de `hechos/incidencias/`. Cuatro ficheros. Tres de las sesiones de la tarde:
+Derivado de `hechos/incidencias/`. Cinco ficheros. Cuatro de las sesiones de la tarde:
 
+- **`s-20260906T125522-43d82a6b.md` (la de la 41):** `npm run preview` (vite 7.3.6)
+  responde 404 a toda petición con `Sec-Fetch-Dest: script`, incluido `index.html`: la
+  página sale en blanco y no se puede comprobar la construcción en local con lo que el
+  repositorio recomienda; Pages no está afectado. Receta que funciona: servir `dist/`
+  con `python3 -m http.server` bajo un enlace `Hero-Quest`. Y el PNG del logotipo era
+  RGBA con fondo **blanco opaco**. Las dos cosas están en **T56** (la receta al README) y
+  en la ficha de T41. Además, su terminada dejó dicho que el hash se escribió antes del
+  último rebase y hubo que corregirlo: recogido en el orden de cierre (regla 14,
+  `proyecto.md`, `_COMUN.md`).
 - **`s-20260906T124421-acb9871f.md` (la de la 11):** las regeneraciones del tablón de las
   13:15Z y 13:45Z pintaron libres la 11 y la 42 con reclamo vivo, porque los reclamos
   estaban en copias de `hechos/` de los worktrees. Y una trampa: `npx vitest run` en el
   árbol principal cuenta los tests de los worktrees de las demás sesiones (3072 en vez de
   450); arreglo en `vite.config.ts` con `exclude: ['**/node_modules/**', '**/dist/**',
-  '**/.claude/**']`, que no está en la ficha de nadie: **tarea de una línea para quien
-  Juan Luis diga**. Mientras tanto: `npx vitest run --exclude "**/node_modules/**"
-  --exclude "**/.claude/**"`.
+  '**/.claude/**']`: **es la T56**. Mientras tanto: `npx vitest run --exclude
+  "**/node_modules/**" --exclude "**/.claude/**"`.
 - **`s-20260906T124412-0cdb5d41.md` (la de la 42):** la 42 y la 11 comparten
   `TurnPanel.tsx` y fueron en paralelo; se coordinaron por mensajes. La cuenta de sesiones
   del tablón las daba por independientes.

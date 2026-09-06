@@ -125,6 +125,25 @@ texto completo de cada una sigue en `_ESTADO-antiguo-2026-09-06.md`.
   descargado, con licencia que permita usarlo y con su origen apuntado.
   Firma y fecha: Juan Luis, 2026-09-06
 
+- **La primera misión tiene encargo: el pergamino del guardián (T53).** Tras probar la
+  página el 2026-09-06: «No le asigna ninguna misión a los héroes. No les dice qué tienen
+  que hacer. Sugerencia: “…Debéis encontrar un pergamino custodiado por una bestia del
+  inframundo…”. Cuando los héroes maten al Famir y busquen tesoros encontrarán el
+  pergamino y habrán terminado la misión.» Regla de diseño de misión: la misión termina
+  al encontrar el pergamino buscando tesoro en la sala del guardián, con el guardián
+  muerto. Transcrita de la conversación por la sesión `s-20260906T141818-ff83f12c`.
+  Firma y fecha: Juan Luis, 2026-09-06
+
+- **El tesoro trae pociones que se guardan y curan a otro héroe, y equipo (T54, T55).**
+  El mismo día: «Si la idea es que la misión sea fácil de llevar a cabo, puedes poner
+  pociones curativas en las habitaciones, de manera que cuando un héroe busque un tesoro,
+  encuentre, además de monedas, gemas, etc, alguna poción curativa que le restituya a él o
+  a otro héroe los puntos de vida perdidos. También pueden hallar armas, escudos, yelmos,
+  etc que les otorguen más puntos de ataque o de defensa a los héroes.» Y las salas de la
+  primera misión se pueblan: «Debería haber monstruos, tesoros, etc.» Transcrita de la
+  conversación por la sesión `s-20260906T141818-ff83f12c`.
+  Firma y fecha: Juan Luis, 2026-09-06
+
 ## Pendientes de su palabra
 
 Eran la sección «Pendientes de su palabra» del tablón viejo. Ninguna sesión se las puede

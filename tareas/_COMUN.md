@@ -54,7 +54,15 @@ solo escritor.
   El arreglo de raíz es una línea en `vite.config.ts`, dentro de `test`:
   `exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**']` (hay que repetir los
   dos primeros: dar `exclude` sustituye el valor por defecto). Lo encontraron por separado
-  las sesiones de la T40 y la T11 el 2026-09-06; está sin hacer porque no es de ninguna ficha.
+  las sesiones de la T40 y la T11 el 2026-09-06; **es la T56**, y hasta que cierre vale el
+  `--exclude` de arriba.
+- **El hash de la terminada se escribe después del último `push`, no antes.** Cada rebase
+  cambia el hash del commit del código; la T42 y la T41 lo escribieron antes de que el
+  `push` entrara y las dos tuvieron que añadir una corrección. El orden exacto está en
+  `proyecto.md`, «Orden de cierre».
+- **`npm run preview` no sirve la página** en vite 7.3.6 (404 a todo lo que pida el
+  navegador como script): la receta que sí funciona está en
+  `hechos/incidencias/s-20260906T125522-43d82a6b.md` y pasa al README con la T56.
 - **Al cerrar vuelves al árbol principal, y allí sí lo compartes con las demás sesiones.**
   Con otra sesión viva, el código se edita en un worktree propio (`CLAUDE.md`), pero el
   reclamo se abre en el árbol principal antes de entrar y `hechos/` y el tablón se

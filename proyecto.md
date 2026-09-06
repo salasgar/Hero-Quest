@@ -64,10 +64,15 @@ worktree por sesión** si hay otra sesión viva (`CLAUDE.md`: `EnterWorktree` y 
 `node_modules`); `hechos/` es común porque vive en git y se fusiona sin conflicto (un
 escritor por fichero). `add` nunca separado de `commit`: `git commit -m "…" -- ruta1 ruta2`.
 Orden de cierre: pruebas en verde (`npx vitest run` y `npm run typecheck`) → commit del
-código, solo los ficheros de la ficha (sale el hash) → terminada con el hash, `CERRADA`,
+código, solo los ficheros de la ficha → terminada **sin hash todavía**, `CERRADA`,
 incidencias, tablón y trampas en la ficha → un commit con rutas explícitas (tus `hechos/` por
 sid, `_ESTADO.md`, la ficha) → `push`; si el `push` se rechaza, se trae lo de los demás, se
-**regenera** `_ESTADO.md` otra vez desde `hechos/` y se vuelve a comitear. Tope de procesos:
+**regenera** `_ESTADO.md` otra vez desde `hechos/` y se vuelve a comitear → **cuando el
+`push` entra, se añade a la terminada la línea con el hash que tiene el commit del código
+en `origin/main`** (`git log origin/main --oneline -- <fichero de la ficha>`) y se empuja
+esa línea. El hash se escribe al final porque cada rebase lo cambia: la T42 y la T41
+escribieron el suyo antes del último `push` y las dos tuvieron que corregirlo después
+(`0cc2cf5`, `2d1408a`). Tope de procesos:
 ninguno fijado; si alguna ficha lo fija, se anota en `hechos/recursos/<sid>.md`.
 
 ## Bandas de modelo
@@ -205,6 +210,15 @@ que dura la sesión.
   T42, T37 y T38, en ese orden; `TurnPanel.tsx`, T11, T22 y T36; `EleccionDeHeroes.tsx` y
   `estilos.css`, T37 y T41; `App.tsx`, T41 y T43; `Juego.tsx`, T11, T36 y T44. Está en cada
   ficha y en el tablón.
+- **T51 a T57 salen de lo que Juan Luis vio probando la página publicada el 2026-09-06**
+  (cuatro fallos y el registro de partida), escritas por la sesión
+  `s-20260906T141818-ff83f12c` (`hechos/notas/`). **Las misiones nuevas empiezan en T58**,
+  no en T51 como decía el traspaso anterior: las tareas se añaden al final. Orden por
+  ficheros que añaden: `reducer.ts`, T51 → T53 → T54 → T50, de una en una; `TurnPanel.tsx`
+  y `useAccionesDeTurno.ts`, T52 → T36 → T22; `types.ts`, T53, T54 y después T37, T38, T50;
+  `narrator/local.ts`, T53, T54 y después T39, T50; `BoardMirror.tsx`, T51 y después T37;
+  `HeroSheet.tsx`, T54 y T22; `scripts/simular.ts`, T53 y después T38, T45. T57 (`App.tsx`,
+  `usePartida.ts`) y T48 no chocan con nadie.
 - **El tablón viejo se conserva renombrado** (`_ESTADO-antiguo-2026-09-06.md`) para que los
   rastros que lo citan —commits, fichas, TRASPASO.md— sigan teniendo a dónde apuntar. Todo lo
   que decía de estado se ha derivado a `hechos/`; lo que decía de firmas, a
