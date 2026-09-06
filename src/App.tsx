@@ -8,10 +8,7 @@ import { Instrucciones } from "./ui/Instrucciones";
 import { Juego } from "./ui/Juego";
 import { VistaDeHeroe } from "./ui/VistaDeHeroe";
 
-type Pantalla = "juego" | "verificar";
-
 export default function App() {
-  const [pantalla, setPantalla] = useState<Pantalla>("juego");
   // Las instrucciones se abren **encima** de lo que haya, no en lugar de ello:
   // se consultan en mitad de una tirada, y la partida vive en el estado de
   // `Juego`. Desmontarlo para enseñar una tabla borraría la partida entera.
@@ -29,6 +26,16 @@ export default function App() {
    * vez en la misma partida, porque el código sigue en la barra de direcciones.
    */
   const [codigoRecibido] = useState<string | null>(() => codigoDelEnlace());
+
+  // Puerta trasera para cotejar el tablero físico con la foto de referencia:
+  // sin botón, solo se llega con `?verificar` en la URL.
+  const [verificarPorUrl] = useState<boolean>(
+    () => new URLSearchParams(window.location.search).has("verificar"),
+  );
+
+  if (verificarPorUrl) {
+    return <BoardVerify />;
+  }
 
   // Quien abre un enlace no elige grupo ni misión: eso lo decidió la mesa. Va
   // directo a decir quién es, y de ahí a jugar.
@@ -50,35 +57,20 @@ export default function App() {
   return (
     <>
       <nav className="navegacion">
-        <button
-          className={pantalla === "juego" ? "sel" : ""}
-          onClick={() => setPantalla("juego")}
-        >
-          Partida
-        </button>
-        <button
-          className={pantalla === "verificar" ? "sel" : ""}
-          onClick={() => setPantalla("verificar")}
-        >
-          Verificar tablero
-        </button>
+        <button className="sel">Partida</button>
         <button
           className={verInstrucciones ? "sel" : ""}
           onClick={() => setVerInstrucciones((v) => !v)}
         >
           Instrucciones
         </button>
-        {pantalla === "juego" && grupo && (
-          <button onClick={() => setGrupo(null)}>Cambiar héroes</button>
-        )}
-        {pantalla === "juego" && grupo && !creandoRed && (
+        {grupo && <button onClick={() => setGrupo(null)}>Cambiar héroes</button>}
+        {grupo && !creandoRed && (
           <button onClick={() => setCreandoRed(true)}>Jugar con alguien fuera</button>
         )}
       </nav>
       {verInstrucciones && <Instrucciones alCerrar={() => setVerInstrucciones(false)} />}
-      {pantalla === "verificar" ? (
-        <BoardVerify />
-      ) : creandoRed && grupo ? (
+      {creandoRed && grupo ? (
         <CrearPartidaEnRed
           heroes={grupo}
           alEntrar={setSesion}
