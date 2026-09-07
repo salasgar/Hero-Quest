@@ -1,6 +1,6 @@
 # Traspaso — HeroQuest
 
-Actualizado: 2026-09-07 07:55Z · Sesión que lo escribe: `s-20260906T141818-ff83f12c` (la
+Actualizado: 2026-09-07 08:05Z · Sesión que lo escribe: `s-20260906T141818-ff83f12c` (la
 que coordinó tras la migración: escribió T51–T58 con lo que Juan Luis vio probando la
 página publicada, y a la mañana siguiente reconcilió `main` y cerró la 56 por relevo)
 
@@ -23,14 +23,15 @@ Aquí solo lo que el tablón no recoge.
 - 51 fichas (T1–T22, T30–T58). La tarde del 6 de septiembre se abrieron seis sesiones y
   cerraron **36, 48, 49, 51, 52, 53, 56 y 57**; todo está en `origin/main` (la 57 trae el
   botón «Descargar partida» y `npm run repetir`; la 48, `tareas/_PROPUESTAS-2026-09.md`,
-  quince propuestas que **Juan Luis tiene que elegir**). Quedan sin empezar 22 (relevable),
-  37, 38, 39, 44, 45, 50, 54, 55, 58 y las bloqueadas 46, 47, 15.
-- A las 07:43Z del día 7 la sesión de la 53 (`s-20260906T174714-651b3481`) volvió de una
-  pausa nocturna, empujó su cierre y anunció que reclamaba la **54** a continuación (su
-  cadena es 51 → 53 → 54 → 55). **Comprueba en `hechos/reclamos/` si el reclamo 54 existe**
-  antes de dar la 54 por libre.
-- La **22** la reclamó `s-20260906T174532-9cbd624b` a las 18:18Z del día 6 y no hizo nada
-  más (su worktree está limpio, en el commit del reclamo): caducada, RELEVABLE.
+  quince propuestas que **Juan Luis tiene que elegir**). Con la mañana del 7 (abajo)
+  quedan sin empezar 37, 38, 39, 44, 45, 50 y 58, la 55 en curso, y las bloqueadas 46,
+  47 y 15.
+- La mañana del día 7 las dos sesiones que parecían muertas volvieron de una pausa
+  nocturna: la de la cadena 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) cerró la 53
+  (`a60b7e5`) y la **54** (`1afe8c4`) y tiene reclamada la **55** (`10d4e2f`); la de la
+  cadena 52 → 36 → 22 (`s-20260906T174532-9cbd624b`) cerró la **22** (`3afd724`). Lección
+  que ya está en el tablón: un reclamo caducado con la sesión en pausa no es una sesión
+  muerta; antes de relevar, mirar si su rama avanza.
 - La **56** la hizo `s-20260906T174758-05906208` pero fusionó en el `main` local sin
   empujar y dejó la terminada sin rastrear; esta sesión rebasó, verificó (514 tests),
   empujó (`7ae9fb9`) y la cerró por relevo. Incidencia en `hechos/incidencias/`.
@@ -39,16 +40,16 @@ Aquí solo lo que el tablón no recoge.
 
 ## Siguiente paso
 
-1. `git pull`, listar `hechos/reclamos/` y mirar si la 54 tiene reclamo vivo de
-   `s-20260906T174714-651b3481`; si no lo tiene y su rama no avanza, la 54 → 55 (ALTO) es
-   la primera frase que hay que dar. Si lo tiene, dejarla.
+1. `git pull` y listar `hechos/reclamos/`: la única viva debería ser la **55**
+   (`s-20260906T174714-651b3481`); el tablón lo dice, pero se comprueba contra `hechos/`.
 2. Frases de arranque, **una por sesión, con su tarea o cadena dentro**, para lo que cabe
-   a la vez sin chocar: **58** (MEDIO; `BoardMirror.tsx` y `estilos.css`), **44** (MEDIO;
-   `Juego.tsx`), **45** (ALTO; no a la vez que 44 por `Juego.tsx`), y **22 por relevo**
-   (MEDIO; abre el reclamo con `releva a: s-20260906T174532-9cbd624b`; no a la vez que 54
-   por `HeroSheet.tsx` ni que 58 por `estilos.css`, así que va después de la 58). Después:
-   37 (tras 58 y 54), 39 y 38 (tras 54; 38 además tras 49, que ya está), 46 (tras 45), 50
-   (tras 49 y 55).
+   a la vez sin chocar mientras la 55 sigue en curso (solo toca `calabozo.ts` y
+   `tests/quest.test.ts`): **58 → 37** (MEDIO; `BoardMirror.tsx`, `estilos.css`, y la 37
+   ya no espera a nadie porque 54 cerró), **39** (MEDIO; el narrador quedó libre al cerrar
+   54), **44** (MEDIO; `Juego.tsx`), **45** (ALTO; no a la vez que 44 por `Juego.tsx` ni
+   que 37 por `EleccionDeHeroes.tsx`) y **38** (ALTO; `types.ts` libre; no a la vez que 37
+   ni 45). Después: 46 (tras 45), 50 (tras 55; `reducer.ts`). 15 sigue esperando la
+   palabra de Juan Luis.
 3. Pedirle a Juan Luis dos cosas: que **elija entre las quince propuestas** de
    `tareas/_PROPUESTAS-2026-09.md` (cada elegida es una ficha nueva, T59 en adelante), y que
    **baje la partida** en la que vio los fallos («Descargar partida», en la barra) y la deje
@@ -125,6 +126,12 @@ tareas en sí las hacen las sesiones con la banda de su ficha.
 - Cuando Juan Luis cuenta un fallo visto en la página, la respuesta es una ficha con el
   diagnóstico medido en el código (qué línea, qué test lo fija) y su cita del reglamento
   si es regla, no un arreglo a ojo.
+- **Las skills `reparto` y `traspaso` no se tocan desde este proyecto.** Su fuente es
+  `mejora-skills/skills-fuente.zip`, que estas sesiones no alcanzan; `~/.claude/skills/`
+  son copias. Un fallo en una skill se entrega como **propuesta en texto** para la sesión
+  que Juan Luis tiene dedicada a las skills (qué cambiar, dónde, por qué), nunca como
+  edición ni como zip. El 2026-09-07 se propuso así el añadir la banda a la frase del
+  traspaso; la memoria del proyecto que decía lo contrario está corregida.
 
 ## Contexto que no está en los archivos
 
