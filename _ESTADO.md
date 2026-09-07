@@ -17,26 +17,22 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-07 20:58Z · por la sesión `s-20260907T205459-25b4f867`, al cerrar la 63.
-La versión de las 20:46Z (`s-20260907T204516-bef22ac6`, al reclamar la 37) se quedó corta:
-no recogía la 45 ni la 64, que ya tenían reclamo en `origin/main` en ese momento
-(`hechos/reclamos/45--s-20260907T204636-b565f64a.md`,
-`hechos/reclamos/64--s-20260907T204555-0c3c3d69.md`), así que decía «libres» de dos tareas
-ya cogidas. Contra `hechos/` de verdad cambian, sobre esa versión: la **45 pasa a EN CURSO**
-(`s-20260907T204636-b565f64a`, caduca 2026-09-08T04:46:36Z), la **64 pasa a EN CURSO**
-(`s-20260907T204555-0c3c3d69`, caduca 2026-09-07T22:45:55Z) y la **63 pasa a LISTA** (este
-cierre, `MasterLog.tsx`, `f7f05ac`). Queda libre solo la **65** (BAJO).
+Regenerado: 2026-09-07 20:59Z · por la sesión `s-20260907T205835-39ec5559`, al relevar la 61.
+Sobre la regeneración de las 20:58Z (`s-20260907T205459-25b4f867`, al cerrar la 63), que ya
+recogía que la 45 y la 64 estaban EN CURSO (retomadas tras la caída) y la 63 LISTA, cambia
+solo la **61**, que pasa a **EN CURSO (relevada)** con este reclamo (`releva a:
+s-20260907T204408-8af444b9`, huérfano desde la caída de las ~20:50Z). Sigue **EN CURSO** la
+**37** (`s-20260907T204516-bef22ac6`), huérfana también y sin sesión detrás en el chat entre
+sesiones a las 20:56Z: esta sesión no la releva porque no comparte ficheros con la 61 y
+`hero-quest-b0` ya avisó a otra sesión para que la coja. Queda libre solo la **65** (BAJO).
 
-**Las cinco sesiones de las 20:44–20:46Z (37, 45, 61, 63 y 64) cayeron a la vez a las
-~20:50Z** y sus reclamos siguen vivos en `origin/main`. La 63 ya tenía el código y la
-terminada commiteados en su worktree y su reclamo `CERRADA`; la ha cerrado del todo la
-sesión `s-20260907T205459-25b4f867` (latido «reabierta como…» en el propio reclamo, sin
-`releva a:` porque el reclamo no había caducado y su sesión no revivió). La 45 la retomó
-`s-20260907T205335-e738c893` y la 64 `s-20260907T205502-6241d5c8` (latido de las 20:56:40Z,
-`08d4852`), las dos con el mismo latido «reabierta como…». **37 y 61 siguen con reclamo
-vivo pero sin sesión detrás** en el momento de regenerar: las dos tienen worktree sin
-código. Quien las retome escribe el mismo latido en su reclamo y lo dice a las demás
-sesiones; si sus reclamos caducan sin más, se relevan como siempre.
+**Resumen de la caída de las 20:50Z**, para quien no la haya visto: las cinco sesiones
+abiertas entre las 20:44 y las 20:46Z (37, 45, 61, 63 y 64) se cortaron a la vez hacia esa
+hora, con sus reclamos vivos en `origin/main`. La 63 ya tenía el código y la terminada
+commiteados en su worktree; se cerró del todo por `s-20260907T205459-25b4f867`. La 45 la
+retomó `s-20260907T205335-e738c893`, la 64 `s-20260907T205502-6241d5c8` y la 61 esta
+sesión; las tres con un latido «reabierta como…» o `releva a:` en su reclamo. Solo la 37
+sigue huérfana a esta hora.
 
 El reclamo de la 62 **estuvo caducado mientras se cerraba la tarea** (caducaba a las
 18:50Z y se cerró a las 20:45Z, sin latido en medio). Nadie la relevó —ningún reclamo
@@ -281,7 +277,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 58 | T58 · Al pasar el ratón por una figura, su ficha en un cuadro flotante | tareas/T58-ficha-flotante-de-cada-figura.md | ninguna · no a la vez que 51, 37 (`BoardMirror.tsx`) ni 22 (`estilos.css`) | 2 h | MEDIO | 37 | `FichaFlotante.tsx` (nuevo), `BoardMirror.tsx`, `estilos.css`, tests | manual | LISTA (`6c3c750`) | |
 | 59 | T59 · La portada del juego | tareas/T59-portada-del-juego.md | ninguna · no a la vez que 37 (`EleccionDeHeroes.tsx`, `estilos.css`) ni 45 (`EleccionDeHeroes.tsx`) | 1,5 h | MEDIO | — | `public/` (la portada), `public/IMAGENES.md`, `src/data/imagenes.ts`, `EleccionDeHeroes.tsx`, `estilos.css` | manual | LISTA (`aa75844`) | |
 | 60 | T60 · Sin nombre propio, el diario dice «Enano el Enano» | tareas/T60-nombre-por-defecto-duplica-la-clase.md | — | 2 h | MEDIO | — | — | manual | **SUSTITUIDA** (por 62) | |
-| 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | **EN CURSO** | `s-20260907T204408-8af444b9` · 2026-09-08T02:44:08Z |
+| 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | **EN CURSO** (relevada) | `s-20260907T205835-39ec5559` · 2026-09-08T02:58:35Z |
 | 62 | T62 · Un nombre chulo por defecto para el héroe sin nombre | tareas/T62-nombre-chulo-por-defecto.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) | 2 h | MEDIO | — | `partida.ts`, `nombresHeroe.ts` (nuevo), tests | manual | LISTA (`aaebe93`) | |
 | 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | LISTA (`f7f05ac`) | |
 | 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | **EN CURSO** | `s-20260907T204555-0c3c3d69` · 2026-09-07T22:45:55Z |
@@ -302,8 +298,10 @@ nombre un nombre de verdad (62) resuelve el síntoma de la 60 («Enano el Enano�
 nada dentro: ningún tope de procesos fijado.
 
 **Libres por estado:** solo **65** (BAJO). **37, 45, 61 y 64 están EN CURSO** (sids y
-caducidad en la tabla). **La 59, la 62 y ahora la 63 están cerradas** (`aa75844`, `aaebe93`
-y `f7f05ac`, los tres en `main`); **la 60 quedó SUSTITUIDA**.
+caducidad en la tabla; la 61 relevada a las 20:58:35Z por `s-20260907T205835-39ec5559` tras
+caer huérfana, la 37 sigue huérfana a esta hora). **La 59, la 62 y ahora la 63 están
+cerradas** (`aa75844`, `aaebe93` y `f7f05ac`, los tres en `main`); **la 60 quedó
+SUSTITUIDA**.
 
 **Por ficheros, ahora mismo:** 37 (EN CURSO) comparte **`EleccionDeHeroes.tsx`** con la 45
 (también EN CURSO) —no van en paralelo; las dos sesiones lo saben y se lo avisaron entre
