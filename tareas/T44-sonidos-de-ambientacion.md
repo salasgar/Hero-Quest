@@ -60,6 +60,26 @@ ls src/ui/sonidos.ts public/sonidos 2>/dev/null
 - **Los componentes no se prueban.** La tabla evento → sonido sí: que cada tipo de evento
   tenga decidido si suena o no (exhaustiva, como el narrador).
 
+## Cómo quedó (para quien la lea después)
+
+- **Sin ficheros**: los doce sonidos son osciladores y ruido blanco de `AudioContext`,
+  generados al vuelo en `src/ui/sonidos.ts`. No hay `public/sonidos/` ni `SONIDOS.md`: no
+  hacía falta.
+- **El enganche va por `estado.registro`, no por los eventos que devuelve `ejecutar`**: es
+  la misma lista que lee `MasterLog`, así que llevar la cuenta de hasta qué índice ya ha
+  sonado (un `useRef`) resuelve solo el deshacer (el registro encoge, no se suena nada) y
+  el sondeo en red que rehace la partida entera (solo suena lo nuevo desde el índice
+  guardado, no la partida completa). No hizo falta inventar una cola: los eventos de una
+  misma acción suenan en fila con un `setTimeout` escalonado (130 ms).
+- **`estilos.css` no se tocó**: la T58 lo tenía reclamado a la vez y también lo declara en
+  su ficha. La fila de la cabecera con el botón de silencio usa estilo en línea en
+  `Juego.tsx` y `VistaDeHeroe.tsx`. Si algún día conviene una clase de verdad (por ejemplo,
+  si la fila se repite en un tercer sitio), es un cambio de una línea.
+- **Sin navegador en el entorno**: no se pudo escuchar ningún sonido ni probar el
+  desbloqueo de `AudioContext` en Safari/iOS. Verificado por lectura y con
+  `npm run build`, que empaqueta sin avisos; `tests/sonidos.test.ts` prueba `sonidoDe` (la
+  función pura), no el hook ni el botón.
+
 ## Prohibido
 
 - Sonidos con licencia dudosa o sin origen apuntado.

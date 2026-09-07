@@ -17,13 +17,16 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-07 08:13Z · por la sesión `s-20260907T080902-4a99e05e`, al reclamar la
-44, desde su worktree (se publica al fusionar, `proyecto.md`). Sobre la regeneración de
-`s-20260906T174714-651b3481` de las 08:07Z (al cerrar la 55), cambian la 38, la 39, la 44 y
-la 58: las cuatro pasan a EN CURSO. A la misma hora que la 44 se abrieron la 38
-(`s-20260907T080909-f84dcfe8`), la 39 (`s-20260907T081006-d905c646`) y la 58
-(`s-20260907T080907-ae329b57`); ninguna comparte ficheros con la 44 ni entre sí. Quedan
-libres sin reclamo la 37 y la 45; la 46 sigue esperando a la 45.
+Regenerado: 2026-09-07 08:26Z · por la sesión `s-20260907T080902-4a99e05e`, al cerrar la 44
+(rama `worktree-t44-sonidos-de-ambientacion`, hash pendiente de que entre el `push`; se
+publica al fusionar, `proyecto.md`). Sobre la regeneración de las 08:13Z de esta misma
+sesión (al reclamar la 44), cambian la 58 —cerrada mientras tanto, LISTA (`6c3c750`), sin
+que su sesión pudiera regenerar el tablón por tenerlo reservado `a51aa2b0`— y la 44, que
+cierra ahora. Siguen EN CURSO la 38 (`s-20260907T080909-f84dcfe8`) y la 39
+(`s-20260907T081006-d905c646`), abiertas a la misma hora que la 44. Con la 44 y la 58
+cerradas, la 37 y la 45 siguen sin poder cogerse: la 37 comparte `types.ts` con la 38 (EN
+CURSO) y la 45 comparte `simular.ts` con la 38 también; ninguna otra tarea queda libre de
+verdad hasta que la 38 cierre.
 
 ## Antes de hacer nada
 
@@ -241,7 +244,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 41 | T41 · El logotipo y las imágenes de ambientación | tareas/T41-logotipo-y-ambientacion-visual.md | ninguna (firma del 2026-09-06) · no a la vez que 37, 43 | 3 h | MEDIO | 37 | `public/`, `App.tsx`, `EleccionDeHeroes.tsx`, `Transicion.tsx` (nuevo), `estilos.css` | manual | LISTA (`4baf429`, fusionada en `main` a las 13:20Z; 474 tests) | |
 | 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`372a0f0`, fusionada en `main` a las 13:15Z; 467 tests) | |
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
-| 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | EN CURSO | `s-20260907T080902-4a99e05e` · caduca 14:09Z |
+| 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | LISTA (rama `worktree-t44-sonidos-de-ambientacion`, hash pendiente del `push`) | |
 | 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** | |
 | 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **BLOQUEADA** (45) | |
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
@@ -255,27 +258,31 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 55 | T55 · Las diecisiete salas nuevas del calabozo, con algo dentro | tareas/T55-las-salas-nuevas-pobladas.md | 53 y 54 LISTA · no a la vez que 46 | 3 h | ALTO | — | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | LISTA (`2daade2`) | |
 | 56 | T56 · Dos arreglos del entorno: vitest y `preview` | tareas/T56-dos-arreglos-del-entorno.md | ninguna | 30 min | BAJO | 57 | `vite.config.ts`, `README.md`, `tareas/_COMUN.md` | manual | LISTA (`7ae9fb9`; hecha por `s-20260906T174758-05906208`, relevada y cerrada por `s-20260906T141818-ff83f12c`) | |
 | 57 | T57 · Descargar la partida: un registro con el que encontrar los fallos | tareas/T57-descargar-la-partida.md | ninguna | 2 h | MEDIO | 56 | `registroDePartida.ts` (nuevo), `usePartida.ts`, `App.tsx`, `scripts/repetir.ts` (nuevo), `package.json`, `README.md`, tests | manual | LISTA (`f40e415`) | |
-| 58 | T58 · Al pasar el ratón por una figura, su ficha en un cuadro flotante | tareas/T58-ficha-flotante-de-cada-figura.md | ninguna · no a la vez que 51, 37 (`BoardMirror.tsx`) ni 22 (`estilos.css`) | 2 h | MEDIO | 37 | `FichaFlotante.tsx` (nuevo), `BoardMirror.tsx`, `estilos.css`, tests | manual | EN CURSO | `s-20260907T080907-ae329b57` · caduca 12:09Z |
+| 58 | T58 · Al pasar el ratón por una figura, su ficha en un cuadro flotante | tareas/T58-ficha-flotante-de-cada-figura.md | ninguna · no a la vez que 51, 37 (`BoardMirror.tsx`) ni 22 (`estilos.css`) | 2 h | MEDIO | 37 | `FichaFlotante.tsx` (nuevo), `BoardMirror.tsx`, `estilos.css`, tests | manual | LISTA (`6c3c750`) | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** 37 (MEDIO) y 45 (ALTO); son las únicas sin reclamo. 38, 39, 44 y 58
-están EN CURSO (sesiones `s-20260907T080909-f84dcfe8`, `s-20260907T081006-d905c646`,
-`s-20260907T080902-4a99e05e` y `s-20260907T080907-ae329b57`).
+**Libres por estado:** ninguna, en sentido estricto —**37 y 45 no tienen reclamo pero
+siguen sin poder cogerse**— porque las dos comparten fichero con la 38, que sigue EN CURSO
+(`s-20260907T080909-f84dcfe8`, `types.ts` y `scripts/simular.ts`). La 39 también sigue EN
+CURSO (`s-20260907T081006-d905c646`). **44 y 58 acaban de cerrarse (LISTA)**.
 
-**Por ficheros, ahora mismo:** **37** no choca con ninguna EN CURSO en `types.ts` (38 y 54
-lo tocan, pero 38 no lo declara en su reclamo salvo por precondición ya cumplida y 54 está
-LISTA) ni en `BoardMirror.tsx` (58 lo toca EN CURSO: **37 y 58 no van a la vez**, como dice
-la ficha). **45** comparte `Juego.tsx` con 44 (EN CURSO) y `simular.ts` con 38 (EN CURSO):
-**45 no se puede reclamar ahora mismo** sin chocar con las dos; espera a que cierren. 15
-espera la palabra de Juan Luis; 46, 47, 50 siguen BLOQUEADAS por sus precondiciones.
+**Por ficheros, ahora mismo:** **37** no choca ya con la 58 (LISTA) en `BoardMirror.tsx`,
+pero sigue esperando a la 38 en `types.ts`. **45** ya no choca con la 44 (LISTA) en
+`Juego.tsx`, pero sigue esperando a la 38 en `simular.ts`. Dicho llanamente: **con la 38 y
+la 39 EN CURSO, no queda ninguna tarea que se pueda reclamar sin chocar** hasta que una de
+las dos cierre —la 39 no bloquea a nadie más, es la 38 quien tiene a la 37 y a la 45
+esperando—. 15 espera la palabra de Juan Luis; 46, 47, 50 siguen BLOQUEADAS por sus
+precondiciones.
 
-**Encadenables:** 58 → 37 comparte ficheros dentro de la cadena: seguidas, nunca en
-paralelo; con la 58 EN CURSO, la 37 solo se coge sola. La cadena 51 → 53 → 54 → 55 va de
-una en una en la sesión `s-20260906T174714-651b3481`, está cerrada entera: las cuatro,
-LISTA. La cadena 52 → 36 → 22 de la sesión `s-20260906T174532-9cbd624b` queda cerrada
-entera: las tres, LISTA.
+**Encadenables:** 58 → 37 comparte ficheros dentro de la cadena: con la 58 ya cerrada, la
+37 se puede coger sola en cuanto la 38 libere `types.ts`; no antes. La cadena 51 → 53 → 54
+→ 55 va de una en una en la sesión `s-20260906T174714-651b3481`, está cerrada entera: las
+cuatro, LISTA. La cadena 52 → 36 → 22 de la sesión `s-20260906T174532-9cbd624b` queda
+cerrada entera: las tres, LISTA. Esta sesión (`s-20260907T080902-4a99e05e`) cierra la 44
+sin cadena declarada y para aquí: no queda ninguna tarea de su banda (MEDIO) libre de
+verdad.
 
 ## Registro de finalizaciones
 
@@ -287,6 +294,8 @@ terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
 
+- LISTA · tarea 44 · 2026-09-07 08:24 · `s-20260907T080902-4a99e05e` · doce sonidos sintetizados con `AudioContext` (sin ficheros ni licencias): puerta, dados, golpe/fallo, caída, sala, hechizo, tesoro, poción, sorpresa, victoria/derrota; tabla `sonidoDe` exhaustiva sobre los 32 tipos de `Evento`, quince de ellos mudos a propósito; enganchada a `estado.registro` por índice, igual que `MasterLog`, así que un deshacer o un sondeo de red que rehace la partida no repite sonido; botón de silencio (🔊/🔇) en la cabecera de `Juego.tsx` y `VistaDeHeroe.tsx`, preferencia en `localStorage` por navegador; el primer clic de la partida desbloquea el audio; no toca `estilos.css` (reclamado a la vez por la 58): la fila del botón usa estilo en línea; 557 tests / 40 ficheros tras el rebase sobre la 58 (+5 suyos, `tests/sonidos.test.ts`); typecheck y build en verde; sin navegador en el entorno, no se pudo escuchar ningún sonido ni probar el desbloqueo en Safari/iOS, verificado por lectura y por el build · `sonidos.ts`, `Juego.tsx`, `VistaDeHeroe.tsx` · hash pendiente del `push`
+- LISTA · tarea 58 · 2026-09-07 08:21 · `s-20260907T080907-ae329b57` · cuadro flotante sobre el tablero al pasar el ratón (`pointerenter`/`pointerleave`) o al tocar (`pointerup`, `pointerType==="touch"`) una figura que no es objetivo de la acción en curso, con `pointer-events:none` para no robar el clic de atacar; función pura `fichaDe` en `FichaFlotante.tsx` con una línea por héroe (cuerpo, mente, ⚔/🛡 con `combat.ts`, equipo, hechizos) o por monstruo (especie, cuerpo, mente de plantilla, ⚔/🛡, movimiento, dormido/pierde turno) y una línea por efecto activo; 552 tests (545 + 7); typecheck en verde; sin navegador en el entorno, no se pudo probar en tableta de verdad · `FichaFlotante.tsx`, `BoardMirror.tsx`, `estilos.css` · `6c3c750`
 - LISTA · tarea 55 · 2026-09-07 08:06 · `s-20260906T174714-651b3481` · once monstruos más en ocho salas (17 en 12 salas: goblins, orcos, tres esqueletos y un zombi; ninguna sala más dura que la del guardián, con test que lo fija), tres trampas más en pasillos, diez muebles más (13 de 14 del catálogo) y texto en las 22 salas; simulador antes → después: 100 % en los tres niveles, 15,7 / 15,5 / 16,1 → 17,8 / 17,5 / 17,4 rondas, 13 / 8 / 6 → 1 / 2 / 4 sin terminar; figuras de cartón: 7 goblins, 5 orcos, 1 fimir, 3 esqueletos, 1 zombi; 545 tests / 38 ficheros (+2 suyos); typecheck en verde · `quests/calabozo.ts`, `tests/quest.test.ts` · `2daade2`
 - LISTA · tarea 54 · 2026-09-07 08:05 · `s-20260906T174714-651b3481` · mochila en cada héroe; las pociones se guardan y se beben en cualquier momento (`usarPocion`, reglamento p. 16) sobre uno mismo o sobre otro héroe, y se dan solo en el propio turno (`darObjeto`); efecto de tesoro `equipo` con cuatro cartas (yelmo, escudo, espada corta, herramientas) que el héroe equipa si su clase puede y no lleva otra igual; la armadura cuenta una pieza por tipo y el escudo no cuenta con dos manos; la hoja enseña la mochila con «Beber» / «Dar de beber a…» / «Dar a…»; `VERSION` del relevo a 2026-09-07; cartas imprimibles regeneradas (28 tesoros); toca además `Juego.tsx`, `VistaDeHeroe.tsx` (una línea: la prop `ejecutar`), `protocolo.ts`, `generar-cartas.ts`, `integracion.test.ts` y `heroes.test.ts` (un test afirmaba el daño de la lanza y no la regla); 543 tests / 38 ficheros tras el rebase (+12 suyos); typecheck en verde · `types.ts`, `reducer.ts`, `selectors.ts`, `combat.ts`, `partida.ts`, `treasure.ts`, `narrator/local.ts`, `HeroSheet.tsx`, `imprimibles/` · `1afe8c4`
 - LISTA · tarea 22 · 2026-09-07 07:52 · `s-20260906T174532-9cbd624b` · la descripción del hechizo va en el propio botón del panel (no solo en el `title`, porque con un solo objetivo se lanza sin pasar por el segundo paso) y también en el paso «¿sobre quién?»; sección nueva «Los hechizos del grupo» en Instrucciones, por héroe y por elemento, con los gastados tachados; toca `App.tsx` y `Juego.tsx` además de lo declarado en la ficha —hacía falta el `EstadoPartida` real y bajarlo era menos código que reconstruirlo desde `localStorage`—, ninguna otra tarea viva los declaraba; no tocó `HeroSheet.tsx` (no hacía falta) ni `estilos.css` (las clases ya existían), así que la colisión que la sesión de la 54 había anotado con cautela no llega a darse; de paso, corregido «Quién tira qué» en Instrucciones, que aún describía el modo manual que quitó la T36; 508 → 531 tests (+17, `tests/que-hace-cada-hechizo.test.ts`); typecheck y build en verde; sin navegador en el entorno, no se pudo probar en tableta ni sin ratón, verificado por lectura · `TurnPanel.tsx`, `Instrucciones.tsx`, `App.tsx`, `Juego.tsx` · `3afd724`
