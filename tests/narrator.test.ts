@@ -77,6 +77,16 @@ describe("frases del narrador", () => {
     ).toMatch(/pergamino del guardián/);
   });
 
+  it("la mochila tiene sus frases (T54)", () => {
+    const e = estado();
+    const pocion = { carta: "pocionCura", nombre: "Poción curativa" };
+    expect(narrar(e, { tipo: "objetoGuardado", actor: "barbaro", ...pocion })).toMatch(/mochila/);
+    expect(narrar(e, { tipo: "equipoEncontrado", actor: "barbaro", equipo: "yelmo", puesto: true })).toMatch(/yelmo.*equipa/);
+    expect(narrar(e, { tipo: "equipoEncontrado", actor: "barbaro", equipo: "yelmo", puesto: false })).toMatch(/mochila/);
+    expect(narrar(e, { tipo: "pocionUsada", actor: "barbaro", objetivo: "barbaro", ...pocion })).toMatch(/se bebe/);
+    expect(narrar(e, { tipo: "objetoDado", de: "barbaro", a: "barbaro", ...pocion, puesto: false })).toMatch(/le da/);
+  });
+
   it("no cuenta los movimientos de cero casillas", () => {
     const e = estado();
     expect(

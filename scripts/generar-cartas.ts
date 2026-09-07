@@ -112,6 +112,7 @@ const cartasTesoro = BARAJA_TESOROS.flatMap((c) => {
     c.efecto.clase === "oro" ? `<p class="efecto">+${c.efecto.cantidad} monedas de oro</p>`
     : c.efecto.clase === "curacion" ? `<p class="efecto">Recuperas ${c.efecto.cuerpo} de cuerpo</p>`
     : c.efecto.clase === "bonusAtaque" ? `<p class="efecto">+${c.efecto.dados} dados en tu siguiente ataque</p>`
+    : c.efecto.clase === "equipo" ? `<p class="efecto">${EQUIPO[c.efecto.id].nombre}: te lo quedas si tu clase puede llevarlo</p>`
     : c.efecto.clase === "peligro" ? `<p class="efecto malo">Pierdes ${c.efecto.dano} de cuerpo</p>`
     : `<p class="efecto malo">Aparece un ${MONSTRUOS[c.efecto.especie].nombre.toLowerCase()}</p>`;
   const malo = c.efecto.clase === "peligro" || c.efecto.clase === "monstruoErrante";

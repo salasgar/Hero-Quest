@@ -181,7 +181,7 @@ export function Juego({
 
         <section className="hojas">
           {estado.heroes.map((h) => (
-            <HeroSheet key={h.id} heroe={h} estado={estado} esElDeTurno={turno.activa?.id === h.id} />
+            <HeroSheet key={h.id} heroe={h} estado={estado} esElDeTurno={turno.activa?.id === h.id} ejecutar={ejecutar} />
           ))}
         </section>
 

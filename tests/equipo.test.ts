@@ -1,6 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { ARMADURAS, ARMAS, EQUIPO, type IdEquipo } from "../src/data/equipment";
 import { CLASES_HEROE, HEROES, puedeLlevar } from "../src/data/heroes";
+import { dadosDeDefensa } from "../src/engine/combat";
+import type { Heroe } from "../src/engine/types";
+import { partida } from "./ayuda";
+
+describe("la armadura cuenta una pieza por tipo (T54)", () => {
+  // Desde T54 el equipo también sale del tesoro y puede repetirse en la lista.
+  const con = (equipo: IdEquipo[]): Heroe => ({ ...partida().heroes[0]!, equipo });
+
+  it("dos yelmos no son dos dados", () => {
+    expect(dadosDeDefensa(con(["yelmo", "yelmo"]))).toBe(dadosDeDefensa(con(["yelmo"])));
+    expect(dadosDeDefensa(con(["yelmo"]))).toBe(dadosDeDefensa(con([])) + 1);
+  });
+
+  it("el escudo no cuenta con un arma a dos manos (la nota del escudo en equipment.ts)", () => {
+    expect(dadosDeDefensa(con(["escudo", "hachaDeBatalla"]))).toBe(dadosDeDefensa(con(["hachaDeBatalla"])));
+    expect(dadosDeDefensa(con(["escudo", "espadaAncha"]))).toBe(dadosDeDefensa(con(["espadaAncha"])) + 1);
+  });
+});
 
 const TODO = Object.keys(EQUIPO) as IdEquipo[];
 

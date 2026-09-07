@@ -20,6 +20,8 @@ import {
   puedeBuscarTrampas,
   puertasAlAlcance,
 } from "../src/engine/selectors";
+import { destinatariosDe, objetivosDePocion, pocionesDe } from "../src/engine/selectors";
+import { esHeroe } from "../src/engine/types";
 import { crearRng, entero } from "../src/engine/rng";
 import { claveCelda, type Accion, type EstadoPartida } from "../src/engine/types";
 import { narrar } from "../src/narrator/local";
@@ -131,6 +133,11 @@ describe("los primeros turnos del calabozo", () => {
 /** Todas las acciones legales ahora mismo, para el juego al azar. */
 function accionesPosibles(e: EstadoPartida): Accion[] {
   const salida: Accion[] = [{ tipo: "terminarTurno" }];
+  // Las pociones se beben en cualquier momento, sea de quien sea el turno (p. 16, T54).
+  for (const h of e.heroes.filter((h) => h.cuerpo > 0))
+    for (const carta of pocionesDe(h))
+      for (const o of objetivosDePocion(e, carta))
+        salida.push({ tipo: "usarPocion", quien: h.id, carta: carta.id, objetivo: o.id });
   const activa = figuraActiva(e);
 
   if (esTurnoDeZargon(e) && !activa) {
@@ -144,6 +151,10 @@ function accionesPosibles(e: EstadoPartida): Accion[] {
   for (const o of objetivosDeAtaque(e)) salida.push({ tipo: "atacar", objetivo: o.id });
   for (const p of puertasAlAlcance(e)) salida.push({ tipo: "abrirPuerta", puerta: p.id });
   if (puedeBuscarTesoro(e)) salida.push({ tipo: "buscarTesoro" });
+  // Dar, solo en el turno de quien da (p. 16), a cualquier otro héroe en pie (T54).
+  if (esHeroe(activa))
+    for (const carta of activa.mochila)
+      for (const o of destinatariosDe(e, activa)) salida.push({ tipo: "darObjeto", carta, a: o.id });
   if (puedeBuscarTrampas(e)) salida.push({ tipo: "buscarTrampas" });
   // Los hechizos se enumeran con el mismo selector que pinta los botones: si el
   // selector ofrece algo que el motor rechaza, es un clic perdido en la mesa.

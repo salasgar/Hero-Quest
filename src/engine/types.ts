@@ -3,6 +3,7 @@
 import type { ClaseHeroe, Genero } from "../data/heroes";
 import type { EspecieMonstruo } from "../data/monsters";
 import type { IdEquipo } from "../data/equipment";
+import type { IdCartaTesoro } from "../data/treasure";
 import type { IdHechizo } from "../data/spells";
 import type { CaraCombate } from "./dice";
 import type { Rng } from "./rng";
@@ -59,6 +60,12 @@ export interface Heroe {
   mente: number;
   menteMax: number;
   equipo: IdEquipo[];
+  /**
+   * Cartas de tesoro que lleva encima sin usar: pociones y equipo que no se ha
+   * puesto. Por su id de `treasure.ts`, para que la carta impresa y la de la
+   * pantalla sean la misma (T54).
+   */
+  mochila: IdCartaTesoro[];
   /** Hechizos que todavía puede lanzar. Cada uno se usa una vez por misión. */
   hechizos: IdHechizo[];
   hechizosGastados: IdHechizo[];
@@ -280,6 +287,15 @@ export type Accion =
   | { tipo: "buscarTrampas" }
   | { tipo: "desarmarTrampa"; trampa: string }
   | { tipo: "lanzarHechizo"; hechizo: IdHechizo; objetivo?: IdFigura; dados?: CaraCombate[] }
+  /**
+   * Beber o usar una poción de la mochila de `quien`, sobre sí (sin
+   * `objetivo`) o sobre otro héroe. Vale en cualquier momento, sea de quien
+   * sea el turno, y no gasta la acción (reglamento p. 16: «you may drink a
+   * potion at any time»); por eso lleva `quien` y no usa la figura activa.
+   */
+  | { tipo: "usarPocion"; quien: IdFigura; carta: IdCartaTesoro; objetivo?: IdFigura }
+  /** Dar una carta de la mochila a otro héroe. Solo en el turno de quien da (p. 16). */
+  | { tipo: "darObjeto"; carta: IdCartaTesoro; a: IdFigura }
   | { tipo: "terminarTurno" };
 
 // ---------------------------------------------------------------- eventos
@@ -326,6 +342,12 @@ export type Evento =
   | { tipo: "busquedaSinHallazgo"; actor: IdFigura; que: "tesoro" | "trampas" }
   | { tipo: "tesoroEncontrado"; actor: IdFigura; oro: number }
   | { tipo: "objetoDeMision"; actor: IdFigura; objeto: string }
+  /** Una carta del tesoro que no se aplica al robarla: va a la mochila. */
+  | { tipo: "objetoGuardado"; actor: IdFigura; carta: IdCartaTesoro; nombre: string }
+  /** Equipo salido del tesoro: `puesto` si el héroe se lo ha puesto; si no, a la mochila. */
+  | { tipo: "equipoEncontrado"; actor: IdFigura; equipo: IdEquipo; puesto: boolean }
+  | { tipo: "pocionUsada"; actor: IdFigura; objetivo: IdFigura; carta: IdCartaTesoro; nombre: string }
+  | { tipo: "objetoDado"; de: IdFigura; a: IdFigura; carta: IdCartaTesoro; nombre: string; puesto: boolean }
   | { tipo: "cartaDeTesoro"; actor: IdFigura; carta: string; nombre: string; texto: string }
   | { tipo: "monstruoErrante"; monstruo: IdFigura; celda: Celda }
   | { tipo: "hechizoLanzado"; actor: IdFigura; hechizo: IdHechizo; objetivo: IdFigura | null }

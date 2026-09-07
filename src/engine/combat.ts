@@ -154,10 +154,16 @@ export function dadosDeDefensa(figura: Figura, estado?: EstadoPartida): number {
   let base: number;
   if (esHeroe(figura)) {
     base = HEROES[figura.clase].defensa;
-    base += figura.equipo
-      .map((id) => EQUIPO[id])
-      .filter((e) => e.ranura === "armadura")
-      .reduce((s, e) => s + (e.defensa ?? 0), 0);
+    // Cada pieza cuenta una vez aunque esté repetida en la lista —dos yelmos
+    // no son dos dados: solo se lleva uno puesto—, y el escudo no cuenta con
+    // un arma a dos manos, que las ocupa las dos (`equipment.ts`, la nota del
+    // escudo). Desde T54 el equipo también sale del tesoro, y ahí puede
+    // repetirse.
+    const piezas = [...new Set(figura.equipo)].map((id) => EQUIPO[id]);
+    const aDosManos = piezas.some((p) => p.ranura === "arma" && p.aDosManos);
+    base += piezas
+      .filter((p) => p.ranura === "armadura" && !(p.id === "escudo" && aDosManos))
+      .reduce((s, p) => s + (p.defensa ?? 0), 0);
   } else {
     base = MONSTRUOS[figura.especie].defensa;
   }

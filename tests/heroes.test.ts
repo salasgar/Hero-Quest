@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { HEROES, VARIANTES_HEROE, nombreDeClase } from "../src/data/heroes";
 import { alcanzables, vuela } from "../src/engine/board";
+import { aplicarAccion } from "../src/engine/reducer";
 import { claveCelda } from "../src/engine/types";
 import { c, conMovimiento, hacer, partida, situar } from "./ayuda";
 
@@ -116,7 +117,14 @@ describe("volar y las trampas", () => {
   });
 
   it("una lanza sale de la pared y alcanza también a quien vuela", () => {
-    const e = hacer(conMovimiento(conHada(lanza), 4), { tipo: "mover", destino: c(3, 1) });
-    expect(e.heroes[0]!.cuerpo).toBeLessThan(HEROES.hada.cuerpo);
+    // Desde T51 la lanza tira su propio dado (reglamento p. 18): lo que se
+    // afirma es que salta sobre el hada —no la exime, como al foso—, no que
+    // acierte. Afirmar el daño dependía de lo que sacara el generador, y la
+    // baraja de T54 lo movió.
+    const r = aplicarAccion(conMovimiento(conHada(lanza), 4), { tipo: "mover", destino: c(3, 1) });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.eventos.some((x) => x.tipo === "trampaDisparada")).toBe(true);
+    expect(r.estado.trampas[0]!.gastada).toBe(true);
   });
 });

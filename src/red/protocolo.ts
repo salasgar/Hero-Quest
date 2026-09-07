@@ -29,7 +29,7 @@ import type { HeroeElegido } from "../engine/partida";
  * distingue de verdad una construcción de otra. Mientras tanto, esta constante se
  * sube a mano al cambiar algo que afecte a las reglas.
  */
-export const VERSION = "2026-09-05";
+export const VERSION = "2026-09-07";
 
 /** Lo que se escribe una vez, al crear la partida, y viaja a las dos casas. */
 export interface Montaje {

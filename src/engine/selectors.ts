@@ -18,6 +18,8 @@ import {
   objetoDeMisionAlAlcance,
   yaRegistro,
 } from "./reducer";
+import { cartaDeTesoro, esPocion, type CartaTesoro } from "../data/treasure";
+import type { Heroe } from "./types";
 import { puedeVer } from "./vision";
 import {
   claveCelda,
@@ -186,6 +188,26 @@ export function puedeBuscarTrampas(e: EstadoPartida): boolean {
 }
 
 /** Todo lo que la figura activa puede hacer, para pintar los botones. */
+/** Las pociones que lleva un héroe en la mochila: lo que puede beber o dar de beber. */
+export function pocionesDe(h: Heroe): CartaTesoro[] {
+  return h.mochila.map(cartaDeTesoro).filter((c): c is CartaTesoro => !!c && esPocion(c));
+}
+
+/**
+ * A quién le sirve esta poción ahora mismo: a los héroes en pie y, si cura,
+ * solo a los heridos, porque el motor rechaza curar a quien está entero
+ * (T54). Sin mirar de quién es el turno: se bebe «at any time» (p. 16).
+ */
+export function objetivosDePocion(e: EstadoPartida, carta: CartaTesoro): Heroe[] {
+  return vivos(e.heroes).filter((h) => carta.efecto.clase !== "curacion" || h.cuerpo < h.cuerpoMax);
+}
+
+/** A quién puede dar un héroe lo de su mochila: a los demás en pie, y solo en su turno (p. 16). */
+export function destinatariosDe(e: EstadoPartida, h: Heroe): Heroe[] {
+  if (figuraActiva(e)?.id !== h.id) return [];
+  return vivos(e.heroes).filter((x) => x.id !== h.id);
+}
+
 export function accionesDisponibles(e: EstadoPartida) {
   const f = figuraActiva(e);
   return {

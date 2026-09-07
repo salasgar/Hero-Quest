@@ -16,9 +16,9 @@
 
 import { salaEn } from "../data/board-base";
 import { HECHIZOS } from "../data/spells";
-import { BARAJA_TESOROS, MAZO_COMPLETO } from "../data/treasure";
+import { BARAJA_TESOROS, cartaDeTesoro, esPocion, MAZO_COMPLETO, type CartaTesoro } from "../data/treasure";
 import { MONSTRUOS } from "../data/monsters";
-import { HEROES } from "../data/heroes";
+import { HEROES, puedeLlevar } from "../data/heroes";
 import { EQUIPO } from "../data/equipment";
 import { celdaLibre, celdasQueAbren, figuraPorId, pasoAbierto, rutaHasta, vuela } from "./board";
 import { vecinas as vecinasDelTablero } from "../data/board-base";
@@ -294,6 +294,10 @@ export function aplicarAccion(estado: EstadoPartida, accion: Accion): Resultado 
       return buscarTesoro(estado);
     case "buscarTrampas":
       return buscarTrampas(estado);
+    case "usarPocion":
+      return usarPocion(estado, accion.quien, accion.carta, accion.objetivo);
+    case "darObjeto":
+      return darObjeto(estado, accion.carta, accion.a);
     case "desarmarTrampa":
       return desarmarTrampa(estado, accion.trampa);
     case "lanzarHechizo":
@@ -707,21 +711,23 @@ function buscarTesoro(e: EstadoPartida): Resultado {
       eventos.push({ tipo: "tesoroEncontrado", actor: f.id, oro: carta.efecto.cantidad });
       break;
     }
-    case "curacion": {
-      const h = figuraPorId(estado, f.id)!;
-      const puntos = Math.min(carta.efecto.cuerpo, h.cuerpoMax - h.cuerpo);
-      if (puntos > 0) {
-        estado = conFigura(estado, { ...h, cuerpo: h.cuerpo + puntos } as Figura);
-        eventos.push({ tipo: "curacion", figura: h.id, puntos });
-      }
+    case "curacion":
+    case "bonusAtaque": {
+      // Las pociones no se beben al encontrarlas: van a la mochila, para
+      // bebérselas cuando hagan falta o dárselas a quien las necesite
+      // (reglamento p. 16: «you may drink a potion at any time» y «You may
+      // give one of your potions to a fellow hero»; firma de Juan Luis del
+      // 2026-09-06: la poción cura al portador o a otro héroe). Antes se
+      // aplicaban en el acto y una curación al héroe entero se perdía.
+      const h = figuraPorId(estado, f.id) as Heroe;
+      estado = conFigura(estado, { ...h, mochila: [...h.mochila, carta.id] });
+      eventos.push({ tipo: "objetoGuardado", actor: f.id, carta: carta.id, nombre: carta.nombre });
       break;
     }
-    case "bonusAtaque": {
-      const h = figuraPorId(estado, f.id)!;
-      estado = conFigura(estado, {
-        ...h,
-        efectos: [...h.efectos, { clase: "bonusAtaque", dados: carta.efecto.dados, duracion: "siguienteAtaque" }],
-      } as Figura);
+    case "equipo": {
+      const [tras, puesto] = equiparOGuardar(estado, figuraPorId(estado, f.id) as Heroe, carta);
+      estado = tras;
+      eventos.push({ tipo: "equipoEncontrado", actor: f.id, equipo: carta.efecto.id, puesto });
       break;
     }
     case "peligro": {
@@ -814,6 +820,98 @@ function buscarTrampas(e: EstadoPartida): Resultado {
     turno: cerrarAccion(e.turno),
   };
   return terminar(estado, eventos);
+}
+
+// ------------------------------------------------------------ la mochila (T54)
+
+/** La lista sin una copia de `x`: la mochila puede llevar dos pociones iguales. */
+function quitarUna<T>(xs: readonly T[], x: T): T[] {
+  const i = xs.indexOf(x);
+  return i < 0 ? [...xs] : [...xs.slice(0, i), ...xs.slice(i + 1)];
+}
+
+/**
+ * Un héroe recibe una carta de equipo, del tesoro o de un compañero: se la
+ * pone si su clase puede llevarla (`puedeLlevar`, T7) y no lleva ya una igual;
+ * si no, a la mochila, para dársela a quien sí pueda. Devuelve si se la puso.
+ */
+function equiparOGuardar(e: EstadoPartida, h: Heroe, carta: CartaTesoro): [EstadoPartida, boolean] {
+  if (carta.efecto.clase !== "equipo") return [conFigura(e, { ...h, mochila: [...h.mochila, carta.id] }), false];
+  const pieza = carta.efecto.id;
+  if (puedeLlevar(h.clase, pieza) && !h.equipo.includes(pieza)) {
+    return [conFigura(e, { ...h, equipo: [...h.equipo, pieza] }), true];
+  }
+  return [conFigura(e, { ...h, mochila: [...h.mochila, carta.id] }), false];
+}
+
+/**
+ * Beber una poción, o dársela a beber a otro héroe.
+ *
+ * Reglamento p. 16: «As a hero, you may drink a potion at any time» — por eso
+ * no mira de quién es el turno ni gasta la acción, y `quien` viene en la
+ * acción en vez de salir de la figura activa. Lo que el reglamento contempla
+ * y esto no: beberla «before you die» con el cuerpo ya a 0; aquí un héroe
+ * caído no bebe. La poción sobre otro héroe es la firma de Juan Luis del
+ * 2026-09-06 («que le restituya a él o a otro héroe los puntos de vida»).
+ * Una curación a quien está entero se rechaza sin gastar la carta: es lo que
+ * hace que la poción se guarde para cuando haga falta.
+ */
+function usarPocion(e: EstadoPartida, quien: IdFigura, idCarta: string, idObjetivo?: IdFigura): Resultado {
+  const h = figuraPorId(e, quien);
+  if (!h || !esHeroe(h)) return fallo("Solo los héroes beben pociones.");
+  if (h.cuerpo === 0) return fallo("Un héroe caído no puede beber nada.");
+  if (!h.mochila.includes(idCarta)) return fallo("No lleva esa poción en la mochila.");
+  const carta = cartaDeTesoro(idCarta);
+  if (!carta || !esPocion(carta)) return fallo("Eso no es una poción.");
+  const objetivo = figuraPorId(e, idObjetivo ?? quien);
+  if (!objetivo || !esHeroe(objetivo) || objetivo.cuerpo === 0)
+    return fallo("La poción solo sirve para un héroe en pie.");
+
+  let estado = conFigura(e, { ...h, mochila: quitarUna(h.mochila, idCarta) });
+  const eventos: Evento[] = [
+    { tipo: "pocionUsada", actor: quien, objetivo: objetivo.id, carta: carta.id, nombre: carta.nombre },
+  ];
+  const o = figuraPorId(estado, objetivo.id)!;
+  if (carta.efecto.clase === "curacion") {
+    const puntos = Math.min(carta.efecto.cuerpo, o.cuerpoMax - o.cuerpo);
+    if (puntos <= 0) return fallo(`${o.nombre} ya está entero: la poción no se gasta.`);
+    estado = conFigura(estado, { ...o, cuerpo: o.cuerpo + puntos } as Figura);
+    eventos.push({ tipo: "curacion", figura: o.id, puntos });
+  } else if (carta.efecto.clase === "bonusAtaque") {
+    estado = conFigura(estado, {
+      ...o,
+      efectos: [...o.efectos, { clase: "bonusAtaque", dados: carta.efecto.dados, duracion: "siguienteAtaque" }],
+    } as Figura);
+  }
+  return terminar(estado, eventos);
+}
+
+/**
+ * Dar una carta de la mochila a otro héroe.
+ *
+ * Reglamento p. 16: «You may give one of your potions to a fellow hero, but
+ * you may do so only on your turn», y lo mismo para los objetos especiales
+ * («On their turn, any hero who has artifacts may give them to other
+ * heroes»). No pide estar al lado ni dice que gaste la acción, y aquí
+ * tampoco: en una mesa con niños, lo sencillo. El equipo que recibe el otro
+ * se lo pone si puede (`equiparOGuardar`).
+ */
+function darObjeto(e: EstadoPartida, idCarta: string, idA: IdFigura): Resultado {
+  const f = figuraActiva(e);
+  if (!f || !esHeroe(f)) return fallo("Solo un héroe, en su turno, puede dar sus cosas.");
+  if (!f.mochila.includes(idCarta)) return fallo("No lleva eso en la mochila.");
+  const a = figuraPorId(e, idA);
+  if (!a || !esHeroe(a) || a.id === f.id || a.cuerpo === 0)
+    return fallo("Solo se le puede dar a otro héroe en pie.");
+  const carta = cartaDeTesoro(idCarta);
+  if (!carta) return fallo("Esa carta no existe.");
+
+  let estado = conFigura(e, { ...f, mochila: quitarUna(f.mochila, idCarta) });
+  const [tras, puesto] = equiparOGuardar(estado, figuraPorId(estado, a.id) as Heroe, carta);
+  estado = tras;
+  return terminar(estado, [
+    { tipo: "objetoDado", de: f.id, a: a.id, carta: carta.id, nombre: carta.nombre, puesto },
+  ]);
 }
 
 function desarmarTrampa(e: EstadoPartida, idTrampa: string): Resultado {

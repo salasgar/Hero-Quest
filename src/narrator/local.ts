@@ -7,6 +7,7 @@
  * crédito, la partida sigue exactamente igual.
  */
 
+import { EQUIPO } from "../data/equipment";
 import { HECHIZOS } from "../data/spells";
 import { conArticulo } from "../data/nombres";
 import type { EstadoPartida, Evento, IdFigura } from "../engine/types";
@@ -155,6 +156,25 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
 
     case "objetoDeMision":
       return `${mayus(nombreDe(e, ev.actor))} registra la sala y encuentra ${ev.objeto}. ¡Es lo que habíais venido a buscar!`;
+
+    case "objetoGuardado":
+      return `${mayus(nombreDe(e, ev.actor))} se guarda «${ev.nombre}» en la mochila.`;
+
+    case "equipoEncontrado": {
+      const quien = mayus(nombreDe(e, ev.actor));
+      const pieza = EQUIPO[ev.equipo].nombre.toLowerCase();
+      return ev.puesto
+        ? `${quien} encuentra ${pieza} y lo equipa.`
+        : `${quien} encuentra ${pieza} y lo guarda en la mochila: no es para su clase, o ya lleva uno.`;
+    }
+
+    case "pocionUsada":
+      return ev.objetivo === ev.actor
+        ? `${mayus(nombreDe(e, ev.actor))} se bebe «${ev.nombre}».`
+        : `${mayus(nombreDe(e, ev.actor))} le da de beber «${ev.nombre}» ${aA(nombreDe(e, ev.objetivo))}.`;
+
+    case "objetoDado":
+      return `${mayus(nombreDe(e, ev.de))} le da «${ev.nombre}» ${aA(nombreDe(e, ev.a))}${ev.puesto ? ", que lo equipa" : ""}.`;
 
     case "monstruoErrante":
       return `¡No estabais solos! ${mayus(nombreDe(e, ev.monstruo))} aparece a vuestro lado.`;

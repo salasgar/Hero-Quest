@@ -144,6 +144,7 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
               heroe={h}
               estado={visto}
               esElDeTurno={turno.activa?.id === h.id}
+              ejecutar={ejecutar}
             />
           ))}
         </section>

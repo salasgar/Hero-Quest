@@ -477,6 +477,126 @@ describe("el tesoro de misión: objetivo «recuperar»", () => {
   });
 });
 
+describe("pociones y equipo en la mochila (T54)", () => {
+  // Reglamento p. 16: la poción se bebe «at any time»; dar, «only on your turn».
+  // Firma de Juan Luis del 2026-09-06: la poción cura al portador o a otro héroe.
+  const dos = (): EstadoPartida => {
+    const e = partida({ heroes: [{ clase: "barbaro" }, { clase: "enano" }] });
+    return situar(situar(e, "barbaro", c(1, 1)), "enano", c(2, 1));
+  };
+  const conMochila = (e: EstadoPartida, id: string, cartas: string[]): EstadoPartida => ({
+    ...e,
+    heroes: e.heroes.map((h) => (h.id === id ? { ...h, mochila: cartas } : h)),
+  });
+  const herido = (e: EstadoPartida, id: string, cuerpo: number): EstadoPartida => ({
+    ...e,
+    heroes: e.heroes.map((h) => (h.id === id ? { ...h, cuerpo } : h)),
+  });
+  const heroe = (e: EstadoPartida, id: string) => e.heroes.find((h) => h.id === id)!;
+
+  it("una poción robada del tesoro va a la mochila y no cura en el acto", () => {
+    const e: EstadoPartida = { ...herido(dos(), "barbaro", 3), salasReveladas: ["a"], mazoTesoros: ["pocionCura"] };
+    const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(heroe(r.estado, "barbaro").mochila).toEqual(["pocionCura"]);
+    expect(heroe(r.estado, "barbaro").cuerpo).toBe(3);
+    expect(r.eventos.some((x) => x.tipo === "objetoGuardado")).toBe(true);
+  });
+
+  it("usarPocion sobre otro héroe herido lo cura hasta su máximo y gasta la carta, sin gastar la acción", () => {
+    const e = herido(conMochila(dos(), "barbaro", ["pocionCura"]), "enano", 5);
+    const r = aplicarAccion(e, { tipo: "usarPocion", quien: "barbaro", carta: "pocionCura", objetivo: "enano" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(heroe(r.estado, "enano").cuerpo).toBe(heroe(e, "enano").cuerpoMax);
+    expect(heroe(r.estado, "barbaro").mochila).toEqual([]);
+    expect(r.eventos.map((x) => x.tipo)).toEqual(expect.arrayContaining(["pocionUsada", "curacion"]));
+    expect(r.estado.turno.haActuado).toBe(false);
+  });
+
+  it("sobre uno entero se rechaza y la poción no se gasta", () => {
+    const e = conMochila(dos(), "barbaro", ["pocionCura"]);
+    expect(rechaza(e, { tipo: "usarPocion", quien: "barbaro", carta: "pocionCura" })).toMatch(/ya está entero/i);
+  });
+
+  it("se bebe fuera del propio turno: el enano bebe mientras le toca al bárbaro", () => {
+    const e = herido(conMochila(dos(), "enano", ["pocionCura"]), "enano", 2);
+    expect(e.turno.orden[e.turno.indice]).toBe("barbaro");
+    const r = aplicarAccion(e, { tipo: "usarPocion", quien: "enano", carta: "pocionCura" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(heroe(r.estado, "enano").cuerpo).toBe(6);
+    expect(r.estado.turno).toEqual(e.turno);
+  });
+
+  it("un héroe caído no bebe, y a un caído no se le da de beber", () => {
+    const e = herido(conMochila(dos(), "enano", ["pocionCura"]), "enano", 0);
+    expect(rechaza(e, { tipo: "usarPocion", quien: "enano", carta: "pocionCura" })).toMatch(/caído/i);
+    const e2 = herido(conMochila(dos(), "barbaro", ["pocionCura"]), "enano", 0);
+    expect(rechaza(e2, { tipo: "usarPocion", quien: "barbaro", carta: "pocionCura", objetivo: "enano" })).toMatch(/en pie/i);
+  });
+
+  it("la poción de fuerza da su bonus al héroe elegido", () => {
+    const e = conMochila(dos(), "barbaro", ["pocionFuerza"]);
+    const r = aplicarAccion(e, { tipo: "usarPocion", quien: "barbaro", carta: "pocionFuerza", objetivo: "enano" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(heroe(r.estado, "enano").efectos).toContainEqual({ clase: "bonusAtaque", dados: 2, duracion: "siguienteAtaque" });
+  });
+
+  it("darObjeto mueve la carta entre mochilas, solo en el turno de quien da y nunca a un caído", () => {
+    const e = conMochila(dos(), "barbaro", ["pocionCura"]);
+    const r = aplicarAccion(e, { tipo: "darObjeto", carta: "pocionCura", a: "enano" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(heroe(r.estado, "barbaro").mochila).toEqual([]);
+    expect(heroe(r.estado, "enano").mochila).toEqual(["pocionCura"]);
+    expect(r.estado.turno.haActuado).toBe(false);
+    // Al enano no le toca: no puede dar (la figura activa, el bárbaro, no lleva la carta).
+    const e2 = conMochila(dos(), "enano", ["pocionCura"]);
+    expect(rechaza(e2, { tipo: "darObjeto", carta: "pocionCura", a: "barbaro" })).toMatch(/mochila/i);
+    expect(rechaza(herido(e, "enano", 0), { tipo: "darObjeto", carta: "pocionCura", a: "enano" })).toMatch(/en pie/i);
+  });
+
+  it("un yelmo del tesoro: el mago lo guarda, el bárbaro lo equipa y un segundo yelmo va a la mochila", () => {
+    const busca = (clase: "mago" | "barbaro", equipoExtra: IdEquipo[] = []) => {
+      const base = situar(partida({ heroes: [{ clase }] }), clase, c(1, 1));
+      const e: EstadoPartida = {
+        ...base,
+        salasReveladas: ["a"],
+        mazoTesoros: ["eqYelmo"],
+        heroes: base.heroes.map((h) => ({ ...h, equipo: [...h.equipo, ...equipoExtra] })),
+      };
+      const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+      if (!r.ok) throw new Error(r.motivo);
+      return r;
+    };
+    const mago = busca("mago");
+    expect(mago.estado.heroes[0]!.equipo).not.toContain("yelmo");
+    expect(mago.estado.heroes[0]!.mochila).toEqual(["eqYelmo"]);
+    const barbaro = busca("barbaro");
+    expect(barbaro.estado.heroes[0]!.equipo).toContain("yelmo");
+    expect(barbaro.estado.heroes[0]!.mochila).toEqual([]);
+    expect(barbaro.eventos).toContainEqual({ tipo: "equipoEncontrado", actor: "barbaro", equipo: "yelmo", puesto: true });
+    const segundo = busca("barbaro", ["yelmo"]);
+    expect(segundo.estado.heroes[0]!.equipo.filter((x) => x === "yelmo")).toHaveLength(1);
+    expect(segundo.estado.heroes[0]!.mochila).toEqual(["eqYelmo"]);
+  });
+
+  it("dar el yelmo guardado a quien puede llevarlo hace que lo equipe", () => {
+    const e = conMochila(dos(), "barbaro", ["eqYelmo"]);
+    const r = aplicarAccion(e, { tipo: "darObjeto", carta: "eqYelmo", a: "enano" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(heroe(r.estado, "enano").equipo).toContain("yelmo");
+    expect(heroe(r.estado, "enano").mochila).toEqual([]);
+    expect(r.eventos).toContainEqual({
+      tipo: "objetoDado", de: "barbaro", a: "enano", carta: "eqYelmo", nombre: "Yelmo abollado", puesto: true,
+    });
+  });
+});
+
 describe("un foso abierto ya no se desarma", () => {
   // Reglamento p. 17: «Once a pit trap is sprung and a pit tile placed on the
   // board, the trap cannot be disarmed and removed».

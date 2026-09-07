@@ -175,6 +175,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
       mente: plantilla.mente,
       menteMax: plantilla.mente,
       equipo: [...plantilla.equipoInicial] as Heroe["equipo"],
+      mochila: [],
       hechizos,
       hechizosGastados: [],
       oro: 0,
