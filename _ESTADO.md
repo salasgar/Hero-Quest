@@ -17,12 +17,26 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-07 20:46Z · por la sesión `s-20260907T204516-bef22ac6`, al reclamar la 37.
-Sobre la versión de las 20:45Z (`s-20260907T145032-f832894d`, al cerrar la 62) cambian
-**tres filas**: la **37 pasa a EN CURSO** (este reclamo, caduca 2026-09-08T02:45:16Z), la
-**61 pasa a EN CURSO** (`s-20260907T204408-8af444b9`, caduca 2026-09-08T02:44:08Z) y la
-**63 pasa a EN CURSO** (`s-20260907T204415-32d21ad3`, caduca 2026-09-07T22:44Z). Quedan
-libres la 45 (ALTO), la 64 (MEDIO) y la 65 (BAJO).
+Regenerado: 2026-09-07 20:58Z · por la sesión `s-20260907T205459-25b4f867`, al cerrar la 63.
+La versión de las 20:46Z (`s-20260907T204516-bef22ac6`, al reclamar la 37) se quedó corta:
+no recogía la 45 ni la 64, que ya tenían reclamo en `origin/main` en ese momento
+(`hechos/reclamos/45--s-20260907T204636-b565f64a.md`,
+`hechos/reclamos/64--s-20260907T204555-0c3c3d69.md`), así que decía «libres» de dos tareas
+ya cogidas. Contra `hechos/` de verdad cambian, sobre esa versión: la **45 pasa a EN CURSO**
+(`s-20260907T204636-b565f64a`, caduca 2026-09-08T04:46:36Z), la **64 pasa a EN CURSO**
+(`s-20260907T204555-0c3c3d69`, caduca 2026-09-07T22:45:55Z) y la **63 pasa a LISTA** (este
+cierre, `MasterLog.tsx`, hash pendiente del push). Queda libre solo la **65** (BAJO).
+
+**Las cinco sesiones de las 20:44–20:46Z (37, 45, 61, 63 y 64) cayeron a la vez a las
+~20:50Z** y sus reclamos siguen vivos en `origin/main`. La 63 ya tenía el código y la
+terminada commiteados en su worktree y su reclamo `CERRADA`; la ha cerrado del todo la
+sesión `s-20260907T205459-25b4f867` (latido «reabierta como…» en el propio reclamo, sin
+`releva a:` porque el reclamo no había caducado y su sesión no revivió). La 45 la retomó
+`s-20260907T205335-e738c893` y la 64 `s-20260907T205502-6241d5c8` (latido de las 20:56:40Z,
+`08d4852`), las dos con el mismo latido «reabierta como…». **37 y 61 siguen con reclamo
+vivo pero sin sesión detrás** en el momento de regenerar: las dos tienen worktree sin
+código. Quien las retome escribe el mismo latido en su reclamo y lo dice a las demás
+sesiones; si sus reclamos caducan sin más, se relevan como siempre.
 
 El reclamo de la 62 **estuvo caducado mientras se cerraba la tarea** (caducaba a las
 18:50Z y se cerró a las 20:45Z, sin latido en medio). Nadie la relevó —ningún reclamo
@@ -251,7 +265,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`372a0f0`, fusionada en `main` a las 13:15Z; 467 tests) | |
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | LISTA (`6c8bd22`) | |
-| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests | manual | **PENDIENTE** | |
+| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests | manual | **EN CURSO** | `s-20260907T204636-b565f64a` · 2026-09-08T04:46:36Z |
 | 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **BLOQUEADA** (45) | |
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
@@ -269,8 +283,8 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 60 | T60 · Sin nombre propio, el diario dice «Enano el Enano» | tareas/T60-nombre-por-defecto-duplica-la-clase.md | — | 2 h | MEDIO | — | — | manual | **SUSTITUIDA** (por 62) | |
 | 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | **EN CURSO** | `s-20260907T204408-8af444b9` · 2026-09-08T02:44:08Z |
 | 62 | T62 · Un nombre chulo por defecto para el héroe sin nombre | tareas/T62-nombre-chulo-por-defecto.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) | 2 h | MEDIO | — | `partida.ts`, `nombresHeroe.ts` (nuevo), tests | manual | LISTA (`aaebe93`) | |
-| 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | **EN CURSO** | `s-20260907T204415-32d21ad3` · 2026-09-07T22:44Z |
-| 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | **PENDIENTE** | |
+| 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | LISTA (hash pendiente del push) | |
+| 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | **EN CURSO** | `s-20260907T204555-0c3c3d69` · 2026-09-07T22:45:55Z |
 | 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
@@ -287,30 +301,30 @@ nombre un nombre de verdad (62) resuelve el síntoma de la 60 («Enano el Enano�
 (`hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`). No hay `hechos/recursos/` con
 nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** **45** (ALTO), **64** (MEDIO, nueva) y **65** (BAJO, nueva). **37,
-61 y 63 están EN CURSO** (sids y caducidad en la tabla). **La 59 y la 62 están cerradas**
-(`aa75844` y `aaebe93`, los dos en `main`); **la 60 quedó SUSTITUIDA**.
+**Libres por estado:** solo **65** (BAJO). **37, 45, 61 y 64 están EN CURSO** (sids y
+caducidad en la tabla). **La 59, la 62 y ahora la 63 están cerradas** (`aa75844`, `aaebe93`
+y la 63 con hash pendiente del push, en `main`); **la 60 quedó SUSTITUIDA**.
 
 **Por ficheros, ahora mismo:** 37 (EN CURSO) comparte **`EleccionDeHeroes.tsx`** con la 45
-—no van en paralelo mientras la 37 siga cogida—. La 59, ya cerrada, tocó
-`EleccionDeHeroes.tsx` y `estilos.css`; quien reclame la 45 parte del código que dejó (el
-logotipo grande sustituido por la portada), pero tendrá que esperar a que la 37 cierre ese
-fichero. La 62, también cerrada, tocó `partida.ts`, que la 37 declara: la sesión de la 37
-parte del reparto de nombres ya puesto y no tuvo que esperar a nadie por ese fichero. **61
-y 63 (EN CURSO) no comparten fichero entre sí ni con la 37 ni con la 45**, así que las tres
-corren a la vez sin chocar. **64 y 65 tampoco comparten fichero con ninguna de las tres**
-EN CURSO. 15 espera la palabra de Juan Luis; 46, 47 y 50 siguen BLOQUEADAS por sus
-precondiciones (46 y 47 esperan a la 45, que ya se puede coger).
+(también EN CURSO) —no van en paralelo; las dos sesiones lo saben y se lo avisaron entre
+ellas (`hechos/incidencias/s-20260907T204636-b565f64a.md`): la 45 lo toca lo último y lo
+mínimo, y rebasa si la 37 fusiona antes—. La 59, ya cerrada, tocó `EleccionDeHeroes.tsx` y
+`estilos.css`; la 62, también cerrada, tocó `partida.ts`, que la 37 declara y ya partió de
+ese reparto. **61 y 64 (EN CURSO) no comparten fichero entre sí ni con la 37 ni con la
+45**, así que las cuatro EN CURSO corren a la vez sin chocar por fichero. La 63, ya
+cerrada, tocó solo `MasterLog.tsx`, que ninguna otra tarea viva declara. 15 espera la
+palabra de Juan Luis; 46, 47 y 50 siguen BLOQUEADAS por sus precondiciones (46 y 47
+esperan a que la 45 cierre).
 
-**Cabe hoy:** hasta **dos sesiones más a la vez** sin chocar con las que ya están
-trabajando —una con la 45 tendría que esperar a que cierre la 37 por
-`EleccionDeHeroes.tsx`, así que de momento cabe una con la 64 y otra con la 65 (o las dos
-encadenadas en una sola sesión)—.
+**Cabe hoy:** una sesión más con la **65** (BAJO), sola o encadenada tras la 64 cuando esa
+sesión cierre —no chocan por fichero (`useAccionesDeTurno.ts` frente a `TurnPanel.tsx`),
+pero la 65 no se abre en paralelo hasta que la 64 libere su reclamo o alguien la coja
+aparte—.
 
-**Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 se coge sola (y ya está
-cogida). **64 y 65 se declaran encadenables** entre sí (cortas, sin fichero en común:
-`useAccionesDeTurno.ts` y `TurnPanel.tsx`). Ninguna otra de 37, 45, 61, 63 tiene
-«encadenable con» declarado. Las cadenas 51 → 53 → 54 → 55
+**Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 ya está cogida. **64 y 65
+se declaran encadenables** entre sí (cortas, sin fichero en común); la 64 está EN CURSO y
+encadenará la 65 al cerrar, según su propio reclamo. Ninguna otra de 37, 45, 61 tiene
+«encadenable con» declarado, ni la 63 ya cerrada. Las cadenas 51 → 53 → 54 → 55
 (`s-20260906T174714-651b3481`) y 52 → 36 → 22 (`s-20260906T174532-9cbd624b`) están cerradas
 enteras.
 
@@ -323,6 +337,8 @@ conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la
 terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
+
+- LISTA · tarea 63 · 2026-09-07 20:46 · `s-20260907T204415-32d21ad3` (cierre rematado por `s-20260907T205459-25b4f867`) · el `useEffect` de `MasterLog` desplazaba el diario con `scrollIntoView`, que sube por todos los ancestros desplazables y arrastraba `.juego-panel` (o la página entera por debajo de 1100px), tapando los botones de `TurnPanel`; ahora llama `scrollTo({top: scrollHeight, behavior:"smooth"})` sobre `.diario-lista`, que nunca sube más allá de su propio contenedor; `.diario-lista` conserva `overflow-y:auto` y `max-height:260px` a las dos anchuras, así que no toca CSS; `MasterLog` es compartido por `Juego.tsx` y `VistaDeHeroe.tsx`, así que cubre las dos pantallas; sin navegador en el entorno, verificado por lectura del CSS y del DOM, no visualmente; 669 tests / 43 ficheros antes y después; typecheck en verde · `src/ui/MasterLog.tsx` · (hash pendiente del push)
 
 - LISTA · tarea 62 · 2026-09-07 20:45 · `s-20260907T145032-f832894d` · el héroe sin nombre deja de quedarse con el de su clase: `crearPartida` le sortea uno de `src/data/nombresHeroe.ts`, con la forma de T42 (lista a mano y reparto sin repetir) pero indexada por clase **y** género, porque un héroe elige las dos cosas (T16); diez nombres por combinación, doce del hada, que comparte una sola lista entre géneros. Algunos son de varias palabras («Ácomer, hijo de Ádormir», «Groa de Cáliran»), pedidos por Juan Luis a mitad de la tarea con esos dos ejemplos, y son **aposiciones** y nunca epítetos con artículo, para que aguanten los dos moldes del narrador sin tocarlo: «el bárbaro Grímur, hijo del Trueno» (informe) y «Grímur, hijo del Trueno el Bárbaro» (relato). Corriente propia derivada de la semilla (`+0x27d4eb2f`), distinta de la de los nombres de monstruo y la de los temperamentos, con dos tests que lo fijan. Siete tests de cinco ficheros afirmaban el nombre de la clase como nombre por defecto —la regla vieja, no un fallo nuevo— y se corrigieron para leerlo del estado. No toca `narrator/`, que es por lo que la 62 sustituyó a la 60. Cabo suelto en `hechos/incidencias/`: la cortina de paso (`Transicion.tsx`, con los nombres de `App.tsx`) sigue diciendo «Bárbaro», y arreglarlo pide la semilla, que vive en `Juego.tsx` (T45). 654 → 669 tests / 42 → 43 ficheros (+15, `tests/nombres-de-heroe.test.ts`); typecheck en verde · `src/data/nombresHeroe.ts`, `src/engine/partida.ts`, `tests/nombres-de-heroe.test.ts`, `tests/ficha-flotante.test.ts`, `tests/heroes.test.ts`, `tests/narrator.test.ts`, `tests/temperamento.test.ts`, `tests/turno-de-zargon.test.ts` · `aaebe93`
 - LISTA · tarea 59 · 2026-09-07 14:15 · `s-20260907T140727-559d19ac` · `Portada Hero Quest.png` (de Juan Luis) entra como `portada-original.png` (sin retocar) y `portada.webp` (495→133 KB, `cwebp -q 90`, sin recorte: alfa opaco de verdad y esquinas ya casi del color de `--fondo`); sustituye al logotipo grande de T41 en la cabecera de `EleccionDeHeroes.tsx` porque la imagen resultó traer ya pintado «Hero Quest, versión Salas Oliver, para todas las edades» y no ser una escena aparte como preveía la ficha —razonado en `hechos/incidencias/s-20260907T140727-559d19ac.md`—; el logotipo sigue igual en `Transicion.tsx` y en la barra de la partida. Declarada en `public/IMAGENES.md` y `src/data/imagenes.ts` (`PORTADA`); sin navegador en el entorno, no se pudo hacer una captura real, verificado por lectura y por `npm run build`. 654 tests / 42 ficheros, sin cambios; typecheck y build en verde · `public/portada-original.png`, `public/portada.webp`, `public/IMAGENES.md`, `src/data/imagenes.ts`, `src/estilos.css`, `src/ui/EleccionDeHeroes.tsx` · `aa75844`
