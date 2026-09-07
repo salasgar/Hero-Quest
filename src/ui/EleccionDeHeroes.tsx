@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { EQUIPO, type IdEquipo } from "../data/equipment";
 import { HEROES, VARIANTES_HEROE, type ClaseHeroe, type Genero } from "../data/heroes";
-import { LOGOTIPO, rutaDe } from "../data/imagenes";
+import { PORTADA, rutaDe } from "../data/imagenes";
 import { MISION_CALABOZO } from "../data/quests/calabozo";
 import { ELEMENTOS, hechizosDelElemento, type Elemento } from "../data/spells";
 import type { HeroeElegido } from "../engine/partida";
@@ -103,12 +103,13 @@ export function EleccionDeHeroes({ alEmpezar }: { alEmpezar: (heroes: HeroeElegi
     <div className="eleccion">
       <header className="eleccion-cabecera">
         {/*
-          El logotipo en grande va aquí y no en la partida: esta pantalla es la
-          primera que se ve, no tiene tablero al que quitarle sitio y es donde
-          se está esperando a que la gente se decida. En cuanto empieza la
-          misión, la pantalla es del juego.
+          La portada (T59) ya trae el rótulo «Hero Quest» pintado dentro de la
+          propia ilustración —con la coletilla «Versión Salas Oliver»—, así que
+          va aquí en vez del logotipo suelto de T41: poner los dos habría
+          repetido el mismo texto dos veces en la misma pantalla. El logotipo
+          sigue siendo el que se ve pequeño en la partida y en la transición.
         */}
-        <img className="eleccion-logo" src={rutaDe(LOGOTIPO)} alt="HeroQuest" />
+        <img className="eleccion-portada" src={rutaDe(PORTADA)} alt="Hero Quest, versión Salas Oliver" />
         <h1>¿Quién baja a la mazmorra?</h1>
         <p className="pista">
           Hasta {TOPE} héroes. Se puede repetir clase —dos magos, dos elfas—, y cada clase se

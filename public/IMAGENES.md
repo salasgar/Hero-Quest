@@ -16,6 +16,8 @@ porqué; aquel es el que se ejecuta. Al añadir una imagen hay que tocar los dos
 | `logotipo.webp` | el logotipo que sí se ve, en tres sitios | retoque del anterior, hecho aquí | el mismo que el original |
 | `piedra.svg` | textura de los paneles | generada aquí, ruido procedural | propia |
 | `tablero-referencia.webp` | la foto con la que se midió el tablero físico | de Juan Luis, ya estaba antes de T41 | suyo; uso interno |
+| `portada-original.png` | el original de la portada, tal como llegó; **no se usa en pantalla** | lo dio Juan Luis el 2026-09-07 | suyo |
+| `portada.webp` | la portada, en la pantalla de elección de héroes | compresión del anterior, hecha aquí | el mismo que el original |
 
 **No se ha descargado nada de Internet.** Estaba autorizado, pero no ha hecho falta: el
 logotipo salió de la imagen que dio Juan Luis y la ambientación se genera con SVG y
@@ -51,25 +53,38 @@ escribe el PNG con `zlib` y `struct`—, escrito para esto y no guardado en el r
 porque es de un solo uso; lo que hay que conservar es la receta, que es esta. El paso 4
 es `cwebp`, que en este Mac está en `/opt/homebrew/bin`.
 
+## Cómo se hizo `portada.webp` (T59)
+
+Sin retoque de contenido: `Portada Hero Quest.png` (1758×1190, RGBA de 8 bits) llegó con
+el alfa a 255 en todo el muestreo (esquinas y centro, y disperso cada 7 px) —opaca de
+verdad, no «RGBA» de mentira como la de T41—, y sus esquinas ya son casi del mismo color
+que el fondo de la aplicación (`rgb(16,17-19,21-23)` frente a `--fondo: #14161c`), así
+que no hacía falta recortar nada. Solo se comprimió a WebP (`cwebp -q 90`): de 495 KB a
+133 KB, sin pérdida apreciable.
+
 ## Dónde se ve cada cosa
 
-- **`logotipo.webp` grande** en la pantalla de elección de héroes (`EleccionDeHeroes`),
-  que es la primera que se ve y no tiene tablero al que quitarle sitio.
-- **`logotipo.webp` grande otra vez** en la pantalla de paso (`Transicion`), los dos
-  segundos entre pulsar «empezar» y ver el calabozo. Se salta con cualquier tecla o clic.
+- **`portada.webp`** en la pantalla de elección de héroes (`EleccionDeHeroes`), en el
+  lugar donde antes iba `logotipo.webp` en grande. La propia ilustración ya trae pintado
+  el rótulo «Hero Quest» y la coletilla «Versión Salas Oliver, para todas las edades»
+  (T59): repetir el logotipo suelto justo debajo habría puesto el mismo texto dos veces
+  en la misma pantalla, así que ahí se sustituye. El logotipo solo, sin la escena, sigue
+  siendo el que se ve en los otros dos sitios.
+- **`logotipo.webp` grande** en la pantalla de paso (`Transicion`), los dos segundos
+  entre pulsar «empezar» y ver el calabozo. Se salta con cualquier tecla o clic.
 - **`logotipo.webp` pequeño** en la barra de navegación durante la partida, a 1,6 rem de
   alto. La barra ya existía y tenía hueco de sobra a la izquierda.
 - **`piedra.svg`** de fondo en la barra y en los paneles de turno, hojas, diario y
   desenlace. Va de fondo y no de marco a propósito: un marco le quitaría ancho al texto.
 
 **Encima del tablero no hay nada, y ningún panel ha encogido.** Era la condición de la
-ficha: el tablero es lo que se mira mientras se juega.
+ficha de T41: el tablero es lo que se mira mientras se juega.
 
-## Lo que queda por hacer, y no es de T41
+## Lo que queda por hacer, y no es de T41 ni de T59
 
 - **El icono de la pestaña del navegador** (`favicon`). Cabría bien un recorte del
-  logotipo, pero se pone en `index.html`, que T41 no declara entre sus ficheros. Es una
-  línea de trabajo para quien toque `index.html`.
+  logotipo, pero se pone en `index.html`, que ninguna de las dos declara entre sus
+  ficheros. Es una línea de trabajo para quien toque `index.html`.
 - **Una ilustración por clase de héroe** en su hoja: eso es **T37**, la de los iconos.
 - **Los sonidos** son **T44**. Cuando lleguen, `public/sonidos/` no es una imagen y el
   test de esta lista ya lo tiene en cuenta: solo mira ficheros de imagen.

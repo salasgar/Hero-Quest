@@ -63,6 +63,20 @@ export const IMAGENES: Imagen[] = [
     procedencia: "foto del tablero de Juan Luis; ya estaba en public/ antes de T41",
     licencia: "de Juan Luis; uso interno, no se publica como ilustración",
   },
+  {
+    archivo: "portada-original.png",
+    para: "el original de la portada, tal como llegó; no se usa en pantalla",
+    origen: "aportada",
+    procedencia: "Juan Luis, 2026-09-07 («Portada Hero Quest.png», en la raíz del repositorio)",
+    licencia: "de Juan Luis; se guarda para poder volver a comprimirla o recortarla",
+  },
+  {
+    archivo: "portada.webp",
+    para: "la portada, en la pantalla de elección de héroes",
+    origen: "generada",
+    procedencia: "compresión de portada-original.png hecha aquí, sin recorte ni retoque de color",
+    licencia: "la misma que el original",
+  },
 ];
 
 /** Por nombre, para no repetir la cadena en cada componente. */
@@ -83,3 +97,6 @@ export function rutaDe(archivo: string): string {
 
 /** El logotipo, que es la que se pide desde tres sitios distintos. */
 export const LOGOTIPO = "logotipo.webp";
+
+/** La portada, en la pantalla de elección de héroes. */
+export const PORTADA = "portada.webp";
