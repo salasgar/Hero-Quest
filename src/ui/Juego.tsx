@@ -18,6 +18,7 @@ import { MasterLog } from "./MasterLog";
 import { TurnPanel } from "./TurnPanel";
 import { mandosDeHeroe, useAccionesDeTurno } from "./useAccionesDeTurno";
 import { usePartida } from "./usePartida";
+import { desbloquearAudio, useSilencio, useSonidos } from "./sonidos";
 
 /** El grupo con el que se juega si nadie elige: los cuatro de la caja. */
 export const GRUPO_CLASICO: HeroeElegido[] = [
@@ -103,6 +104,9 @@ export function Juego({
   // objetivos que se pintan en el tablero, igual que en `TurnPanel`.
   const mandos = mandosDeHeroe(estado, turno.zargon);
 
+  const [silenciado, alternarSilencio] = useSilencio();
+  useSonidos(estado, silenciado);
+
   useEffect(() => {
     if (!error) return;
     const t = setTimeout(limpiarError, 2600);
@@ -110,7 +114,9 @@ export function Juego({
   }, [error, limpiarError]);
 
   return (
-    <div className="juego">
+    // El audio no suena hasta que el navegador ve un gesto del usuario; el
+    // primer clic en cualquier parte de la partida vale para desbloquearlo.
+    <div className="juego" onClickCapture={desbloquearAudio}>
       <div className="juego-tablero">
         <BoardMirror
           estado={estado}
@@ -128,7 +134,19 @@ export function Juego({
 
       <aside className="juego-panel">
         <header className="juego-cabecera">
-          <h1>{estado.mision.titulo}</h1>
+          {/* Estilo en línea a propósito: `estilos.css` lo tiene reclamado la
+              T58 mientras dura, y una fila con un botón detrás no merece
+              esperar a que se suelte. */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: ".5rem" }}>
+            <h1>{estado.mision.titulo}</h1>
+            <button
+              onClick={alternarSilencio}
+              aria-label={silenciado ? "Activar el sonido" : "Silenciar el sonido"}
+              title={silenciado ? "Sonido apagado" : "Sonido encendido"}
+            >
+              {silenciado ? "🔇" : "🔊"}
+            </button>
+          </div>
           <p className="apagado">{estado.mision.introduccion}</p>
         </header>
 

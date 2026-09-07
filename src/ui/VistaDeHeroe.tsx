@@ -11,6 +11,7 @@ import { MasterLog } from "./MasterLog";
 import { TurnPanel } from "./TurnPanel";
 import { useAccionesDeTurno } from "./useAccionesDeTurno";
 import { usePartida } from "./usePartida";
+import { desbloquearAudio, useSilencio, useSonidos } from "./sonidos";
 
 /**
  * La pantalla de quien juega desde su casa.
@@ -39,6 +40,12 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
   // por el estado completo, porque tiene que contestar lo mismo que el motor.
   const visto = comoLoVe(estado, "desdeCasa");
 
+  // El registro no lo filtra la niebla (comentario de `MasterLog` más abajo),
+  // así que suena sobre `estado`, no sobre `visto`: son la misma lista, pero
+  // esta es la que no depende de que `comoLoVe` la deje intacta.
+  const [silenciado, alternarSilencio] = useSilencio();
+  useSonidos(estado, silenciado);
+
   useEffect(() => {
     if (!error) return;
     const t = setTimeout(limpiarError, 2600);
@@ -55,7 +62,7 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
       : (estado.heroes.find((h) => h.id === actor)?.nombre ?? actor);
 
   return (
-    <div className="juego">
+    <div className="juego" onClickCapture={desbloquearAudio}>
       <div className="juego-tablero">
         <BoardMirror
           estado={visto}
@@ -70,7 +77,19 @@ export function VistaDeHeroe({ sesion }: { sesion: SesionDeRed }) {
 
       <aside className="juego-panel">
         <header className="juego-cabecera">
-          <h1>{estado.mision.titulo}</h1>
+          {/* Estilo en línea a propósito: `estilos.css` lo tiene reclamado la
+              T58 mientras dura, y una fila con un botón detrás no merece
+              esperar a que se suelte. */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: ".5rem" }}>
+            <h1>{estado.mision.titulo}</h1>
+            <button
+              onClick={alternarSilencio}
+              aria-label={silenciado ? "Activar el sonido" : "Silenciar el sonido"}
+              title={silenciado ? "Sonido apagado" : "Sonido encendido"}
+            >
+              {silenciado ? "🔇" : "🔊"}
+            </button>
+          </div>
           <p className="apagado">
             Juegas {mios.length === 1 ? "a" : "a"}{" "}
             {mios
