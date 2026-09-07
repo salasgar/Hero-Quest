@@ -72,6 +72,33 @@ grep -n "FichaFlotante" src/ui/BoardMirror.tsx
 - **`INICIALES` y los colores de figura** son de `BoardMirror.tsx` y los cambia T37: no
   los muevas de sitio.
 
+## Cómo quedó (para quien la lea después)
+
+- **`.tablero` no tiene escala propia** (no hay `max-width` ni `transform` que lo encoja):
+  las coordenadas de grid (`LADO`, `MARGEN`) ya son píxeles de `.juego-tablero`. No hizo
+  falta `getBoundingClientRect`; el centro de una figura es
+  `f.celda.x * LADO + LADO/2 + MARGEN` (e igual en `y`), y de ahí sale directo si el cuadro
+  se abre a la derecha o a la izquierda comparando con `ancho / 2`. Si algún día `.tablero`
+  gana una escala CSS, este cálculo hay que revisarlo.
+- **Ratón y tableta se distinguen por `e.pointerType`** (`"mouse"` / `"touch"`), no por
+  `onMouseEnter`/`onClick`: en la `<g>` de cada figura, `pointerenter`/`pointerleave`
+  filtrados a `"mouse"` abren y cierran con el ratón; `pointerup` filtrado a `"touch"` (y
+  con `stopPropagation`, para que no lo cierre el manejador del `<svg>`) abre con el toque.
+  El `<svg>` lleva su propio `pointerup` sin filtrar por figura, que cierra con cualquier
+  toque en otro sitio (casillas, muros, fondo).
+- **`esObjetivo` decide si el toque ataca o abre el cuadro**, y sale del prop `objetivos`
+  que ya llega a `BoardMirror` (cubre ataque y el objetivo de un hechizo a medio lanzar).
+  Lo que **no** cubre es «elegir a mano qué monstruo actúa» (T52, `mandos` con Zargon al
+  volante): esa lista (`porActivar`) vive en `useAccionesDeTurno` y no llega a
+  `BoardMirror`. En una tableta, tocar un monstruo activable en ese momento lo activa
+  (el `onClick` sigue llamando a `alPulsarFigura`, que no cambia) pero también abre el
+  cuadro un instante, porque `BoardMirror` no sabe que era objetivo. Ruido visual, no un
+  fallo de la acción; para quitarlo del todo habría que pasarle `porActivar` como prop.
+- **Sin navegador en el entorno**: no se pudo probar de verdad en una tableta ni el
+  `pointerenter`/`pointerleave` con un ratón físico. Verificado por lectura y con
+  `tests/ficha-flotante.test.ts`, que prueba `fichaDe` (la función pura) contra partidas
+  reales (`tests/ayuda.ts`), incluido el descuento del foso con el estado.
+
 ## Prohibido
 
 - Tocar el motor, los selectores o `HeroSheet.tsx`: los números salen de `combat.ts` tal
