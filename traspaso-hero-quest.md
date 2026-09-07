@@ -1,8 +1,8 @@
 # Traspaso — HeroQuest
 
-Actualizado: 2026-09-06 17:45Z · Sesión que lo escribe: `s-20260906T141818-ff83f12c` (la
-que coordinó tras la migración: escribió T51–T57 con lo que Juan Luis vio probando la
-página publicada)
+Actualizado: 2026-09-07 07:55Z · Sesión que lo escribe: `s-20260906T141818-ff83f12c` (la
+que coordinó tras la migración: escribió T51–T58 con lo que Juan Luis vio probando la
+página publicada, y a la mañana siguiente reconcilió `main` y cerró la 56 por relevo)
 
 ## Objetivo
 
@@ -20,28 +20,41 @@ encontrar fallos.
 **El estado de cada tarea está en `_ESTADO.md`, vista derivada de `hechos/`** (la verdad).
 Aquí solo lo que el tablón no recoge.
 
-- 51 fichas (T1–T22, T30–T58). Cerradas y en `main`: todas hasta T35, más 11, 40, 41
-  (`4baf429`), 42 (`372a0f0`) y 43. **No hay ningún reclamo vivo** a las 17:45Z.
-- T51–T58 están escritas y sin empezar. T57 (descargar la partida) es la que Juan Luis
-  pidió expresamente; va la primera de la cola porque es lo que permite mirar los demás
-  fallos con datos. T58 (la ficha flotante de cada figura al pasar el ratón) la pidió
-  después; espera a la 51 por `BoardMirror.tsx` y va encadenada con la 37.
-- Los tres ficheros de `hechos/` de la T41 que estaban sin rastrear en el árbol principal
-  eran idénticos a los de `origin/main` y se apartaron; `Letras Hero Quest.png` sigue en la
-  raíz sin rastrear (lo borra Juan Luis; ya está copiado en `public/`).
+- 51 fichas (T1–T22, T30–T58). La tarde del 6 de septiembre se abrieron seis sesiones y
+  cerraron **36, 48, 49, 51, 52, 53, 56 y 57**; todo está en `origin/main` (la 57 trae el
+  botón «Descargar partida» y `npm run repetir`; la 48, `tareas/_PROPUESTAS-2026-09.md`,
+  quince propuestas que **Juan Luis tiene que elegir**). Quedan sin empezar 22 (relevable),
+  37, 38, 39, 44, 45, 50, 54, 55, 58 y las bloqueadas 46, 47, 15.
+- A las 07:43Z del día 7 la sesión de la 53 (`s-20260906T174714-651b3481`) volvió de una
+  pausa nocturna, empujó su cierre y anunció que reclamaba la **54** a continuación (su
+  cadena es 51 → 53 → 54 → 55). **Comprueba en `hechos/reclamos/` si el reclamo 54 existe**
+  antes de dar la 54 por libre.
+- La **22** la reclamó `s-20260906T174532-9cbd624b` a las 18:18Z del día 6 y no hizo nada
+  más (su worktree está limpio, en el commit del reclamo): caducada, RELEVABLE.
+- La **56** la hizo `s-20260906T174758-05906208` pero fusionó en el `main` local sin
+  empujar y dejó la terminada sin rastrear; esta sesión rebasó, verificó (514 tests),
+  empujó (`7ae9fb9`) y la cerró por relevo. Incidencia en `hechos/incidencias/`.
+- `Letras Hero Quest.png` sigue en la raíz sin rastrear (lo borra Juan Luis; ya está
+  copiado en `public/`).
 
 ## Siguiente paso
 
-1. Abrir sesiones con **una frase por sesión**, con su tarea o cadena dentro. Caben a la
-   vez: **57** (MEDIO), **51 → 53 → 54 → 55** (ALTO, encadenadas), **52 → 36 → 22** (MEDIO,
-   encadenadas), **49** (MEDIO), **48** (ALTO) y **56** (BAJO; o 56 → 57 en una MEDIO).
-   Después: **58 → 37** (MEDIO) en cuanto cierre la 51 (la 37 además espera a 54 por
-   `types.ts`); 39 cuando cierre 54; 38 cuando cierren 54 y 49; 44 y 45 cuando cierre la
-   cadena 52 → 36 → 22 (45 además espera a 53); 46 tras 45; 50 tras 49 y 55.
-2. Regenerar el tablón desde `hechos/` cada vez que una sesión cierre (lo hacen las
+1. `git pull`, listar `hechos/reclamos/` y mirar si la 54 tiene reclamo vivo de
+   `s-20260906T174714-651b3481`; si no lo tiene y su rama no avanza, la 54 → 55 (ALTO) es
+   la primera frase que hay que dar. Si lo tiene, dejarla.
+2. Frases de arranque, **una por sesión, con su tarea o cadena dentro**, para lo que cabe
+   a la vez sin chocar: **58** (MEDIO; `BoardMirror.tsx` y `estilos.css`), **44** (MEDIO;
+   `Juego.tsx`), **45** (ALTO; no a la vez que 44 por `Juego.tsx`), y **22 por relevo**
+   (MEDIO; abre el reclamo con `releva a: s-20260906T174532-9cbd624b`; no a la vez que 54
+   por `HeroSheet.tsx` ni que 58 por `estilos.css`, así que va después de la 58). Después:
+   37 (tras 58 y 54), 39 y 38 (tras 54; 38 además tras 49, que ya está), 46 (tras 45), 50
+   (tras 49 y 55).
+3. Pedirle a Juan Luis dos cosas: que **elija entre las quince propuestas** de
+   `tareas/_PROPUESTAS-2026-09.md` (cada elegida es una ficha nueva, T59 en adelante), y que
+   **baje la partida** en la que vio los fallos («Descargar partida», en la barra) y la deje
+   en `partidas/`: `npm run repetir partidas/<fichero>.json` la rehace acción a acción.
+4. Regenerar el tablón desde `hechos/` cada vez que una sesión cierre (lo hacen las
    sesiones; si lo encuentran reservado, avisan).
-3. Cuando T57 cierre, decirle a Juan Luis que baje la partida en la que vio los fallos y la
-   deje en `partidas/`: `npm run repetir partidas/<fichero>.json` la rehace acción a acción.
 
 Banda de modelo para retomar: **ALTO** — lo que viene es coordinar (regenerar el tablón,
 resolver choques, escribir fichas cuando Juan Luis añada encargos), que es criterio; las
