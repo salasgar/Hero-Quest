@@ -11,6 +11,20 @@ vengan (T46, T47 y las siguientes) y cómo se mide la dificultad de cada una.
 `calabozo.ts`.**
 Lee `_COMUN.md` primero, y `proyecto.md` para el protocolo de reclamo y cierre.
 
+**LISTA (2026-09-07).** Terminada en `hechos/terminadas/45--s-20260907T204636-b565f64a.md`.
+Trampas que se encontraron al hacerla, para quien escriba T46 y T47:
+
+- **La ficha decía cuatro clases de objetivo y son cinco**: T53 añadió `recuperar`
+  (`objeto`, `sala`, `custodio?`). El test genérico las cubre todas.
+- **El id de misión también estaba escrito a mano en `EntrarEnPartida.tsx`** (dos veces)
+  y `repetir.ts` tenía una copia del catálogo: tocados los dos, más `App.tsx` para que la
+  misión elegida llegue a `Juego` y al montaje de red. No estaban en la lista de arriba.
+- **Congelar el catálogo congela las constantes de `calabozo.ts`** (misma referencia).
+  Ningún test las mutaba, así que no se rompió nada; una misión nueva tampoco debe
+  contar con mutarlas. Para variantes, `opcionesDe(m)` da copias.
+- **El simulador tarda unos tres minutos** en recorrer el catálogo con una sola misión
+  (300 partidas). Con dos o tres misiones serán diez: lánzalo en segundo plano.
+
 ## Lo que pidió Juan Luis
 
 El 2026-09-06: «Diseñar más misiones, ordenadas por dificultad.» Y dos firmas anteriores
