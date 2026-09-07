@@ -135,3 +135,30 @@ grep -n "nombresHeroe\|nombre chulo" src/engine/partida.ts src/data/*.ts
 El orden de cierre es el de `proyecto.md`. En el mensaje de cierre, pega un fragmento del
 diario (informe o relato, el que prefieras) con un héroe sin nombre propio y su nombre
 chulo puesto, para que Juan Luis lo vea sin tener que jugar él mismo.
+
+## Lo que encontró la sesión que la hizo (`s-20260907T145032-f832894d`, 2026-09-07)
+
+Hecha y cerrada. Cinco cosas que no estaban escritas aquí:
+
+- **Juan Luis pidió nombres de varias palabras a mitad de la tarea**, con dos ejemplos
+  suyos: «Ácomer, hijo de Ádormir» y «Groa de Cáliran». Están en la lista tal cual, y hay
+  tres o más largos por combinación de clase y género. Tienen que ser **aposiciones**
+  —patronímico, casa o gentilicio— y nunca epítetos con artículo («el Tuerto»): el relato
+  compone «{nombre} el {Clase}» y un epíteto chocaría con el artículo de la clase. Hay un
+  test que lo fija, para que quien añada nombres nuevos no lo rompa sin enterarse.
+- **Los siete tests que rompen son siete, no ciento dieciocho.** La ficha avisaba de 118
+  llamadas que construyen un héroe sin `nombre`, y tenía razón en que casi ninguna mira el
+  texto: fallan solo `ficha-flotante`, `heroes`, `narrator` (tres), `temperamento` y
+  `turno-de-zargon`, todos por comparar contra la cadena «Bárbaro» o «Elfo». Se arreglan
+  leyendo el nombre del estado en vez de escribirlo a mano. `narrador.test.ts` no se toca,
+  como decía la ficha.
+- **El caso límite de la reserva no se alcanza jugando.** Con diez nombres por combinación
+  y ocho héroes como mucho (T16), el ordinal romano no puede salir en una partida; se
+  prueba llamando a `repartirNombresDeHeroe` directamente con trece hadas.
+- **El hada necesita un conjunto de usados global.** Comparte una sola lista entre géneros,
+  así que sus dos bolsas llevan los mismos nombres barajados distinto: sin un conjunto de
+  usados común a toda la partida, un hada masculina y una femenina acaban repitiendo.
+- **Queda un cabo suelto que no cabe en esta ficha:** la cortina de paso (`Transicion.tsx`,
+  con los nombres que le pasa `App.tsx:22`) sigue anunciando «Bárbaro», porque se pinta
+  antes de que exista la partida y la semilla la elige `Juego.tsx`, que declara T45. Está
+  en `hechos/incidencias/s-20260907T145032-f832894d.md`.
