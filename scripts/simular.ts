@@ -2,9 +2,15 @@
  * Juega partidas enteras solo, para contestar la única pregunta que importa de
  * la IA: **¿ganan los héroes lo bastante a menudo?**
  *
- *   npm run sim              # 100 partidas por nivel
- *   npm run sim -- 300       # otras tantas
- *   npm run sim -- 100 4242  # y desde otra semilla base
+ *   npm run sim                        # 100 partidas por nivel
+ *   npm run sim -- 300                 # otras tantas
+ *   npm run sim -- 100 4242            # y desde otra semilla base
+ *   npm run sim -- 100 1000 miedoso    # con TODOS los monstruos miedosos (T38)
+ *
+ * Sin el tercer argumento, cada monstruo lleva el temperamento que le sorteó
+ * `crearPartida`, que es como se juega en la mesa. Con él, se fuerza el mismo a
+ * todos: es la única forma de ver qué le hace cada temperamento al porcentaje
+ * de victorias sin que el sorteo mezcle los tres.
  *
  * Todo pasa por `aplicarAccion` y por los mismos selectores que pinta la
  * interfaz. El simulador no tiene atajos propios: si una jugada aquí es legal,
@@ -21,8 +27,9 @@ import { aplicarAccion, actorActual, esTurnoDeZargon, figuraActiva } from "../sr
 import { casillasDeMovimiento, objetivosDeAtaque, puedeBuscarTesoro, puertasAlAlcance } from "../src/engine/selectors";
 import { alcanzables, distancia } from "../src/engine/board";
 import { celdasDeSala, salaEn } from "../src/data/board-base";
-import { claveCelda, type Accion, type Celda, type EstadoPartida, type Figura, type IdSala } from "../src/engine/types";
+import { claveCelda, type Accion, type Celda, type EstadoPartida, type Figura, type IdSala, type Temperamento } from "../src/engine/types";
 import { accionDeZargon, DIFICULTADES, type Dificultad } from "../src/ai/difficulty";
+import { esHuida } from "../src/ai/zargon";
 
 /**
  * El grupo con el que se mide. Es el mismo cuarteto clásico de los tests, y va
@@ -186,6 +193,20 @@ interface Partida {
   ataquesDeMonstruo: number;
   /** De esos, los que el monstruo remató yéndose andando de donde pegaba. */
   ataquesYSeVa: number;
+  /** Movimientos de huida (T38), del total de movimientos de monstruo. */
+  movimientosDeMonstruo: number;
+  huidas: number;
+  /**
+   * Las rachas de activaciones seguidas huyendo, una por racha y por monstruo.
+   *
+   * Es el número que la ficha de T38 mandaba vigilar: un miedoso que se pasa la
+   * partida corriendo por el pasillo sin que nadie lo alcance no es un monstruo
+   * asustado, es una partida que no termina. **Se guardan todas y no solo la
+   * mayor**: con cien partidas y seis monstruos cada una, el máximo siempre
+   * encuentra una persecución rarísima, y la media es la que dice si esto pasa
+   * a todas horas o es la excepción.
+   */
+  rachasDeHuida: number[];
 }
 
 /**
@@ -216,24 +237,84 @@ function contarRomperContacto(e: EstadoPartida): { ataques: number; ySeVa: numbe
   return { ataques, ySeVa };
 }
 
-function jugarPartida(semilla: number, nivel: Dificultad): Partida {
+/**
+ * Cuenta huidas mientras se juega, porque **no se pueden contar después**: el
+ * registro de eventos dice que un monstruo se movió, no que estuviera huyendo.
+ * Si un monstruo se aleja es huida o es rodeo según su temperamento y según
+ * quién tenga cerca, y eso solo lo sabe la IA en el momento de decidirlo
+ * (`esHuida`, en `zargon.ts`, que es la misma función que compone la frase que
+ * se lee en la mesa).
+ */
+class Huidas {
+  movimientos = 0;
+  huidas = 0;
+  /** Una entrada por racha terminada, con su longitud en activaciones. */
+  rachas: number[] = [];
+  private activo: string | null = null;
+  private huyoEnEsta = false;
+  private seguidas = new Map<string, number>();
+
+  activa(id: string) {
+    this.cierra();
+    this.activo = id;
+    this.huyoEnEsta = false;
+  }
+
+  mueve(huyendo: boolean) {
+    this.movimientos++;
+    if (!huyendo) return;
+    this.huidas++;
+    this.huyoEnEsta = true;
+  }
+
+  /**
+   * Cierra la activación en curso. Si el monstruo huyó, su racha crece; si se
+   * quedó a pelear, la racha que llevara se apunta y vuelve a cero.
+   */
+  cierra() {
+    if (this.activo === null) return;
+    const llevaba = this.seguidas.get(this.activo) ?? 0;
+    if (this.huyoEnEsta) {
+      this.seguidas.set(this.activo, llevaba + 1);
+    } else {
+      if (llevaba > 0) this.rachas.push(llevaba);
+      this.seguidas.set(this.activo, 0);
+    }
+    this.activo = null;
+  }
+
+  /** Las que seguían abiertas al acabar la partida cuentan igual. */
+  cierraLaPartida() {
+    this.cierra();
+    for (const llevaba of this.seguidas.values()) if (llevaba > 0) this.rachas.push(llevaba);
+    this.seguidas.clear();
+  }
+}
+
+function jugarPartida(semilla: number, nivel: Dificultad, forzado: Temperamento | null): Partida {
   let e = crearPartida({
     mision: MISION_CALABOZO,
     heroes: GRUPO,
-    monstruos: MONSTRUOS_CALABOZO,
+    // Sin `forzado`, cada monstruo lleva el temperamento que le toque en el
+    // sorteo de `crearPartida`; con él, todos el mismo.
+    monstruos: forzado
+      ? MONSTRUOS_CALABOZO.map((m) => ({ ...m, temperamento: forzado }))
+      : MONSTRUOS_CALABOZO,
     puertas: PUERTAS_CALABOZO,
     muebles: MUEBLES_CALABOZO,
     trampas: TRAMPAS_CALABOZO,
     semilla,
   });
 
+  const huidas = new Huidas();
   let rondas = 0;
   while (!e.desenlace && rondas < TOPE_DE_RONDAS) {
     const actor = actorActual(e);
-    e = jugarUnTurno(e, nivel);
+    e = jugarUnTurno(e, nivel, huidas);
     // La ronda se cuenta al pasar Zargon, que es como se cuenta en la mesa.
     if (actor === "zargon") rondas++;
   }
+  huidas.cierraLaPartida();
 
   const contacto = contarRomperContacto(e);
   return {
@@ -243,11 +324,14 @@ function jugarPartida(semilla: number, nivel: Dificultad): Partida {
     termino: e.desenlace !== null,
     ataquesDeMonstruo: contacto.ataques,
     ataquesYSeVa: contacto.ySeVa,
+    movimientosDeMonstruo: huidas.movimientos,
+    huidas: huidas.huidas,
+    rachasDeHuida: huidas.rachas,
   };
 }
 
 /** Un turno entero del actor que toque, hasta que cambie el turno o se acabe. */
-function jugarUnTurno(inicial: EstadoPartida, nivel: Dificultad): EstadoPartida {
+function jugarUnTurno(inicial: EstadoPartida, nivel: Dificultad, huidas: Huidas): EstadoPartida {
   let e = inicial;
   const mio = e.turno.indice;
 
@@ -259,6 +343,11 @@ function jugarUnTurno(inicial: EstadoPartida, nivel: Dificultad): EstadoPartida 
     // miopía estructural del torpe, que no viven en la tabla de pesos.
     const accion = esTurnoDeZargon(e) ? accionDeZargon(e, nivel) : accionDelHeroe(e);
     if (!accion) break;
+
+    if (esTurnoDeZargon(e)) {
+      if (accion.tipo === "activarMonstruo") huidas.activa(accion.monstruo);
+      else if (accion.tipo === "mover") huidas.mueve(esHuida(e, accion));
+    }
 
     const r = aplicarAccion(e, accion);
     // Que el motor rechace algo que la política acaba de proponer es un fallo de
@@ -285,12 +374,26 @@ function jugarUnTurno(inicial: EstadoPartida, nivel: Dificultad): EstadoPartida 
 const pct = (n: number, de: number) => (de === 0 ? "—" : `${((100 * n) / de).toFixed(0)} %`);
 const media = (xs: number[]) => (xs.length === 0 ? 0 : xs.reduce((a, b) => a + b, 0) / xs.length);
 
+const TEMPERAMENTOS: readonly Temperamento[] = ["agresivo", "miedoso", "prudente"];
+
 async function main() {
   const cuantas = Number(process.argv[2] ?? 100);
   const base = Number(process.argv[3] ?? 1000);
+  const pedido = process.argv[4];
+  if (pedido !== undefined && !TEMPERAMENTOS.includes(pedido as Temperamento)) {
+    console.error(`\nTemperamento desconocido: «${pedido}». Los que hay: ${TEMPERAMENTOS.join(", ")}.\n`);
+    process.exit(1);
+  }
+  const forzado = (pedido as Temperamento | undefined) ?? null;
 
   console.log(`\nHeroQuest · ${cuantas} partidas por nivel, semillas ${base}…${base + cuantas - 1}`);
   console.log(`Misión: «${MISION_CALABOZO.titulo}» · grupo: ${GRUPO.map((h) => h.clase).join(", ")}`);
+  console.log(
+    forzado
+      ? `Temperamento (T38): TODOS los monstruos ${forzado}s, forzado desde la línea de órdenes.`
+      : "Temperamento (T38): el que sortea cada partida, por especie. Para forzar uno,\n" +
+          "pásalo como tercer argumento: `npm run sim -- 100 1000 miedoso`.",
+  );
   console.log(
     "Héroes jugados por una heurística tonta: abren lo que tienen delante, pegan al más\n" +
       "débil que alcanzan y si no se acercan. No buscan tesoro ni lanzan hechizos.",
@@ -298,7 +401,7 @@ async function main() {
 
   for (const nombre of DIFICULTADES) {
     const partidas: Partida[] = [];
-    for (let i = 0; i < cuantas; i++) partidas.push(jugarPartida(base + i, nombre));
+    for (let i = 0; i < cuantas; i++) partidas.push(jugarPartida(base + i, nombre, forzado));
 
     const terminadas = partidas.filter((p) => p.termino);
     const ganadas = terminadas.filter((p) => p.victoria);
@@ -316,6 +419,19 @@ async function main() {
     const ataques = partidas.reduce((a, p) => a + p.ataquesDeMonstruo, 0);
     const seVan = partidas.reduce((a, p) => a + p.ataquesYSeVa, 0);
     console.log(`  pega y se va             ${pct(seVan, ataques)} de ${ataques} ataques de monstruo${seVan / Math.max(1, ataques) > 0.2 ? "  ← eso es mucho, mira abajo" : ""}`);
+
+    const movimientos = partidas.reduce((a, p) => a + p.movimientosDeMonstruo, 0);
+    const huyendo = partidas.reduce((a, p) => a + p.huidas, 0);
+    const rachas = partidas.flatMap((p) => p.rachasDeHuida);
+    const mayor = rachas.length > 0 ? Math.max(...rachas) : 0;
+    console.log(`  se retiran               ${pct(huyendo, movimientos)} de ${movimientos} movimientos de monstruo`);
+    console.log(
+      `  huidas seguidas          ${media(rachas).toFixed(1)} de media, ${mayor} la peor  (${rachas.length} retiradas)` +
+        // El aviso va sobre la media, no sobre el máximo: con cien partidas y
+        // seis monstruos cada una, el máximo siempre encuentra una persecución
+        // rarísima y avisaría todos los días.
+        (media(rachas) > 3 ? "  ← eso ya es correr, no huir" : ""),
+    );
   }
 
   console.log(
@@ -324,6 +440,15 @@ async function main() {
       "héroes juntarse cuatro contra uno sin que nadie los sujete. Si sale alto, el sitio\n" +
       "donde mirar es `siguienteAccionDelMonstruo` en `src/ai/zargon.ts`: cuando ya ha\n" +
       "atacado, todas las casillas puntúan sin poder atacar y ninguna gana por quedarse.",
+  );
+  console.log(
+    "\n«Se retiran» son los movimientos que la IA cuenta como huida (T38): los hace un\n" +
+      "monstruo miedoso, o uno prudente con héroes encima, y le aumentan la separación.\n" +
+      "«Huidas seguidas» cuenta cuántas activaciones enteras seguidas se pasa huyendo el\n" +
+      "mismo monstruo: es lo que hay que vigilar, porque uno que huye una activación tras\n" +
+      "otra se está paseando por los pasillos con el grupo detrás y la misión no termina.\n" +
+      "Mira la media, no la peor. El tope de hasta dónde tranquiliza alejarse está en\n" +
+      "`DISTANCIA_QUE_TRANQUILIZA`, en `src/ai/personalities.ts`.",
   );
   console.log(
     "\nLos porcentajes son una guía de diseño, no un contrato: no hay ningún test que\n" +

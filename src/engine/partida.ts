@@ -6,6 +6,14 @@ import { MONSTRUOS, type EspecieMonstruo } from "../data/monsters";
 import { hechizosDelElemento, type Elemento, type IdHechizo } from "../data/spells";
 import { MAZO_COMPLETO } from "../data/treasure";
 import { repartirNombres } from "../data/nombres";
+// Única importación del motor a la IA, y es deliberada: el temperamento es un
+// dato del monstruo —como el nombre—, pero **con qué probabilidad sale en cada
+// especie** es una decisión de comportamiento, y vive donde viven las demás
+// (`src/ai/personalities.ts`), que es donde la busca quien quiera cambiarla. Lo
+// que se importa es una tabla y un sorteo, no una táctica: el motor sigue sin
+// saber cómo se juega. No hay ciclo —`src/ai/` no importa este fichero— y hay un
+// test que lo comprueba.
+import { repartirTemperamentos } from "../ai/personalities";
 import { crearRng, entero, type Rng } from "./rng";
 import { conMonstruosEnTablero, conPuertasVistas } from "./vision";
 import { claveCelda } from "./types";
@@ -17,6 +25,7 @@ import type {
   Monstruo,
   Mueble,
   Puerta,
+  Temperamento,
   Trampa,
 } from "./types";
 
@@ -36,8 +45,19 @@ export interface OpcionesPartida {
   /**
    * `nombre` lo fija la misión cuando le hace falta nombrar a uno concreto —«el
    * medallón está en manos de un orco llamado Jújrur»—. Si no viene, se sortea.
+   *
+   * `temperamento` igual, y por el mismo motivo (T38): una misión que quiera un
+   * jefe que no huya nunca lo declara, y el resto se sortea. Fijarlo a mano es
+   * además lo que usan los tests y el simulador para medir cada temperamento
+   * por separado.
    */
-  monstruos: Array<{ id: string; especie: EspecieMonstruo; celda: Celda; nombre?: string }>;
+  monstruos: Array<{
+    id: string;
+    especie: EspecieMonstruo;
+    celda: Celda;
+    nombre?: string;
+    temperamento?: Temperamento;
+  }>;
   puertas?: Puerta[];
   muebles?: Mueble[];
   trampas?: Trampa[];
@@ -197,6 +217,13 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
   // falta que la corriente de los nombres no sea la misma que la de los dados.
   const { nombres, libres } = repartirNombres(op.monstruos, crearRng((op.semilla ?? 1) + 0x5bf03635));
 
+  // El temperamento (T38) se sortea en su propia corriente, por lo mismo que los
+  // nombres y con un desplazamiento distinto: si compartiera generador con
+  // ellos, añadir un monstruo a una misión cambiaría los nombres de los demás, y
+  // si compartiera el de la partida cambiarían todas las tiradas de todos los
+  // tests con semilla.
+  const temperamentos = repartirTemperamentos(op.monstruos, crearRng((op.semilla ?? 1) + 0x1d3f7a09));
+
   const monstruos: Monstruo[] = op.monstruos.map((m, i) => {
     const plantilla = MONSTRUOS[m.especie];
     return {
@@ -204,6 +231,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
       id: m.id,
       especie: m.especie,
       nombre: nombres[i]!,
+      temperamento: temperamentos[i]!,
       celda: m.celda,
       cuerpo: plantilla.cuerpo,
       cuerpoMax: plantilla.cuerpo,

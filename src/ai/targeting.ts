@@ -191,6 +191,22 @@ export interface Pesos {
   /** Penalización por casilla de distancia. Lo que está lejos vale menos. */
   porCasillaDeDistancia: number;
   /**
+   * Lo que vale cada casilla de separación con el héroe más cercano (T38).
+   *
+   * Es el único peso que **no siempre suma**: lo multiplica las ganas de huir
+   * del monstruo, que valen 0 en un agresivo. Con eso, un agresivo puntúa
+   * exactamente como antes de T38 —el término entero desaparece— y un miedoso
+   * ve las casillas del fondo del pasillo mejor que el héroe que tiene al lado.
+   *
+   * Es grande a propósito, y esa es la mitad de la tarea: Juan Luis pidió que
+   * los miedosos «huyan siempre que puedan», así que una casilla de separación
+   * tiene que valer más que el ataque servido que se deja atrás (unos 10-25
+   * puntos con los pesos de hoy) y más que el descuento por no llegar. Si se
+   * baja hasta rondar esas cifras, el miedoso se vuelve un prudente mal hecho:
+   * huye o no según a quién tenga delante.
+   */
+  distanciaDeLosHeroes: number;
+  /**
    * Lo que se descuenta a una casilla desde la que **todavía no se puede
    * atacar**. Es la diferencia entre una jugada y una intención.
    *
@@ -222,15 +238,44 @@ export const PESOS: Pesos = {
   // que un monstruo cruce la sala dejándose un ataque servido por el camino.
   lanzaHechizos: 1,
   porCasillaDeDistancia: 1,
+  // Cuarenta, y no diez, porque el miedoso tiene que preferir irse a pegar:
+  // dejar un ataque servido cuesta unos 25 puntos con estos pesos, y el
+  // descuento por no llegar, otros 15. Ver el comentario del peso.
+  distanciaDeLosHeroes: 40,
   descuentoPorNoLlegar: 15,
 };
 
 /**
- * Los pesos que puntúan a un objetivo. `descuentoPorNoLlegar` queda fuera porque
- * no es del objetivo sino de la casilla desde la que se le mira, y mezclarlos
- * haría que el desglose enseñara un término que no depende del héroe.
+ * Distancia a ojo entre dos casillas, sin preguntarle al tablero.
+ *
+ * Para «¿me estoy alejando?» **no vale `distancia()`** —que mide caminos y
+ * devuelve infinito contra una sala cerrada, con lo que ninguna casilla sería
+ * mejor que otra— ni `pasosParaAtacar`, que contesta a otra pregunta. Un
+ * monstruo que huye no calcula rutas: se aparta de donde están los héroes, y si
+ * hay un muro por medio, ya se dará cuenta al chocar. Se cuenta en casillas
+ * ortogonales porque así es como se anda en HeroQuest.
  */
-export type TerminoDeObjetivo = Exclude<keyof Pesos, "descuentoPorNoLlegar">;
+export const distanciaAOjo = (a: Celda, b: Celda): number =>
+  Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+
+/**
+ * Cuántas casillas de separación tiene esta figura con el héroe vivo más
+ * cercano. Sin héroes vivos devuelve `Infinity`, y quien lo use tiene que
+ * acotarlo: la partida ya ha terminado, pero la IA puede seguir preguntando.
+ */
+export const separacionDeLosHeroes = (e: EstadoPartida, celda: Celda): number =>
+  Math.min(...heroesVivos(e).map((h) => distanciaAOjo(h.celda, celda)));
+
+/**
+ * Los pesos que puntúan a un objetivo. `descuentoPorNoLlegar` y
+ * `distanciaDeLosHeroes` quedan fuera porque no son del objetivo sino de la
+ * casilla desde la que se le mira, y mezclarlos haría que el desglose enseñara
+ * términos que no dependen del héroe.
+ */
+export type TerminoDeObjetivo = Exclude<
+  keyof Pesos,
+  "descuentoPorNoLlegar" | "distanciaDeLosHeroes"
+>;
 
 export interface Puntuacion {
   objetivo: Heroe;
@@ -279,7 +324,12 @@ export function puntuarObjetivo(
   return { objetivo, total, desglose, modo };
 }
 
-const vivos = (xs: readonly Heroe[]): Heroe[] => xs.filter((h) => h.cuerpo > 0);
+/**
+ * Los héroes que siguen en pie. `e.heroes` conserva a los caídos con cuerpo 0
+ * —lo usa el motor para distinguir «los han matado» de «no había»—, así que
+ * preguntar por los vivos es preguntar por esto.
+ */
+export const heroesVivos = (e: EstadoPartida): Heroe[] => e.heroes.filter((h) => h.cuerpo > 0);
 
 /** Hechizos que le quedan por lanzar. Cada carta se usa una vez por misión. */
 export const hechizosSinGastar = (h: Heroe): number =>
@@ -300,7 +350,7 @@ export function objetivosPuntuados(
   // Un solo recorrido del tablero para los cuatro héroes. Con esto dentro del
   // bucle, puntuar una casilla candidata costaba un recorrido por héroe.
   const mapa = mapaDePasos(e, monstruo);
-  return vivos(e.heroes)
+  return heroesVivos(e)
     .map((h) => puntuarObjetivo(e, monstruo, h, pesos, mapa))
     .sort((a, b) => b.total - a.total || a.objetivo.id.localeCompare(b.objetivo.id));
 }

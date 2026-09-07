@@ -28,13 +28,27 @@ export const MISION_PRUEBA: Mision = {
   objetivo: { clase: "llegarA", celdas: [c(25, 18)] },
 };
 
+/**
+ * Una partida de prueba. Los monstruos que no digan otra cosa salen
+ * **agresivos**, no con el temperamento sorteado que reparte `crearPartida`.
+ *
+ * No es un atajo: es lo que mantiene deterministas los cuarenta y tantos tests
+ * que fijan una escena y esperan una jugada concreta. Con el sorteo de T38, un
+ * goblin de una escena de T8 podía salir miedoso y ponerse a huir, y el test
+ * habría fallado por un cambio de temperamento y no por lo que probaba.
+ * `agresivo` es además exactamente el comportamiento anterior a T38.
+ *
+ * Quien pruebe la huida pone el temperamento a mano en su monstruo, y quien
+ * pruebe el sorteo llama a `crearPartida` directamente.
+ */
 export function partida(op: Partial<OpcionesPartida> = {}): EstadoPartida {
+  const monstruos = (op.monstruos ?? []).map((m) => ({ temperamento: "agresivo" as const, ...m }));
   return crearPartida({
     mision: MISION_PRUEBA,
     heroes: [{ clase: "barbaro" }],
-    monstruos: [],
     semilla: 42,
     ...op,
+    monstruos,
   });
 }
 

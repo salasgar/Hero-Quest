@@ -22,9 +22,16 @@
 import { alcanzables } from "../engine/board";
 import { aplicarAccion } from "../engine/reducer";
 import { esTurnoDeZargon, figuraActiva, objetivosDeAtaque } from "../engine/selectors";
-import { esHeroe, type Accion, type Celda, type EstadoPartida } from "../engine/types";
+import {
+  esHeroe,
+  type Accion,
+  type Celda,
+  type EstadoPartida,
+  type Figura,
+} from "../engine/types";
 import { proximoEnActuar } from "./orden";
-import { objetivosPuntuados, type Pesos, PESOS } from "./targeting";
+import { DISTANCIA_QUE_TRANQUILIZA, ganasDeHuir, heroesCerca } from "./personalities";
+import { objetivosPuntuados, separacionDeLosHeroes, type Pesos, PESOS } from "./targeting";
 
 /**
  * Una jugada candidata, ya validada por el motor.
@@ -74,6 +81,32 @@ function mejorAtaqueDesdeAqui(
 }
 
 /**
+ * Lo que vale estar lejos, para quien quiere estarlo (T38).
+ *
+ * `ganas` viene de fuera —vale 1 o 0, y lo decide `ganasDeHuir` mirando la
+ * casilla en la que el monstruo **está**, no la que se está puntuando—, así que
+ * para un agresivo esto es cero y la puntuación entera es la de antes de T38.
+ *
+ * La separación se recorta a `DISTANCIA_QUE_TRANQUILIZA`: pasado ese punto,
+ * alejarse una casilla más no puntúa, y el que huía se para. Sin el recorte,
+ * cada casilla de más valdría lo mismo que la anterior y el miedoso se
+ * dedicaría a correr por los pasillos hasta el tope de rondas.
+ */
+function valorDeAlejarse(
+  e: EstadoPartida,
+  monstruo: Figura,
+  pesos: Pesos,
+  ganas: number,
+): number {
+  if (ganas === 0) return 0;
+  const separacion = separacionDeLosHeroes(e, monstruo.celda);
+  // Sin héroes vivos la separación es infinita y multiplicarla contaminaría la
+  // suma; además ya no hay de quien huir.
+  if (!Number.isFinite(separacion)) return 0;
+  return ganas * Math.min(separacion, DISTANCIA_QUE_TRANQUILIZA) * pesos.distanciaDeLosHeroes;
+}
+
+/**
  * Lo que vale una casilla a la que todavía no se ha ido.
  *
  * Se mide **por lo que se podrá hacer desde ella**, no por lo cerca que está: una
@@ -83,18 +116,39 @@ function mejorAtaqueDesdeAqui(
  * llega a nadie **avanza hacia el que más le interesa** en vez de quedarse
  * quieto, y lo hace con la misma fórmula, sin una segunda heurística de
  * aproximación que luego habría que mantener aparte.
+ *
+ * A quien tiene ganas de huir se le suma encima lo que vale estar lejos, y esa
+ * suma es toda la mecánica de T38: la huida es un término más de la puntuación
+ * y no una excepción con su propio camino de código. Con `ganas` a cero —todos
+ * los monstruos antes de T38, y los agresivos hoy— esta función devuelve
+ * exactamente lo que devolvía.
  */
-function valorDeLaCasilla(e: EstadoPartida, pesos: Pesos): number {
+function valorDeLaCasilla(e: EstadoPartida, pesos: Pesos, ganas: number): number {
   const monstruo = figuraActiva(e);
   if (!monstruo) return -Infinity;
+
+  // El orden importa por lo que cuesta: `objetivosPuntuados` recorre el tablero
+  // entero y esto se llama una vez por casilla candidata, así que solo se
+  // pregunta cuando no hay ataque desde aquí.
   const ataque = mejorAtaqueDesdeAqui(e, pesos);
-  if (ataque) return ataque.puntos;
-  const [mejor] = objetivosPuntuados(e, monstruo, pesos);
-  if (!mejor || !Number.isFinite(mejor.total)) return -Infinity;
-  // Desde aquí todavía no se pega: vale la intención, no la jugada. El descuento
-  // es lo que impide que un monstruo con un héroe al lado se vaya andando hacia
-  // otro mejor y acabe el turno sin atacar a nadie.
-  return mejor.total - pesos.descuentoPorNoLlegar;
+  let base: number;
+  if (ataque) {
+    base = ataque.puntos;
+  } else {
+    const [mejor] = objetivosPuntuados(e, monstruo, pesos);
+    // Desde aquí todavía no se pega: vale la intención, no la jugada. El
+    // descuento es lo que impide que un monstruo con un héroe al lado se vaya
+    // andando hacia otro mejor y acabe el turno sin atacar a nadie.
+    base =
+      mejor && Number.isFinite(mejor.total) ? mejor.total - pesos.descuentoPorNoLlegar : -Infinity;
+  }
+
+  if (ganas === 0) return base;
+
+  // El que huye sí puntúa las casillas desde las que no ve a nadie: son
+  // justamente las que busca. Si no hay objetivo alcanzable, la parte de
+  // ataque no resta ni suma —vale 0, no `-Infinity`, que anularía la huida—.
+  return (Number.isFinite(base) ? base : 0) + valorDeAlejarse(e, monstruo, pesos, ganas);
 }
 
 /**
@@ -105,7 +159,7 @@ function valorDeLaCasilla(e: EstadoPartida, pesos: Pesos): number {
  * segundo no sobra: `alcanzables` contesta a «¿hay camino?» y `aplicarAccion` a
  * «¿es legal ahora?», que no son la misma pregunta.
  */
-function destinos(e: EstadoPartida, pesos: Pesos): Candidata[] {
+function destinos(e: EstadoPartida, pesos: Pesos, ganas: number): Candidata[] {
   const monstruo = figuraActiva(e);
   if (!monstruo || e.turno.movimientoCerrado || e.turno.movimientoRestante <= 0) return [];
 
@@ -116,7 +170,7 @@ function destinos(e: EstadoPartida, pesos: Pesos): Candidata[] {
     const accion: Accion = { tipo: "mover", destino };
     const despues = simular(e, accion);
     if (!despues) continue;
-    salida.push({ accion, puntos: valorDeLaCasilla(despues, pesos), pasos: coste, clave });
+    salida.push({ accion, puntos: valorDeLaCasilla(despues, pesos, ganas), pasos: coste, clave });
   }
   return salida;
 }
@@ -136,6 +190,12 @@ function destinos(e: EstadoPartida, pesos: Pesos): Candidata[] {
  *    normalmente ataca ya desde ahí.
  * 3. **Si no, termina.** Quedarse quieto gastando movimiento no es una jugada.
  *
+ * **T38 no añadió un cuarto caso**: el que huye sigue pasando por estos tres, y
+ * lo único que cambia es que las casillas lejos de los héroes le puntúan alto.
+ * Que un miedoso acorralado ataque no está escrito en ninguna parte; sale de
+ * que, sin casilla que lo aleje, el término de huida vale lo mismo en todas y
+ * gana el ataque, que es el único que suma.
+ *
  * La casilla actual entra en la comparación **aunque desde ella ya no se pueda
  * atacar**, y esa media línea es la que paró el «pega y se va» que midió T10: el
  * 48 % de los ataques acababan con el monstruo yéndose de donde pegaba, porque
@@ -150,11 +210,22 @@ export function siguienteAccionDelMonstruo(
   const monstruo = figuraActiva(e);
   if (!monstruo || esHeroe(monstruo)) return null;
 
+  // Las ganas de huir se preguntan **una vez y aquí**, en la casilla desde la
+  // que decide, y se pasan a todas las candidatas. Preguntarlas dentro de cada
+  // casilla haría que el prudente dejara de querer huir en cuanto la casilla
+  // candidata lo alejara de los héroes: decidiría no huir por haber huido.
+  const ganas = ganasDeHuir(e, monstruo);
+
   const quieto = mejorAtaqueDesdeAqui(e, pesos);
   // Lo que vale no irse: el ataque servido si lo hay y, si no, lo mismo que se
-  // le puntúa a cualquier otra casilla, medido desde esta.
-  const valorDeQuedarse = quieto ? quieto.puntos : valorDeLaCasilla(e, pesos);
-  const moviendose = destinos(e, pesos);
+  // le puntúa a cualquier otra casilla, medido desde esta. Al que huye se le
+  // suma también aquí lo que vale la separación que ya tiene; si no, quedarse
+  // valdría siempre menos que cualquier movimiento y el acorralado se metería
+  // en cualquier rincón en vez de pegar.
+  const valorDeQuedarse = quieto
+    ? quieto.puntos + valorDeAlejarse(e, monstruo, pesos, ganas)
+    : valorDeLaCasilla(e, pesos, ganas);
+  const moviendose = destinos(e, pesos, ganas);
 
   const mejorMovimiento = moviendose.sort(
     (a, b) =>
@@ -242,6 +313,30 @@ export function turnoDeZargon(
   return { acciones, estado };
 }
 
+/**
+ * Si este movimiento es una huida: lo hace alguien que quiere irse, y encima le
+ * aumenta la separación con los héroes.
+ *
+ * Las dos condiciones hacen falta. Sin la primera, un agresivo que rodea una
+ * mesa para llegar al mago se leería en la pantalla como que huye. Sin la
+ * segunda, el miedoso acorralado que se mete en el único hueco que le queda
+ * —sin alejarse de nadie— también.
+ *
+ * La usan `motivoDeLaJugada` y el simulador, que cuenta cuántos turnos seguidos
+ * huye cada monstruo. Vive aquí, y no en el simulador, para que lo que se mide
+ * sea lo mismo que se dice en la mesa.
+ */
+export function esHuida(e: EstadoPartida, accion: Accion): boolean {
+  if (accion.tipo !== "mover") return false;
+  const monstruo = figuraActiva(e);
+  if (!monstruo || esHeroe(monstruo)) return false;
+  if (ganasDeHuir(e, monstruo) === 0) return false;
+
+  const antes = separacionDeLosHeroes(e, monstruo.celda);
+  const despues = separacionDeLosHeroes(e, accion.destino);
+  return despues > antes;
+}
+
 /** Por qué el monstruo activo ha hecho eso, en una frase para decir en la mesa. */
 export function motivoDeLaJugada(e: EstadoPartida, accion: Accion, pesos: Pesos = PESOS): string | null {
   const monstruo = figuraActiva(e);
@@ -261,6 +356,13 @@ export function motivoDeLaJugada(e: EstadoPartida, accion: Accion, pesos: Pesos 
   }
 
   if (accion.tipo === "mover") {
+    // La huida se dice primero porque es lo contrario de lo otro: enseñar «va a
+    // por Beren» mientras la figura se aleja de Beren es lo que hace que en la
+    // mesa nadie se fíe de lo que dice la pantalla.
+    if (esHuida(e, accion)) {
+      const cerca = heroesCerca(e, monstruo);
+      return cerca >= 2 ? `huye: tiene ${cerca} héroes encima` : `huye: no quiere pelear`;
+    }
     const [mejor] = objetivosPuntuados(e, monstruo, pesos);
     return mejor ? `va a por ${mejor.objetivo.nombre}` : null;
   }

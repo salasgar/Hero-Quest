@@ -73,6 +73,22 @@ export interface Heroe {
   efectos: EfectoActivo[];
 }
 
+/**
+ * Cómo se toma este monstruo la pelea, más allá de lo que haga su especie.
+ *
+ * Es lo que pidió Juan Luis el 2026-09-06: «puede haber orcos más agresivos y
+ * orcos más miedosos». Va por figura y no por especie —eso ya existe, son las
+ * personalidades de T9— porque el sentido de la idea es que dos orcos de la
+ * misma sala no se comporten igual.
+ *
+ * - `agresivo`: va a por el héroe que más le convenga, sin mirar atrás. Es lo
+ *   que hacían todos los monstruos hasta T38.
+ * - `miedoso`: se aleja siempre que tenga por dónde, y pega solo si está
+ *   acorralado.
+ * - `prudente`: cuenta cuántos héroes tiene encima y decide; con pocos, pelea.
+ */
+export type Temperamento = "agresivo" | "miedoso" | "prudente";
+
 export interface Monstruo {
   tipo: "monstruo";
   id: IdFigura;
@@ -83,6 +99,20 @@ export interface Monstruo {
    * «el orco undefined» en vez de fallar al compilar.
    */
   nombre: string;
+  /**
+   * Opcional, al contrario que `nombre`, y por un motivo que no es de estilo:
+   * el monstruo errante que sale de una carta de tesoro nace en `reducer.ts`,
+   * y **T38 tiene prohibido tocar ese fichero** (su ficha: huir es mover, y
+   * mover ya es legal). Un campo obligatorio dejaría ahí un error de
+   * compilación que esta tarea no puede arreglar.
+   *
+   * Quien no lo trae juega como `agresivo`, que es exactamente lo que hacían
+   * todos los monstruos antes de T38: la ausencia no cambia ninguna partida.
+   * Se lee siempre por `temperamentoDe`, nunca a pelo, para que ese valor por
+   * defecto esté escrito en un solo sitio. La tarea que vuelva a tocar
+   * `reducer.ts` —T50— puede ponérselo al errante y hacerlo obligatorio.
+   */
+  temperamento?: Temperamento;
   celda: Celda;
   cuerpo: number;
   cuerpoMax: number;
@@ -95,6 +125,13 @@ export type Figura = Heroe | Monstruo;
 
 export const esHeroe = (f: Figura): f is Heroe => f.tipo === "heroe";
 export const esMonstruo = (f: Figura): f is Monstruo => f.tipo === "monstruo";
+
+/**
+ * El temperamento con el que juega esta figura. Los héroes no tienen, y los
+ * monstruos que nacen sin él pelean como se peleaba antes de T38.
+ */
+export const temperamentoDe = (f: Figura): Temperamento =>
+  esMonstruo(f) ? (f.temperamento ?? "agresivo") : "agresivo";
 
 // ---------------------------------------------------------------- mazmorra
 

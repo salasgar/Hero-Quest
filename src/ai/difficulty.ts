@@ -12,6 +12,8 @@
  *
  * 1. Si ya puede pegar a alguien desde donde está, pega y no se recoloca:
  *    «solo mira a quien tiene delante». Los repliegues listos son de `astuto`.
+ *    **Salvo que quiera huir** (T38): el miedo es de la figura y no del nivel,
+ *    así que un miedoso torpe huye igual que uno astuto, solo que peor.
  * 2. Sus pesos apagan el remate, la caza de lanzadores y el cebarse con los
  *    heridos, y la distancia pesa mucho: cuando no llega a nadie, avanza hacia
  *    el que tiene más cerca, no hacia el que más conviene.
@@ -26,7 +28,7 @@ import { aplicarAccion } from "../engine/reducer";
 import { esTurnoDeZargon, figuraActiva, objetivosDeAtaque } from "../engine/selectors";
 import { esHeroe, type Accion, type EstadoPartida } from "../engine/types";
 import type { EspecieMonstruo } from "../data/monsters";
-import { conPersonalidad } from "./personalities";
+import { conPersonalidad, ganasDeHuir } from "./personalities";
 import { objetivosPuntuados, PESOS, type Pesos } from "./targeting";
 import { siguienteAccionDeZargon } from "./zargon";
 
@@ -50,6 +52,12 @@ export const PESOS_POR_NIVEL: Readonly<Record<Dificultad, Pesos>> = {
     heridoPrimero: 0,
     lanzaHechizos: 0,
     porCasillaDeDistancia: 6,
+    // **El miedo no es una habilidad táctica**: vale lo mismo en los tres
+    // niveles. Un goblin torpe tiene tanto miedo como uno astuto; lo que cambia
+    // con el nivel es a quién elige pegar, no si se atreve. Ponerlo a cero aquí
+    // dejaría el nivel torpe sin miedosos, que es justo lo que la ficha de T38
+    // avisaba de no hacer.
+    distanciaDeLosHeroes: 40,
     // Igual que en base: bajarlo resucitaría el monstruo que se va andando y no
     // ataca a nadie, que en la mesa se lee como un despiste, no como torpeza.
     descuentoPorNoLlegar: 15,
@@ -61,6 +69,7 @@ export const PESOS_POR_NIVEL: Readonly<Record<Dificultad, Pesos>> = {
     heridoPrimero: 4,
     lanzaHechizos: 3,
     porCasillaDeDistancia: 0.5,
+    distanciaDeLosHeroes: 40,
     descuentoPorNoLlegar: 15,
   },
 };
@@ -100,7 +109,11 @@ export function accionDeZargon(e: EstadoPartida, nivel: Dificultad = "normal"): 
   const activo = figuraActiva(e);
   if (activo && !esHeroe(activo)) {
     const pesos = pesosPara(activo.especie, nivel);
-    if (nivel === "torpe") {
+    // La miopía del torpe no se aplica al que quiere huir (T38). Si se aplicara,
+    // un miedoso torpe con un héroe al lado pegaría y no se iría nunca: el nivel
+    // torpe se quedaría sin miedosos, y el temperamento —que es de la figura, no
+    // del nivel— desaparecería justo en el nivel con el que juegan los niños.
+    if (nivel === "torpe" && ganasDeHuir(e, activo) === 0) {
       const golpe = golpeSinMoverse(e, pesos);
       if (golpe) return golpe;
     }
