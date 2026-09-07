@@ -264,5 +264,15 @@ que dura la sesión.
   `quests/calabozo.ts`, pensado para el relato) se copia sin adaptar en el informe
   (`local.ts:118-123`, caso `salaRevelada`). La tarea es más ancha que ese ejemplo: jugar
   una partida y revisar los dos modos enteros, informe y relato, cada uno con su tono.
-  Comparte `narrator/local.ts` y `narrator/relato.ts` con T60; no toca nada de T37, T45 ni
-  T59.
+  No toca nada de T37, T45 ni T59; con T60 hubiera compartido `narrator/local.ts` y
+  `narrator/relato.ts`, pero T60 quedó sustituida antes de que nadie la reclamara (ver
+  siguiente punto), así que hoy T61 no choca con nada.
+- **T60 quedó SUSTITUIDA por T62 el 2026-09-07, el mismo día, sin llegar a reclamarse.**
+  Juan Luis pidió a continuación del fallo de T60 que el héroe sin nombre reciba «un nombre
+  chulo» en vez de quedarse con el de la clase. Dar un nombre de verdad (T62, mismo patrón
+  que `repartirNombres` de T42 para los monstruos) hace que `h.nombre` nunca vuelva a
+  coincidir con `nombreDeClase(...)`, así que el síntoma de T60 desaparece sin tocar
+  `narrator/local.ts` ni `narrator/relato.ts`: los dos arreglos de T60 habrían resuelto lo
+  mismo por un camino más costoso. `hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`
+  tiene el porqué completo; `tareas/T60-...md` queda en `tareas/` sin editar, como rastro.
+  T62 comparte `types.ts` y `partida.ts` con T37; no toca nada de T45 ni T61.

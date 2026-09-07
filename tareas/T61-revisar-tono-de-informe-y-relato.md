@@ -1,12 +1,14 @@
 # T61 · Jugar una partida y revisar el tono del informe y del relato
 
-**Precondición:** ninguna. **No a la vez que T60** (comparten `narrator/local.ts`,
-`narrator/relato.ts` y los tests de narrador). **No choca con T37 ni T45.**
+**Precondición:** ninguna. **No choca con T37, T45 ni T62** — la 60, con la que sí compartía
+`narrator/local.ts` y `narrator/relato.ts`, quedó **sustituida por T62**
+(`hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`): T62 no toca `narrator/`, así que
+esta tarea va libre de conflictos hoy.
 **Banda de modelo:** MEDIO — no hay reglas del juego que implementar; es criterio de
 redacción y de oído (que el informe suene a informe, que el relato suene a relato), sobre
 un sistema ya diseñado y firmado (frases prefabricadas, sin modelo de lenguaje).
-**Duración esperada:** 3 h · **Encadenable con:** — (comparte fichero con T60; de una en
-una).
+**Duración esperada:** 3 h · **Encadenable con:** — (nadie de su banda libre hoy sin
+compartir fichero).
 **Ficheros que toca:** `src/narrator/local.ts` (el informe), `src/narrator/relato.ts` y
 `src/narrator/frases.ts` (el relato), `src/data/quests/calabozo.ts` (el campo `r` de texto
 de sala, si resulta que el problema está ahí y no en cómo lo usa el informe),
