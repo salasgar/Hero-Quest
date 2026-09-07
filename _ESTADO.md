@@ -17,17 +17,17 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-07 09:36Z · por la sesión `s-20260907T080909-f84dcfe8`, al cerrar la 38.
-Sobre la regeneración de las 08:40Z de `s-20260907T081006-d905c646` (al cerrar la 39),
-cambia una fila: la **38 pasa a LISTA**, y con ella **se desbloquean la 37 y la 45**, que
-eran las dos que esperaban sus ficheros (`types.ts` y `scripts/simular.ts`). **Sin ningún
-reclamo vivo** a las 09:36Z: las cuatro sesiones de la mañana —38, 39, 44 y 58— han
-cerrado. Quedan libres la 37 (MEDIO) y la 45 (ALTO), y no chocan entre sí más que en
-`EleccionDeHeroes.tsx`: van seguidas, no a la vez.
+Regenerado: 2026-09-07 14:15Z · por la sesión `s-20260907T140727-559d19ac`, al cerrar la 59.
+Sobre la regeneración de las 09:36Z (`s-20260907T080909-f84dcfe8`, al cerrar la 38, con la
+fila 59 añadida después por la coordinadora `s-20260907T090034-c7bc516d`), cambia una
+fila: la **59 pasa a LISTA** (`aa75844`, pendiente de fusión en `main`). **Sin ningún
+reclamo vivo** a las 14:15Z. Quedan libres la 37 (MEDIO) y la 45 (ALTO), y siguen sin
+poder ir a la vez por `EleccionDeHeroes.tsx`, que ahora también toca la 59 ya cerrada.
 
-Sobre esa regeneración, la sesión coordinadora `s-20260907T090034-c7bc516d` añade la fila
-**59** (nueva, `tareas/T59-portada-del-juego.md`), del encargo de Juan Luis de usar
-«Portada Hero Quest.png» como portada del juego; ninguna otra fila cambia. No reclama nada.
+La 59 sustituyó el logotipo grande de T41 por la portada nueva en
+`EleccionDeHeroes.tsx`, en vez de poner las dos imágenes juntas como preveía su ficha:
+razonado en `hechos/incidencias/s-20260907T140727-559d19ac.md`, porque la imagen resultó
+traer ya pintado el rótulo «Hero Quest», no ser una escena aparte.
 
 ## Antes de hacer nada
 
@@ -260,29 +260,29 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 56 | T56 · Dos arreglos del entorno: vitest y `preview` | tareas/T56-dos-arreglos-del-entorno.md | ninguna | 30 min | BAJO | 57 | `vite.config.ts`, `README.md`, `tareas/_COMUN.md` | manual | LISTA (`7ae9fb9`; hecha por `s-20260906T174758-05906208`, relevada y cerrada por `s-20260906T141818-ff83f12c`) | |
 | 57 | T57 · Descargar la partida: un registro con el que encontrar los fallos | tareas/T57-descargar-la-partida.md | ninguna | 2 h | MEDIO | 56 | `registroDePartida.ts` (nuevo), `usePartida.ts`, `App.tsx`, `scripts/repetir.ts` (nuevo), `package.json`, `README.md`, tests | manual | LISTA (`f40e415`) | |
 | 58 | T58 · Al pasar el ratón por una figura, su ficha en un cuadro flotante | tareas/T58-ficha-flotante-de-cada-figura.md | ninguna · no a la vez que 51, 37 (`BoardMirror.tsx`) ni 22 (`estilos.css`) | 2 h | MEDIO | 37 | `FichaFlotante.tsx` (nuevo), `BoardMirror.tsx`, `estilos.css`, tests | manual | LISTA (`6c3c750`) | |
-| 59 | T59 · La portada del juego | tareas/T59-portada-del-juego.md | ninguna · no a la vez que 37 (`EleccionDeHeroes.tsx`, `estilos.css`) ni 45 (`EleccionDeHeroes.tsx`) | 1,5 h | MEDIO | — | `public/` (la portada), `public/IMAGENES.md`, `src/data/imagenes.ts`, `EleccionDeHeroes.tsx`, `estilos.css` | manual | **PENDIENTE** | |
+| 59 | T59 · La portada del juego | tareas/T59-portada-del-juego.md | ninguna · no a la vez que 37 (`EleccionDeHeroes.tsx`, `estilos.css`) ni 45 (`EleccionDeHeroes.tsx`) | 1,5 h | MEDIO | — | `public/` (la portada), `public/IMAGENES.md`, `src/data/imagenes.ts`, `EleccionDeHeroes.tsx`, `estilos.css` | manual | LISTA (`aa75844`, pendiente de fusión en `main`) | |
 
-Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59 es
-nueva, del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» en la portada del
-juego), añadida por la sesión coordinadora `s-20260907T090034-c7bc516d` sin reclamar
-ninguna tarea (`hechos/notas/s-20260907T090034-c7bc516d.md`). No hay
-`hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
+Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
+fue nueva del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» como portada
+del juego), añadida por la sesión coordinadora `s-20260907T090034-c7bc516d`
+(`hechos/notas/s-20260907T090034-c7bc516d.md`) y cerrada el mismo día por
+`s-20260907T140727-559d19ac`. No hay `hechos/recursos/` con nada dentro: ningún tope de
+procesos fijado.
 
-**Libres por estado:** **37** (MEDIO), **45** (ALTO) y **59** (MEDIO, nueva). **38 se
-cerró** esta mañana, y con ella las cuatro sesiones de la mañana (38, 39, 44 y 58): ningún
-reclamo vivo.
+**Libres por estado:** **37** (MEDIO) y **45** (ALTO). **La 59 se cerró** (`aa75844`,
+pendiente de fusión en `main`): ningún reclamo vivo.
 
-**Por ficheros, ahora mismo:** las tres comparten **`EleccionDeHeroes.tsx`** (37, 45 y 59),
-y 37 y 59 comparten además **`estilos.css`**. **Ninguna de las tres va en paralelo con las
-otras dos**: una sesión las hace de una en una, en el orden que decida, o varias sesiones se
-las reparten de una en una. 15 espera la palabra de Juan Luis; 46, 47 y 50 siguen BLOQUEADAS
-por sus precondiciones (46 y 47 esperan a la 45, que ya se puede coger).
+**Por ficheros, ahora mismo:** 37 y 45 comparten **`EleccionDeHeroes.tsx`** y **no van en
+paralelo**: una sesión las hace de una en una, en el orden que decida, o dos sesiones se
+las reparten de una en una. La 59, ya cerrada, tocó ese mismo fichero y `estilos.css`;
+quien reclame la 37 o la 45 parte del código que dejó (el logotipo grande sustituido por
+la portada en la cabecera). 15 espera la palabra de Juan Luis; 46, 47 y 50 siguen
+BLOQUEADAS por sus precondiciones (46 y 47 esperan a la 45, que ya se puede coger).
 
-**Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 se coge sola. Ni 45 ni 59
-tienen «encadenable con» declarado —comparten fichero entre sí y con la 37, así que
-encadenarlas es literal: una sesión que cierre una de las tres puede coger otra de las tres
-en la misma sesión (misma banda solo entre 37 y 59, las dos MEDIO; 45 es ALTO y pide otra
-sesión)—. Las cadenas 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) y 52 → 36 → 22
+**Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 se coge sola. 37 y 45 no
+tienen «encadenable con» declarado y son de banda distinta (MEDIO / ALTO), así que no hay
+con qué encadenar hoy salvo que la misma sesión las haga seguidas de una en una. Las
+cadenas 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) y 52 → 36 → 22
 (`s-20260906T174532-9cbd624b`) están cerradas enteras.
 
 ## Registro de finalizaciones
@@ -295,6 +295,7 @@ terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
 
+- LISTA · tarea 59 · 2026-09-07 14:15 · `s-20260907T140727-559d19ac` · `Portada Hero Quest.png` (de Juan Luis) entra como `portada-original.png` (sin retocar) y `portada.webp` (495→133 KB, `cwebp -q 90`, sin recorte: alfa opaco de verdad y esquinas ya casi del color de `--fondo`); sustituye al logotipo grande de T41 en la cabecera de `EleccionDeHeroes.tsx` porque la imagen resultó traer ya pintado «Hero Quest, versión Salas Oliver, para todas las edades» y no ser una escena aparte como preveía la ficha —razonado en `hechos/incidencias/s-20260907T140727-559d19ac.md`—; el logotipo sigue igual en `Transicion.tsx` y en la barra de la partida. Declarada en `public/IMAGENES.md` y `src/data/imagenes.ts` (`PORTADA`); sin navegador en el entorno, no se pudo hacer una captura real, verificado por lectura y por `npm run build`. 654 tests / 42 ficheros, sin cambios; typecheck y build en verde · `public/portada-original.png`, `public/portada.webp`, `public/IMAGENES.md`, `src/data/imagenes.ts`, `src/estilos.css`, `src/ui/EleccionDeHeroes.tsx` · `aa75844` (worktree, pendiente de fusión en `main`)
 - LISTA · tarea 38 · 2026-09-07 09:36 · `s-20260907T080909-f84dcfe8` · cada monstruo lleva su propio temperamento además de la personalidad de su especie (`Monstruo.temperamento`: agresivo, miedoso o prudente), sorteado en `crearPartida` sobre una corriente derivada propia con el reparto por especie de `personalities.ts` —los no muertos nunca miedosos, la mitad de los goblins sí—, y la misión puede fijarlo sin cambiar el de los demás; el campo es **opcional** porque el monstruo errante nace en `reducer.ts`, que esta ficha prohíbe tocar, y sin él se juega como agresivo (lo de antes de T38); la huida no es un caso aparte sino un peso más de la puntuación (`distanciaDeLosHeroes`, 40, igual en los tres niveles) multiplicado por las ganas de huir, de modo que el agresivo puntúa exactamente como antes y el miedoso acorralado ataca sin que eso esté escrito en ningún sitio; la miopía del nivel torpe deja de aplicarse a quien huye; `motivoDeLaJugada` lo dice en la mesa («huye: tiene 3 héroes encima»); el simulador acepta un temperamento forzado (`npm run sim -- 300 2000 miedoso`) y cuenta las activaciones seguidas huyendo. Medido con 300 partidas por nivel (semillas 2000-2299), victorias torpe/normal/astuto: línea base anterior a T38 (agresivo forzado) 99/100/99 %, reparto real 100/100/100 %, miedoso 100/100/100 %, prudente 100/100/99 % — **el 100 % firmado se mantiene, y a esta escala la línea base tampoco daba 100 % exacto**; «pega y se va» 4-9 % (antes 4-6 %); huidas seguidas 1,5 de media. Receta de T1 comprobada: con el peso a cero caen 8 tests, los 8 míos, y ninguno ajeno. 545 → 576 tests en la rama sola (+31, `tests/temperamento.test.ts`); 654 tests / 42 ficheros tras el rebase; typecheck en verde. Cabo suelto en `hechos/incidencias/`: `motivoDeLaJugada` no la llama la pantalla todavía · `types.ts`, `partida.ts`, `personalities.ts`, `targeting.ts`, `zargon.ts`, `difficulty.ts`, `scripts/simular.ts`, `tests/ayuda.ts`, `tests/temperamento.test.ts` · `d91f8d0`
 - LISTA · tarea 39 · 2026-09-07 08:40 · `s-20260907T081006-d905c646` · informe: sujeto con clase y nombre («el enano Háfir»), y la tirada de ataque con sus caras cuando el evento las trae; relato: banco de frases por situación (`frases.ts`) y ensamblaje determinista por índice y actor (`relato.ts`, misma firma que `narrar` y el mismo `switch` exhaustivo de los 30 tipos de evento), firmado en `autorizaciones.md` el 2026-09-06; los monstruos se presentan con su nombre de pila y, al morir, con un epíteto por especie sin repetirlo (dos por especie, 18 especies); los héroes siempre «Nombre el Clase» (T16); selector de dos botones en `MasterLog.tsx`, informe por omisión, preferencia en `localStorage`; no toca el motor ni `TurnPanel.tsx`; 623 tests (+66, `tests/narrador.test.ts`); typecheck en verde · `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `ui/MasterLog.tsx` · `f3d77ca`
 - LISTA · tarea 44 · 2026-09-07 08:24 · `s-20260907T080902-4a99e05e` · doce sonidos sintetizados con `AudioContext` (sin ficheros ni licencias): puerta, dados, golpe/fallo, caída, sala, hechizo, tesoro, poción, sorpresa, victoria/derrota; tabla `sonidoDe` exhaustiva sobre los 32 tipos de `Evento`, quince de ellos mudos a propósito; enganchada a `estado.registro` por índice, igual que `MasterLog`, así que un deshacer o un sondeo de red que rehace la partida no repite sonido; botón de silencio (🔊/🔇) en la cabecera de `Juego.tsx` y `VistaDeHeroe.tsx`, preferencia en `localStorage` por navegador; el primer clic de la partida desbloquea el audio; no toca `estilos.css` (reclamado a la vez por la 58): la fila del botón usa estilo en línea; 557 tests / 40 ficheros tras el rebase sobre la 58 (+5 suyos, `tests/sonidos.test.ts`); typecheck y build en verde; sin navegador en el entorno, no se pudo escuchar ningún sonido ni probar el desbloqueo en Safari/iOS, verificado por lectura y por el build · `sonidos.ts`, `Juego.tsx`, `VistaDeHeroe.tsx` · `6c8bd22`
@@ -348,8 +349,15 @@ leerlo antes de tocar el motor, la IA o la red.
 
 ## Incidencias de coordinación
 
-Derivado de `hechos/incidencias/`. Siete ficheros. Uno de la mañana del día 7 y cinco de
-las sesiones de la tarde del 6:
+Derivado de `hechos/incidencias/`. Ocho ficheros. Uno de la tarde del día 7 (la 59), uno
+de la mañana del mismo día y cinco de las sesiones de la tarde del 6:
+
+- **`s-20260907T140727-559d19ac.md` (la de la 59):** la ficha suponía que la portada era
+  una escena distinta del logotipo, escrito antes de ver el fichero; la imagen resultó
+  traer ya pintado «Hero Quest» con el mismo trazo que `logotipo.webp`, más un hada y la
+  coletilla «Versión Salas Oliver, para todas las edades». Decisión de pantalla: sustituye
+  al logotipo grande solo en `EleccionDeHeroes.tsx`; T41 no se toca en los otros dos
+  sitios. Sin navegador en el entorno para comprobarlo con una captura real.
 
 - **`s-20260906T141818-ff83f12c.md` (la que coordina):** `main` divergió: la sesión de la
   56 fusionó su código en el `main` local sin empujar (y dejó su terminada sin rastrear),

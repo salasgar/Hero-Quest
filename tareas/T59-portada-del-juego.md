@@ -106,3 +106,23 @@ no hace falta escribir uno propio salvo que cambies su forma.
 
 El orden de cierre es el de `proyecto.md`. Enséñale a Juan Luis una captura de la pantalla
 con la portada puesta en el mensaje de cierre: aquí el criterio es suyo, igual que en T41.
+
+## Cómo quedó (para quien la lea después)
+
+- **El alfa era opaco de verdad** (255 en las cuatro esquinas, el centro y un muestreo
+  disperso cada 7 px): no hizo falta recortar ni recolorear, al revés que
+  `letras-hero-quest.png` en T41. Las esquinas ya casi igualan `--fondo` (#14161c).
+- **La imagen resultó ser una carátula completa, no una escena**: trae pintado «Hero
+  Quest» con el mismo trazo de pincel que `logotipo.webp`, más un hada de perfil,
+  salpicaduras rojas y «Versión Salas Oliver, para todas las edades». Por eso **sustituye
+  al logotipo grande** en la cabecera de `EleccionDeHeroes.tsx` en vez de ir junto a él,
+  al revés de lo que suponía esta ficha antes de ver el contenido: los dos juntos habrían
+  repetido el mismo texto dos veces. Razonado en
+  `hechos/incidencias/s-20260907T140727-559d19ac.md`; el logotipo sigue igual en
+  `Transicion.tsx` y en la barra de la partida (T41 no se toca).
+- **Sin navegador en el entorno**: no se pudo hacer una captura real. Verificado por
+  lectura del componente, `npx vitest run` y `npm run build`. Si Juan Luis prefiere ver
+  las dos imágenes juntas, es un cambio de una línea (volver a poner `LOGOTIPO` junto a
+  `PORTADA`), no hay que deshacer nada más.
+- `public/portada-original.png` se publica igual que `letras-hero-quest.png`: no la usa
+  ningún componente, solo queda declarada para poder recomprimir o recortar en el futuro.
