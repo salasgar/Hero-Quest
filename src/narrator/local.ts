@@ -10,6 +10,9 @@
 import { EQUIPO } from "../data/equipment";
 import { HECHIZOS } from "../data/spells";
 import { conArticulo } from "../data/nombres";
+import { nombreDeClase } from "../data/heroes";
+import { contarCalaveras, contarEscudosBlancos, contarEscudosNegros } from "../engine/dice";
+import type { CaraCombate } from "../engine/dice";
 import type { EstadoPartida, Evento, IdFigura } from "../engine/types";
 
 const elegir = (opciones: string[], semilla: number): string =>
@@ -46,23 +49,47 @@ export function nombreDe(e: EstadoPartida, id: IdFigura): string {
  * Los héroes no llevan artículo, así que `aA("Aldric")` da «a Aldric» y todo
  * sigue funcionando igual que antes de T42.
  */
-const mayus = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
-const aA = (s: string): string => (s.startsWith("el ") ? `al ${s.slice(3)}` : `a ${s}`);
-const deDe = (s: string): string => (s.startsWith("el ") ? `del ${s.slice(3)}` : `de ${s}`);
+export const mayus = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+export const aA = (s: string): string => (s.startsWith("el ") ? `al ${s.slice(3)}` : `a ${s}`);
+export const deDe = (s: string): string => (s.startsWith("el ") ? `del ${s.slice(3)}` : `de ${s}`);
+
+/**
+ * El sujeto del informe: para un héroe, «el enano Háfir» (clase y nombre,
+ * como pide el ejemplo de Juan Luis); para un monstruo, lo mismo que
+ * `nombreDe` ya daba desde T42 («el orco Górbak»). No sustituye a `nombreDe`
+ * —que sigue dando el nombre a secas del héroe— porque como objeto de la
+ * frase («ataca a Háfir») repetir la clase no hace falta y queda pesado.
+ */
+export function sujetoInforme(e: EstadoPartida, id: IdFigura): string {
+  const h = e.heroes.find((x) => x.id === id);
+  if (!h) return nombreDe(e, id);
+  const articulo = h.clase === "hada" ? "el" : h.genero === "f" ? "la" : "el";
+  return `${articulo} ${nombreDeClase(h.clase, h.genero).toLowerCase()} ${h.nombre}`;
+}
 
 /** «el goblin Snik», «el goblin Snik y el orco Górbak». */
-function lista(e: EstadoPartida, ids: readonly IdFigura[]): string {
+export function lista(e: EstadoPartida, ids: readonly IdFigura[]): string {
   const nombres = ids.map((id) => nombreDe(e, id));
   if (nombres.length <= 1) return nombres[0] ?? "nadie";
   return `${nombres.slice(0, -1).join(", ")} y ${nombres[nombres.length - 1]}`;
 }
 
-const golpes = [
-  "le abre la guardia",
-  "le acierta de lleno",
-  "le cruza el costado",
-  "le rompe la defensa",
-];
+/**
+ * «2 calaveras, 1 escudo negro. »: la tirada de un ataque, en caras, como
+ * pide el ejemplo de Juan Luis para el informe. Cadena vacía si no hay caras
+ * que contar (la mesa metió solo el resultado a mano).
+ */
+function describeTirada(ataque: readonly CaraCombate[], defensa: readonly CaraCombate[]): string {
+  const partes: string[] = [];
+  const calaveras = contarCalaveras(ataque);
+  if (calaveras > 0) partes.push(`${calaveras} ${calaveras === 1 ? "calavera" : "calaveras"}`);
+  const blancos = contarEscudosBlancos(defensa);
+  if (blancos > 0) partes.push(`${blancos} ${blancos === 1 ? "escudo blanco" : "escudos blancos"}`);
+  const negros = contarEscudosNegros(defensa);
+  if (negros > 0) partes.push(`${negros} ${negros === 1 ? "escudo negro" : "escudos negros"}`);
+  return partes.length === 0 ? "" : `${partes.join(", ")}. `;
+}
+
 const fallos = [
   "pero el golpe se pierde en el aire",
   "y no consigue pasar",
@@ -83,7 +110,7 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     case "movimiento":
       return ev.ruta.length === 0
         ? null
-        : `${mayus(nombreDe(e, ev.actor))} avanza ${ev.ruta.length} ${ev.ruta.length === 1 ? "casilla" : "casillas"}.`;
+        : `${mayus(sujetoInforme(e, ev.actor))} avanza ${ev.ruta.length} ${ev.ruta.length === 1 ? "casilla" : "casillas"}.`;
 
     case "puertaAbierta":
       return "La puerta cede con un chirrido.";
@@ -96,10 +123,11 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     }
 
     case "ataque": {
-      const a = mayus(nombreDe(e, ev.atacante));
+      const a = mayus(sujetoInforme(e, ev.atacante));
       const o = nombreDe(e, ev.objetivo);
-      if (ev.dano === 0) return `${a} ataca ${aA(o)} ${elegir(fallos, n + ev.calaveras)}.`;
-      return `${a} ${elegir(golpes, n + ev.calaveras)} ${aA(o)}: ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
+      const tirada = describeTirada(ev.dadosAtaque, ev.dadosDefensa);
+      if (ev.dano === 0) return `${a} ataca ${aA(o)}: ${tirada}${elegir(fallos, n + ev.calaveras)}.`;
+      return `${a} ataca ${aA(o)}: ${tirada}${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
     }
 
     case "figuraDerrotada": {
