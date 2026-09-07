@@ -19,7 +19,7 @@ sin la T (la T7 es `07--<sid>.md`).
 
 Regenerado: 2026-09-07 21:10Z · por la sesión `s-20260907T205335-e738c893`, al cerrar la 45.
 Sobre la regeneración de las 21:06Z (`s-20260907T205502-6241d5c8`, al cerrar la 64) cambian
-**cuatro filas**: la **45 pasa a LISTA** (este cierre; hash pendiente del push), la **46
+**cuatro filas**: la **45 pasa a LISTA** (este cierre, `0f68632`), la **46
 pasa a PENDIENTE** (su única precondición era la 45; es ALTO y toca `quests/`, que ahora
 es un catálogo al que una misión se añade con un fichero y una línea), la **65 pasa a EN
 CURSO** (`s-20260907T205502-6241d5c8`, reclamo `7263b3b`, caduca 2026-09-07T21:51:31Z; el
@@ -270,7 +270,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`372a0f0`, fusionada en `main` a las 13:15Z; 467 tests) | |
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | LISTA (`6c8bd22`) | |
-| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests (y, fuera de la ficha, `App.tsx`, `EntrarEnPartida.tsx`, `scripts/repetir.ts`) | manual | LISTA (hash pendiente del push; hecha por `s-20260907T205335-e738c893` sobre el reclamo de `s-20260907T204636-b565f64a`) | |
+| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests (y, fuera de la ficha, `App.tsx`, `EntrarEnPartida.tsx`, `scripts/repetir.ts`) | manual | LISTA (`0f68632`; hecha por `s-20260907T205335-e738c893` sobre el reclamo de `s-20260907T204636-b565f64a`) | |
 | 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · **cumplida** · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **PENDIENTE** | |
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
