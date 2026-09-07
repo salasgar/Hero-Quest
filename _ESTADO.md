@@ -17,6 +17,12 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-07 21:19Z · por la sesión `s-20260907T211731-6bdd85b1`, al reclamar la 46.
+Sobre la regeneración de las 21:14Z (`s-20260907T205502-6241d5c8`, al cerrar la 65) cambia
+**una fila**: la **46 pasa a EN CURSO** (este reclamo, caduca 2026-09-08T05:17:31Z; la
+sesión que cerró la 63 encadena en verde, única tarea libre de su banda sin espera de
+fichero). Queda libre solo la **50** (ALTO), con las esperas de fichero de abajo.
+
 Regenerado: 2026-09-07 21:14Z · por la sesión `s-20260907T205502-6241d5c8`, al cerrar la 65.
 Sobre la regeneración de las 21:10Z (`s-20260907T205335-e738c893`, al cerrar la 45) cambian
 **tres filas**: la **65 pasa a LISTA** (este cierre, `TurnPanel.tsx`, `b3c7995`), la **37
@@ -274,7 +280,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | LISTA (`6c8bd22`) | |
 | 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests (y, fuera de la ficha, `App.tsx`, `EntrarEnPartida.tsx`, `scripts/repetir.ts`) | manual | LISTA (`0f68632`; hecha por `s-20260907T205335-e738c893` sobre el reclamo de `s-20260907T204636-b565f64a`) | |
-| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · **cumplida** · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **PENDIENTE** | |
+| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · **cumplida** · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **EN CURSO** | `s-20260907T211731-6bdd85b1` · 2026-09-08T05:17:31Z |
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | LISTA (`fb40fb1`) | |
@@ -309,23 +315,23 @@ nombre un nombre de verdad (62) resuelve el síntoma de la 60 («Enano el Enano�
 (`hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`). No hay `hechos/recursos/` con
 nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** **46** (ALTO) y **50** (ALTO, con las esperas de fichero dichas
-arriba). **37 y 61 están EN CURSO** (sids y caducidad en la tabla; las dos relevadas tras
-la caída, la 61 a las 20:58:35Z y la 37 a las 21:11:50Z). **La 45, la 59, la 62, la 63, la
+**Libres por estado:** solo **50** (ALTO, con las esperas de fichero dichas arriba).
+**37, 46 y 61 están EN CURSO** (sids y caducidad en la tabla; 37 y 61 relevadas tras la
+caída, la 61 a las 20:58:35Z y la 37 a las 21:11:50Z; la 46 reclamada a las 21:17:31Z). **La 45, la 59, la 62, la 63, la
 64 y ahora la 65 están cerradas** (`0f68632`, `aa75844`, `aaebe93`, `f7f05ac`, `d7724f3` y
 `b3c7995`, los seis en `main`); **la 60 quedó SUSTITUIDA**.
 
 **Por ficheros, ahora mismo:** la 45 ya cerró, así que la 37 (EN CURSO) tiene
 `EleccionDeHeroes.tsx` para ella sola; parte del selector de misión que la 45 dejó ahí
 (`0f68632`) y del reparto de nombres de la 62 en `partida.ts`. **61 (EN CURSO) no comparte
-fichero con la 37.** La **46** (libre) toca `quests/<id>.ts` nuevo y `quests/index.ts`, que
-nadie vivo declara. La **50** (libre) toca `types.ts` (lo declara la 37) y `narrator/local.ts`
+fichero con la 37.** La **46** (EN CURSO) toca `quests/<id>.ts` nuevo y `quests/index.ts`, que
+nadie más vivo declara. La **50** (libre) toca `types.ts` (lo declara la 37) y `narrator/local.ts`
 (lo declara la 61): no se abre en paralelo con ellas sin pactarlo; `reducer.ts` no lo toca
 nadie vivo. La 63, la 64 y la 65, ya cerradas, tocaron solo `MasterLog.tsx`,
 `useAccionesDeTurno.ts` y `TurnPanel.tsx`. 15 espera la palabra de Juan Luis; la 47 sigue
 BLOQUEADA por la 46.
 
-**Cabe hoy:** **una sesión ALTO con la 46** ahora mismo, sin chocar con nadie. La **50**
+**Cabe hoy:** ninguna sesión más sin esperas: la 46 ya está cogida. La **50**
 (ALTO, 5 h) cabe cuando cierren la 37 y la 61, o antes si su sesión pacta `types.ts` y
 `narrator/local.ts` con esas dos como hicieron la 45 y la 37 con `EleccionDeHeroes.tsx`. La
 47 (MEDIO) se abre cuando la 46 cierre.
