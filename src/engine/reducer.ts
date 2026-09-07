@@ -193,7 +193,24 @@ function comprobarDesenlace(e: EstadoPartida): [EstadoPartida, Evento[]] {
  * tardarían un turno en aparecer.
  */
 function terminar(e: EstadoPartida, eventos: Evento[]): Resultado {
-  const [conDesenlace, masEventos] = comprobarDesenlace(conMonstruosEnTablero(conPuertasVistas(e)));
+  let estado = conMonstruosEnTablero(conPuertasVistas(e));
+
+  // Una acción puede matar a quien la hace —un peligro al buscar tesoro, un
+  // bloque que le cae encima al moverse—, sin ser ninguna de las que ya
+  // acaban el turno por sí solas. Un héroe a cuerpo 0 no tiene nada más que
+  // hacer con lo que le quedara de turno: se cierra aquí, en el embudo por el
+  // que pasan todas las acciones, para no repetir la comprobación en cada una.
+  if (!esTurnoDeZargon(estado)) {
+    const activo = figuraActiva(estado);
+    if (activo && esHeroe(activo) && activo.cuerpo <= 0 && !estado.turno.movimientoCerrado) {
+      estado = {
+        ...estado,
+        turno: { ...estado.turno, haActuado: true, movimientoCerrado: true, movimientoRestante: 0 },
+      };
+    }
+  }
+
+  const [conDesenlace, masEventos] = comprobarDesenlace(estado);
   const todos = [...eventos, ...masEventos];
   return { ok: true, estado: { ...conDesenlace, registro: [...conDesenlace.registro, ...todos] }, eventos: todos };
 }
@@ -311,6 +328,9 @@ export function aplicarAccion(estado: EstadoPartida, accion: Accion): Resultado 
 
 function tirarMovimientoAccion(e: EstadoPartida, dados?: [number, number]): Resultado {
   if (esTurnoDeZargon(e)) return fallo("Los monstruos se mueven un número fijo de casillas: no tiran.");
+  const heroeDeTurno = figuraPorId(e, actorActual(e));
+  if (heroeDeTurno && esHeroe(heroeDeTurno) && heroeDeTurno.cuerpo <= 0)
+    return fallo(`${heroeDeTurno.nombre} ha caído: no puede tirar movimiento.`);
   if (e.turno.movimientoTotal !== null) return fallo("Ya has tirado el movimiento este turno.");
 
   let rng = e.rng;
@@ -394,6 +414,7 @@ function activarMonstruo(e: EstadoPartida, id: IdFigura): Resultado {
 function mover(e: EstadoPartida, destino: Celda): Resultado {
   const f = figuraActiva(e);
   if (!f) return fallo("No hay ninguna figura activa.");
+  if (esHeroe(f) && f.cuerpo <= 0) return fallo(`${f.nombre} ha caído: no puede moverse.`);
   if (e.turno.movimientoTotal === null) return fallo("Antes hay que tirar el movimiento.");
   if (e.turno.movimientoCerrado) return fallo("Ya has movido y actuado: el movimiento está cerrado.");
   if (e.turno.movimientoRestante <= 0) return fallo("No te queda movimiento.");
@@ -537,6 +558,7 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
 function abrirPuerta(e: EstadoPartida, idPuerta: string): Resultado {
   const f = figuraActiva(e);
   if (!f) return fallo("No hay ninguna figura activa.");
+  if (esHeroe(f) && f.cuerpo <= 0) return fallo(`${f.nombre} ha caído: no puede abrir puertas.`);
   const puerta = e.puertas.find((p) => p.id === idPuerta);
   if (!puerta) return fallo("No existe esa puerta.");
   if (puerta.abierta) return fallo("Esa puerta ya está abierta.");
@@ -569,6 +591,8 @@ function atacar(
 ): Resultado {
   const atacante = figuraActiva(e);
   if (!atacante) return fallo("No hay ninguna figura activa.");
+  if (esHeroe(atacante) && atacante.cuerpo <= 0)
+    return fallo(`${atacante.nombre} ha caído: no puede atacar.`);
   if (e.turno.haActuado) return fallo("Ya has actuado este turno.");
 
   const objetivo = figuraPorId(e, idObjetivo);
@@ -660,6 +684,7 @@ export const objetoDeMisionAlAlcance = (e: EstadoPartida, sala: IdSala): boolean
 function buscarTesoro(e: EstadoPartida): Resultado {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f)) return fallo("Solo los héroes buscan tesoros.");
+  if (f.cuerpo <= 0) return fallo(`${f.nombre} ha caído: no puede buscar tesoros.`);
   if (e.turno.haActuado) return fallo("Ya has actuado este turno.");
 
   const sala = salaEn(f.celda.x, f.celda.y);
@@ -779,6 +804,7 @@ function buscarTesoro(e: EstadoPartida): Resultado {
 function buscarTrampas(e: EstadoPartida): Resultado {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f)) return fallo("Solo los héroes buscan trampas.");
+  if (f.cuerpo <= 0) return fallo(`${f.nombre} ha caído: no puede buscar trampas.`);
   if (e.turno.haActuado) return fallo("Ya has actuado este turno.");
   // Reglamento p. 16: «As a hero, you can only search for traps if there are no
   // monsters visible to you», y la misma frase para los pasadizos. La condición
@@ -899,6 +925,7 @@ function usarPocion(e: EstadoPartida, quien: IdFigura, idCarta: string, idObjeti
 function darObjeto(e: EstadoPartida, idCarta: string, idA: IdFigura): Resultado {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f)) return fallo("Solo un héroe, en su turno, puede dar sus cosas.");
+  if (f.cuerpo <= 0) return fallo(`${f.nombre} ha caído: no puede dar nada.`);
   if (!f.mochila.includes(idCarta)) return fallo("No lleva eso en la mochila.");
   const a = figuraPorId(e, idA);
   if (!a || !esHeroe(a) || a.id === f.id || a.cuerpo === 0)
@@ -917,6 +944,7 @@ function darObjeto(e: EstadoPartida, idCarta: string, idA: IdFigura): Resultado 
 function desarmarTrampa(e: EstadoPartida, idTrampa: string): Resultado {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f)) return fallo("Solo los héroes desarman trampas.");
+  if (f.cuerpo <= 0) return fallo(`${f.nombre} ha caído: no puede desarmar trampas.`);
   if (e.turno.haActuado) return fallo("Ya has actuado este turno.");
 
   const t = e.trampas.find((x) => x.id === idTrampa);
@@ -970,6 +998,7 @@ function lanzarHechizo(
 ): Resultado {
   const f = figuraActiva(e);
   if (!f || !esHeroe(f)) return fallo("Solo los héroes lanzan hechizos.");
+  if (f.cuerpo <= 0) return fallo(`${f.nombre} ha caído: no puede lanzar hechizos.`);
   if (e.turno.haActuado) return fallo("Ya has actuado este turno.");
   if (!f.hechizos.includes(idHechizo)) return fallo("No tienes ese hechizo disponible.");
 
@@ -1223,11 +1252,27 @@ function terminarTurno(e: EstadoPartida): Resultado {
   ]);
 }
 
-const siguienteActor = (e: EstadoPartida): Actor =>
-  e.turno.orden[(e.turno.indice + 1) % e.turno.orden.length]!;
+const actorCaido = (e: EstadoPartida, actor: Actor): boolean =>
+  actor !== "zargon" && (e.heroes.find((h) => h.id === actor)?.cuerpo ?? 1) <= 0;
+
+// Un héroe a cuerpo 0 sale del tablero y no vuelve a tener turno: se salta al
+// repartir el siguiente índice, tantas vueltas como haga falta. No hay riesgo
+// de bucle infinito: `comprobarDesenlace` da la partida por perdida en cuanto
+// no queda ningún héroe vivo, así que siempre hay como mínimo un actor en pie
+// (o Zargon) antes de completar una vuelta entera a `orden`.
+function proximoIndice(e: EstadoPartida): number {
+  const total = e.turno.orden.length;
+  let indice = (e.turno.indice + 1) % total;
+  for (let vueltas = 0; vueltas < total && actorCaido(e, e.turno.orden[indice]!); vueltas++) {
+    indice = (indice + 1) % total;
+  }
+  return indice;
+}
+
+const siguienteActor = (e: EstadoPartida): Actor => e.turno.orden[proximoIndice(e)]!;
 
 function avanzarActor(e: EstadoPartida): EstadoPartida {
-  const indice = (e.turno.indice + 1) % e.turno.orden.length;
+  const indice = proximoIndice(e);
   const entraZargon = e.turno.orden[indice] === "zargon";
 
   // Al empezar la ronda de Zargon se limpian los estados de un turno.

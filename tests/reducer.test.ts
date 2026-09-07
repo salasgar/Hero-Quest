@@ -557,6 +557,8 @@ describe("pociones y equipo en la mochila (T54)", () => {
     const e2 = conMochila(dos(), "enano", ["pocionCura"]);
     expect(rechaza(e2, { tipo: "darObjeto", carta: "pocionCura", a: "barbaro" })).toMatch(/mochila/i);
     expect(rechaza(herido(e, "enano", 0), { tipo: "darObjeto", carta: "pocionCura", a: "enano" })).toMatch(/en pie/i);
+    // Y a un caído tampoco le sirve de nada seguir teniendo el turno: no da nada.
+    expect(rechaza(herido(e, "barbaro", 0), { tipo: "darObjeto", carta: "pocionCura", a: "enano" })).toMatch(/caído/i);
   });
 
   it("un yelmo del tesoro: el mago lo guarda, el bárbaro lo equipa y un segundo yelmo va a la mochila", () => {
@@ -884,6 +886,63 @@ describe("turnos", () => {
     e = hacer(e, { tipo: "activarMonstruo", monstruo: "orco2" });
     e = hacer(e, { tipo: "terminarTurno" }); // no quedan: vuelve a los héroes
     expect(e.turno.orden[e.turno.indice]).toBe("barbaro");
+  });
+});
+
+describe("un héroe caído (T66)", () => {
+  const caido = (e: EstadoPartida, id: string): EstadoPartida => ({
+    ...e,
+    heroes: e.heroes.map((h) => (h.id === id ? { ...h, cuerpo: 0 } : h)),
+  });
+
+  it("avanzarActor lo salta al repartir turnos y nunca vuelve a asignárselo", () => {
+    let e = partida({ heroes: [{ clase: "barbaro" }, { clase: "enano" }, { clase: "elfo" }] });
+    e = caido(e, "enano");
+    expect(e.turno.orden).toEqual(["barbaro", "enano", "elfo", "zargon"]);
+    e = hacer(e, { tipo: "terminarTurno" }); // barbaro -> se salta al enano caído
+    expect(e.turno.orden[e.turno.indice]).toBe("elfo");
+    e = hacer(e, { tipo: "terminarTurno" }); // elfo -> zargon
+    expect(e.turno.orden[e.turno.indice]).toBe("zargon");
+    e = hacer(e, { tipo: "terminarTurno" }); // zargon, sin monstruos -> se lo vuelve a saltar
+    expect(e.turno.orden[e.turno.indice]).toBe("barbaro");
+  });
+
+  it("ninguna de sus propias acciones se acepta con el actor a cuerpo 0", () => {
+    const e = caido(partida(), "barbaro");
+    const acciones: Accion[] = [
+      { tipo: "tirarMovimiento", dados: [3, 3] },
+      { tipo: "mover", destino: c(2, 1) },
+      { tipo: "abrirPuerta", puerta: "cualquiera" },
+      { tipo: "atacar", objetivo: "cualquiera" },
+      { tipo: "buscarTesoro" },
+      { tipo: "buscarTrampas" },
+      { tipo: "desarmarTrampa", trampa: "cualquiera" },
+      { tipo: "lanzarHechizo", hechizo: "vientoVeloz" },
+    ];
+    for (const a of acciones) expect(rechaza(e, a), JSON.stringify(a)).toMatch(/caíd/i);
+  });
+
+  it("una acción puede matar a quien la hace, y le cierra el turno en el acto", () => {
+    // Reglamento p. 15: entre las cartas de tesoro hay peligros («Gas
+    // venenoso») que hieren a quien busca. Si esa herida lo deja a cuerpo 0,
+    // no le queda turno que seguir jugando aunque no haya movido ni atacado.
+    // Dos héroes: si solo hubiera uno, matarlo acaba la partida entera (otro
+    // desenlace) y no se llega a comprobar el cierre del turno.
+    const base = situar(partida({ heroes: [{ clase: "barbaro" }, { clase: "enano" }] }), "barbaro", c(1, 1));
+    const e: EstadoPartida = {
+      ...base,
+      heroes: base.heroes.map((h) => (h.id === "barbaro" ? { ...h, cuerpo: 1 } : h)),
+      salasReveladas: ["a"],
+      mazoTesoros: ["gas"],
+    };
+    const r = aplicarAccion(e, { tipo: "buscarTesoro" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.estado.heroes.find((h) => h.id === "barbaro")!.cuerpo).toBe(0);
+    expect(r.estado.turno.haActuado).toBe(true);
+    expect(r.estado.turno.movimientoCerrado).toBe(true);
+    expect(r.estado.turno.movimientoRestante).toBe(0);
+    expect(rechaza(r.estado, { tipo: "tirarMovimiento" })).toMatch(/caíd/i);
   });
 });
 

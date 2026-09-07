@@ -150,6 +150,11 @@ function accionesPosibles(e: EstadoPartida): Accion[] {
     return salida;
   }
   if (!activa) return salida;
+  // Un héroe puede caer a mitad de su propio turno (un peligro al buscar
+  // tesoro, un bloque al moverse) sin que eso acabe la partida: `terminar`
+  // le cierra el turno, pero sigue siendo él la figura activa hasta que
+  // `avanzarActor` pase al siguiente. Nada más que `terminarTurno` es legal.
+  if (esHeroe(activa) && activa.cuerpo <= 0) return salida;
 
   if (!esTurnoDeZargon(e) && e.turno.movimientoTotal === null) salida.push({ tipo: "tirarMovimiento" });
   for (const c of casillasDeMovimiento(e)) salida.push({ tipo: "mover", destino: c });
