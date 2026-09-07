@@ -73,6 +73,27 @@ Si el catálogo ya tiene dos misiones, esta está hecha.
 - **El monstruo errante sale de las cartas de tesoro** y nace junto al héroe que busca: en
   una misión con muchas búsquedas aparece a menudo. Cuenta con ello al medir.
 
+Lo que enseñó el torreón (T46), para T47 y las siguientes:
+
+- **Una sala sin puerta al pasillo cuelga a los héroes del simulador una vez de cien.** Su
+  heurística va hacia la puerta cerrada más cercana en línea recta; si esa puerta está
+  dentro de una sala (el salón del trono se abre desde la antesala o la cripta), un héroe
+  en el pasillo de al lado se queda a tres casillas sin poder acercarse y no se mueve más.
+  Es del simulador, no de la mesa, y el 1 % no cambia el orden del catálogo; pero si una
+  misión pone **varias** salas así, mide cuántas partidas quedan «sin terminar» y léelas.
+- **Un héroe caído sigue jugando** hasta que T66 lo arregle: todos los porcentajes del
+  simulador, del calabozo y del torreón, están medidos con ese fallo dentro. Compara
+  misiones entre sí; no te creas el número absoluto.
+- **El simulador del catálogo tarda ~15 min** con veinte monstruos en el tablero a la vez.
+  Lánzalo en segundo plano, late mientras tanto y, para iterar el diseño, usa
+  `npm run sim -- 2 1000 <id>` primero.
+- **Sin navegador, «juégala una vez» se puede sustituir por leerla:** una copia desechable
+  del simulador que imprima el diario con `narrar` (`src/narrator/local.ts`) enseña si la
+  misión se lee como una historia y dónde se desvía el grupo. No la commitees.
+- **El objetivo `matarA` es el que el simulador mide limpio.** `recuperar` con custodio
+  también vale (los héroes tontos registran esa sala); `llegarA` y `salir` no: nadie va a
+  por unas casillas sin monstruo delante.
+
 ## Prohibido
 
 - Retocar pesos de la IA o `calabozo.ts` para que cuadre: la dificultad se diseña aquí.
