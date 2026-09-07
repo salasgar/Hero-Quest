@@ -17,15 +17,15 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-07 07:50Z · por la sesión `s-20260906T141818-ff83f12c` (coordina), al
-relevar y cerrar la **56**: su código estaba fusionado en el `main` local sin empujar y su
-terminada sin rastrear; ahora está en `origin/main` como `7ae9fb9` (514 tests, typecheck 0;
-incidencia en `hechos/incidencias/s-20260906T141818-ff83f12c.md`). Sobre la regeneración
-de `s-20260906T174714-651b3481` (07:45Z, al cerrar la 53, `a60b7e5`), cambia solo la 56.
-**Reclamos vivos: ninguno a las 07:50Z**, salvo que la sesión de la 53 haya reclamado ya la
-54, que era lo siguiente de su cadena (mira `hechos/reclamos/`). La **22**
-(`s-20260906T174532-9cbd624b`, caducó a las 22:19:03Z del día 6, sin ningún commit de
-código en su worktree) sigue RELEVABLE.
+Regenerado: 2026-09-07 07:53Z · por la sesión `s-20260906T174532-9cbd624b`, al cerrar la
+22 (commit pendiente de push; el hash se corrige en cuanto entre en `origin/main`, como
+T41 y T42). Esta misma sesión había quedado marcada RELEVABLE en la regeneración de las
+07:50Z: no fue un relevo real —comprobado antes de retomar que nadie escribió `releva a:`
+contra su sid ni existe otro reclamo o terminada de la 22—, solo una pausa larga (desde
+las 18:18Z del día 6) con el reclamo caducado y el trabajo sin empujar todavía, así que el
+tablón no podía verlo. Incorpora también la **54** (`s-20260906T174714-651b3481`, caduca
+2026-09-07T15:45:09Z), cuarta de la cadena 51 → 53 → 54 → 55, que no aparecía en la
+regeneración anterior. Sin más reclamos vivos.
 
 ## Antes de hacer nada
 
@@ -228,7 +228,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 19 | T19 · Una puerta se abre también desde la diagonal | tareas/T19-abrir-puertas-en-diagonal.md | regla de la casa firmada (2026-09-05) | 2 h | MEDIO | — | `board.ts`, `reducer.ts`, `selectors.ts`, tests | manual | LISTA (`c08bbc0`) | |
 | 20 | T20 · El turno de Zargon pasa sin que el diario lo cuente | tareas/T20-el-turno-de-zargon-no-se-cuenta.md | ninguna | 2 h | MEDIO | — | `types.ts`, `reducer.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`740f54a`) | |
 | 21 | T21 · Siete hechizos de doce no dejan rastro | tareas/T21-hechizos-sin-rastro-en-el-diario.md | ninguna (no a la vez que 20) | 2 h | MEDIO | — | `types.ts`, `reducer.ts`, `narrator/local.ts`, tests | manual | LISTA (`72a7c7f`) | |
-| 22 | T22 · Saber qué hace cada hechizo antes de lanzarlo | tareas/T22-que-hace-cada-hechizo.md | `src/ui/Instrucciones.tsx` en `main` · **cumplida** (`b47310f`) · no a la vez que 52, 36 (`TurnPanel.tsx`) ni 54 (`HeroSheet.tsx`) | 2 h | MEDIO | 52, 36 | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css`, tests | manual | **RELEVABLE** (reclamo de `s-20260906T174532-9cbd624b` caducado a las 22:19:03Z del 2026-09-06, sin cierre ni relevo; quien la coja abre el suyo con `releva a:`) | |
+| 22 | T22 · Saber qué hace cada hechizo antes de lanzarlo | tareas/T22-que-hace-cada-hechizo.md | `src/ui/Instrucciones.tsx` en `main` · **cumplida** (`b47310f`) · no a la vez que 52, 36 (`TurnPanel.tsx`) ni 54 (`HeroSheet.tsx`) | 2 h | MEDIO | 52, 36 | `TurnPanel.tsx`, `Instrucciones.tsx`, `HeroSheet.tsx`, `estilos.css`, tests | manual | LISTA (commit pendiente de push) | |
 | 30 | T30 · El relevo de acciones | tareas/T30-relevo-de-acciones.md | ninguna | 4 h | ALTO | — | `server/`, `src/red/protocolo.ts`, `tests/red-protocolo.test.ts` | manual | LISTA (`6b07f82`) · el despliegue espera firma en `autorizaciones.md` | |
 | 31 | T31 · La partida en red, en el cliente | tareas/T31-sesion-de-red.md | 30 LISTA | 4 h | ALTO | — | `src/red/cliente.ts`, `usePartida.ts`, `tests/red-cliente.test.ts` | manual | LISTA (`15c852a`) | |
 | 32 | T32 · La pantalla de quien juega desde su casa | tareas/T32-vista-del-heroe-remoto.md | 31 y 18 LISTA | 4 h | ALTO | — | `VistaDeHeroe.tsx`, `BoardMirror.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `App.tsx`, `estilos.css`, tests | manual | LISTA (`be4adf6`) | |
@@ -253,7 +253,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 51 | T51 · Un héroe pisa una trampa y tiene que pasarle algo | tareas/T51-las-trampas-saltan-al-pisarlas.md | ninguna · no a la vez que 53, 54, 50 (`reducer.ts`) ni 37 (`BoardMirror.tsx`) | 1,5 h | ALTO | 53, 54 | `reducer.ts`, `BoardMirror.tsx`, `tests/reducer.test.ts` | manual | LISTA (`095d031`) | |
 | 52 | T52 · En el turno de Zargon no salen los mandos de los héroes | tareas/T52-el-turno-de-zargon-sin-mandos-de-heroe.md | ninguna · no a la vez que 36, 22 (`TurnPanel.tsx`) ni 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 36, 22 | `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `tests/turno-automatico.test.ts` | manual | LISTA (`9124757`) | |
 | 53 | T53 · El pergamino del guardián: la misión tiene encargo | tareas/T53-el-pergamino-del-guardian.md | 51 LISTA · no a la vez que 54, 50 (`reducer.ts`), 37, 38 (`types.ts`), 39 (`narrator`), 45 (`simular.ts`) | 3 h | ALTO | 54 | `types.ts`, `reducer.ts`, `quests/calabozo.ts`, `narrator/local.ts`, `scripts/simular.ts`, `tests/quest.test.ts`, `tests/reducer.test.ts` | manual | LISTA (`a60b7e5`) | |
-| 54 | T54 · Pociones que se guardan y equipo que se encuentra | tareas/T54-pociones-y-equipo-entre-el-tesoro.md | 53 LISTA · no a la vez que 50, 37, 38, 39, 22 (`HeroSheet.tsx`) | 4 h | ALTO | 55 | `types.ts`, `partida.ts`, `reducer.ts`, `selectors.ts`, `combat.ts`, `treasure.ts`, `narrator/local.ts`, `HeroSheet.tsx`, tests, `imprimibles/` | manual | **PENDIENTE** (53 LISTA) | |
+| 54 | T54 · Pociones que se guardan y equipo que se encuentra | tareas/T54-pociones-y-equipo-entre-el-tesoro.md | 53 LISTA · no a la vez que 50, 37, 38, 39, 22 (`HeroSheet.tsx`) | 4 h | ALTO | 55 | `types.ts`, `partida.ts`, `reducer.ts`, `selectors.ts`, `combat.ts`, `treasure.ts`, `narrator/local.ts`, `HeroSheet.tsx`, tests, `imprimibles/` | manual | EN CURSO | `s-20260906T174714-651b3481` · 2026-09-07T15:45:09Z |
 | 55 | T55 · Las diecisiete salas nuevas del calabozo, con algo dentro | tareas/T55-las-salas-nuevas-pobladas.md | 53 y 54 LISTA · no a la vez que 46 | 3 h | ALTO | — | `quests/calabozo.ts`, `tests/quest.test.ts` | manual | **BLOQUEADA** (54) | |
 | 56 | T56 · Dos arreglos del entorno: vitest y `preview` | tareas/T56-dos-arreglos-del-entorno.md | ninguna | 30 min | BAJO | 57 | `vite.config.ts`, `README.md`, `tareas/_COMUN.md` | manual | LISTA (`7ae9fb9`; hecha por `s-20260906T174758-05906208`, relevada y cerrada por `s-20260906T141818-ff83f12c`) | |
 | 57 | T57 · Descargar la partida: un registro con el que encontrar los fallos | tareas/T57-descargar-la-partida.md | ninguna | 2 h | MEDIO | 56 | `registroDePartida.ts` (nuevo), `usePartida.ts`, `App.tsx`, `scripts/repetir.ts` (nuevo), `package.json`, `README.md`, tests | manual | LISTA (`f40e415`) | |
@@ -262,28 +262,24 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** 37, 39 y 44 (MEDIO); 45 y 54 (ALTO; la 54 la reclama a
-continuación la sesión que cerró la 53, encadenando). **53 acaba de cerrarse (LISTA)**;
-**56 LISTA** (relevada y cerrada a las 07:50Z); la 22 es RELEVABLE: reclamo caducado
-anoche sin cierre y sin código (ver la tabla).
+**Libres por estado:** 37, 39 y 44 (MEDIO); 45 (ALTO). **22 acaba de cerrarse (LISTA)**;
+**54 tiene reclamo vivo** (cuarta de la cadena 51 → 53 → 54 → 55).
 
-**Por ficheros, sin chocar entre sí, ahora mismo:** **58** (MEDIO; `BoardMirror.tsx`
-libre desde que cerró la 51; comparte `estilos.css` con la 22, que ya está cogida, así
-que de todas formas no iría en paralelo con ella) y **44** (MEDIO; `Juego.tsx` sin nada
-EN CURSO que la toque). **37** y **39** siguen esperando a la 54 (`types.ts`,
-`narrator/local.ts`); **45** ya no espera a nadie por `simular.ts` (la 53 cerró), pero
-comparte `Juego.tsx` con la 44 y `EleccionDeHeroes.tsx` con la 37. Dicho llanamente:
-**con la 54 a punto de reclamarse, quedan libres sin chocar entre sí 58, 44 y 45 (la 45
-no a la vez que la 44), y la 22 se puede relevar (la 22 no a la vez que la 54,
-por `HeroSheet.tsx`, ni que la 58, por `estilos.css`)**. 15 espera la palabra de Juan Luis; 46, 47,
-50, 55 siguen BLOQUEADAS por sus precondiciones.
+**Por ficheros, sin chocar entre sí, ahora mismo:** **58** (MEDIO; `BoardMirror.tsx` libre
+desde que cerró la 51; ya no choca con la 22, que no llegó a tocar `estilos.css`) y **44**
+(MEDIO; `Juego.tsx` sin nada EN CURSO que la toque, aunque toca el mismo fichero que 22
+tocó — 22 ya cerró, así que no hay problema). **37** sigue esperando a la 54
+(`types.ts`); **39** ya no espera a nadie por `narrator/local.ts` (nadie EN CURSO lo
+toca). **45** comparte `Juego.tsx` con la 44 y `EleccionDeHeroes.tsx` con la 37. Dicho
+llanamente: **con la 54 cogida, quedan libres sin chocar entre sí 58, 44, 39 y 45 (45 no
+a la vez que 44)**. 15 espera la palabra de Juan Luis; 46, 47, 50, 55 siguen BLOQUEADAS
+por sus precondiciones.
 
 **Encadenables:** 58 → 37 comparte ficheros dentro de la cadena: seguidas, nunca en
-paralelo (37 espera a 54 igualmente). 56 quedó sin la 57 con la que encadenaba (ya
-cerrada): al cerrar 56, su sesión puede encadenar cualquier libre de banda BAJO que
-aparezca, o parar. La cadena 51 → 53 → 54 → 55 va de una en una en la sesión
-`s-20260906T174714-651b3481`, que cerró la 51 y la 53 y sigue con la 54. La cadena 52 → 36 → 22
-de esta sesión llega a su último tramo: la 22, reclamada ahora.
+paralelo (37 espera a 54 igualmente). La cadena 51 → 53 → 54 → 55 va de una en una en la
+sesión `s-20260906T174714-651b3481`, que cerró la 51 y la 53 y sigue con la 54. La cadena
+52 → 36 → 22 de esta sesión (`s-20260906T174532-9cbd624b`) queda cerrada entera: las
+tres, LISTA.
 
 ## Registro de finalizaciones
 
@@ -295,6 +291,7 @@ terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
 
+- LISTA · tarea 22 · 2026-09-07 07:52 · `s-20260906T174532-9cbd624b` · la descripción del hechizo va en el propio botón del panel (no solo en el `title`, porque con un solo objetivo se lanza sin pasar por el segundo paso) y también en el paso «¿sobre quién?»; sección nueva «Los hechizos del grupo» en Instrucciones, por héroe y por elemento, con los gastados tachados; toca `App.tsx` y `Juego.tsx` además de lo declarado en la ficha —hacía falta el `EstadoPartida` real y bajarlo era menos código que reconstruirlo desde `localStorage`—, ninguna otra tarea viva los declaraba; no tocó `HeroSheet.tsx` (no hacía falta) ni `estilos.css` (las clases ya existían), así que la colisión que la sesión de la 54 había anotado con cautela no llega a darse; de paso, corregido «Quién tira qué» en Instrucciones, que aún describía el modo manual que quitó la T36; 508 → 531 tests (+17, `tests/que-hace-cada-hechizo.test.ts`); typecheck y build en verde; sin navegador en el entorno, no se pudo probar en tableta ni sin ratón, verificado por lectura · `TurnPanel.tsx`, `Instrucciones.tsx`, `App.tsx`, `Juego.tsx` · commit pendiente de push
 - LISTA · tarea 56 · 2026-09-07 07:50 · `s-20260906T141818-ff83f12c` (relevo; el trabajo lo hizo `s-20260906T174758-05906208` el día 6 a las 20:15) · `exclude` en `vite.config.ts` (37 ficheros / 514 tests con `npx vitest run` a secas en el árbol principal), receta de `http.server` en el README, trampas de `_COMUN.md` al día; el código estaba fusionado en el `main` local sin empujar y se rebasó sobre `origin/main` · `vite.config.ts`, `README.md`, `tareas/_COMUN.md` · `7ae9fb9`
 
 - LISTA · tarea 53 · 2026-09-06 18:22 · `s-20260906T174714-651b3481` · objetivo `recuperar` (tesoro de misión, reglamento p. 14): el pergamino se encuentra registrando la sala `q` con el guardián muerto, en vez de robar carta, y la misión termina; la introducción del calabozo dice el encargo; el héroe que registró la sala con el guardián vivo puede volver a hacerlo (única excepción a T6, compartida con el selector); el simulador va a la sala y busca: 100 % de victorias en los tres niveles antes y después, +0,5 rondas de media; 514 tests / 37 ficheros tras el rebase (+6 suyos); typecheck en verde · `types.ts`, `reducer.ts`, `selectors.ts`, `narrator/local.ts`, `quests/calabozo.ts`, `scripts/simular.ts`, `tests/quest.test.ts`, `tests/reducer.test.ts`, `tests/narrator.test.ts` · `a60b7e5`
