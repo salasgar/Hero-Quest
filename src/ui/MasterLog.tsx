@@ -39,7 +39,8 @@ export function MasterLog({ estado }: { estado: EstadoPartida }) {
     .filter((l) => l.texto !== null);
 
   useEffect(() => {
-    fondo.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const lista = fondo.current?.parentElement;
+    lista?.scrollTo({ top: lista.scrollHeight, behavior: "smooth" });
   }, [lineas.length]);
 
   function elegir(m: ModoDiario) {
