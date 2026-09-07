@@ -8,6 +8,7 @@ import {
   TRAMPAS_CALABOZO,
 } from "../src/data/quests/calabozo";
 import { crearPartida } from "../src/engine/partida";
+import { MONSTRUOS } from "../src/data/monsters";
 import { claveCelda, type Celda } from "../src/engine/types";
 
 const todas = (): Celda[] => [
@@ -83,9 +84,52 @@ describe("«El calabozo del guardián» encaja en el tablero", () => {
   });
 
   it("cada monstruo está en la sala que le toca", () => {
-    // Los seis están dentro de salas, ninguno suelto en un pasillo.
-    for (const m of MONSTRUOS_CALABOZO)
+    // Todos dentro de salas, ninguno suelto en un pasillo ni sobre un vano.
+    const vanos = new Set(PUERTAS_CALABOZO.flatMap((p) => [p.a, p.b]).map(claveCelda));
+    for (const m of MONSTRUOS_CALABOZO) {
       expect(salaEn(m.celda.x, m.celda.y), `${m.id} está en un pasillo`).not.toBeNull();
+      expect(vanos.has(claveCelda(m.celda)), `${m.id} está sobre una puerta`).toBe(false);
+    }
+  });
+
+  it("las salas pobladas de T55: doce con monstruo, ninguna más dura que la del guardián", () => {
+    // Firma de Juan Luis del 2026-09-06: salas con monstruos y tesoros, y el
+    // 100 % de victorias de la primera misión está bien. La barra de dureza es
+    // la sala del guardián: un fimir solo, 3 dados de ataque y 2 de cuerpo.
+    const porSala = new Map<string, typeof MONSTRUOS_CALABOZO>();
+    for (const m of MONSTRUOS_CALABOZO) {
+      const s = salaEn(m.celda.x, m.celda.y)!;
+      porSala.set(s, [...(porSala.get(s) ?? []), m]);
+    }
+    expect(porSala.size).toBe(12);
+    expect(MONSTRUOS_CALABOZO).toHaveLength(17);
+    const guardian = MONSTRUOS.fimir;
+    for (const [sala, ms] of porSala) {
+      expect(ms.length, `la sala ${sala} tiene ${ms.length} monstruos`).toBeLessThanOrEqual(3);
+      const cuerpo = ms.reduce((s, m) => s + MONSTRUOS[m.especie].cuerpo, 0);
+      const ataque = Math.max(...ms.map((m) => MONSTRUOS[m.especie].ataque));
+      expect(cuerpo, `la sala ${sala} suma ${cuerpo} de cuerpo`).toBeLessThanOrEqual(guardian.cuerpo);
+      expect(ataque, `en la sala ${sala} alguien ataca con ${ataque}`).toBeLessThanOrEqual(guardian.ataque);
+    }
+    // Solo las especies de la caja que Juan Luis puede tener en cartón, y
+    // nunca más de doce de una (la reserva de nombres de T42).
+    const porEspecie: Record<string, number> = {};
+    for (const m of MONSTRUOS_CALABOZO) porEspecie[m.especie] = (porEspecie[m.especie] ?? 0) + 1;
+    expect(Object.keys(porEspecie).sort()).toEqual(["esqueleto", "fimir", "goblin", "orco", "zombi"]);
+    for (const [especie, n] of Object.entries(porEspecie)) expect(n, especie).toBeLessThanOrEqual(12);
+    // Y el resto del recuento, para que nadie lo cambie sin querer.
+    expect(TRAMPAS_CALABOZO).toHaveLength(6);
+    expect(MUEBLES_CALABOZO).toHaveLength(13);
+    expect(Object.keys(MISION_CALABOZO.textosDeSala)).toHaveLength(22);
+  });
+
+  it("las trampas nuevas están en pasillo y ninguna bajo un vano", () => {
+    const vanos = new Set(PUERTAS_CALABOZO.flatMap((p) => [p.a, p.b]).map(claveCelda));
+    for (const t of TRAMPAS_CALABOZO) expect(vanos.has(claveCelda(t.celda)), `la trampa ${t.id} está bajo una puerta`).toBe(false);
+    for (const id of ["foso2", "lanza2", "bloque2"]) {
+      const t = TRAMPAS_CALABOZO.find((x) => x.id === id)!;
+      expect(esPasillo(t.celda.x, t.celda.y), `${id} no está en un pasillo`).toBe(true);
+    }
   });
 
   it("la partida se construye sin reventar y no empieza terminada", () => {
@@ -99,7 +143,7 @@ describe("«El calabozo del guardián» encaja en el tablero", () => {
       semilla: 1,
     });
     expect(e.heroes).toHaveLength(4);
-    expect(e.monstruos).toHaveLength(6);
+    expect(e.monstruos).toHaveLength(MONSTRUOS_CALABOZO.length);
     expect(e.desenlace).toBeNull();
     expect(e.salasReveladas).toEqual([]);
     // Los cuatro héroes en casillas distintas.
