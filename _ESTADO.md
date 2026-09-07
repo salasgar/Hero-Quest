@@ -17,22 +17,23 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-07 20:59Z · por la sesión `s-20260907T205835-39ec5559`, al relevar la 61.
-Sobre la regeneración de las 20:58Z (`s-20260907T205459-25b4f867`, al cerrar la 63), que ya
-recogía que la 45 y la 64 estaban EN CURSO (retomadas tras la caída) y la 63 LISTA, cambia
-solo la **61**, que pasa a **EN CURSO (relevada)** con este reclamo (`releva a:
-s-20260907T204408-8af444b9`, huérfano desde la caída de las ~20:50Z). Sigue **EN CURSO** la
-**37** (`s-20260907T204516-bef22ac6`), huérfana también y sin sesión detrás en el chat entre
-sesiones a las 20:56Z: esta sesión no la releva porque no comparte ficheros con la 61 y
-`hero-quest-b0` ya avisó a otra sesión para que la coja. Queda libre solo la **65** (BAJO).
+Regenerado: 2026-09-07 21:06Z · por la sesión `s-20260907T205502-6241d5c8`, al cerrar la 64.
+Sobre la regeneración de las 20:59Z (`s-20260907T205835-39ec5559`, al relevar la 61) cambia
+solo la **64**, que pasa a **LISTA** (este cierre, `useAccionesDeTurno.ts`, hash pendiente
+del push). Sigue **EN CURSO** la **37** (`s-20260907T204516-bef22ac6`), huérfana desde la
+caída y sin sesión detrás a esta hora. Queda libre solo la **65** (BAJO), que esta misma
+sesión reclama a continuación: la ficha de la 64 la declara encadenable y su reclamo ya lo
+anunciaba.
 
 **Resumen de la caída de las 20:50Z**, para quien no la haya visto: las cinco sesiones
 abiertas entre las 20:44 y las 20:46Z (37, 45, 61, 63 y 64) se cortaron a la vez hacia esa
 hora, con sus reclamos vivos en `origin/main`. La 63 ya tenía el código y la terminada
 commiteados en su worktree; se cerró del todo por `s-20260907T205459-25b4f867`. La 45 la
-retomó `s-20260907T205335-e738c893`, la 64 `s-20260907T205502-6241d5c8` y la 61 esta
-sesión; las tres con un latido «reabierta como…» o `releva a:` en su reclamo. Solo la 37
-sigue huérfana a esta hora.
+retomó `s-20260907T205335-e738c893`, la 64 `s-20260907T205502-6241d5c8` (ya cerrada) y la
+61 `s-20260907T205835-39ec5559`; las tres con un latido «reabierta como…» o `releva a:` en
+su reclamo. Solo la 37 sigue huérfana a esta hora. Escribir en un reclamo ajeno se sale
+del «un fichero, un escritor»; está razonado en
+`hechos/incidencias/s-20260907T205502-6241d5c8.md`.
 
 El reclamo de la 62 **estuvo caducado mientras se cerraba la tarea** (caducaba a las
 18:50Z y se cerró a las 20:45Z, sin latido en medio). Nadie la relevó —ningún reclamo
@@ -280,7 +281,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | **EN CURSO** (relevada) | `s-20260907T205835-39ec5559` · 2026-09-08T02:58:35Z |
 | 62 | T62 · Un nombre chulo por defecto para el héroe sin nombre | tareas/T62-nombre-chulo-por-defecto.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) | 2 h | MEDIO | — | `partida.ts`, `nombresHeroe.ts` (nuevo), tests | manual | LISTA (`aaebe93`) | |
 | 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | LISTA (`f7f05ac`) | |
-| 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | **EN CURSO** | `s-20260907T204555-0c3c3d69` · 2026-09-07T22:45:55Z |
+| 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (hash pendiente del push) | |
 | 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
@@ -297,32 +298,32 @@ nombre un nombre de verdad (62) resuelve el síntoma de la 60 («Enano el Enano�
 (`hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`). No hay `hechos/recursos/` con
 nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** solo **65** (BAJO). **37, 45, 61 y 64 están EN CURSO** (sids y
-caducidad en la tabla; la 61 relevada a las 20:58:35Z por `s-20260907T205835-39ec5559` tras
-caer huérfana, la 37 sigue huérfana a esta hora). **La 59, la 62 y ahora la 63 están
-cerradas** (`aa75844`, `aaebe93` y `f7f05ac`, los tres en `main`); **la 60 quedó
-SUSTITUIDA**.
+**Libres por estado:** solo **65** (BAJO), y la reclama ahora mismo la sesión que cierra la
+64. **37, 45 y 61 están EN CURSO** (sids y caducidad en la tabla; la 61 relevada a las
+20:58:35Z por `s-20260907T205835-39ec5559` tras caer huérfana, la 37 sigue huérfana a esta
+hora). **La 59, la 62, la 63 y ahora la 64 están cerradas** (`aa75844`, `aaebe93`,
+`f7f05ac` y la 64 con hash pendiente del push, en `main`); **la 60 quedó SUSTITUIDA**.
 
 **Por ficheros, ahora mismo:** 37 (EN CURSO) comparte **`EleccionDeHeroes.tsx`** con la 45
 (también EN CURSO) —no van en paralelo; las dos sesiones lo saben y se lo avisaron entre
 ellas (`hechos/incidencias/s-20260907T204636-b565f64a.md`): la 45 lo toca lo último y lo
 mínimo, y rebasa si la 37 fusiona antes—. La 59, ya cerrada, tocó `EleccionDeHeroes.tsx` y
 `estilos.css`; la 62, también cerrada, tocó `partida.ts`, que la 37 declara y ya partió de
-ese reparto. **61 y 64 (EN CURSO) no comparten fichero entre sí ni con la 37 ni con la
-45**, así que las cuatro EN CURSO corren a la vez sin chocar por fichero. La 63, ya
-cerrada, tocó solo `MasterLog.tsx`, que ninguna otra tarea viva declara. 15 espera la
-palabra de Juan Luis; 46, 47 y 50 siguen BLOQUEADAS por sus precondiciones (46 y 47
-esperan a que la 45 cierre).
+ese reparto. **61 (EN CURSO) no comparte fichero con la 37 ni con la 45**, así que las
+tres EN CURSO corren a la vez sin chocar por fichero. La 63 y la 64, ya cerradas, tocaron
+solo `MasterLog.tsx` y `useAccionesDeTurno.ts`, que ninguna otra tarea viva declara. La 65
+toca `TurnPanel.tsx`, que tampoco declara ninguna tarea viva. 15 espera la palabra de Juan
+Luis; 46, 47 y 50 siguen BLOQUEADAS por sus precondiciones (46 y 47 esperan a que la 45
+cierre).
 
-**Cabe hoy:** una sesión más con la **65** (BAJO), sola o encadenada tras la 64 cuando esa
-sesión cierre —no chocan por fichero (`useAccionesDeTurno.ts` frente a `TurnPanel.tsx`),
-pero la 65 no se abre en paralelo hasta que la 64 libere su reclamo o alguien la coja
-aparte—.
+**Cabe hoy:** ninguna sesión nueva sin estorbar: la única libre es la **65** (BAJO) y la
+encadena la sesión que acaba de cerrar la 64. Si esa cadena se cortara (`ABANDONADA` en su
+reclamo), la 65 vuelve a ser una sesión de media hora.
 
 **Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 ya está cogida. **64 y 65
-se declaran encadenables** entre sí (cortas, sin fichero en común); la 64 está EN CURSO y
-encadenará la 65 al cerrar, según su propio reclamo. Ninguna otra de 37, 45, 61 tiene
-«encadenable con» declarado, ni la 63 ya cerrada. Las cadenas 51 → 53 → 54 → 55
+se declaran encadenables** entre sí (cortas, sin fichero en común); la 64 acaba de cerrar y
+la misma sesión reclama la 65 a continuación. Ninguna otra de 37, 45, 61 tiene «encadenable
+con» declarado, ni la 63 ya cerrada. Las cadenas 51 → 53 → 54 → 55
 (`s-20260906T174714-651b3481`) y 52 → 36 → 22 (`s-20260906T174532-9cbd624b`) están cerradas
 enteras.
 
@@ -336,6 +337,7 @@ terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
 
+- LISTA · tarea 64 · 2026-09-07 21:02 · `s-20260907T205502-6241d5c8` (reclamo abierto por `s-20260907T204555-0c3c3d69`, sesión caída a las ~20:50Z con el diff sin commitear) · `tirarYEnsenar` gana un parámetro `mostrarAviso` (por defecto `true`) y `pedirMovimiento` lo pasa a `false`: la acción se despacha igual contra el motor y solo se deja de abrir `AvisoDeTirada`; ataque, hechizo y trampa siguen abriéndolo como quedó firmado en T33/T36; sin tocar `DiceInput.tsx` ni `estilos.css`, porque el contador `👣 N de N` de `TurnPanel` ya enseña las casillas y el diario sigue diciendo «saca 3 y 2: 5 casillas»; verificado en Chromium (Playwright de la caché de npx, sin dependencia nueva): tras «Tirar movimiento» no aparece `.dados-fondo`, se pintan las casillas verdes y el contador pasa de «sin tirar» a «5 de 5»; 669 tests / 43 ficheros antes y después; typecheck en verde · `src/ui/useAccionesDeTurno.ts` · (hash pendiente del push)
 - LISTA · tarea 63 · 2026-09-07 20:46 · `s-20260907T204415-32d21ad3` (cierre rematado por `s-20260907T205459-25b4f867`) · el `useEffect` de `MasterLog` desplazaba el diario con `scrollIntoView`, que sube por todos los ancestros desplazables y arrastraba `.juego-panel` (o la página entera por debajo de 1100px), tapando los botones de `TurnPanel`; ahora llama `scrollTo({top: scrollHeight, behavior:"smooth"})` sobre `.diario-lista`, que nunca sube más allá de su propio contenedor; `.diario-lista` conserva `overflow-y:auto` y `max-height:260px` a las dos anchuras, así que no toca CSS; `MasterLog` es compartido por `Juego.tsx` y `VistaDeHeroe.tsx`, así que cubre las dos pantallas; sin navegador en el entorno, verificado por lectura del CSS y del DOM, no visualmente; 669 tests / 43 ficheros antes y después; typecheck en verde · `src/ui/MasterLog.tsx` · `f7f05ac`
 
 - LISTA · tarea 62 · 2026-09-07 20:45 · `s-20260907T145032-f832894d` · el héroe sin nombre deja de quedarse con el de su clase: `crearPartida` le sortea uno de `src/data/nombresHeroe.ts`, con la forma de T42 (lista a mano y reparto sin repetir) pero indexada por clase **y** género, porque un héroe elige las dos cosas (T16); diez nombres por combinación, doce del hada, que comparte una sola lista entre géneros. Algunos son de varias palabras («Ácomer, hijo de Ádormir», «Groa de Cáliran»), pedidos por Juan Luis a mitad de la tarea con esos dos ejemplos, y son **aposiciones** y nunca epítetos con artículo, para que aguanten los dos moldes del narrador sin tocarlo: «el bárbaro Grímur, hijo del Trueno» (informe) y «Grímur, hijo del Trueno el Bárbaro» (relato). Corriente propia derivada de la semilla (`+0x27d4eb2f`), distinta de la de los nombres de monstruo y la de los temperamentos, con dos tests que lo fijan. Siete tests de cinco ficheros afirmaban el nombre de la clase como nombre por defecto —la regla vieja, no un fallo nuevo— y se corrigieron para leerlo del estado. No toca `narrator/`, que es por lo que la 62 sustituyó a la 60. Cabo suelto en `hechos/incidencias/`: la cortina de paso (`Transicion.tsx`, con los nombres de `App.tsx`) sigue diciendo «Bárbaro», y arreglarlo pide la semilla, que vive en `Juego.tsx` (T45). 654 → 669 tests / 42 → 43 ficheros (+15, `tests/nombres-de-heroe.test.ts`); typecheck en verde · `src/data/nombresHeroe.ts`, `src/engine/partida.ts`, `tests/nombres-de-heroe.test.ts`, `tests/ficha-flotante.test.ts`, `tests/heroes.test.ts`, `tests/narrator.test.ts`, `tests/temperamento.test.ts`, `tests/turno-de-zargon.test.ts` · `aaebe93`

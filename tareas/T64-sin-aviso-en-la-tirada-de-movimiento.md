@@ -138,3 +138,21 @@ en verde: si algún test de `useAccionesDeTurno` o de integración esperaba que
 El orden de cierre es el de `proyecto.md`. Menciona en el cierre la pérdida de «ver las
 caras de los D6 de movimiento» (arriba, «Consecuencias»), para que quede escrito que Juan
 Luis la aceptó a cambio de quitar el clic extra.
+
+## Lo que encontró la sesión que la hizo (`s-20260907T205502-6241d5c8`, 2026-09-07)
+
+Hecha y cerrada. Tres cosas que no estaban escritas aquí:
+
+- **El diagnóstico era exacto.** Bastó el parámetro `mostrarAviso` en `tirarYEnsenar` y
+  pasarlo a `false` desde `pedirMovimiento`; ni `DiceInput.tsx`, ni `estilos.css`, ni
+  ningún test esperaban el aviso (669 tests antes y después).
+- **La pérdida es menor de lo que decía «Consecuencias».** Las caras de los dos D6 dejan
+  de verse en el aviso, pero el diario ya escribía la tirada desglosada («Brúndil saca 3 y
+  2: 5 casillas»), así que el niño que quiera comprobarla sigue teniendo dónde mirar.
+- **Sí se puede probar en un navegador de verdad sin añadir dependencias.** La caché de
+  `npx` de este Mac tiene Playwright con Chromium descargado
+  (`~/.npm/_npx/e41f203b7505f1fb/node_modules/playwright`); un guion de veinte líneas
+  contra `npx vite --port 5199 --strictPort` (puerto propio, para no chocar con otras
+  sesiones) elige un héroe, empieza la partida, pulsa «Tirar movimiento» y cuenta
+  `.dados-fondo` y los `rect[fill="#5ad1a0"]`. Vale para cualquier tarea de pantalla cuya
+  ficha diga «verificación manual».
