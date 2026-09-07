@@ -104,6 +104,29 @@ grep -n "mochila\|usarPocion" src/engine/types.ts
 - **Los ids de acción nuevos tienen que entrar en `narrar`** (`switch` exhaustivo) o no
   compila; eso es lo esperado.
 
+Lo que encontró la sesión que la hizo (`s-20260906T174714-651b3481`, 2026-09-07):
+
+- **El reglamento sí dice cuándo se bebe y cuándo se da (p. 16, no pp. 14-15)**: «you may
+  drink a potion at any time» y «You may give one of your potions to a fellow hero, but you
+  may do so only on your turn»; los artefactos, también solo en el turno. Nada de
+  adyacencia. Por eso `usarPocion` lleva `quien` en la acción (no usa la figura activa)
+  y `darObjeto` sí. Lo que no está: beber «before you die» con el cuerpo a 0.
+- **`usarPocion` no gasta la acción ni `darObjeto` tampoco**: el reglamento no lo dice
+  y en la mesa con niños lo sencillo es que no.
+- **`darObjeto` solo da cartas de la mochila**, no piezas ya puestas: el equipo que uno
+  se pone no tiene carta con la que viajar. Quien quiera «prestar el yelmo» es otra tarea.
+- **Ampliar la baraja mueve el generador de todas las partidas con semilla**: cayó un
+  test de `heroes.test.ts` que afirmaba el daño de la lanza (desde T51 tira dado) en vez
+  de la regla. La trampa de la ficha era exacta; se corrigió el test, no el barajado.
+- **`Juego.tsx` y `VistaDeHeroe.tsx` hubo que tocarlos una línea cada uno** (la prop
+  `ejecutar` a `HeroSheet`): sin ella la hoja no tiene por dónde sacar las acciones y no
+  hay contexto de React que la lleve. Declarado en la terminada; la 22, viva a la vez,
+  tiene reservado `Juego.tsx` en su worktree, así que el segundo que empuje rebasa.
+- **`VERSION` del protocolo de red subió a 2026-09-07**: las acciones nuevas viajan por
+  el relevo y un cliente viejo no las entendería.
+- **`generar-cartas.ts` necesita una rama por clase de efecto** o no compila (el `else`
+  final asume monstruo errante). Una línea.
+
 ## Prohibido
 
 - Tocar `TurnPanel.tsx`, `Juego.tsx` o `useAccionesDeTurno.ts` (cadena 52, 36, 22): los
