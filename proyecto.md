@@ -276,3 +276,15 @@ que dura la sesión.
   mismo por un camino más costoso. `hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`
   tiene el porqué completo; `tareas/T60-...md` queda en `tareas/` sin editar, como rastro.
   T62 comparte `types.ts` y `partida.ts` con T37; no toca nada de T45 ni T61.
+- **T63, T64 y T65 salen de tres fallos que Juan Luis contó jugando el 2026-09-07**,
+  seguidos, diagnosticados por la sesión coordinadora antes de escribir cada ficha (sin
+  tocar código): un `scrollIntoView` mal dirigido en `MasterLog.tsx` que arrastra
+  `.juego-panel` (o la página entera por debajo de 1100px, `estilos.css:166-169`) y tapa los
+  botones de `TurnPanel` (T63); el aviso emergente de la tirada de movimiento
+  (`AvisoDeTirada`, `DiceInput.tsx`), que Juan Luis pide quitar solo para movimiento aunque
+  **revierte a propósito** una decisión suya firmada en T33/T36 —el resto de tiradas
+  (ataque, hechizo, trampa) siguen mostrando el aviso, sin tocar (T64)—; y dos botones que
+  decían «Atacar a Goblin» sin distinguir cuál era cuál porque `TurnPanel.tsx:333` y `:393`
+  usaban el nombre de la especie en vez del nombre propio que T42 ya reparte (T65). Ninguna
+  de las tres comparte fichero entre sí ni con T37, T45, T61 o T62; T64 y T65 se declaran
+  encadenables.

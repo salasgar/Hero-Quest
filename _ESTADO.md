@@ -263,38 +263,45 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 59 | T59 · La portada del juego | tareas/T59-portada-del-juego.md | ninguna · no a la vez que 37 (`EleccionDeHeroes.tsx`, `estilos.css`) ni 45 (`EleccionDeHeroes.tsx`) | 1,5 h | MEDIO | — | `public/` (la portada), `public/IMAGENES.md`, `src/data/imagenes.ts`, `EleccionDeHeroes.tsx`, `estilos.css` | manual | LISTA (`aa75844`) | |
 | 60 | T60 · Sin nombre propio, el diario dice «Enano el Enano» | tareas/T60-nombre-por-defecto-duplica-la-clase.md | — | 2 h | MEDIO | — | — | manual | **SUSTITUIDA** (por 62) | |
 | 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | **PENDIENTE** | |
-| 62 | T62 · Un nombre chulo por defecto para el héroe sin nombre | tareas/T62-nombre-chulo-por-defecto.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) | 2 h | MEDIO | — | `partida.ts`, `nombresHeroe.ts` (nuevo), tests | manual | **PENDIENTE** | |
+| 62 | T62 · Un nombre chulo por defecto para el héroe sin nombre | tareas/T62-nombre-chulo-por-defecto.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) | 2 h | MEDIO | — | `partida.ts`, `nombresHeroe.ts` (nuevo), tests | manual | EN CURSO | `s-20260907T145032-f832894d` · caduca 18:50Z |
+| 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | **PENDIENTE** | |
+| 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | **PENDIENTE** | |
+| 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
 fue nueva del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» como portada
 del juego), añadida por la sesión coordinadora `s-20260907T090034-c7bc516d`
 (`hechos/notas/s-20260907T090034-c7bc516d.md`) y cerrada el mismo día por
-`s-20260907T140727-559d19ac`. La 61 y la 62 son otros dos encargos del mismo día
-(el tono del diario, y un nombre chulo por defecto), diagnosticados y añadidos por la misma
-sesión coordinadora. **La 60 quedó SUSTITUIDA por la 62** el mismo día, sin llegar a
-reclamarse: dar al héroe sin nombre un nombre de verdad (62) resuelve el síntoma de la 60
-(«Enano el Enano») sin tocar `narrator/`, así que hacer las dos sería arreglar lo mismo dos
-veces (`hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`). No hay `hechos/recursos/`
-con nada dentro: ningún tope de procesos fijado.
+`s-20260907T140727-559d19ac`. La 61 a la 65 son otros encargos/fallos que Juan Luis fue
+contando el mismo día jugando (el tono del diario, un nombre chulo por defecto, un scroll
+que tapa los botones, el aviso emergente de la tirada de movimiento, y dos botones de
+ataque con el mismo texto), diagnosticados y añadidos por la misma sesión coordinadora.
+**La 60 quedó SUSTITUIDA por la 62** el mismo día, sin llegar a reclamarse: dar al héroe sin
+nombre un nombre de verdad (62) resuelve el síntoma de la 60 («Enano el Enano») sin tocar
+`narrator/`, así que hacer las dos sería arreglar lo mismo dos veces
+(`hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`). No hay `hechos/recursos/` con
+nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** **37** (MEDIO), **45** (ALTO), **61** (MEDIO, nueva) y **62** (MEDIO,
-nueva). **La 59 se cerró** (`aa75844`, en `main`); **la 60 quedó SUSTITUIDA**: ningún
-reclamo vivo.
+**Libres por estado:** **37** (MEDIO), **45** (ALTO), **61** (MEDIO), **63** (MEDIO,
+nueva), **64** (MEDIO, nueva) y **65** (BAJO, nueva). **La 59 se cerró** (`aa75844`, en
+`main`); **la 60 quedó SUSTITUIDA**; **la 62 está EN CURSO**
+(`s-20260907T145032-f832894d`, caduca 18:50Z).
 
-**Por ficheros, ahora mismo:** 37 comparte **`EleccionDeHeroes.tsx`** con la 45, y **`types.ts`/`partida.ts`** con la 62: **no va en paralelo con ninguna de las dos**. La 59, ya
-cerrada, tocó `EleccionDeHeroes.tsx` y `estilos.css`; quien reclame la 37 o la 45 parte del
-código que dejó (el logotipo grande sustituido por la portada). **La 61 no comparte
-fichero con nadie de las libres hoy** (ni con la 45 ni con la 62), así que va en paralelo
-con cualquiera de las dos. **45 y 62 tampoco comparten nada entre sí.** 15 espera la palabra
-de Juan Luis; 46, 47 y 50 siguen BLOQUEADAS por sus precondiciones (46 y 47 esperan a la 45,
-que ya se puede coger).
+**Por ficheros, ahora mismo:** 37 comparte **`EleccionDeHeroes.tsx`** con la 45 —no van en
+paralelo—. La 59, ya cerrada, tocó `EleccionDeHeroes.tsx` y `estilos.css`; quien reclame la
+37 o la 45 parte del código que dejó (el logotipo grande sustituido por la portada). **61,
+63, 64 y 65 no comparten fichero entre sí ni con la 37 ni con la 45**: las cuatro van en
+paralelo con cualquiera de las otras. 15 espera la palabra de Juan Luis; 46, 47 y 50 siguen
+BLOQUEADAS por sus precondiciones (46 y 47 esperan a la 45, que ya se puede coger).
 
-**Cabe hoy:** hasta **tres sesiones a la vez** —45, 61 y 62, ninguna comparte fichero con
-las otras dos—, o una sola sesión con la 37 en vez de la 45 y la 62 (comparte fichero con
-las dos), dejando la 61 libre para una segunda sesión en paralelo.
+**Cabe hoy:** hasta **cinco sesiones a la vez** —una con la 37 **o** la 45 (chocan entre
+sí), más una con cada una de la 61, la 63 y la 64/65 (ninguna comparte fichero con las
+demás)—.
 
-**Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 se coge sola. Ninguna de
-37, 45, 61 o 62 tiene «encadenable con» declarado. Las cadenas 51 → 53 → 54 → 55
+**Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 se coge sola. **64 y 65 se
+declaran encadenables** entre sí (cortas, sin fichero en común: `useAccionesDeTurno.ts` y
+`TurnPanel.tsx`). Ninguna otra de 37, 45, 61, 63 tiene «encadenable con» declarado. Las
+cadenas 51 → 53 → 54 → 55
 (`s-20260906T174714-651b3481`) y 52 → 36 → 22 (`s-20260906T174532-9cbd624b`) están cerradas
 enteras.
 
