@@ -88,6 +88,36 @@ grep -n 'temperamento\|huir\|huida' src/ai/*.ts src/engine/types.ts
 - **La receta de T1**: cada test nuevo tiene que fallar al desconectar lo que prueba. Con
   el peso de huida a cero deben caer los tests del miedoso y del prudente, y solo esos.
 
+## Lo que se encontró al hacerla (2026-09-07, `s-20260907T080909-f84dcfe8`)
+
+Escrito después, para quien vuelva a tocar esto. Nada de aquí estaba previsto en la ficha.
+
+- **El campo `Monstruo.temperamento` es OPCIONAL, y no por gusto.** El monstruo errante que
+  sale de una carta de tesoro nace en `reducer.ts`, y esta ficha prohíbe tocar ese fichero:
+  un campo obligatorio dejaba ahí un error de compilación imposible de arreglar desde
+  aquí. Se lee siempre con `temperamentoDe()`, que devuelve `agresivo` cuando falta —el
+  comportamiento anterior a T38—. La tarea que vuelva a `reducer.ts` (T50) puede ponérselo
+  al errante y hacerlo obligatorio.
+- **`crearPartida` sorteando temperamentos rompía los tests de T8 y T9 sin tocarlos**: un
+  orco de una escena podía salir miedoso y ponerse a huir en mitad de un test que probaba
+  otra cosa. La salida fue `tests/ayuda.ts`: su `partida()` pone `agresivo` a los monstruos
+  que no digan otra cosa. Quien pruebe la huida lo pone a mano; quien pruebe el sorteo llama
+  a `crearPartida` directamente.
+- **`valorDeLaCasilla` devolvía `-Infinity` para las casillas desde las que no se alcanza a
+  ningún héroe**, y esas son justamente a las que quiere ir el que huye. Hay que tratar ese
+  caso aparte —vale 0, no `-Infinity`— y solo para quien tiene ganas de huir; si se
+  generaliza, un agresivo se va a una esquina vacía porque cero es mejor que negativo.
+- **Las ganas de huir se preguntan en la casilla donde está el monstruo, no en la que se
+  puntúa.** Si se preguntan casilla a casilla, el prudente deja de tener héroes cerca justo
+  en las casillas a las que huiría, la huida no puntúa allí y se queda a pelear: decide no
+  huir por haber huido.
+- **`src/engine/partida.ts` importa de `src/ai/` por primera vez en el proyecto**, para el
+  reparto por especie. No hay ciclo (`src/ai/` no importa `partida.ts`) y hay un test que
+  lo comprueba, pero es una dirección nueva: quien la vea, que sepa que es deliberada.
+- **`motivoDeLaJugada` no llega a la pantalla todavía.** La ficha da por hecho que «es lo
+  que la pantalla enseña», y a día de hoy no la llama nadie fuera de los tests. La frase de
+  huida está escrita y probada; conectarla es de quien toque `TurnPanel.tsx`.
+
 ## Tests que hay que añadir
 
 - Miedoso con salida: se aleja. Miedoso acorralado: ataca. Prudente con un héroe cerca:
