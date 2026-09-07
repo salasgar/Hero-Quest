@@ -13,6 +13,7 @@ import type { SesionDeRed } from "../red/cliente";
 import { BoardMirror } from "./BoardMirror";
 import { AvisoDeTirada } from "./DiceInput";
 import { HeroSheet } from "./HeroSheet";
+import { Instrucciones } from "./Instrucciones";
 import { MasterLog } from "./MasterLog";
 import { TurnPanel } from "./TurnPanel";
 import { mandosDeHeroe, useAccionesDeTurno } from "./useAccionesDeTurno";
@@ -41,9 +42,20 @@ export const GRUPO_CLASICO: HeroeElegido[] = [
 export function Juego({
   heroes = GRUPO_CLASICO,
   sesion,
+  instruccionesAbiertas = false,
+  cerrarInstrucciones = () => {},
 }: {
   heroes?: HeroeElegido[];
   sesion?: SesionDeRed;
+  /**
+   * Si `App.tsx` tiene abiertas las instrucciones. Vive ahí porque el botón
+   * está en la barra de navegación, que es de `App`; se lee aquí porque «los
+   * hechizos del grupo» (T22) sale del `estado` de esta partida, y las
+   * instrucciones no se desmontan la partida para enseñarlo (razonado en
+   * `App.tsx`).
+   */
+  instruccionesAbiertas?: boolean;
+  cerrarInstrucciones?: () => void;
 }) {
   const partida = usePartida(
     sesion ?? {
@@ -177,6 +189,7 @@ export function Juego({
       </aside>
 
       {turno.tirada && <AvisoDeTirada tirada={turno.tirada} alCerrar={turno.cerrarTirada} />}
+      {instruccionesAbiertas && <Instrucciones estado={estado} alCerrar={cerrarInstrucciones} />}
     </div>
   );
 }

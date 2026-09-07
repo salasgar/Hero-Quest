@@ -152,7 +152,13 @@ export default function App() {
           <button onClick={() => setCreandoRed(true)}>Jugar con alguien fuera</button>
         )}
       </nav>
-      {verInstrucciones && <Instrucciones alCerrar={() => setVerInstrucciones(false)} />}
+      {/*
+        Sin grupo todavía no hay partida de la que sacar quién tiene qué
+        hechizo (T22): las instrucciones salen igual, sin esa sección. Con
+        grupo, las pinta `Juego` con el `estado` que ya tiene, para no subir
+        la partida hasta aquí solo para esto.
+      */}
+      {!grupo && verInstrucciones && <Instrucciones alCerrar={() => setVerInstrucciones(false)} />}
       {creandoRed && grupo ? (
         <CrearPartidaEnRed
           heroes={grupo}
@@ -161,7 +167,12 @@ export default function App() {
         />
       ) : grupo ? (
         <>
-          <Juego key={reparto} heroes={grupo} />
+          <Juego
+            key={reparto}
+            heroes={grupo}
+            instruccionesAbiertas={verInstrucciones}
+            cerrarInstrucciones={() => setVerInstrucciones(false)}
+          />
           {enTransicion && (
             <Transicion
               nombres={comoSeLlaman(grupo)}

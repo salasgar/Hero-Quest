@@ -1,4 +1,6 @@
 import { equivalenciaDeDados, type CaraCombate } from "../engine/dice";
+import { ELEMENTOS, HECHIZOS, type Elemento, type IdHechizo } from "../data/spells";
+import type { EstadoPartida } from "../engine/types";
 import { CaraDeDado, NOMBRE_DE_CARA } from "./DiceInput";
 
 /**
@@ -13,7 +15,20 @@ import { CaraDeDado, NOMBRE_DE_CARA } from "./DiceInput";
  * teclado**: la ventana de dados tiene puesto un escuchador global que se queda
  * con la tecla Escape y con los dígitos. Si esta pantalla atendiera también a
  * Escape, abrirla en mitad de una tirada la cancelaría sin querer.
+ *
+ * **`estado` es opcional** (T22): antes de elegir grupo no hay ninguna partida
+ * de la que sacar quién tiene qué hechizo, y la sección de abajo simplemente no
+ * sale. Se lee del `EstadoPartida` que ya vive en `Juego.tsx` —nunca de
+ * `localStorage` ni reconstruyendo con el motor: eso duplicaría una verdad que
+ * ya tiene dueño— y esta ventana sigue sin desmontar la partida para enseñarlo.
  */
+const NOMBRE_DE_ELEMENTO: Record<Elemento, string> = {
+  aire: "Aire", agua: "Agua", tierra: "Tierra", fuego: "Fuego",
+};
+
+/** Los elementos presentes en una lista de hechizos, en el orden de siempre. */
+export const elementosDe = (ids: readonly IdHechizo[]): Elemento[] =>
+  ELEMENTOS.filter((el) => ids.some((id) => HECHIZOS[id].elemento === el));
 
 // El dibujo de cada cara y su nombre viven en `DiceInput.tsx`, que es el módulo
 // de los dados: desde T33 la aplicación también tira dados de héroe y tiene que
@@ -51,7 +66,60 @@ function TablaDeDado({ lados, titulo }: { lados: number; titulo: string }) {
   );
 }
 
-export function Instrucciones({ alCerrar }: { alCerrar: () => void }) {
+/**
+ * La mano de hechizos del grupo, para consultarla entre turnos.
+ *
+ * Los cuatro héroes, pero solo los que tienen alguno: el bárbaro y el enano no
+ * ocupan sitio. Dentro de cada héroe, por elemento —como están las cartas y
+ * como se eligen al empezar—, y con los ya gastados tachados: saber que la
+ * Curación ya se usó es la mitad de la información (T22).
+ */
+function HechizosDelGrupo({ estado }: { estado: EstadoPartida }) {
+  const conHechizos = estado.heroes.filter(
+    (h) => h.hechizos.length > 0 || h.hechizosGastados.length > 0,
+  );
+  if (conHechizos.length === 0) return null;
+
+  return (
+    <section className="instr-bloque">
+      <h2>Los hechizos del grupo</h2>
+      <p className="pista">Tachados, los que ya se han gastado en esta misión.</p>
+      {conHechizos.map((h) => (
+        <div key={h.id} className="grupo">
+          <h3>{h.nombre}</h3>
+          {elementosDe([...h.hechizos, ...h.hechizosGastados]).map((elemento) => (
+            <div key={elemento}>
+              <p className="apagado">{NOMBRE_DE_ELEMENTO[elemento]}</p>
+              {h.hechizos
+                .filter((id) => HECHIZOS[id].elemento === elemento)
+                .map((id) => (
+                  <p key={id}>
+                    <strong>{HECHIZOS[id].nombre}</strong>: {HECHIZOS[id].descripcion}
+                  </p>
+                ))}
+              {h.hechizosGastados
+                .filter((id) => HECHIZOS[id].elemento === elemento)
+                .map((id) => (
+                  <p key={id} className="apagado">
+                    <s>{HECHIZOS[id].nombre}</s>: {HECHIZOS[id].descripcion}
+                  </p>
+                ))}
+            </div>
+          ))}
+        </div>
+      ))}
+    </section>
+  );
+}
+
+export function Instrucciones({
+  alCerrar,
+  estado,
+}: {
+  alCerrar: () => void;
+  /** La partida en curso, si la hay: es de donde sale «Los hechizos del grupo» (T22). */
+  estado?: EstadoPartida;
+}) {
   return (
     <div className="instrucciones-fondo" onClick={alCerrar}>
       <div
@@ -136,16 +204,14 @@ export function Instrucciones({ alCerrar }: { alCerrar: () => void }) {
         <section className="instr-bloque">
           <h2>Quién tira qué</h2>
           <p>
-            Los héroes tiran sus dados de verdad, sobre la mesa, y aquí solo se teclea el número
-            que ha salido. Los dados de los monstruos, las trampas y los tesoros los tira la
-            aplicación, que hace de Zargon.
-          </p>
-          <p>
-            Quien juegue desde otra casa puede elegir, en su propia pantalla, si tira sus dados o
-            se los tira la aplicación: puede que allí no haya dados. Lo cambia cuando quiera, en
-            mitad de la partida, y no afecta a nadie más. En la mesa no se pregunta.
+            Todos los dados los tira la aplicación: la mesa no toca ni uno. Cuando le toca a un
+            héroe, sus dados salen igual que los de un monstruo, y la pantalla enseña las caras
+            un momento antes de aplicar el golpe, para que se puedan comprobar como si se
+            hubieran tirado de verdad.
           </p>
         </section>
+
+        {estado && <HechizosDelGrupo estado={estado} />}
       </div>
     </div>
   );

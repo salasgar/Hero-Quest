@@ -364,7 +364,11 @@ export function TurnPanel({
       {activa && mandos && !pendiente && hechizos.length > 0 && (
         <div className="botonera columna">
           {hechizos.map((h, i) => (
-            <button key={h.hechizo} onClick={() => acciones.elegirHechizo(h.hechizo)}>
+            <button
+              key={h.hechizo}
+              onClick={() => acciones.elegirHechizo(h.hechizo)}
+              title={HECHIZOS[h.hechizo].descripcion}
+            >
               ✨ {HECHIZOS[h.hechizo].nombre} {i === 0 && <Tecla>H</Tecla>}
               <span className="apagado"> · {HECHIZOS[h.hechizo].descripcion}</span>
             </button>
@@ -378,9 +382,11 @@ export function TurnPanel({
       */}
       {pendiente && (
         <div className="grupo">
-          <p className="apagado">
-            {HECHIZOS[pendiente.hechizo].nombre}: ¿sobre quién?
+          <p>
+            <strong>{HECHIZOS[pendiente.hechizo].nombre}</strong>
+            <span className="apagado"> · {HECHIZOS[pendiente.hechizo].descripcion}</span>
           </p>
+          <p className="apagado">¿Sobre quién?</p>
           <div className="botonera">
             {pendiente.objetivos.map((o) => (
               <button key={o.id} onClick={() => acciones.lanzarSobre(o.id)} className="principal">
