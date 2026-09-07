@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { HEROES, VARIANTES_HEROE, nombreDeClase } from "../src/data/heroes";
+import { NOMBRES_HEROE } from "../src/data/nombresHeroe";
 import { alcanzables, vuela } from "../src/engine/board";
 import { aplicarAccion } from "../src/engine/reducer";
 import { claveCelda } from "../src/engine/types";
@@ -27,8 +28,11 @@ describe("héroes y heroínas", () => {
   it("el género cambia el nombre y nada más", () => {
     const m = partida({ heroes: [{ clase: "elfo", elementos: ["agua"] }] }).heroes[0]!;
     const f = partida({ heroes: [{ clase: "elfo", genero: "f", elementos: ["agua"] }] }).heroes[0]!;
-    expect(m.nombre).toBe("Elfo");
-    expect(f.nombre).toBe("Elfa");
+    // Hasta T62 esto afirmaba `m.nombre === "Elfo"` y `f.nombre === "Elfa"`:
+    // el héroe sin nombre se quedaba con el de su clase. Ahora se le sortea
+    // uno, y lo que el género decide es de qué lista sale.
+    expect(NOMBRES_HEROE.elfo.m).toContain(m.nombre);
+    expect(NOMBRES_HEROE.elfo.f).toContain(f.nombre);
     // Igualadas las dos cosas que el género sí toca, no debe quedar diferencia.
     const igualadas = (h: typeof m) => ({ ...h, nombre: "", genero: "m" as const });
     expect(igualadas(f)).toEqual(igualadas(m));

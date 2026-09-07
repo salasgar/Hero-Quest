@@ -8,7 +8,11 @@ describe("fichaDe", () => {
     const e = partida({ heroes: [{ clase: "barbaro" }] });
     const heroe = e.heroes[0]!;
     const lineas = fichaDe(heroe, e);
-    expect(lineas[0]).toBe("Bárbaro");
+    // Antes las dos líneas decían «Bárbaro»: sin nombre propio, el héroe se
+    // quedaba con el de su clase. Desde T62 la primera es su nombre sorteado,
+    // que nunca coincide con la clase; la segunda sigue siendo la clase.
+    expect(lineas[0]).toBe(heroe.nombre);
+    expect(lineas[0]).not.toBe("Bárbaro");
     expect(lineas[1]).toBe("Bárbaro"); // clase con su género (masculino por defecto)
     expect(lineas).toContain("8 de 8 cuerpo");
     expect(lineas).toContain("2 de 2 mente");

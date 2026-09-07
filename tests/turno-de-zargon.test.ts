@@ -153,7 +153,9 @@ describe("un turno de Zargon entero", () => {
       // La segunda frase es la misma variante porque cada tanda se narra desde
       // su propio índice. En el diario, que numera seguido, alternan.
       `${mayus(comoLoLlama(e, "orco1"))} no se mueve ni ataca.`,
-      "— Turno de Bárbaro —",
+      // El nombre sale del estado: desde T62, el héroe al que nadie puso
+      // nombre lleva uno sorteado y no el de su clase.
+      `— Turno de ${e.heroes[0]!.nombre} —`,
     ]);
   });
 });

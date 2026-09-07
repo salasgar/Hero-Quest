@@ -6,6 +6,7 @@ import { MONSTRUOS, type EspecieMonstruo } from "../data/monsters";
 import { hechizosDelElemento, type Elemento, type IdHechizo } from "../data/spells";
 import { MAZO_COMPLETO } from "../data/treasure";
 import { repartirNombres } from "../data/nombres";
+import { repartirNombresDeHeroe } from "../data/nombresHeroe";
 // Única importación del motor a la IA, y es deliberada: el temperamento es un
 // dato del monstruo —como el nombre—, pero **con qué probabilidad sale en cada
 // especie** es una decisión de comportamiento, y vive donde viven las demás
@@ -33,7 +34,12 @@ export interface HeroeElegido {
   clase: ClaseHeroe;
   /** Masculino o femenino. Por omisión, masculino. No cambia ninguna regla. */
   genero?: Genero;
-  /** Nombre que le pone quien lo juega. Si falta, se usa el de la clase. */
+  /**
+   * Nombre que le pone quien lo juega. Si falta, `crearPartida` le sortea uno
+   * de `nombresHeroe.ts` («Groa de Cáliran»), distinto del de los demás héroes
+   * de la partida. Nunca se queda con el nombre de la clase: eso es lo que
+   * hacía que el diario dijera «Enano el Enano» (T62).
+   */
   nombre?: string;
   /** Elementos de hechizos. El mago elige 3, el hada 2 y el elfo 1. */
   elementos?: Elemento[];
@@ -168,6 +174,19 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
   // arreglando el caso de ocho, no estrechando el de dos.
   const salida = casillasDeSalida(op, Math.max(op.heroes.length, op.mision.entrada.length));
 
+  // Un nombre para el héroe al que nadie le puso uno (T62), en su propia
+  // corriente derivada y con un desplazamiento distinto de los otros dos: si
+  // compartiera generador con los nombres de monstruo o con los temperamentos,
+  // añadir un héroe al grupo cambiaría los nombres de los monstruos o su
+  // temperamento, y con ellos el resultado de una partida ya jugada con esa
+  // semilla. El número no tiene nada de especial más allá de no ser ninguno de
+  // los otros dos ni cero.
+  //
+  // Se calcula antes de construir `heroes` por lo mismo que el de los monstruos
+  // se calcula antes de construir `monstruos`: el reparto necesita ver el grupo
+  // entero de golpe para no repetir un nombre.
+  const nombresDeHeroe = repartirNombresDeHeroe(op.heroes, crearRng((op.semilla ?? 1) + 0x27d4eb2f));
+
   // El identificador es la clase, que basta mientras no se repita. Si dos
   // jugadores quieren la misma —dos elfas, por ejemplo— el segundo lleva un
   // sufijo: dos figuras con el mismo id se pisarían la una a la otra.
@@ -188,7 +207,9 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
       id,
       clase: elegido.clase,
       genero,
-      nombre: elegido.nombre?.trim() || plantilla.nombre[genero],
+      // Ya viene resuelto de `repartirNombresDeHeroe`: el suyo si lo puso quien
+      // lo juega, y si no uno sorteado. Nunca el de la clase.
+      nombre: nombresDeHeroe[i]!,
       celda: salida[i]!,
       cuerpo: plantilla.cuerpo,
       cuerpoMax: plantilla.cuerpo,

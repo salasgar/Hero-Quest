@@ -250,7 +250,10 @@ describe("lo que se dice en la mesa", () => {
 
     const jugada = siguienteAccionDelMonstruo(e)!;
     expect(esHuida(e, jugada)).toBe(false);
-    expect(motivoDeLaJugada(e, jugada)).toBe("va a por Bárbaro");
+    // El nombre del bárbaro se lee del estado y no se escribe aquí: desde T62
+    // el héroe sin nombre propio recibe uno sorteado, no el de su clase.
+    const barbaro = e.heroes.find((h) => h.id === "barbaro")!;
+    expect(motivoDeLaJugada(e, jugada)).toBe(`va a por ${barbaro.nombre}`);
   });
 });
 

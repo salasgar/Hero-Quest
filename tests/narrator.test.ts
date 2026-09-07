@@ -12,7 +12,11 @@ describe("nombres", () => {
   // delante, para que dos orcos de la misma sala no sean los dos «Orco».
   it("usa el nombre del héroe y, del monstruo, especie y nombre de pila", () => {
     const e = estado();
-    expect(nombreDe(e, "barbaro")).toBe("Bárbaro");
+    // Y desde T62, el héroe sin nombre propio tampoco se llama como su clase:
+    // se le sortea uno, así que aquí se compara con el que tenga puesto.
+    const barbaro = e.heroes.find((h) => h.id === "barbaro")!;
+    expect(nombreDe(e, "barbaro")).toBe(barbaro.nombre);
+    expect(barbaro.nombre).not.toBe("Bárbaro");
     const orco = e.monstruos.find((m) => m.id === "orco1")!;
     expect(nombreDe(e, "orco1")).toBe(`el orco ${orco.nombre}`);
   });
@@ -22,7 +26,7 @@ describe("frases del narrador", () => {
   it("cuenta la tirada de movimiento metida a mano sin inventarse los dados", () => {
     const e = estado();
     const texto = narrar(e, { tipo: "tiradaMovimiento", actor: "barbaro", dados: [8, 0], total: 8 });
-    expect(texto).toBe("Bárbaro saca 8 casillas de movimiento.");
+    expect(texto).toBe(`${e.heroes[0]!.nombre} saca 8 casillas de movimiento.`);
     expect(texto).not.toMatch(/ y 0/);
   });
 
@@ -37,7 +41,9 @@ describe("frases del narrador", () => {
     const e = estado();
     const base = { tipo: "ataque" as const, atacante: "barbaro", objetivo: "orco1", dadosAtaque: [], dadosDefensa: [], escudos: 0 };
     // «ataca al orco X», no «ataca a el orco X»: lo lee alguien en voz alta.
-    expect(narrar(e, { ...base, calaveras: 0, dano: 0 })).toMatch(/Bárbaro ataca al orco /);
+    expect(narrar(e, { ...base, calaveras: 0, dano: 0 })).toContain(
+      `${e.heroes[0]!.nombre} ataca al orco `,
+    );
     expect(narrar(e, { ...base, calaveras: 2, dano: 2 })).toMatch(/2 puntos de cuerpo/);
     expect(narrar(e, { ...base, calaveras: 1, dano: 1 })).toMatch(/1 punto de cuerpo/);
   });
