@@ -19,14 +19,8 @@
  */
 
 import { readFileSync } from "node:fs";
-import {
-  MISION_CALABOZO,
-  MONSTRUOS_CALABOZO,
-  MUEBLES_CALABOZO,
-  PUERTAS_CALABOZO,
-  TRAMPAS_CALABOZO,
-} from "../src/data/quests/calabozo";
-import { crearPartida, type OpcionesPartida } from "../src/engine/partida";
+import { MISIONES, misionPorId, opcionesDe } from "../src/data/quests";
+import { crearPartida } from "../src/engine/partida";
 import { actorActual, aplicarAccion, figuraActiva } from "../src/engine/reducer";
 import {
   casillasDeMovimiento,
@@ -37,24 +31,6 @@ import {
 import { narrarTodos, nombreDe } from "../src/narrator/local";
 import { claveCelda, type Accion, type EstadoPartida } from "../src/engine/types";
 import { FORMATO, type AccionRechazada, type PartidaGuardada } from "../src/ui/registroDePartida";
-
-/**
- * Las misiones que este guion sabe montar.
- *
- * Se cogen igual que hace `Juego.tsx`, que hoy también las tiene escritas a
- * mano. Cuando T45 traiga el catálogo, esto pasa a ser una consulta por
- * identificador y esta tabla desaparece; hasta entonces, un identificador
- * desconocido se dice con sus palabras en vez de reventar con un `undefined`.
- */
-const MISIONES: Record<string, Omit<OpcionesPartida, "heroes" | "semilla">> = {
-  [MISION_CALABOZO.id]: {
-    mision: MISION_CALABOZO,
-    monstruos: MONSTRUOS_CALABOZO,
-    puertas: PUERTAS_CALABOZO,
-    muebles: MUEBLES_CALABOZO,
-    trampas: TRAMPAS_CALABOZO,
-  },
-};
 
 const celdas = (cs: readonly { x: number; y: number }[]): string =>
   cs.length === 0 ? "—" : cs.map(claveCelda).join(" ");
@@ -128,13 +104,16 @@ function main(): void {
     process.exit(1);
   }
 
-  const base = MISIONES[partida.mision];
-  if (!base) {
+  // Del catálogo (T45), que es de donde la montó `Juego.tsx`: un identificador
+  // que esta versión no conozca se dice con sus palabras, no con un `undefined`.
+  const encontrada = misionPorId(partida.mision);
+  if (!encontrada) {
     console.error(
-      `No sé montar la misión «${partida.mision}». Las que conozco: ${Object.keys(MISIONES).join(", ")}.`,
+      `No sé montar la misión «${partida.mision}». Las que conozco: ${MISIONES.map((m) => m.mision.id).join(", ")}.`,
     );
     process.exit(1);
   }
+  const base = opcionesDe(encontrada);
 
   console.log(`\nPartida «${partida.mision}» · semilla ${partida.semilla} · commit ${partida.commit}`);
   console.log(`Guardada: ${partida.guardada}`);

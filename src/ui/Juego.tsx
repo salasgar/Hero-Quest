@@ -1,11 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  MISION_CALABOZO,
-  MONSTRUOS_CALABOZO,
-  MUEBLES_CALABOZO,
-  PUERTAS_CALABOZO,
-  TRAMPAS_CALABOZO,
-} from "../data/quests/calabozo";
+import { MISION_POR_DEFECTO, opcionesDe, type MisionCompleta } from "../data/quests";
 import { type Dificultad } from "../ai/difficulty";
 import { motivoDeActivacion, ordenDeActivacion } from "../ai/orden";
 import type { HeroeElegido } from "../engine/partida";
@@ -42,11 +36,18 @@ export const GRUPO_CLASICO: HeroeElegido[] = [
  */
 export function Juego({
   heroes = GRUPO_CLASICO,
+  mision = MISION_POR_DEFECTO,
   sesion,
   instruccionesAbiertas = false,
   cerrarInstrucciones = () => {},
 }: {
   heroes?: HeroeElegido[];
+  /**
+   * Del catálogo (T45). Por omisión la primera, que es la de empezar. En red
+   * no se mira: el montaje ya lleva el identificador y `partidaDelMontaje`
+   * la busca en el mismo catálogo.
+   */
+  mision?: MisionCompleta;
   sesion?: SesionDeRed;
   /**
    * Si `App.tsx` tiene abiertas las instrucciones. Vive ahí porque el botón
@@ -60,12 +61,8 @@ export function Juego({
 }) {
   const partida = usePartida(
     sesion ?? {
-      mision: MISION_CALABOZO,
+      ...opcionesDe(mision),
       heroes,
-      monstruos: MONSTRUOS_CALABOZO,
-      puertas: PUERTAS_CALABOZO,
-      muebles: MUEBLES_CALABOZO,
-      trampas: TRAMPAS_CALABOZO,
       // En red la semilla viene del montaje y no de aquí: si cada navegador la
       // calculara, las dos casas barajarían el mazo distinto y jugarían a dos
       // partidas que ya no son la misma.

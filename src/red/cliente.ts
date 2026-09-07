@@ -13,14 +13,8 @@
  * lo que se prueba es la reconciliación, no `fetch`.
  */
 
-import {
-  MISION_CALABOZO,
-  MONSTRUOS_CALABOZO,
-  MUEBLES_CALABOZO,
-  PUERTAS_CALABOZO,
-  TRAMPAS_CALABOZO,
-} from "../data/quests/calabozo";
-import { crearPartida, type OpcionesPartida } from "../engine/partida";
+import { misionPorId, opcionesDe } from "../data/quests";
+import { crearPartida } from "../engine/partida";
 import { actorActual, aplicarAccion, repetir } from "../engine/reducer";
 import type { Accion, EstadoPartida } from "../engine/types";
 import { VERSION, type Entrada, type Montaje, type Resultado, type Vista } from "./protocolo";
@@ -36,37 +30,26 @@ export const MESA = "mesa";
 // ------------------------------------------------- del montaje a la partida
 
 /**
- * Las misiones que esta aplicación sabe montar, por identificador. El montaje
- * lleva el identificador y no la misión entera porque cada casa ya la tiene en
- * su propio código; la contrapartida es que un identificador desconocido tiene
- * que rechazarse con un motivo legible, no reventar.
- */
-const MISIONES: Record<string, Omit<OpcionesPartida, "heroes" | "semilla">> = {
-  [MISION_CALABOZO.id]: {
-    mision: MISION_CALABOZO,
-    monstruos: MONSTRUOS_CALABOZO,
-    puertas: PUERTAS_CALABOZO,
-    muebles: MUEBLES_CALABOZO,
-    trampas: TRAMPAS_CALABOZO,
-  },
-};
-
-/**
  * El único sitio que convierte un montaje en una partida. Único a propósito:
  * dos sitios que construyan las opciones acabarán construyendo dos partidas
  * distintas, y esa divergencia no da error, se descubre media hora después. La
  * semilla viene del montaje y de ningún otro lado: se decidió una vez, al crear
  * la partida, y las dos casas barajan el mismo mazo con ella.
+ *
+ * El montaje lleva el identificador de la misión y no la misión entera porque
+ * cada casa ya la tiene en su propio código (el catálogo de `quests/`, T45); la
+ * contrapartida es que un identificador que esta versión no conozca tiene que
+ * rechazarse con un motivo legible, no reventar.
  */
 export function partidaDelMontaje(m: Montaje): Resultado<EstadoPartida> {
-  const base = MISIONES[m.mision];
+  const base = misionPorId(m.mision);
   if (!base) {
     return {
       ok: false,
       motivo: `Esta aplicación no conoce la misión «${m.mision}». Puede que la partida se creara con una versión más nueva; recarga la página.`,
     };
   }
-  return { ok: true, valor: crearPartida({ ...base, heroes: m.heroes, semilla: m.semilla }) };
+  return { ok: true, valor: crearPartida({ ...opcionesDe(base), heroes: m.heroes, semilla: m.semilla }) };
 }
 
 // ------------------------------------------------------------- el transporte

@@ -9,7 +9,7 @@ import {
 } from "../src/data/quests/calabozo";
 import { crearPartida } from "../src/engine/partida";
 import { MONSTRUOS } from "../src/data/monsters";
-import { claveCelda, type Celda } from "../src/engine/types";
+import { claveCelda, type Celda, type IdSala } from "../src/engine/types";
 
 const todas = (): Celda[] => [
   ...MISION_CALABOZO.entrada,
@@ -148,6 +148,150 @@ describe("«El calabozo del guardián» encaja en el tablero", () => {
     expect(e.salasReveladas).toEqual([]);
     // Los cuatro héroes en casillas distintas.
     expect(new Set(e.heroes.map((h) => claveCelda(h.celda))).size).toBe(4);
+  });
+});
+
+// ------------------------------------------------------------ toda misión del catálogo
+
+import { MISIONES, type MisionCompleta } from "../src/data/quests";
+
+/**
+ * Lo que tiene que cumplir CUALQUIER misión del catálogo (T45), presente o
+ * futura. T46, T47 y las que vengan no escriben tests de estructura: con
+ * añadirse a `MISIONES` pasan por aquí. Los tests de arriba son del calabozo
+ * en concreto —sus recuentos, su pergamino— y se quedan como están.
+ */
+describe.each(MISIONES.map((m) => [m.mision.id, m] as const))("la misión «%s» está bien construida", (_id, m: MisionCompleta) => {
+  const monstruos = m.monstruos;
+  const vanos = new Set(m.puertas.flatMap((p) => [p.a, p.b]).map(claveCelda));
+  const muebles = new Set(m.muebles.flatMap((x) => x.celdas).map(claveCelda));
+
+  it("todo cae dentro del tablero", () => {
+    const todas: Celda[] = [
+      ...m.mision.entrada,
+      ...monstruos.map((x) => x.celda),
+      ...m.trampas.map((t) => t.celda),
+      ...m.muebles.flatMap((x) => x.celdas),
+      ...m.puertas.flatMap((p) => [p.a, p.b]),
+    ];
+    for (const c of todas) expect(dentroDelTablero(c.x, c.y), `fuera del tablero: ${claveCelda(c)}`).toBe(true);
+  });
+
+  it("no repite identificadores de puertas, monstruos, trampas ni muebles", () => {
+    for (const [que, ids] of [
+      ["puertas", m.puertas.map((p) => p.id)],
+      ["monstruos", monstruos.map((x) => x.id)],
+      ["trampas", m.trampas.map((t) => t.id)],
+      ["muebles", m.muebles.map((x) => x.id)],
+    ] as const) {
+      expect(new Set(ids).size, `${que} con id repetido`).toBe(ids.length);
+    }
+  });
+
+  it("la entrada está en pasillo, sin mueble ni trampa encima, y sin casillas repetidas", () => {
+    expect(m.mision.entrada.length).toBeGreaterThan(0);
+    const trampas = new Set(m.trampas.map((t) => claveCelda(t.celda)));
+    for (const c of m.mision.entrada) {
+      expect(esPasillo(c.x, c.y), `la entrada ${claveCelda(c)} no es pasillo`).toBe(true);
+      expect(muebles.has(claveCelda(c)), `un mueble ocupa la entrada ${claveCelda(c)}`).toBe(false);
+      expect(trampas.has(claveCelda(c)), `una trampa está en la entrada ${claveCelda(c)}`).toBe(false);
+    }
+    const claves = m.mision.entrada.map(claveCelda);
+    expect(new Set(claves).size).toBe(claves.length);
+  });
+
+  it("cada puerta une dos casillas contiguas sobre un muro real, y no hay dos en el mismo vano", () => {
+    for (const p of m.puertas) {
+      const adyacente = Math.abs(p.a.x - p.b.x) + Math.abs(p.a.y - p.b.y) === 1;
+      expect(adyacente, `la puerta ${p.id} une casillas no contiguas`).toBe(true);
+      expect(hayMuroEntre(p.a, p.b), `la puerta ${p.id} no está sobre un muro`).toBe(true);
+    }
+    const claves = m.puertas.flatMap((p) => [p.a, p.b]).map(claveCelda);
+    expect(new Set(claves).size).toBe(claves.length);
+  });
+
+  it("los monstruos empiezan dentro de una sala, en casillas distintas, sin mueble ni vano debajo", () => {
+    for (const x of monstruos) {
+      expect(salaEn(x.celda.x, x.celda.y), `${x.id} está en un pasillo`).not.toBeNull();
+      expect(vanos.has(claveCelda(x.celda)), `${x.id} está sobre una puerta`).toBe(false);
+      expect(muebles.has(claveCelda(x.celda)), `${x.id} está sobre un mueble`).toBe(false);
+    }
+    const ocupadas = [...m.mision.entrada, ...monstruos.map((x) => x.celda)].map(claveCelda);
+    expect(new Set(ocupadas).size).toBe(ocupadas.length);
+  });
+
+  it("ningún mueble tapa un vano, y dos muebles no comparten casilla", () => {
+    for (const p of m.puertas)
+      for (const v of [p.a, p.b])
+        expect(muebles.has(claveCelda(v)), `un mueble tapa el vano de '${p.id}'`).toBe(false);
+    const celdas = m.muebles.flatMap((x) => x.celdas).map(claveCelda);
+    expect(new Set(celdas).size).toBe(celdas.length);
+  });
+
+  it("ninguna trampa está bajo un mueble ni bajo un vano", () => {
+    for (const t of m.trampas) {
+      expect(muebles.has(claveCelda(t.celda)), `la trampa ${t.id} está bajo un mueble`).toBe(false);
+      expect(vanos.has(claveCelda(t.celda)), `la trampa ${t.id} está bajo una puerta`).toBe(false);
+    }
+  });
+
+  it("toda sala con texto tiene una puerta que lleve a ella", () => {
+    const conPuerta = new Set(m.puertas.flatMap((p) => [salaEn(p.a.x, p.a.y), salaEn(p.b.x, p.b.y)]).filter(Boolean));
+    for (const sala of Object.keys(m.mision.textosDeSala))
+      expect(conPuerta.has(sala as IdSala), `a la sala '${sala}' no se llega por ninguna puerta`).toBe(true);
+  });
+
+  it("el objetivo apunta a algo que existe", () => {
+    const obj = m.mision.objetivo;
+    switch (obj.clase) {
+      case "matarA":
+        expect(monstruos.some((x) => x.id === obj.figura), `'${obj.figura}' no está entre los monstruos`).toBe(true);
+        break;
+      case "recuperar":
+        expect(Object.keys(m.mision.textosDeSala), `la sala '${obj.sala}' no tiene texto`).toContain(obj.sala);
+        if (obj.custodio) {
+          const custodio = monstruos.find((x) => x.id === obj.custodio);
+          expect(custodio, `el custodio '${obj.custodio}' no está entre los monstruos`).toBeTruthy();
+          expect(salaEn(custodio!.celda.x, custodio!.celda.y)).toBe(obj.sala);
+        }
+        break;
+      case "llegarA":
+        expect(obj.celdas.length).toBeGreaterThan(0);
+        for (const c of obj.celdas) expect(dentroDelTablero(c.x, c.y)).toBe(true);
+        break;
+      case "salir":
+        // Firma del 2026-09-06 (T35): con ocho héroes, salir exige ocho casillas.
+        expect(m.mision.entrada.length, "una misión de salir declara al menos ocho casillas").toBeGreaterThanOrEqual(8);
+        break;
+      case "matarATodos":
+        expect(monstruos.length, "matar a todos sin nadie a quien matar").toBeGreaterThan(0);
+        break;
+    }
+  });
+
+  it("cabe en el cartón construido: puertas, marcadores secretos y mobiliario", () => {
+    expect(m.puertas.filter((p) => !p.secreta).length).toBeLessThanOrEqual(PUERTAS_A_CONSTRUIR);
+    expect(m.puertas.filter((p) => p.secreta).length).toBeLessThanOrEqual(MARCADORES_SECRETOS);
+    const usadas: Record<string, number> = {};
+    for (const x of m.muebles) usadas[x.tipo] = (usadas[x.tipo] ?? 0) + 1;
+    for (const [tipo, n] of Object.entries(usadas)) {
+      const plantilla = MOBILIARIO.find((p) => p.tipo === tipo);
+      expect(plantilla, `no hay plantilla para '${tipo}'`).toBeTruthy();
+      expect(n, `usa ${n} de '${tipo}' y solo hay ${plantilla!.cuantas}`).toBeLessThanOrEqual(plantilla!.cuantas);
+    }
+    for (const x of m.muebles) {
+      const plantilla = MOBILIARIO.find((p) => p.tipo === x.tipo)!;
+      expect(x.celdas.length, `${x.id} ocupa ${x.celdas.length} casillas`).toBe(plantilla.ancho * plantilla.alto);
+    }
+  });
+
+  it("desde la entrada se llega a las 22 salas enteras, y sin abrir ninguna secreta", () => {
+    // El test de alcanzabilidad de T40, para cada misión: todas las salas con
+    // puerta y ninguna que dependa de una secreta para entrar.
+    const enteras = salasQueSePisan(m.puertas, m);
+    const sinAlcanzar = idsDeSalas().filter((s) => !enteras.has(s));
+    expect(sinAlcanzar, `salas sin alcanzar: ${sinAlcanzar.join(" ")}`).toEqual([]);
+    expect(salasQueSePisan(m.puertas.filter((p) => !p.secreta), m).size).toBe(22);
   });
 });
 
@@ -312,14 +456,14 @@ const PUERTAS_ANTES_DE_T40: Puerta[] = [
  * porque un monstruo no es un muro: se mata y se sigue. El mobiliario sí, que
  * no se quita de en medio, así que sus casillas no entran en la cuenta.
  */
-function salasQueSePisan(puertas: Puerta[]): Set<string> {
+function salasQueSePisan(puertas: readonly Puerta[], m: MisionCompleta = MISIONES[0]!): Set<string> {
   const e = crearPartida({
-    mision: MISION_CALABOZO,
+    mision: m.mision,
     heroes: [{ clase: "barbaro" }],
     monstruos: [],
     puertas: puertas.map((p) => ({ ...p, abierta: true, descubierta: true })),
-    muebles: MUEBLES_CALABOZO,
-    trampas: TRAMPAS_CALABOZO,
+    muebles: [...m.muebles],
+    trampas: [...m.trampas],
     semilla: 1,
   });
   const heroe = e.heroes[0]!;
@@ -327,7 +471,7 @@ function salasQueSePisan(puertas: Puerta[]): Set<string> {
   // fuera por falta de movimiento y solo cuentan los muros.
   const mapa = alcanzables(e, heroe, 500);
   const ocupadas = new Set(
-    MUEBLES_CALABOZO.filter((m) => m.bloqueaPaso).flatMap((m) => m.celdas).map(claveCelda),
+    m.muebles.filter((x) => x.bloqueaPaso).flatMap((x) => x.celdas).map(claveCelda),
   );
   const enteras = new Set<string>();
   for (const sala of idsDeSalas()) {

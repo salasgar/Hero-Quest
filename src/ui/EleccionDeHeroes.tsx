@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { EQUIPO, type IdEquipo } from "../data/equipment";
 import { HEROES, VARIANTES_HEROE, type ClaseHeroe, type Genero } from "../data/heroes";
 import { PORTADA, rutaDe } from "../data/imagenes";
-import { MISION_CALABOZO } from "../data/quests/calabozo";
+import { MISION_POR_DEFECTO, MISIONES, nivelDe, type MisionCompleta } from "../data/quests";
 import { ELEMENTOS, hechizosDelElemento, type Elemento } from "../data/spells";
 import type { HeroeElegido } from "../engine/partida";
 
@@ -10,16 +10,16 @@ import type { HeroeElegido } from "../engine/partida";
 const MAXIMO = 8;
 
 /**
- * Cuántas casillas declara la misión como entrada. Ya no es un tope, solo un
- * dato para explicarse en pantalla.
+ * Las casillas que declara la misión como entrada ya no son un tope, solo un
+ * dato para explicarse en pantalla (`plazas`, abajo, que depende de la misión
+ * elegida).
  *
- * Lo fue durante unas horas: mientras `crearPartida` se negaba a arrancar con
- * más héroes que casillas, la pantalla tenía que recortar a esa cifra o el
+ * Lo fueron durante unas horas: mientras `crearPartida` se negaba a arrancar
+ * con más héroes que casillas, la pantalla tenía que recortar a esa cifra o el
  * juego reventaba al empezar. Juan Luis lo resolvió el 2026-09-05 al firmar que
  * **los que sobran salen por las casillas de pasillo más cercanas**, así que el
  * tope vuelve a ser el que él pidió: ocho.
  */
-const PLAZAS = MISION_CALABOZO.entrada.length;
 const TOPE = MAXIMO;
 
 const NOMBRE_ELEMENTO: Record<Elemento, string> = {
@@ -60,7 +60,19 @@ const elementosPorDefecto = (clase: ClaseHeroe): Elemento[] =>
  * identificadores distintos —`mago` y `mago2`—, con sus hechizos y su equipo por
  * separado; lo que faltaba era poder pedirlo desde aquí.
  */
-export function EleccionDeHeroes({ alEmpezar }: { alEmpezar: (heroes: HeroeElegido[]) => void }) {
+export function EleccionDeHeroes({
+  alEmpezar,
+}: {
+  alEmpezar: (heroes: HeroeElegido[], mision: MisionCompleta) => void;
+}) {
+  /**
+   * La misión va antes que los héroes (T45): cuántas casillas de entrada hay
+   * depende de ella, y es lo que decide desde qué número el grupo se estira
+   * por el pasillo. Por omisión la primera del catálogo, la de empezar, para
+   * que quien no quiera elegir no tenga que hacerlo.
+   */
+  const [mision, setMision] = useState<MisionCompleta>(MISION_POR_DEFECTO);
+  const plazas = mision.mision.entrada.length;
   const [grupo, setGrupo] = useState<Eleccion[]>([]);
   const proximoUid = useRef(1);
 
@@ -110,6 +122,28 @@ export function EleccionDeHeroes({ alEmpezar }: { alEmpezar: (heroes: HeroeElegi
           sigue siendo el que se ve pequeño en la partida y en la transición.
         */}
         <img className="eleccion-portada" src={rutaDe(PORTADA)} alt="Hero Quest, versión Salas Oliver" />
+        {/*
+          El selector de misión (T45). Reutiliza las fichas de elemento —los
+          `chip`— en vez de estrenar clases: `estilos.css` es de los ficheros
+          más disputados del tablón y una fila de botones no lo merece. El
+          número es la posición en el catálogo, que es la dificultad.
+        */}
+        <h1>¿A qué misión?</h1>
+        <div className="grupo-elementos" style={{ justifyContent: "center", marginBottom: ".4rem" }}>
+          {MISIONES.map((m) => (
+            <button
+              key={m.mision.id}
+              className={`chip ${m === mision ? "chip-sel" : ""}`}
+              title={m.dificultad}
+              onClick={() => setMision(m)}
+            >
+              {nivelDe(m)} · {m.mision.titulo}
+            </button>
+          ))}
+        </div>
+        <p className="pista">
+          Nivel {nivelDe(mision)} de {MISIONES.length}, {mision.dificultad}. {mision.mision.introduccion}
+        </p>
         <h1>¿Quién baja a la mazmorra?</h1>
         <p className="pista">
           Hasta {TOPE} héroes. Se puede repetir clase —dos magos, dos elfas—, y cada clase se
@@ -122,9 +156,9 @@ export function EleccionDeHeroes({ alEmpezar }: { alEmpezar: (heroes: HeroeElegi
           a mano, y quien vea la fila larga tiene que saber que es lo previsto y
           no un despiste de la aplicación.
         */}
-        {grupo.length > PLAZAS && (
+        {grupo.length > plazas && (
           <p className="pista">
-            «{MISION_CALABOZO.titulo}» declara {PLAZAS} casillas de entrada. Los {grupo.length - PLAZAS}{" "}
+            «{mision.mision.titulo}» declara {plazas} casillas de entrada. Los {grupo.length - plazas}{" "}
             que sobran empiezan en las casillas de pasillo más cercanas, en fila hacia fuera:
             nadie empieza encima de otro.
           </p>
@@ -227,6 +261,7 @@ export function EleccionDeHeroes({ alEmpezar }: { alEmpezar: (heroes: HeroeElegi
                 nombre: h.nombre.trim() || undefined,
                 elementos: h.elementos,
               })),
+              mision,
             )
           }
         >

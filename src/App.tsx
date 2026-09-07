@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { nombreDeClase } from "./data/heroes";
 import { LOGOTIPO, rutaDe } from "./data/imagenes";
+import { MISION_POR_DEFECTO, type MisionCompleta } from "./data/quests";
 import type { HeroeElegido } from "./engine/partida";
 import { MESA, type SesionDeRed } from "./red/cliente";
 import { BoardVerify } from "./ui/BoardVerify";
@@ -67,6 +68,9 @@ export default function App() {
   // `Juego`. Desmontarlo para enseñar una tabla borraría la partida entera.
   const [verInstrucciones, setVerInstrucciones] = useState(false);
   const [grupo, setGrupo] = useState<HeroeElegido[] | null>(null);
+  // La misión se elige en la misma pantalla que el grupo (T45) y llega con él.
+  // Sin elegir, la primera del catálogo.
+  const [mision, setMision] = useState<MisionCompleta>(MISION_POR_DEFECTO);
   // Cambia con cada grupo nuevo: fuerza a montar la partida desde cero en vez
   // de reaprovechar el estado del grupo anterior.
   const [reparto, setReparto] = useState(0);
@@ -162,6 +166,7 @@ export default function App() {
       {creandoRed && grupo ? (
         <CrearPartidaEnRed
           heroes={grupo}
+          mision={mision.mision.id}
           alEntrar={setSesion}
           alVolver={() => setCreandoRed(false)}
         />
@@ -170,6 +175,7 @@ export default function App() {
           <Juego
             key={reparto}
             heroes={grupo}
+            mision={mision}
             instruccionesAbiertas={verInstrucciones}
             cerrarInstrucciones={() => setVerInstrucciones(false)}
           />
@@ -182,7 +188,8 @@ export default function App() {
         </>
       ) : (
         <EleccionDeHeroes
-          alEmpezar={(heroes) => {
+          alEmpezar={(heroes, elegida) => {
+            setMision(elegida);
             setGrupo(heroes);
             setReparto((n) => n + 1);
             setEnTransicion(true);

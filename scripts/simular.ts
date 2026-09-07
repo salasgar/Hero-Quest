@@ -2,15 +2,23 @@
  * Juega partidas enteras solo, para contestar la única pregunta que importa de
  * la IA: **¿ganan los héroes lo bastante a menudo?**
  *
- *   npm run sim                        # 100 partidas por nivel
- *   npm run sim -- 300                 # otras tantas
+ *   npm run sim                        # el catálogo entero: una tabla con misión,
+ *                                      # nivel, victorias y rondas (T45)
+ *   npm run sim -- 300                 # otras tantas partidas por nivel
  *   npm run sim -- 100 4242            # y desde otra semilla base
+ *   npm run sim -- 100 1000 calabozo   # el informe largo de UNA misión, por su id
  *   npm run sim -- 100 1000 miedoso    # con TODOS los monstruos miedosos (T38)
+ *   npm run sim -- 100 1000 calabozo miedoso   # las dos cosas, en cualquier orden
  *
- * Sin el tercer argumento, cada monstruo lleva el temperamento que le sorteó
- * `crearPartida`, que es como se juega en la mesa. Con él, se fuerza el mismo a
- * todos: es la única forma de ver qué le hace cada temperamento al porcentaje
- * de victorias sin que el sorteo mezcle los tres.
+ * Sin temperamento, cada monstruo lleva el que le sorteó `crearPartida`, que es
+ * como se juega en la mesa. Con él, se fuerza el mismo a todos: es la única
+ * forma de ver qué le hace cada temperamento al porcentaje de victorias sin que
+ * el sorteo mezcle los tres.
+ *
+ * La tabla del catálogo es la definición operativa de «ordenada por
+ * dificultad» (`src/data/quests/index.ts`): el orden de la lista tiene que
+ * coincidir con el orden de victorias en `normal`, y si no coincide la tabla lo
+ * dice. Esa tabla va en la terminada de cada misión nueva.
  *
  * Todo pasa por `aplicarAccion` y por los mismos selectores que pinta la
  * interfaz. El simulador no tiene atajos propios: si una jugada aquí es legal,
@@ -21,7 +29,7 @@
  * falla nunca por quedarse lejos: informa.
  */
 
-import { MISION_CALABOZO, MONSTRUOS_CALABOZO, MUEBLES_CALABOZO, PUERTAS_CALABOZO, TRAMPAS_CALABOZO } from "../src/data/quests/calabozo";
+import { MISIONES, misionPorId, nivelDe, opcionesDe, type MisionCompleta } from "../src/data/quests";
 import { crearPartida, type HeroeElegido } from "../src/engine/partida";
 import { aplicarAccion, actorActual, esTurnoDeZargon, figuraActiva } from "../src/engine/reducer";
 import { casillasDeMovimiento, objetivosDeAtaque, puedeBuscarTesoro, puertasAlAlcance } from "../src/engine/selectors";
@@ -291,18 +299,21 @@ class Huidas {
   }
 }
 
-function jugarPartida(semilla: number, nivel: Dificultad, forzado: Temperamento | null): Partida {
+function jugarPartida(
+  mision: MisionCompleta,
+  semilla: number,
+  nivel: Dificultad,
+  forzado: Temperamento | null,
+): Partida {
+  // `opcionesDe` da copias: el `map` de abajo no toca el catálogo, que está
+  // congelado y lo diría reventando.
+  const base = opcionesDe(mision);
   let e = crearPartida({
-    mision: MISION_CALABOZO,
+    ...base,
     heroes: GRUPO,
     // Sin `forzado`, cada monstruo lleva el temperamento que le toque en el
     // sorteo de `crearPartida`; con él, todos el mismo.
-    monstruos: forzado
-      ? MONSTRUOS_CALABOZO.map((m) => ({ ...m, temperamento: forzado }))
-      : MONSTRUOS_CALABOZO,
-    puertas: PUERTAS_CALABOZO,
-    muebles: MUEBLES_CALABOZO,
-    trampas: TRAMPAS_CALABOZO,
+    monstruos: forzado ? base.monstruos.map((m) => ({ ...m, temperamento: forzado })) : base.monstruos,
     semilla,
   });
 
@@ -376,32 +387,114 @@ const media = (xs: number[]) => (xs.length === 0 ? 0 : xs.reduce((a, b) => a + b
 
 const TEMPERAMENTOS: readonly Temperamento[] = ["agresivo", "miedoso", "prudente"];
 
+/** Las `cuantas` partidas de una misión a un nivel, con semillas consecutivas. */
+function medir(
+  mision: MisionCompleta,
+  nivel: Dificultad,
+  cuantas: number,
+  base: number,
+  forzado: Temperamento | null,
+): Partida[] {
+  const partidas: Partida[] = [];
+  for (let i = 0; i < cuantas; i++) partidas.push(jugarPartida(mision, base + i, nivel, forzado));
+  return partidas;
+}
+
 async function main() {
   const cuantas = Number(process.argv[2] ?? 100);
   const base = Number(process.argv[3] ?? 1000);
-  const pedido = process.argv[4];
-  if (pedido !== undefined && !TEMPERAMENTOS.includes(pedido as Temperamento)) {
-    console.error(`\nTemperamento desconocido: «${pedido}». Los que hay: ${TEMPERAMENTOS.join(", ")}.\n`);
-    process.exit(1);
+
+  // Lo que venga detrás de los dos números es un temperamento, el identificador
+  // de una misión, o las dos cosas en cualquier orden. Se distinguen por lo
+  // que son y no por la posición, para que `npm run sim -- 100 1000 miedoso`
+  // siga valiendo tal cual desde T38.
+  let forzado: Temperamento | null = null;
+  let pedida: MisionCompleta | null = null;
+  for (const arg of process.argv.slice(4)) {
+    const mision = misionPorId(arg);
+    if (TEMPERAMENTOS.includes(arg as Temperamento)) forzado = arg as Temperamento;
+    else if (mision) pedida = mision;
+    else {
+      console.error(
+        `\nNo sé qué es «${arg}». Temperamentos: ${TEMPERAMENTOS.join(", ")}. ` +
+          `Misiones: ${MISIONES.map((m) => m.mision.id).join(", ")}.\n`,
+      );
+      process.exit(1);
+    }
   }
-  const forzado = (pedido as Temperamento | undefined) ?? null;
 
   console.log(`\nHeroQuest · ${cuantas} partidas por nivel, semillas ${base}…${base + cuantas - 1}`);
-  console.log(`Misión: «${MISION_CALABOZO.titulo}» · grupo: ${GRUPO.map((h) => h.clase).join(", ")}`);
+  console.log(`Grupo: ${GRUPO.map((h) => h.clase).join(", ")}`);
   console.log(
     forzado
       ? `Temperamento (T38): TODOS los monstruos ${forzado}s, forzado desde la línea de órdenes.`
       : "Temperamento (T38): el que sortea cada partida, por especie. Para forzar uno,\n" +
-          "pásalo como tercer argumento: `npm run sim -- 100 1000 miedoso`.",
+          "pásalo como argumento: `npm run sim -- 100 1000 miedoso`.",
   );
   console.log(
     "Héroes jugados por una heurística tonta: abren lo que tienen delante, pegan al más\n" +
       "débil que alcanzan y si no se acercan. No buscan tesoro ni lanzan hechizos.",
   );
 
+  if (pedida) informeDeMision(pedida, cuantas, base, forzado);
+  else tablaDelCatalogo(cuantas, base, forzado);
+}
+
+/**
+ * El catálogo entero, una fila por misión (T45). Es la medida de «ordenada por
+ * dificultad»: la columna `normal` tiene que ir de más a menos bajando por la
+ * tabla. Si no, se reordena `MISIONES` en `src/data/quests/index.ts`; nunca se
+ * retocan los pesos de Zargon.
+ */
+function tablaDelCatalogo(cuantas: number, base: number, forzado: Temperamento | null) {
+  const filas = MISIONES.map((mision) => {
+    const porNivel = Object.fromEntries(
+      DIFICULTADES.map((nivel) => {
+        const partidas = medir(mision, nivel, cuantas, base, forzado);
+        const terminadas = partidas.filter((p) => p.termino);
+        return [nivel, { victorias: terminadas.filter((p) => p.victoria).length, terminadas: terminadas.length, rondas: media(terminadas.map((p) => p.rondas)) }];
+      }),
+    ) as Record<Dificultad, { victorias: number; terminadas: number; rondas: number }>;
+    return { mision, porNivel };
+  });
+
+  const ancho = Math.max(6, ...filas.map((f) => f.mision.mision.titulo.length));
+  const cab = ["nivel", "misión".padEnd(ancho), ...DIFICULTADES.map((n) => n.padStart(7)), "rondas (normal)"];
+  console.log(`\n${cab.join("  ")}`);
+  console.log("─".repeat(cab.join("  ").length));
+  for (const f of filas) {
+    const celdas = [
+      String(nivelDe(f.mision)).padStart(5),
+      f.mision.mision.titulo.padEnd(ancho),
+      ...DIFICULTADES.map((n) => pct(f.porNivel[n].victorias, f.porNivel[n].terminadas).padStart(7)),
+      f.porNivel.normal.rondas.toFixed(1).padStart(15),
+    ];
+    console.log(celdas.join("  "));
+  }
+  for (const f of filas) console.log(`  ${nivelDe(f.mision)} · ${f.mision.mision.id}: ${f.mision.dificultad}`);
+
+  // Empates permitidos: dos misiones al 100 % no desordenan nada.
+  const tasa = (f: (typeof filas)[number]) =>
+    f.porNivel.normal.terminadas === 0 ? 0 : f.porNivel.normal.victorias / f.porNivel.normal.terminadas;
+  const desordenadas = filas.filter((f, i) => i > 0 && tasa(f) > tasa(filas[i - 1]!));
+  console.log(
+    desordenadas.length === 0
+      ? "\nEl orden del catálogo coincide con el de victorias en `normal`."
+      : `\n← El catálogo está DESORDENADO: ${desordenadas.map((f) => f.mision.mision.id).join(", ")} gana más que la anterior. ` +
+          "Reordena `MISIONES` en `src/data/quests/index.ts`; no toques los pesos de Zargon.",
+  );
+  console.log(
+    "\nPara el informe largo de una misión —huidas, «pega y se va», la partida más rara—\n" +
+      "pásale su identificador: `npm run sim -- 100 1000 calabozo`.\n",
+  );
+}
+
+/** El informe largo de una sola misión: lo que era `npm run sim` hasta T45. */
+function informeDeMision(mision: MisionCompleta, cuantas: number, base: number, forzado: Temperamento | null) {
+  console.log(`Misión: «${mision.mision.titulo}» (nivel ${nivelDe(mision)} de ${MISIONES.length}, ${mision.dificultad})`);
+
   for (const nombre of DIFICULTADES) {
-    const partidas: Partida[] = [];
-    for (let i = 0; i < cuantas; i++) partidas.push(jugarPartida(base + i, nombre, forzado));
+    const partidas = medir(mision, nombre, cuantas, base, forzado);
 
     const terminadas = partidas.filter((p) => p.termino);
     const ganadas = terminadas.filter((p) => p.victoria);

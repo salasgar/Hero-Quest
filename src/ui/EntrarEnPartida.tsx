@@ -52,11 +52,11 @@ const enlaceDeLaPartida = (codigo: string): string => {
  * existen: el héroe quedaría sin dueño y lo jugaría la mesa sin que nadie
  * entendiera por qué.
  */
-function figurasDelGrupo(heroes: HeroeElegido[]): Array<{ id: string; nombre: string }> {
+function figurasDelGrupo(heroes: HeroeElegido[], mision: string): Array<{ id: string; nombre: string }> {
   const montaje: Montaje = {
     version: VERSION,
     semilla: 1,
-    mision: "calabozo",
+    mision,
     heroes,
     reparto: {},
   };
@@ -67,14 +67,20 @@ function figurasDelGrupo(heroes: HeroeElegido[]): Array<{ id: string; nombre: st
 
 export function CrearPartidaEnRed({
   heroes,
+  mision,
   alEntrar,
   alVolver,
 }: {
   heroes: HeroeElegido[];
+  /**
+   * El identificador de la misión que eligió la mesa (T45). Va en el montaje
+   * y no la misión entera: cada casa la busca en su propio catálogo.
+   */
+  mision: string;
   alEntrar: (sesion: SesionDeRed) => void;
   alVolver: () => void;
 }) {
-  const figuras = figurasDelGrupo(heroes);
+  const figuras = figurasDelGrupo(heroes, mision);
   /** Quién juega cada héroe. Vacío significa la mesa. */
   const [dueños, setDueños] = useState<Record<string, string>>({});
   const [creando, setCreando] = useState(false);
@@ -98,7 +104,7 @@ export function CrearPartidaEnRed({
       // lo que hace que las dos casas barajen el mismo mazo de tesoros. Si cada
       // navegador la calculara, divergirían desde el turno cero sin dar error.
       semilla: Math.floor(Math.random() * 100000),
-      mision: "calabozo",
+      mision,
       heroes,
       reparto,
     };
@@ -109,7 +115,7 @@ export function CrearPartidaEnRed({
       return;
     }
     setHecha(res.valor);
-  }, [figuras, dueños, heroes, relevo]);
+  }, [figuras, dueños, heroes, mision, relevo]);
 
   if (!relevo) {
     return (
