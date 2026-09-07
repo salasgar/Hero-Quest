@@ -261,38 +261,40 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 57 | T57 · Descargar la partida: un registro con el que encontrar los fallos | tareas/T57-descargar-la-partida.md | ninguna | 2 h | MEDIO | 56 | `registroDePartida.ts` (nuevo), `usePartida.ts`, `App.tsx`, `scripts/repetir.ts` (nuevo), `package.json`, `README.md`, tests | manual | LISTA (`f40e415`) | |
 | 58 | T58 · Al pasar el ratón por una figura, su ficha en un cuadro flotante | tareas/T58-ficha-flotante-de-cada-figura.md | ninguna · no a la vez que 51, 37 (`BoardMirror.tsx`) ni 22 (`estilos.css`) | 2 h | MEDIO | 37 | `FichaFlotante.tsx` (nuevo), `BoardMirror.tsx`, `estilos.css`, tests | manual | LISTA (`6c3c750`) | |
 | 59 | T59 · La portada del juego | tareas/T59-portada-del-juego.md | ninguna · no a la vez que 37 (`EleccionDeHeroes.tsx`, `estilos.css`) ni 45 (`EleccionDeHeroes.tsx`) | 1,5 h | MEDIO | — | `public/` (la portada), `public/IMAGENES.md`, `src/data/imagenes.ts`, `EleccionDeHeroes.tsx`, `estilos.css` | manual | LISTA (`aa75844`) | |
-| 60 | T60 · Sin nombre propio, el diario dice «Enano el Enano» | tareas/T60-nombre-por-defecto-duplica-la-clase.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) | 2 h | MEDIO | — | `partida.ts`, `types.ts`, `narrator/relato.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** | |
+| 60 | T60 · Sin nombre propio, el diario dice «Enano el Enano» | tareas/T60-nombre-por-defecto-duplica-la-clase.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) ni 61 (`narrator/local.ts`, `narrator/relato.ts`) | 2 h | MEDIO | — | `partida.ts`, `types.ts`, `narrator/relato.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** | |
+| 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna · no a la vez que 60 (`narrator/local.ts`, `narrator/relato.ts`) | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
 fue nueva del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» como portada
 del juego), añadida por la sesión coordinadora `s-20260907T090034-c7bc516d`
 (`hechos/notas/s-20260907T090034-c7bc516d.md`) y cerrada el mismo día por
-`s-20260907T140727-559d19ac`. La 60 es un fallo que Juan Luis vio en el diario de una
-partida (sin nombres propios, el narrador repite la clase: «Enano el Enano»), diagnosticado
-y añadido por la misma sesión coordinadora. No hay `hechos/recursos/` con nada dentro:
-ningún tope de procesos fijado.
+`s-20260907T140727-559d19ac`. La 60 y la 61 son dos fallos/encargos que Juan Luis vio
+jugando ese mismo día (el nombre por defecto duplicado, y el informe demasiado literario),
+diagnosticados y añadidos por la misma sesión coordinadora. No hay `hechos/recursos/` con
+nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** **37** (MEDIO), **45** (ALTO) y **60** (MEDIO, nueva). **La 59 se
-cerró** (`aa75844`, en `main`): ningún reclamo vivo.
+**Libres por estado:** **37** (MEDIO), **45** (ALTO), **60** (MEDIO, nueva) y **61** (MEDIO,
+nueva). **La 59 se cerró** (`aa75844`, en `main`): ningún reclamo vivo.
 
 **Por ficheros, ahora mismo:** 37 y 45 comparten **`EleccionDeHeroes.tsx`** y **no van en
 paralelo**: una sesión las hace de una en una, en el orden que decida, o dos sesiones se
 las reparten de una en una. La 59, ya cerrada, tocó ese mismo fichero y `estilos.css`;
 quien reclame la 37 o la 45 parte del código que dejó (el logotipo grande sustituido por
-la portada en la cabecera). **La 60 comparte `types.ts` y `partida.ts` con la 37** —no van
-a la vez—, pero **no comparte nada con la 45** (que no toca `narrator/` ni `partida.ts`),
-así que **60 y 45 sí caben a la vez, cada una en su sesión**. 15 espera la palabra de Juan
-Luis; 46, 47 y 50 siguen BLOQUEADAS por sus precondiciones (46 y 47 esperan a la 45, que ya
-se puede coger).
+la portada en la cabecera). **La 60 comparte `types.ts` y `partida.ts` con la 37**, y
+**comparte `narrator/local.ts` y `narrator/relato.ts` con la 61** —no van a la vez con
+ninguna de las dos—, pero **ni la 60 ni la 61 tocan nada de la 45**, así que las dos caben
+en paralelo con la 45. 15 espera la palabra de Juan Luis; 46, 47 y 50 siguen BLOQUEADAS por
+sus precondiciones (46 y 47 esperan a la 45, que ya se puede coger).
 
-**Cabe hoy:** dos sesiones a la vez —una con la 45 (ALTO) y otra con la 60 (MEDIO)—, o una
-sola con la 37 y luego la que quede de las otras dos (37 choca con las dos, así que no se
-combina con ninguna).
+**Cabe hoy:** hasta **dos sesiones a la vez** —una con la 45 (ALTO) y otra con la 60 **o**
+la 61 (las dos MEDIO, pero entre sí chocan)—, o una sola sesión con la 37 y, tras cerrarla,
+la 60 y la 61 seguidas (comparten fichero entre sí, así que de una en una).
 
 **Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 se coge sola. Ninguna de
-37, 45 o 60 tiene «encadenable con» declarado. Las cadenas 51 → 53 → 54 → 55
-(`s-20260906T174714-651b3481`) y 52 → 36 → 22 (`s-20260906T174532-9cbd624b`) están cerradas
-enteras.
+37, 45, 60 o 61 tiene «encadenable con» declarado; 60 y 61 son ambas MEDIO y de la misma
+sesión podrían hacerse seguidas (comparten fichero, no van en paralelo, pero sí una tras
+otra). Las cadenas 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) y 52 → 36 → 22
+(`s-20260906T174532-9cbd624b`) están cerradas enteras.
 
 ## Registro de finalizaciones
 

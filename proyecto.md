@@ -256,3 +256,13 @@ que dura la sesión.
   `relato.ts:55-58` y `local.ts:63-68` lo vuelven a pegar sin comprobar que ya coincide), no
   a ojo. Comparte `types.ts` y `partida.ts` con T37; no toca nada de T45, así que caben a la
   vez, cada una en su sesión.
+- **T61 (el tono del informe y del relato) sale del mismo encargo del 2026-09-07**: Juan
+  Luis pegó un fragmento del informe («El techo gotea. Cada gota suena como un paso a tu
+  espalda. Os están esperando: el orco Brúmgar.») y dijo que el informe no debe llevar
+  epítetos ni metáforas, solo lo necesario para seguir la partida leyéndolo. Diagnosticado
+  por la misma sesión coordinadora: el texto de ambientación de la sala (campo `r` de
+  `quests/calabozo.ts`, pensado para el relato) se copia sin adaptar en el informe
+  (`local.ts:118-123`, caso `salaRevelada`). La tarea es más ancha que ese ejemplo: jugar
+  una partida y revisar los dos modos enteros, informe y relato, cada uno con su tono.
+  Comparte `narrator/local.ts` y `narrator/relato.ts` con T60; no toca nada de T37, T45 ni
+  T59.
