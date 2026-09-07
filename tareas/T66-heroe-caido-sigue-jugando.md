@@ -123,6 +123,24 @@ que sigue el fallo).
   humano metería a mano**: comprueba que la IA de Zargon (`src/ai/`) no dependía sin
   querer de que un héroe caído siguiera «disponible» para algo (poco probable, pero
   compruébalo si algún test de IA falla al arreglar esto).
+- **Descubierto al cerrar esta tarea: no solo las trampas de `mover` pueden matar al
+  actor a mitad de su propio turno.** Una carta de tesoro «peligro» (`gas`,
+  `telaraña` en `treasure.ts`) hiere a quien busca en `buscarTesoro`, y el bloque de
+  `mover` (a diferencia del foso y la lanza que hiere) no marca `terminaTurno`. Las
+  dos pueden dejar al actor a cuerpo 0 sin que su turno se cierre por sí solo: se
+  queda activo, con `movimientoTotal` todavía nulo si no había tirado movimiento, y
+  el motor le seguía ofreciendo `tirarMovimiento` y las demás acciones (la guarda de
+  cada función solo mira el cuerpo *antes* de empezar, no lo que la propia acción
+  acaba de hacerle). El arreglo no fue añadir más guardas: fue cerrar el turno en
+  `terminar()`, el embudo por el que pasan todas las acciones, cuando la acción deja
+  al actor activo a cuerpo 0. Si otra tarea toca `terminar()` o añade una acción
+  nueva que pueda dañar a quien la ejecuta, este cierre ya la cubre; no hace falta
+  repetirlo en la función nueva.
+- **`accionesPosibles`, el harness del juego al azar en `tests/integracion.test.ts`,
+  tampoco miraba la vida del actor activo** antes de ofrecerle acciones: reproducía
+  el fallo a la primera con la semilla 5. Si se añade una acción de héroe nueva ahí,
+  recuerda que el `return salida` de «solo terminarTurno y pociones si está caído»
+  va antes de añadirla.
 
 ## Tests que hay que añadir
 

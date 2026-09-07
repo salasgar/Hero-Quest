@@ -17,6 +17,32 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-07 23:21Z · por la sesión `s-20260907T223315-1bad2508`, al cerrar la 66.
+Sobre la regeneración de las 21:54Z (`s-20260907T211731-6bdd85b1`, al cerrar la 46) cambia
+**una fila**: la **66 pasa a LISTA**. Se arregló `avanzarActor` (salta a los héroes con
+cuerpo 0) y, más allá de lo que decía la ficha, se encontró que dos cosas más podían matar
+al propio actor sin cerrarle el turno (una carta de tesoro «peligro» y un bloque en
+`mover`): cerrado en `terminar()`, razonado en la terminada y en la ficha. Con esto queda
+resuelto el aviso que dejó la 46: **el simulador ya está remedido sin el fallo dentro**, y
+el número cambia mucho en una misión. Tabla completa (100 partidas por nivel,
+semillas 1000…1099):
+
+    nivel  misión                        torpe  normal  astuto
+    1  calabozo   antes (con el fallo)     100 %    99 %   100 %
+    1  calabozo   después                   98 %   100 %   100 %
+    2  torreón    antes (con el fallo)      87 %    89 %    92 %
+    2  torreón    después                   58 %    55 %    54 %
+
+El calabozo no se mueve más allá del ruido de la muestra; el torreón cae unos 34 puntos en
+`normal`, porque ahí es donde un héroe caído seguía golpeando al guerrero del Caos en vez
+de quedarse fuera. El orden del catálogo no cambia (calabozo sigue muy por delante), así
+que no hace falta tocar `quests/index.ts` — pero la caída es grande y **alguien debería
+revisar si el torreón sigue siendo el segundo escalón que se quería** para la progresión;
+no lo decide esta tarea (firma de T45). Terminada en
+`hechos/terminadas/66--s-20260907T223315-1bad2508.md`; detalle en la ficha, «Trampas
+conocidas». La 50 (ALTO, compartía `reducer.ts`/`types.ts` y no iba a la vez) sigue
+**PENDIENTE**, libre para cogerse: ya no hay nada vivo sobre el motor.
+
 Regenerado: 2026-09-07 21:54Z · por la sesión `s-20260907T211731-6bdd85b1` (hero-quest-1b),
 al cerrar la 46. Sobre la regeneración de las 21:27Z (`s-20260907T211150-b4152f09`, al
 cerrar la 37) y la ficha T66 que la coordinadora añadió después (`e7b6d81`, fila 66 ya en la
@@ -329,7 +355,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | LISTA (`f7f05ac`) | |
 | 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (`d7724f3`) | |
 | 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | LISTA (`b3c7995`) | |
-| 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | **PENDIENTE** | |
+| 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | LISTA (hash pendiente tras el `push`) | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
 fue nueva del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» como portada
