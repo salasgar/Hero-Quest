@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   ALTO_TABLERO,
   ANCHO_TABLERO,
@@ -9,6 +9,7 @@ import { MONSTRUOS } from "../data/monsters";
 import { puertasVisibles } from "../engine/selectors";
 import { colorDeSala } from "./paleta";
 import { claveCelda, mismaCelda, type Celda, type EstadoPartida, type Figura } from "../engine/types";
+import { FichaFlotante } from "./FichaFlotante";
 
 const LADO = 28;
 const MARGEN = 16;
@@ -41,6 +42,15 @@ export function BoardMirror({
 
   const destinos = useMemo(() => new Set(movimiento.map(claveCelda)), [movimiento]);
   const atacables = useMemo(() => new Set(objetivos.map((o) => o.id)), [objetivos]);
+
+  // La ficha flotante (T58): al ratón la enseña `pointerenter`/`pointerleave`;
+  // en una tableta sin ratón, un toque sobre una figura que no es objetivo la
+  // abre y otro toque en cualquier sitio la cierra (más abajo, en el `<svg>`).
+  // Si la figura sí es objetivo, el toque sigue siendo atacar/activar/lanzar,
+  // como hoy: el `onClick` de la figura no cambia.
+  const [figuraSenalada, setFiguraSenalada] = useState<string | null>(null);
+  const [figuraTocada, setFiguraTocada] = useState<string | null>(null);
+  const idFichaAbierta = figuraSenalada ?? figuraTocada;
 
   const visible = (c: Celda): boolean => {
     const sala = salaEn(c.x, c.y);
@@ -80,8 +90,20 @@ export function BoardMirror({
     ...estado.monstruos.filter((m) => m.cuerpo > 0 && visible(m.celda)),
   ];
 
+  const figuraAbierta = figuras.find((f) => f.id === idFichaAbierta) ?? null;
+
   return (
-    <svg className="tablero" width={ancho} height={alto} role="img" aria-label="Tablero de la partida">
+    <>
+    <svg
+      className="tablero"
+      width={ancho}
+      height={alto}
+      role="img"
+      aria-label="Tablero de la partida"
+      onPointerUp={(e) => {
+        if (e.pointerType === "touch") setFiguraTocada(null);
+      }}
+    >
       <g transform={`translate(${MARGEN},${MARGEN})`}>
         {/* Coordenadas en los márgenes, en base 1: las mismas que usa el diario. */}
         <g fontSize={9} fill="#8e9bb3" pointerEvents="none">
@@ -271,6 +293,20 @@ export function BoardMirror({
             <g
               key={f.id}
               onClick={() => alPulsarFigura(f.id)}
+              onPointerEnter={(e) => {
+                if (e.pointerType === "mouse") setFiguraSenalada(f.id);
+              }}
+              onPointerLeave={(e) => {
+                if (e.pointerType === "mouse") {
+                  setFiguraSenalada((actual) => (actual === f.id ? null : actual));
+                }
+              }}
+              onPointerUp={(e) => {
+                if (e.pointerType === "touch" && !esObjetivo) {
+                  e.stopPropagation();
+                  setFiguraTocada(f.id);
+                }
+              }}
               style={{ cursor: esObjetivo ? "crosshair" : "pointer" }}
             >
               <circle
@@ -320,5 +356,25 @@ export function BoardMirror({
         })}
       </g>
     </svg>
+    {figuraAbierta && (() => {
+      // Centro de la figura en las coordenadas del `<svg>` (que no tiene
+      // escala propia: son también las de `.juego-tablero`, el `position:
+      // relative` donde cae este cuadro). Si está en la mitad derecha del
+      // tablero, el cuadro se abre hacia la izquierda para no salirse.
+      const cx = figuraAbierta.celda.x * LADO + LADO / 2 + MARGEN;
+      const cy = figuraAbierta.celda.y * LADO + LADO / 2 + MARGEN;
+      const haciaLaIzquierda = cx >= ancho / 2;
+      const separacion = LADO / 2 + 8;
+      return (
+        <FichaFlotante
+          figura={figuraAbierta}
+          estado={estado}
+          x={haciaLaIzquierda ? cx - separacion : cx + separacion}
+          y={cy}
+          haciaLaIzquierda={haciaLaIzquierda}
+        />
+      );
+    })()}
+    </>
   );
 }

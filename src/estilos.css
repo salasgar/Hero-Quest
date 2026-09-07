@@ -354,3 +354,21 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   .transicion, .transicion-logo { animation: none; }
 }
+
+/* Ficha flotante (T58): al pasar el ratón, o al tocar, por encima de una
+   figura del tablero. `position: absolute` sobre `.juego-tablero`, que ya es
+   `position: relative`; sin animación, para que aparezca al instante. */
+.ficha-flotante {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: .4rem .55rem;
+  font-size: .78rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px #000a;
+}
+.ficha-flotante strong { display: block; margin-bottom: .1rem; }
