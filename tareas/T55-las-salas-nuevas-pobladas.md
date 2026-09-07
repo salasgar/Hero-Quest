@@ -71,6 +71,20 @@ grep -c "especie:" src/data/quests/calabozo.ts   # 6 es lo que hay hoy
 - **Los nombres propios** (T42) salen de una reserva de doce por especie: más de doce de
   una especie en la misión rompe un test a propósito.
 
+Lo que encontró la sesión que la hizo (`s-20260906T174714-651b3481`, 2026-09-07):
+
+- **Un inventario de salas en diez líneas ahorra media hora**: `idsDeSalas()` +
+  `celdasDeSala()` + `salaEn()` dan tamaño, rango de casillas, puertas (con su casilla de
+  dentro) y lo que ya hay; se corrió con `npx vite-node` desde un guion en `/tmp`. Las
+  salas van de 6 casillas (`m`, `n`) a 30 (`k`, la central).
+- **La dureza «no más que la del guardián» se puede fijar en un test**: cuerpo sumado por
+  sala ≤ 2 y ataque máximo ≤ 3, con `MONSTRUOS`; así nadie sube la misión sin querer.
+- **El simulador con la baraja de T54 ya daba más partidas sin terminar** (13 / 8 / 6
+  por nivel, antes de tocar nada; tras T53 eran 5 / 4 / 5): el barajado cambia con el
+  mazo y con él las partidas de cada semilla. No es de esta tarea; queda apuntado.
+- **Los tests de escena de T8/T9 no se inmutaron**: los monstruos nuevos están en salas
+  cerradas y hasta que se abren no existen para Zargon (T18).
+
 ## Prohibido
 
 - Tocar `board-base.ts`, la entrada o las puertas (firmadas y medidas en T40).
