@@ -328,9 +328,14 @@ export function TurnPanel({
               Tirar movimiento <Tecla>T</Tecla>
             </button>
           )}
+          {/*
+            El nombre propio, no la especie: con dos goblins al lado, «Atacar a
+            Goblin» dos veces no dice cuál es cuál (T65). Los nombres son únicos
+            dentro de la partida desde T42, así que basta con esto.
+          */}
           {objetivos.map((o) => (
             <button key={o.id} onClick={() => acciones.atacar(o.id)} className="atacar">
-              Atacar a {esHeroe(o) ? o.nombre : MONSTRUOS[o.especie].nombre}
+              Atacar a {o.nombre}
             </button>
           ))}
           {puertas.map((p) => (
@@ -390,7 +395,7 @@ export function TurnPanel({
           <div className="botonera">
             {pendiente.objetivos.map((o) => (
               <button key={o.id} onClick={() => acciones.lanzarSobre(o.id)} className="principal">
-                {esHeroe(o) ? o.nombre : MONSTRUOS[o.especie].nombre} ({o.cuerpo})
+                {o.nombre} ({o.cuerpo})
               </button>
             ))}
             <button onClick={acciones.cancelarHechizo}>
