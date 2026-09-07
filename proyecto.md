@@ -288,3 +288,16 @@ que dura la sesión.
   usaban el nombre de la especie en vez del nombre propio que T42 ya reparte (T65). Ninguna
   de las tres comparte fichero entre sí ni con T37, T45, T61 o T62; T64 y T65 se declaran
   encadenables.
+- **T66 (un héroe caído sigue jugando) la encontró la sesión de la T46** el 2026-09-07
+  leyendo una partida narrada del torreón, no jugando a propósito; no la tocó porque su
+  ficha no declara el motor (`reducer.ts` es de T50) y pidió una ficha aparte. La
+  coordinadora la diagnosticó antes de escribirla: `avanzarActor`
+  (`src/engine/reducer.ts:1228-1256`) nunca filtra `turno.orden` para saltar a un héroe con
+  `cuerpo <= 0`, y de las nueve funciones de acción que consultan `figuraActiva`, solo
+  `usarPocion` comprueba que el propio actor esté vivo (`darObjeto` comprueba al receptor,
+  no a quien da). Consecuencia importante: **todas las cifras de `npm run sim` de todas las
+  misiones están medidas con este fallo dentro** (un héroe caído seguía jugando en esas
+  partidas), así que la ficha exige remedir y dejar la cifra nueva en la terminada, pero
+  prohíbe reordenar el catálogo de misiones por su cuenta: si el cambio es grande, lo revisa
+  una tarea de banda ALTA aparte, porque el orden actual sale de una firma de T45.
+  T66 comparte `reducer.ts` y `types.ts` con T50; no choca con la T46 en curso.

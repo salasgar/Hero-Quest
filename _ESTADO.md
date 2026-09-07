@@ -317,6 +317,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | LISTA (`f7f05ac`) | |
 | 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (`d7724f3`) | |
 | 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | LISTA (`b3c7995`) | |
+| 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | **PENDIENTE** | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
 fue nueva del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» como portada
@@ -330,13 +331,20 @@ ataque con el mismo texto), diagnosticados y añadidos por la misma sesión coor
 nombre un nombre de verdad (62) resuelve el síntoma de la 60 («Enano el Enano») sin tocar
 `narrator/`, así que hacer las dos sería arreglar lo mismo dos veces
 (`hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`). No hay `hechos/recursos/` con
-nada dentro: ningún tope de procesos fijado.
+nada dentro: ningún tope de procesos fijado. **La 66 la encontró la sesión de la 46 al leer
+una partida narrada** (un héroe caído seguía jugando); no la tocó porque su ficha no
+declara el motor, y la sesión coordinadora escribió la ficha con el diagnóstico exacto
+(`avanzarActor`, `src/engine/reducer.ts:1228-1256`, no filtra a los héroes caídos de
+`turno.orden`).
 
-**Libres por estado:** solo **50** (ALTO). **46 está EN CURSO** (`s-20260907T211731-6bdd85b1`,
-caduca 2026-09-08T05:17:31Z). **La 37, la 45, la 59, la 61, la 62, la 63, la 64 y la 65
-están cerradas** (`9931043` pendiente del hash definitivo abajo, `0f68632`, `aa75844`,
-`d4a5a01`, `aaebe93`, `f7f05ac`, `d7724f3` y `b3c7995`, todas en `main`); **la 60 quedó
-SUSTITUIDA**. Con esto, las cinco tareas de la caída de las 20:50Z están LISTA.
+**Libres por estado:** **50** (ALTO) y **66** (MEDIO, nueva). **46 está EN CURSO**
+(`s-20260907T211731-6bdd85b1`, caduca 2026-09-08T05:17:31Z). **La 37, la 45, la 59, la 61,
+la 62, la 63, la 64 y la 65 están cerradas** (`9931043`, `0f68632`, `aa75844`, `d4a5a01`,
+`aaebe93`, `f7f05ac`, `d7724f3` y `b3c7995`, todas en `main`); **la 60 quedó SUSTITUIDA**.
+Con esto, las cinco tareas de la caída de las 20:50Z están LISTA.
+
+**Por ficheros:** **50 y 66 comparten `reducer.ts` y `types.ts`: no van a la vez.** Ninguna
+de las dos choca con la 46 EN CURSO (`quests/`, no toca el motor).
 
 **Por ficheros, ahora mismo:** con la 37 cerrada, **la 50 (libre) ya no espera a nadie**:
 `types.ts` (37) y `narrator/local.ts` (61) están las dos cerradas. La **46** (EN CURSO)
