@@ -17,6 +17,18 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-07 21:54Z · por la sesión `s-20260907T211731-6bdd85b1` (hero-quest-1b),
+al cerrar la 46. Sobre la regeneración de las 21:27Z (`s-20260907T211150-b4152f09`, al
+cerrar la 37) y la ficha T66 que la coordinadora añadió después (`e7b6d81`, fila 66 ya en la
+tabla) cambian **dos filas**: la **46 pasa a LISTA** (`quests/torreon.ts`, hash pendiente
+del push) y la **47 pasa a PENDIENTE** (su precondición, 46 LISTA, se cumple). Quedan
+libres la **50** (ALTO), la **66** (MEDIO) y la **47** (MEDIO); 50 y 66 comparten
+`reducer.ts` y no van a la vez. **Aviso que viene de la 46:** todos los porcentajes de
+`npm run sim` (calabozo y torreón) están medidos con el fallo de la 66 dentro —un héroe a 0
+sigue jugando—; la comparación entre misiones vale, los números absolutos no, y al cerrar
+la 66 hay que remedir (lo dice su ficha). Incidencia:
+`hechos/incidencias/s-20260907T211731-6bdd85b1.md`.
+
 Regenerado: 2026-09-07 21:27Z (hash `9931043` añadido a las 21:30Z tras entrar el `push`) ·
 por la sesión
 `s-20260907T211150-b4152f09` (hero-quest-55), al cerrar la 37. Sobre la regeneración de las
@@ -297,8 +309,8 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | LISTA (`6c8bd22`) | |
 | 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests (y, fuera de la ficha, `App.tsx`, `EntrarEnPartida.tsx`, `scripts/repetir.ts`) | manual | LISTA (`0f68632`; hecha por `s-20260907T205335-e738c893` sobre el reclamo de `s-20260907T204636-b565f64a`) | |
-| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · **cumplida** · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **EN CURSO** | `s-20260907T211731-6bdd85b1` · 2026-09-08T05:17:31Z |
-| 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
+| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · **cumplida** · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | LISTA (hash pendiente del push) | |
+| 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA · **cumplida** | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **PENDIENTE** | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | LISTA (`fb40fb1`) | |
 | 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** (49 y 42 LISTA; ya no espera a nadie por fichero: 37 y 61, cerradas) | |
@@ -337,28 +349,28 @@ declara el motor, y la sesión coordinadora escribió la ficha con el diagnósti
 (`avanzarActor`, `src/engine/reducer.ts:1228-1256`, no filtra a los héroes caídos de
 `turno.orden`).
 
-**Libres por estado:** **50** (ALTO) y **66** (MEDIO, nueva). **46 está EN CURSO**
-(`s-20260907T211731-6bdd85b1`, caduca 2026-09-08T05:17:31Z). **La 37, la 45, la 59, la 61,
-la 62, la 63, la 64 y la 65 están cerradas** (`9931043`, `0f68632`, `aa75844`, `d4a5a01`,
-`aaebe93`, `f7f05ac`, `d7724f3` y `b3c7995`, todas en `main`); **la 60 quedó SUSTITUIDA**.
-Con esto, las cinco tareas de la caída de las 20:50Z están LISTA.
+**Libres por estado:** **50** (ALTO), **66** (MEDIO, nueva) y **47** (MEDIO, desbloqueada
+por la 46). **Ninguna EN CURSO.** **La 37, la 45, la 46, la 59, la 61, la 62, la 63, la 64
+y la 65 están cerradas** (`9931043`, `0f68632`, la 46 con hash pendiente del push,
+`aa75844`, `d4a5a01`, `aaebe93`, `f7f05ac`, `d7724f3` y `b3c7995`, todas en `main`); **la
+60 quedó SUSTITUIDA**. Con esto, las cinco tareas de la caída de las 20:50Z están LISTA.
 
-**Por ficheros:** **50 y 66 comparten `reducer.ts` y `types.ts`: no van a la vez.** Ninguna
-de las dos choca con la 46 EN CURSO (`quests/`, no toca el motor).
+**Por ficheros:** **50 y 66 comparten `reducer.ts` y `types.ts`: no van a la vez.** La
+**47** (libre) toca `quests/<id>.ts` nuevo, `quests/index.ts` y `monsters.ts` (solo el
+troll): no choca con la 50 ni con la 66, y parte del torreón de la 46 como segundo ejemplo.
+La 46, ya cerrada, tocó `quests/torreon.ts`, `quests/index.ts`, `tests/quest.test.ts` y las
+trampas de su ficha; no tocó motor, IA ni pantalla. 15 espera la palabra de Juan Luis.
 
-**Por ficheros, ahora mismo:** con la 37 cerrada, **la 50 (libre) ya no espera a nadie**:
-`types.ts` (37) y `narrator/local.ts` (61) están las dos cerradas. La **46** (EN CURSO)
-toca `quests/<id>.ts` nuevo y `quests/index.ts`, que nadie más vivo declara. 15 espera la
-palabra de Juan Luis; la 47 sigue BLOQUEADA por la 46.
-
-**Cabe hoy:** la **50** (ALTO, 5 h), sin esperar a nadie. La 47 (MEDIO) se abre cuando la
-46 cierre.
+**Cabe hoy:** **dos sesiones a la vez**: una ALTO con la **50** (5 h) o una MEDIO con la
+**66** (2 h) —no las dos, por `reducer.ts`—, y otra MEDIO con la **47** (3 h). Si se abre la
+66 antes que la 50, mejor: es corta y su arreglo cambia lo que mide el simulador, que es lo
+que la 47 usa para colocar la tercera misión.
 
 **Encadenables:** 58 → 37 ya no aplica: las dos están LISTA. La cadena **64 → 65** está
 cerrada entera (`s-20260907T205502-6241d5c8`). 46 → 47 no es cadena: cambian de banda
-(ALTO → MEDIO). Ni la 37 ni la 61, ya cerradas, tenían «encadenable con» declarado; esta
-sesión (hero-quest-55, MEDIO) no encadena: la única libre ahora mismo es la 50, de banda
-ALTO. Las cadenas 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) y 52 → 36 → 22
+(ALTO → MEDIO). Ni la 37 ni la 61, ya cerradas, tenían «encadenable con» declarado. La
+sesión de la 46 (hero-quest-1b, ALTO) no encadena la 50: es de 5 h tras dos tareas seguidas
+y comparte `reducer.ts` con la 66, que conviene hacer antes. Las cadenas 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) y 52 → 36 → 22
 (`s-20260906T174532-9cbd624b`) están cerradas enteras.
 
 ## Registro de finalizaciones
@@ -370,6 +382,8 @@ conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la
 terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
+
+- LISTA · tarea 46 · 2026-09-07 21:53 · `s-20260907T211731-6bdd85b1` · «El torreón del Señor de la Guerra», nivel 2 del catálogo: ala nordeste, escalera en el pasillo del norte, veinte monstruos en siete salas (goblins, orcos, fimir, momia, esqueletos, zombi) y un guerrero del Caos como jefe en el salón del trono, que no abre al pasillo (se entra por la antesala o por la cripta, las dos con guardia); objetivo `matarA`; 23 puertas + 3 secretas, 5 trampas, 8 muebles (estrena el trono), texto en las 22 salas; simulador: 87 / 89 / 92 % frente a 100 / 99 / 100 % del calabozo, 12,6 rondas frente a 17,4, una partida sin terminar por nivel (héroes del simulador parados ante las puertas interiores); figuras nuevas: guerrero del Caos y momia; sin navegador, «jugarla» se sustituyó por leer dos partidas narradas enteras; encontró el fallo del héroe caído que sigue jugando (T66); 704 tests / 44 ficheros (+15, `tests/quest.test.ts`); typecheck en verde · `src/data/quests/torreon.ts`, `src/data/quests/index.ts`, `tests/quest.test.ts` · (hash pendiente del push)
 
 - LISTA · tarea 37 · 2026-09-07 21:27 · `s-20260907T211150-b4152f09` (releva a `s-20260907T204516-bef22ac6`, huérfana desde la caída de las 20:50Z; el worktree no tenía código) · veinte iconos en SVG sin ficheros ni fuentes externas (`src/ui/iconos.tsx`): cuatro de enano, cuatro de magia, cuatro de elfo, dos de bárbaro, dos de hada, cuatro de nadie; `Heroe.icono?: string` viaja desde `HeroeElegido` hasta `crearPartida`, como `string` suelto para no acoplar el motor a la UI; en `EleccionDeHeroes.tsx` cada héroe elige letra o icono en una rejilla agrupada por clase, a la vista, sin desplegable, reutilizando `chip`/`chip-sel`/`pista`/`grupo-elementos` (no tocó `estilos.css`); dos héroes pueden repetir icono, avisado en la propia fila; `BoardMirror.tsx` pinta el icono si lo hay y la letra si no; 697 tests / 46 ficheros tras el rebase sobre la 61 (693 de base, +4 míos en `tests/iconos.test.ts`); typecheck y build en verde; sin navegador en el entorno, no se pudo enseñar la pantalla con ocho héroes, verificado por lectura y por el build · `src/ui/iconos.tsx`, `src/engine/types.ts`, `src/engine/partida.ts`, `src/ui/BoardMirror.tsx`, `src/ui/EleccionDeHeroes.tsx` · `9931043`
 - LISTA · tarea 61 · 2026-09-07 21:21 · `s-20260907T205835-39ec5559` (releva a `s-20260907T204408-8af444b9`, huérfana desde la caída de las 20:50Z) · informe: quita la ambientación de sala que se copiaba tal cual (el diagnóstico exacto de la ficha) y las exclamaciones de trampas, puerta, pasadizo secreto, monstruo errante y objeto de misión; el ataque fallido pierde el banco de frases y dice «Sin daño.»; relato: arregla un fallo sistemático — `{objeto}` ya lleva su «a»/«al» y una veintena de plantillas escribían además una preposición literal, dando «a a Háfir» o «en a Háfir»; de paso, el caso `ataque` solo pisaba `objeto` y no `objeto2`/`deQuien` (una plantilla nueva con `{objeto2}` seguía nombrando al atacante), la forma de mitad de frase de un héroe se ponía en minúscula y le quitaba la mayúscula al nombre, los dos epítetos del goblin llevaban artículo masculino con sustantivos femeninos, y cinco bancos de `efectoDeHechizo` usaban un `{Sujeto}` en singular que se rompería con más de un objetivo; no toca el motor ni el mecanismo del relato (sigue firmado); 693 tests (669 + 4 nuevos de T61, sin ninguno roto de los que había); typecheck en verde · `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `tests/narrador.test.ts`, `tests/narrator.test.ts`, `tests/integracion.test.ts` · `d4a5a01`
