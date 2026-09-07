@@ -17,13 +17,21 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
-Regenerado: 2026-09-07 21:06Z · por la sesión `s-20260907T205502-6241d5c8`, al cerrar la 64.
-Sobre la regeneración de las 20:59Z (`s-20260907T205835-39ec5559`, al relevar la 61) cambia
-solo la **64**, que pasa a **LISTA** (este cierre, `useAccionesDeTurno.ts`, hash pendiente
-del push). Sigue **EN CURSO** la **37** (`s-20260907T204516-bef22ac6`), huérfana desde la
-caída y sin sesión detrás a esta hora. Queda libre solo la **65** (BAJO), que esta misma
-sesión reclama a continuación: la ficha de la 64 la declara encadenable y su reclamo ya lo
-anunciaba.
+Regenerado: 2026-09-07 21:10Z · por la sesión `s-20260907T205335-e738c893`, al cerrar la 45.
+Sobre la regeneración de las 21:06Z (`s-20260907T205502-6241d5c8`, al cerrar la 64) cambian
+**cuatro filas**: la **45 pasa a LISTA** (este cierre; hash pendiente del push), la **46
+pasa a PENDIENTE** (su única precondición era la 45; es ALTO y toca `quests/`, que ahora
+es un catálogo al que una misión se añade con un fichero y una línea), la **65 pasa a EN
+CURSO** (`s-20260907T205502-6241d5c8`, reclamo `7263b3b`, caduca 2026-09-07T21:51:31Z; el
+tablón de las 21:06Z aún la daba libre) y la **64** lleva ya su hash (`d7724f3`, leído de
+`git log origin/main`; su terminada lo escribirá cuando lo compruebe su sesión). Sigue
+**EN CURSO** la **37** (`s-20260907T204516-bef22ac6`), huérfana desde la caída y sin sesión
+detrás a esta hora. Libres: **46** (ALTO). La 47 sigue BLOQUEADA por la 46.
+
+Con más de una misión, **`npm run sim` sin argumentos recorre el catálogo entero** y saca la
+tabla que define «ordenada por dificultad»; esa tabla va en la terminada de cada misión
+nueva. La 45 tocó además `App.tsx`, `EntrarEnPartida.tsx` y `repetir.ts` (fuera de su
+ficha, sin reclamo vivo de nadie; razonado en `hechos/incidencias/s-20260907T205335-e738c893.md`).
 
 **Resumen de la caída de las 20:50Z**, para quien no la haya visto: las cinco sesiones
 abiertas entre las 20:44 y las 20:46Z (37, 45, 61, 63 y 64) se cortaron a la vez hacia esa
@@ -262,8 +270,8 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 42 | T42 · Cada monstruo con su nombre propio | tareas/T42-nombres-propios-de-monstruos.md | ninguna · antes que 37, 38, 39 | 2 h | MEDIO | 40 | `data/nombres.ts` (nuevo), `partida.ts`, `types.ts`, `narrator/local.ts`, `TurnPanel.tsx`, tests | manual | LISTA (`372a0f0`, fusionada en `main` a las 13:15Z; 467 tests) | |
 | 43 | T43 · Quitar la pestaña «Verificar tablero» | tareas/T43-quitar-verificar-tablero.md | ninguna · no a la vez que 41 | 1 h | BAJO | — | `App.tsx` (`estilos.css` solo si hace falta) | manual | LISTA (`cd93174`) | |
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | LISTA (`6c8bd22`) | |
-| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests | manual | **EN CURSO** | `s-20260907T204636-b565f64a` · 2026-09-08T04:46:36Z |
-| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **BLOQUEADA** (45) | |
+| 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests (y, fuera de la ficha, `App.tsx`, `EntrarEnPartida.tsx`, `scripts/repetir.ts`) | manual | LISTA (hash pendiente del push; hecha por `s-20260907T205335-e738c893` sobre el reclamo de `s-20260907T204636-b565f64a`) | |
+| 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · **cumplida** · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | **PENDIENTE** | |
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | LISTA (`fb40fb1`) | |
@@ -281,8 +289,8 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | **EN CURSO** (relevada) | `s-20260907T205835-39ec5559` · 2026-09-08T02:58:35Z |
 | 62 | T62 · Un nombre chulo por defecto para el héroe sin nombre | tareas/T62-nombre-chulo-por-defecto.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) | 2 h | MEDIO | — | `partida.ts`, `nombresHeroe.ts` (nuevo), tests | manual | LISTA (`aaebe93`) | |
 | 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | LISTA (`f7f05ac`) | |
-| 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (hash pendiente del push) | |
-| 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | **PENDIENTE** | |
+| 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (`d7724f3`) | |
+| 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | **EN CURSO** (encadenada tras la 64) | `s-20260907T205502-6241d5c8` · 2026-09-07T21:51:31Z |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
 fue nueva del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» como portada
