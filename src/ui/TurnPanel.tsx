@@ -348,21 +348,27 @@ export function TurnPanel({
               Buscar trampas <Tecla>R</Tecla>
             </button>
           )}
-          {/*
-            Solo los que el motor va a aceptar. Un botón que se rechaza es un
-            clic perdido en la mesa, que es lo que ya avisa `puedeBuscarTesoro`.
-            La tecla va en el primero, como en las demás acciones.
-          */}
-          {!pendiente &&
-            hechizos.map((h, i) => (
-              <button
-                key={h.hechizo}
-                onClick={() => acciones.elegirHechizo(h.hechizo)}
-                title={HECHIZOS[h.hechizo].descripcion}
-              >
-                ✨ {HECHIZOS[h.hechizo].nombre} {i === 0 && <Tecla>H</Tecla>}
-              </button>
-            ))}
+        </div>
+      )}
+
+      {/*
+        Los hechizos van en su propia botonera, en columna: necesitan sitio
+        para la descripción, que va **en el botón**, no solo en el `title` —
+        con un solo objetivo el hechizo sale disparado sin pasar por el
+        segundo paso (T22), así que aquí es donde tiene que leerse antes de
+        pulsar. Solo los que el motor va a aceptar: un botón que se rechaza es
+        un clic perdido en la mesa, que es lo que ya avisa `puedeBuscarTesoro`
+        para tesoro y trampas. La tecla va en el primero, como en las demás
+        acciones.
+      */}
+      {activa && mandos && !pendiente && hechizos.length > 0 && (
+        <div className="botonera columna">
+          {hechizos.map((h, i) => (
+            <button key={h.hechizo} onClick={() => acciones.elegirHechizo(h.hechizo)}>
+              ✨ {HECHIZOS[h.hechizo].nombre} {i === 0 && <Tecla>H</Tecla>}
+              <span className="apagado"> · {HECHIZOS[h.hechizo].descripcion}</span>
+            </button>
+          ))}
         </div>
       )}
 
