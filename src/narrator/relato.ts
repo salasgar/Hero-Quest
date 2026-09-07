@@ -19,15 +19,13 @@ import { aA, deDe, lista, mayus, nombreDe } from "./local";
 import * as F from "./frases";
 import { rellenar, variante } from "./frases";
 
-const minusc = (s: string): string => s.charAt(0).toLowerCase() + s.slice(1);
-
 /**
  * Dos epítetos por especie, sin el nombre de pila: son para el momento en que
  * el monstruo ya se ha presentado (con su nombre, en el ataque) y no hace
  * falta repetirlo. Todos llevan ya su artículo, en el género de la especie.
  */
 const EPITETOS_ESPECIE: Readonly<Record<EspecieMonstruo, readonly string[]>> = {
-  goblin: ["el pequeño alimaña", "el sabandija verde"],
+  goblin: ["la pequeña alimaña", "la sabandija verde"],
   orco: ["la abominación", "el engendro de la sombra"],
   fimir: ["el jorobado de un solo ojo", "la bestia del pantano"],
   esqueleto: ["el fantoche de hueso", "la reliquia andante"],
@@ -61,12 +59,19 @@ interface Tokens {
   [clave: string]: string | number;
 }
 
-/** Los tokens de una figura en su papel habitual: con su nombre siempre. */
+/**
+ * Los tokens de una figura en su papel habitual: con su nombre siempre.
+ *
+ * Para un héroe, `sujeto` (la forma de mitad de frase) **no** se pone en
+ * minúscula: el epíteto empieza por su nombre propio («Háfir el Enano»), y
+ * `minusc` le quitaría la mayúscula al nombre, no a un artículo. Los
+ * monstruos sí lo llevan, porque su forma empieza por «el»/«la».
+ */
 function tokensDe(e: EstadoPartida, id: IdFigura): Tokens {
   const h = e.heroes.find((x) => x.id === id);
   if (h) {
     const ep = epitetoHeroe(h);
-    return { Sujeto: ep, sujeto: minusc(ep), Objeto: ep, objeto: aA(h.nombre), objeto2: deDe(h.nombre), deQuien: deDe(h.nombre) };
+    return { Sujeto: ep, sujeto: ep, Objeto: ep, objeto: aA(h.nombre), objeto2: deDe(h.nombre), deQuien: deDe(h.nombre) };
   }
   const nombreForm = nombreDe(e, id); // "el orco Górbak", o el id a secas si no existe
   return {
@@ -126,7 +131,11 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     }
 
     case "ataque": {
-      const t = { ...tokensDe(e, ev.atacante), objeto: aA(nombreDe(e, ev.objetivo)) };
+      // `tokensDe(atacante)` deja `objeto`/`objeto2`/`deQuien` apuntando al
+      // propio atacante; los tres se pisan aquí con el objetivo, que es de
+      // quien hablan esas plantillas («la guardia {objeto2}», «al {objeto}»).
+      const objetivo = nombreDe(e, ev.objetivo);
+      const t = { ...tokensDe(e, ev.atacante), objeto: aA(objetivo), objeto2: deDe(objetivo), deQuien: deDe(objetivo) };
       if (ev.dano === 0) return rellenar(variante(F.ATAQUE_FALLA, n, ev.atacante), t);
       const banco = esGolpeMortal(e, n, ev.objetivo) ? F.ATAQUE_MATA : F.ATAQUE_HIERE;
       return rellenar(variante(banco, n, ev.atacante), t);

@@ -57,7 +57,7 @@ export const MOVIMIENTO_LARGO: readonly string[] = [
 export const ATAQUE_MATA: readonly string[] = [
   "{Sujeto} descarga un golpe implacable {objeto}: el filo no deja nada en pie.",
   "{Sujeto} arremete {objeto} con toda su furia, y el golpe es el último que recibe.",
-  "{Sujeto} encuentra el hueco en la guardia {objeto} y el combate termina ahí mismo.",
+  "{Sujeto} encuentra el hueco en la guardia {objeto2} y el combate termina ahí mismo.",
 ];
 
 export const ATAQUE_HIERE: readonly string[] = [
@@ -97,19 +97,22 @@ export const SALA_VACIA: readonly string[] = [
 ];
 
 export const SALA_CON_MONSTRUOS: readonly string[] = [
+  // Los tres van con «{quienes}» en aposición, nunca como sujeto de un verbo:
+  // la lista puede ser uno o varios nombres, y un verbo en singular
+  // («aguarda») se rompe en cuanto la sala tiene más de un monstruo.
   "{base} Y allí, esperando, {quienes}.",
-  "{base} No estáis solos: entre las sombras aguarda {quienes}.",
+  "{base} No estáis solos: algo aguarda entre las sombras: {quienes}.",
   "{base} Algo se mueve al fondo: {quienes}.",
 ];
 
 export const TRAMPA_FOSO: readonly string[] = [
-  "¡El suelo se abre bajo los pies {objeto} y cae al vacío!",
+  "¡El suelo se abre bajo los pies {objeto2} y cae al vacío!",
   "Sin aviso, las losas ceden y {sujeto} se precipita al foso.",
 ];
 
 export const TRAMPA_FOSO_ABIERTO: readonly string[] = [
   "{Sujeto} tropieza y cae en el foso que ya estaba abierto.",
-  "El foso, abierto de antes, se traga a {objeto} de todos modos.",
+  "El foso, abierto de antes, se traga {objeto} de todos modos.",
 ];
 
 export const TRAMPA_LANZA_ESQUIVA: readonly string[] = [
@@ -118,7 +121,7 @@ export const TRAMPA_LANZA_ESQUIVA: readonly string[] = [
 ];
 
 export const TRAMPA_LANZA_ALCANZA: readonly string[] = [
-  "¡Una lanza sale disparada de la pared y se hunde en {objeto}!",
+  "¡Una lanza sale disparada de la pared y se hunde en {sujeto}!",
   "El metal silba en la oscuridad y alcanza {objeto} de lleno.",
 ];
 
@@ -128,8 +131,8 @@ export const TRAMPA_BLOQUE_ESQUIVA: readonly string[] = [
 ];
 
 export const TRAMPA_BLOQUE_ALCANZA: readonly string[] = [
-  "Un bloque de piedra se desprende del techo y aplasta a {objeto}. El paso queda bloqueado.",
-  "El estruendo de la piedra al caer llega tarde para {objeto}, que no logra apartarse. El camino queda sellado.",
+  "Un bloque de piedra se desprende del techo y aplasta {objeto}. El paso queda bloqueado.",
+  "El estruendo de la piedra al caer llega tarde para {sujeto}, que no logra apartarse. El camino queda sellado.",
 ];
 
 export const SALTO_LOGRADO: readonly string[] = [
@@ -169,7 +172,7 @@ export const BUSQUEDA_SIN_TRAMPAS: readonly string[] = [
 
 export const TESORO_ORO: readonly string[] = [
   "{Sujeto} rebusca entre el polvo y se guarda {n} monedas de oro.",
-  "El brillo del oro llama la atención de {objeto}: {n} monedas van a la bolsa.",
+  "El brillo del oro llama la atención {objeto2}: {n} monedas van a la bolsa.",
 ];
 
 export const OBJETO_MISION: readonly string[] = [
@@ -223,28 +226,28 @@ export const HECHIZO_LANZADO: readonly string[] = [
 ];
 
 export const HECHIZO_DANO: readonly string[] = [
-  "{Hechizo} estalla contra {objeto} y le arranca un grito de dolor.",
+  "{Hechizo} estalla contra {sujeto} y le arranca un grito de dolor.",
   "{Hechizo} alcanza {objeto} de lleno, y el dolor es evidente.",
 ];
 
 export const HECHIZO_SIN_DANO: readonly string[] = [
-  "{Hechizo} estalla contra {objeto}, pero no le hace ni un rasguño.",
-  "{Hechizo} se disuelve en el aire junto a {objeto}, sin efecto alguno.",
+  "{Hechizo} estalla contra {sujeto}, pero no le hace ni un rasguño.",
+  "{Hechizo} se disuelve en el aire junto {objeto}, sin efecto alguno.",
 ];
 
 export const HECHIZO_NO_MUERTO: readonly string[] = [
-  "Los no muertos no duermen ni sueñan: {hechizo} se pierde sobre {objeto} sin efecto.",
+  "Los no muertos no duermen ni sueñan: {hechizo} se pierde sobre {sujeto} sin efecto.",
   "{Objeto} no tiene sueño que robar: es de los que no duermen. {Hechizo} se pierde en el vacío.",
 ];
 
 export const HECHIZO_MENTE_SUPERIOR: readonly string[] = [
   "{Sujeto} resiste: su mente es demasiado fuerte para el hechizo.",
-  "El conjuro choca contra una voluntad de hierro: {objeto} no se inmuta.",
+  "El conjuro choca contra una voluntad de hierro: {sujeto} no se inmuta.",
 ];
 
 export const HECHIZO_YA_SANO: readonly string[] = [
   "{Sujeto} no tiene ni un rasguño que curar: {hechizo} se gasta en balde.",
-  "El hechizo busca una herida que curar en {objeto}, pero no encuentra ninguna.",
+  "El hechizo busca una herida que curar en {sujeto}, pero no encuentra ninguna.",
 ];
 
 export const HECHIZO_SIN_OBJETIVO: readonly string[] = [
@@ -253,48 +256,55 @@ export const HECHIZO_SIN_OBJETIVO: readonly string[] = [
 ];
 
 export const CURACION: readonly string[] = [
-  "El calor recorre a {objeto}, que recupera {n} {puntos} de cuerpo.",
+  "El calor recorre {objeto}, que recupera {n} {puntos} de cuerpo.",
   "{Sujeto} respira hondo y recupera {n} {puntos} de cuerpo.",
 ];
 
 export const MOVIMIENTO_EXTRA: readonly string[] = [
-  "Un viento repentino empuja a {objeto}, que gana {n} casillas de más.",
+  "Un viento repentino empuja {objeto}, que gana {n} casillas de más.",
   "Algo invisible tira de {objeto} hacia delante: {n} casillas de propina.",
 ];
 
+// Los dos bancos que siguen van siempre con «{objeto}»/«{deQuien}», nunca con
+// «{Sujeto}»: `efectoDeHechizo` puede alcanzar a más de una figura (`objetivos`
+// es una lista) y un verbo en singular pegado a `{Sujeto}` da «Háfir cabecea»
+// cuando en realidad cabecean dos. Con la figura siempre de objeto, la frase
+// no necesita saber cuántas hay.
 export const EFECTO_DORMIR: readonly string[] = [
-  "{Sujeto} cabecea, cabecea, y cae en un sueño profundo.",
-  "Los párpados {deQuien} pesan de golpe: {sujeto} se queda dormido donde está.",
+  "Un sopor irresistible vence {objeto}: los ojos se cierran solos.",
+  "Los párpados {deQuien} pesan de golpe, y el sueño se los cierra.",
 ];
 
 export const EFECTO_PERDER_TURNO: readonly string[] = [
-  "Un torbellino envuelve a {objeto}, que se queda sin su próximo turno.",
-  "{Sujeto} queda atrapado en un remolino de viento y pierde su siguiente turno.",
+  "Un torbellino envuelve {objeto}, que se queda sin su próximo turno.",
+  "Un remolino de viento atrapa {objeto} y le arrebata el turno siguiente.",
 ];
 
 export const EFECTO_BONUS_ATAQUE: readonly string[] = [
   "Una fuerza nueva recorre {objeto}: golpeará más fuerte en su próximo ataque.",
-  "{Sujeto} siente el conjuro correr por sus brazos: el próximo golpe será demoledor.",
+  "El conjuro recorre los brazos {deQuien}: el próximo golpe será demoledor.",
 ];
 
 export const EFECTO_BONUS_DEFENSA: readonly string[] = [
   "La piel {deQuien} se vuelve dura como la piedra: aguantará mejor el próximo golpe.",
-  "Un manto invisible protege a {objeto}, listo para el siguiente ataque.",
+  "Un manto invisible protege {objeto}, listo para el siguiente ataque.",
 ];
 
 export const EFECTO_ATRAVESAR_MUROS: readonly string[] = [
-  "{Sujeto} siente la roca volverse tan fina como el humo: podrá cruzarla en su próximo paso.",
+  "La roca se vuelve tan fina como el humo ante {sujeto}: se cruzará sin esfuerzo en el próximo paso.",
   "Un cosquilleo extraño recorre {objeto}: la piedra ya no será un obstáculo.",
 ];
 
 export const EFECTO_ATRAVESAR_FIGURAS: readonly string[] = [
-  "{Sujeto} se vuelve casi transparente: pasará entre los monstruos sin que lo vean.",
-  "Una bruma cubre a {objeto}, que se deslizará entre los enemigos sin ser tocado.",
+  "Una niebla vuelve casi transparente {objeto}, que pasará entre los monstruos sin que lo vean.",
+  "Una bruma cubre {objeto}, que se deslizará entre los enemigos sin ser tocado.",
 ];
 
 export const EFECTO_MOVIMIENTO_EXTRA: readonly string[] = [
-  "El viento se pone de espaldas {deQuien}: tirará cuatro dados de movimiento.",
-  "Una racha invisible empuja a {objeto}, que correrá con cuatro dados en su próximo turno.",
+  // «De espaldas» pide «a», no «de» («de espaldas a la pared»): con {deQuien}
+  // salía «de espaldas de Háfir».
+  "El viento se pone de espaldas {objeto}: tirará cuatro dados de movimiento.",
+  "Una racha invisible empuja {objeto}, que correrá con cuatro dados en su próximo turno.",
 ];
 
 export const MONSTRUO_SIN_ACTUAR: readonly string[] = [];

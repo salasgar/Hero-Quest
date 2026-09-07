@@ -54,21 +54,23 @@ describe("frases del narrador", () => {
     expect(narrar(e, { tipo: "figuraDerrotada", figura: "orco1" })).toMatch(/se desploma/);
   });
 
-  it("cada trampa tiene su frase", () => {
+  // T61: el informe cuenta el hecho y el daño, no la escena (sin exclamaciones
+  // ni «el suelo se hunde»: eso es del relato). El foso no distingue si ya
+  // estaba abierto —el desenlace es el mismo, caer y hacerse daño— así que
+  // `yaAbierta` no cambia el texto del informe.
+  it("cada trampa tiene su frase, con el daño y sin escenificar", () => {
     const e = estado();
     const base = { tipo: "trampaDisparada" as const, trampa: "t", figura: "barbaro", dano: 1 };
-    expect(narrar(e, { ...base, tipoTrampa: "foso" })).toMatch(/suelo se hunde/);
-    expect(narrar(e, { ...base, tipoTrampa: "lanza" })).toMatch(/lanza sale disparada/);
-    expect(narrar(e, { ...base, tipoTrampa: "bloque" })).toMatch(/bloque de piedra/);
+    expect(narrar(e, { ...base, tipoTrampa: "foso" })).toMatch(/cae en el foso: 1 punto de cuerpo/);
+    expect(narrar(e, { ...base, tipoTrampa: "lanza" })).toMatch(/Trampa de lanza: alcanza.*1 punto de cuerpo/);
+    expect(narrar(e, { ...base, tipoTrampa: "bloque" })).toMatch(/Trampa de bloque: alcanza.*1 punto de cuerpo.*bloqueado/);
   });
 
-  it("la lanza esquivada, el foso abierto y el salto tienen la suya", () => {
+  it("la lanza y el bloque esquivados, y el salto, tienen su frase", () => {
     const e = estado();
     const base = { trampa: "t", figura: "barbaro" };
     expect(narrar(e, { tipo: "trampaDisparada", ...base, tipoTrampa: "lanza", dano: 0 })).toMatch(/esquiva/);
-    expect(narrar(e, { tipo: "trampaDisparada", ...base, tipoTrampa: "foso", dano: 1, yaAbierta: true })).toMatch(
-      /foso abierto/,
-    );
+    expect(narrar(e, { tipo: "trampaDisparada", ...base, tipoTrampa: "bloque", dano: 0 })).toMatch(/esquiva/);
     expect(narrar(e, { tipo: "saltoDeTrampa", ...base, tipoTrampa: "foso", dado: "escudoBlanco", logrado: true })).toMatch(
       /salta el foso/,
     );

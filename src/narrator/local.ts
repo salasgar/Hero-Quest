@@ -90,13 +90,6 @@ function describeTirada(ataque: readonly CaraCombate[], defensa: readonly CaraCo
   return partes.length === 0 ? "" : `${partes.join(", ")}. `;
 }
 
-const fallos = [
-  "pero el golpe se pierde en el aire",
-  "y no consigue pasar",
-  "pero el otro lo para a tiempo",
-  "y el acero resbala sin herir",
-];
-
 /** Una frase por evento. Devuelve null si el evento no se cuenta. */
 export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
   switch (ev.tipo) {
@@ -113,20 +106,21 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
         : `${mayus(sujetoInforme(e, ev.actor))} avanza ${ev.ruta.length} ${ev.ruta.length === 1 ? "casilla" : "casillas"}.`;
 
     case "puertaAbierta":
-      return "La puerta cede con un chirrido.";
+      return "Se abre la puerta.";
 
+    // `ev.texto` es ambientación para el relato (`relato.ts`); el informe no
+    // lo copia: solo importa si hay alguien dentro o no, no cómo huele la sala.
     case "salaRevelada": {
-      const base = ev.texto ?? "La sala se abre ante vosotros.";
-      if (ev.monstruos.length === 0) return `${base} No hay nadie.`;
+      if (ev.monstruos.length === 0) return "Sala vacía.";
       const quienes = ev.monstruos.map((m) => nombreDe(e, m)).join(", ");
-      return `${base} Os están esperando: ${quienes}.`;
+      return `En la sala: ${quienes}.`;
     }
 
     case "ataque": {
       const a = mayus(sujetoInforme(e, ev.atacante));
       const o = nombreDe(e, ev.objetivo);
       const tirada = describeTirada(ev.dadosAtaque, ev.dadosDefensa);
-      if (ev.dano === 0) return `${a} ataca ${aA(o)}: ${tirada}${elegir(fallos, n + ev.calaveras)}.`;
+      if (ev.dano === 0) return `${a} ataca ${aA(o)}: ${tirada}Sin daño.`;
       return `${a} ataca ${aA(o)}: ${tirada}${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
     }
 
@@ -139,17 +133,16 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
 
     case "trampaDisparada": {
       const quien = nombreDe(e, ev.figura);
+      const puntos = `${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo`;
       if (ev.tipoTrampa === "foso")
-        return ev.yaAbierta
-          ? `${mayus(quien)} cae al foso abierto y se hace daño.`
-          : `¡El suelo se hunde! ${mayus(quien)} cae al foso y se hace daño.`;
+        return `${mayus(quien)} cae en el foso: ${puntos}.`;
       if (ev.tipoTrampa === "lanza")
         return ev.dano === 0
-          ? `¡Una lanza sale disparada de la pared, pero ${quien} la esquiva!`
-          : `¡Una lanza sale disparada de la pared y alcanza ${aA(quien)}!`;
+          ? `Trampa de lanza: ${quien} la esquiva.`
+          : `Trampa de lanza: alcanza ${aA(quien)}, ${puntos}.`;
       return ev.dano === 0
-        ? `¡Un bloque de piedra se desprende del techo y ${quien} lo esquiva por un pelo! El paso queda bloqueado.`
-        : `¡Un bloque de piedra se desprende del techo sobre ${quien} y bloquea el paso! ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
+        ? `Trampa de bloque: ${quien} la esquiva. El paso queda bloqueado.`
+        : `Trampa de bloque: alcanza ${aA(quien)}, ${puntos}. El paso queda bloqueado.`;
     }
 
     case "saltoDeTrampa": {
@@ -163,13 +156,13 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
 
     case "trampaDescubierta":
       // En base 1, que es como están rotulados los márgenes del tablero.
-      return `Con cuidado, aparece una trampa en la casilla ${ev.celda.x + 1},${ev.celda.y + 1}.`;
+      return `Trampa descubierta en la casilla ${ev.celda.x + 1},${ev.celda.y + 1}.`;
 
     case "trampaDesarmada":
       return "La trampa queda inutilizada.";
 
     case "puertaSecretaDescubierta":
-      return "Al empujar la pared, se abre un pasadizo que nadie esperaba.";
+      return "Se descubre un pasadizo secreto.";
 
     case "busquedaSinHallazgo":
       return ev.que === "tesoro"
@@ -183,7 +176,7 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       return `${mayus(nombreDe(e, ev.actor))} registra la sala y encuentra: ${ev.nombre}. ${ev.texto}`;
 
     case "objetoDeMision":
-      return `${mayus(nombreDe(e, ev.actor))} registra la sala y encuentra ${ev.objeto}. ¡Es lo que habíais venido a buscar!`;
+      return `${mayus(nombreDe(e, ev.actor))} registra la sala y encuentra ${ev.objeto}: el objetivo de la misión.`;
 
     case "objetoGuardado":
       return `${mayus(nombreDe(e, ev.actor))} se guarda «${ev.nombre}» en la mochila.`;
@@ -205,7 +198,7 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       return `${mayus(nombreDe(e, ev.de))} le da «${ev.nombre}» ${aA(nombreDe(e, ev.a))}${ev.puesto ? ", que lo equipa" : ""}.`;
 
     case "monstruoErrante":
-      return `¡No estabais solos! ${mayus(nombreDe(e, ev.monstruo))} aparece a vuestro lado.`;
+      return `Aparece un monstruo errante: ${nombreDe(e, ev.monstruo)}.`;
 
     case "hechizoLanzado": {
       const h = HECHIZOS[ev.hechizo];
@@ -222,7 +215,7 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     }
 
     case "movimientoExtra":
-      return `Un viento repentino empuja ${aA(nombreDe(e, ev.figura))}: ${ev.casillas} casillas más.`;
+      return `${mayus(nombreDe(e, ev.figura))} recibe ${ev.casillas} casillas de movimiento extra.`;
 
     case "curacion":
       return `${mayus(nombreDe(e, ev.figura))} recupera ${ev.puntos} ${ev.puntos === 1 ? "punto" : "puntos"} de cuerpo.`;

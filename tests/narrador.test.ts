@@ -95,6 +95,91 @@ describe("relato: el ejemplo de Juan Luis", () => {
   });
 });
 
+// T61: `{objeto}` ya lleva su preposición («a»/«al») incorporada, y varias
+// plantillas escribían además una preposición literal delante («a {objeto}»,
+// «en {objeto}», «contra {objeto}»...), lo que daba «a a Háfir» o «en a
+// Háfir». Se barren aquí, sobre TODAS las variantes de los bancos que las
+// tenían, en vez de fijar el índice de una sola: así una variante nueva mal
+// escrita también salta.
+describe("relato: sin preposiciones dobles ni equivocadas (T61)", () => {
+  // «{objeto}» ya trae su «a»/«al» puesto: cualquiera de estos pares seguido
+  // significa que la plantilla también escribió una preposición a mano.
+  const DOBLES = [" a a ", " a al ", " en a ", " en al ", " contra a ", " contra al ", " sobre a ", " sobre al ", " ante a ", " ante al ", " para a ", " para al ", " junto a a ", " junto a al ", " de a ", " de al "];
+  function sinDobles(texto: string | null) {
+    if (texto === null) return;
+    const plano = ` ${texto.toLowerCase()} `;
+    for (const d of DOBLES) expect(plano).not.toContain(d);
+  }
+
+  it("el ataque que mata, que hiere y que falla nunca dobla la preposición", () => {
+    const { e } = estado();
+    const base = { tipo: "ataque" as const, atacante: "enano", objetivo: "orco1", dadosAtaque: [], dadosDefensa: [] };
+    for (let n = 0; n < 12; n++) {
+      const conRegistro = { ...e, registro: [{ ...base, calaveras: 2, escudos: 0, dano: 2 }, { tipo: "figuraDerrotada" as const, figura: "orco1" }] };
+      sinDobles(narrar(conRegistro, conRegistro.registro[0]!, n));
+      sinDobles(narrar(e, { ...base, calaveras: 1, escudos: 0, dano: 1 }, n));
+      sinDobles(narrar(e, { ...base, calaveras: 0, escudos: 1, dano: 0 }, n));
+    }
+  });
+
+  it("las trampas y los efectos de hechizo tampoco la doblan", () => {
+    const { e } = estado();
+    const eventos: Evento[] = [
+      { tipo: "trampaDisparada", trampa: "t", tipoTrampa: "foso", figura: "enano", dano: 1 },
+      { tipo: "trampaDisparada", trampa: "t", tipoTrampa: "lanza", figura: "enano", dano: 1 },
+      { tipo: "trampaDisparada", trampa: "t", tipoTrampa: "bloque", figura: "enano", dano: 1 },
+      { tipo: "danoDeHechizo", hechizo: "bolaDeFuego", objetivo: "enano", dados: [], dano: 2 },
+      { tipo: "danoDeHechizo", hechizo: "bolaDeFuego", objetivo: "enano", dados: [], dano: 0 },
+      { tipo: "hechizoSinEfecto", hechizo: "sueno", objetivo: "orco1", motivo: "noMuerto" },
+      { tipo: "hechizoSinEfecto", hechizo: "sueno", objetivo: "orco1", motivo: "menteSuperior" },
+      { tipo: "hechizoSinEfecto", hechizo: "aguaCurativa", objetivo: "enano", motivo: "yaEstabaSano" },
+      { tipo: "efectoDeHechizo", hechizo: "sueno", clase: "dormir", objetivos: ["enano"] },
+      { tipo: "efectoDeHechizo", hechizo: "tempestad", clase: "perderTurno", objetivos: ["enano"] },
+      { tipo: "efectoDeHechizo", hechizo: "coraje", clase: "bonusAtaque", objetivos: ["enano"] },
+      { tipo: "efectoDeHechizo", hechizo: "pielDePiedra", clase: "bonusDefensa", objetivos: ["enano"] },
+      { tipo: "efectoDeHechizo", hechizo: "atravesarLaRoca", clase: "atravesarMuros", objetivos: ["enano"] },
+      { tipo: "efectoDeHechizo", hechizo: "veloDeNiebla", clase: "atravesarFiguras", objetivos: ["enano"] },
+      { tipo: "efectoDeHechizo", hechizo: "vientoVeloz", clase: "movimientoExtra", objetivos: ["enano"] },
+    ];
+    for (const ev of eventos)
+      for (let n = 0; n < 8; n++) sinDobles(narrar(e, ev, n));
+  });
+
+  it("la forma de mitad de frase de un héroe conserva la mayúscula de su nombre", () => {
+    // «Sin aviso, las losas ceden y {sujeto} se precipita al foso.»: si
+    // `sujeto` se pusiera en minúscula sin más, «Háfir» pasaría a «háfir».
+    const { e } = estado();
+    for (let n = 0; n < 8; n++) {
+      const texto = narrar(e, { tipo: "trampaDisparada", trampa: "t", tipoTrampa: "foso", figura: "enano", dano: 1 }, n)!;
+      if (texto.includes("Háfir")) expect(texto).not.toMatch(/\bháfir\b/);
+    }
+  });
+
+  it("el epíteto del goblin concuerda en género (alimaña y sabandija son femeninas)", () => {
+    const e = situar(
+      partida({ heroes: [{ clase: "enano", nombre: "Háfir" }], monstruos: [{ id: "gob1", especie: "goblin", celda: c(2, 1) }] }),
+      "enano",
+      c(1, 1),
+    );
+    const ataque: Evento = {
+      tipo: "ataque",
+      atacante: "enano",
+      objetivo: "gob1",
+      dadosAtaque: [],
+      dadosDefensa: [],
+      calaveras: 3,
+      escudos: 0,
+      dano: 3,
+    };
+    const muerte: Evento = { tipo: "figuraDerrotada", figura: "gob1" };
+    const conRegistro = { ...e, registro: [ataque, muerte] };
+    for (let n = 0; n < 8; n++) {
+      const texto = narrar(conRegistro, muerte, n)!;
+      expect(texto).not.toMatch(/\bel (pequeña|sabandija)\b/i);
+    }
+  });
+});
+
 describe("relato: cada tipo de evento tiene frase (o null a propósito)", () => {
   const { e } = estado();
 

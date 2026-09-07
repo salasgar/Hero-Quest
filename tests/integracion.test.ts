@@ -25,6 +25,7 @@ import { esHeroe } from "../src/engine/types";
 import { crearRng, entero } from "../src/engine/rng";
 import { claveCelda, type Accion, type EstadoPartida } from "../src/engine/types";
 import { narrar } from "../src/narrator/local";
+import { narrar as narrarRelato } from "../src/narrator/relato";
 
 const CLASICOS: HeroeElegido[] = [
   { clase: "barbaro" },
@@ -106,7 +107,11 @@ describe("los primeros turnos del calabozo", () => {
     const anuncio = r.eventos.find((x) => x.tipo === "salaRevelada");
     if (anuncio?.tipo !== "salaRevelada") throw new Error("no se anunció la sala");
     expect(anuncio.monstruos.sort()).toEqual(["goblin1", "goblin2"]);
-    expect(narrar(r.estado, anuncio)).toMatch(/huesos/);
+    // T61: el informe da el hecho (quién hay dentro), no la ambientación de
+    // la sala («huesos») — eso es del relato, que sí la usa.
+    expect(narrar(r.estado, anuncio)).toMatch(/En la sala:.*goblin/);
+    expect(narrar(r.estado, anuncio)).not.toMatch(/huesos/);
+    expect(narrarRelato(r.estado, anuncio, 0)).toMatch(/huesos/);
   });
 
   it("hasta que no se abre, la sala no se ve", () => {
