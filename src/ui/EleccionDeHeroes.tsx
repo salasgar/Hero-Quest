@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { EQUIPO, type IdEquipo } from "../data/equipment";
 import { HEROES, VARIANTES_HEROE, type ClaseHeroe, type Genero } from "../data/heroes";
 import { PORTADA, rutaDe } from "../data/imagenes";
 import { MISION_POR_DEFECTO, MISIONES, nivelDe, type MisionCompleta } from "../data/quests";
 import { ELEMENTOS, hechizosDelElemento, type Elemento } from "../data/spells";
 import type { HeroeElegido } from "../engine/partida";
+import { GRUPOS_DE_ICONOS, Icono, NOMBRE_ICONO, type IdIcono } from "./iconos";
 
 /** El tope que pidió Juan Luis el 5 de septiembre de 2026: hasta ocho. */
 const MAXIMO = 8;
@@ -42,6 +43,8 @@ interface Eleccion {
   genero: Genero;
   nombre: string;
   elementos: Elemento[];
+  /** Ausente por omisión: se pinta la inicial de la clase, como siempre (T37). */
+  icono?: IdIcono;
 }
 
 /** Los primeros elementos, para que empezar no exija decidir nada. */
@@ -110,6 +113,14 @@ export function EleccionDeHeroes({
   };
 
   const listo = grupo.length > 0 && grupo.every((h) => h.elementos.length === HEROES[h.clase].gruposDeHechizos);
+
+  /**
+   * Quién más lleva este icono, para el aviso de la ficha: repetirlo está
+   * permitido (dos magos con el mismo sombrero se distinguen por el nombre),
+   * pero hay que decirlo aquí, no descubrirlo en la mesa.
+   */
+  const otroConElMismoIcono = (h: Eleccion): Eleccion | undefined =>
+    h.icono ? grupo.find((x) => x.uid !== h.uid && x.icono === h.icono) : undefined;
 
   return (
     <div className="eleccion">
@@ -210,6 +221,7 @@ export function EleccionDeHeroes({
             // que `crearPartida` reparte los identificadores.
             const repetida = cuantos(h.clase, h.genero) > 1;
             const cual = grupo.filter((x) => x.clase === h.clase && x.genero === h.genero).indexOf(h) + 1;
+            const mismoIcono = otroConElMismoIcono(h);
             return (
               <div className="grupo-fila" key={h.uid}>
                 <strong className="grupo-clase">
@@ -240,6 +252,36 @@ export function EleccionDeHeroes({
                     ))}
                   </div>
                 )}
+                <div className="grupo-elementos">
+                  <span className="pista">en el tablero:</span>
+                  <button
+                    className={`chip ${!h.icono ? "chip-sel" : ""}`}
+                    onClick={() => cambiar(h.uid, { icono: undefined })}
+                  >
+                    Letra
+                  </button>
+                  {GRUPOS_DE_ICONOS.map((g) => (
+                    <Fragment key={g.nombre}>
+                      <span className="pista">{g.nombre}:</span>
+                      {g.iconos.map((id) => (
+                        <button
+                          key={id}
+                          className={`chip ${h.icono === id ? "chip-sel" : ""}`}
+                          title={`${g.nombre}: ${NOMBRE_ICONO[id]}`}
+                          onClick={() => cambiar(h.uid, { icono: id })}
+                        >
+                          <Icono id={id} tamano={16} />
+                        </button>
+                      ))}
+                    </Fragment>
+                  ))}
+                </div>
+                {mismoIcono && (
+                  <p className="pista">
+                    Mismo icono que {HEROES[mismoIcono.clase].nombre[mismoIcono.genero]}
+                    {mismoIcono.nombre ? ` (${mismoIcono.nombre})` : ""}: se distinguirán por el nombre en la hoja.
+                  </p>
+                )}
                 <button className="grupo-quitar" onClick={() => quitar(h.uid)}>
                   quitar
                 </button>
@@ -260,6 +302,7 @@ export function EleccionDeHeroes({
                 genero: h.genero,
                 nombre: h.nombre.trim() || undefined,
                 elementos: h.elementos,
+                icono: h.icono,
               })),
               mision,
             )

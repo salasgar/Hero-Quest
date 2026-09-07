@@ -71,6 +71,15 @@ export interface Heroe {
   hechizosGastados: IdHechizo[];
   oro: number;
   efectos: EfectoActivo[];
+  /**
+   * La clave de un icono de `src/ui/iconos.tsx`, o ausente para pintar la
+   * inicial de la clase (lo de siempre). Es un dato de pantalla que viaja en
+   * el estado a propósito: la vista remota (T32) recibe el montaje y tiene
+   * que pintar lo mismo que la mesa. Va como `string` y no como el tipo
+   * `IdIcono` de `iconos.tsx` para no hacer que el motor dependa de la
+   * interfaz (T37).
+   */
+  icono?: string;
 }
 
 /**

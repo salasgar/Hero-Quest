@@ -10,6 +10,7 @@ import { puertasVisibles } from "../engine/selectors";
 import { colorDeSala } from "./paleta";
 import { claveCelda, mismaCelda, type Celda, type EstadoPartida, type Figura } from "../engine/types";
 import { FichaFlotante } from "./FichaFlotante";
+import { Icono, type IdIcono } from "./iconos";
 
 const LADO = 28;
 const MARGEN = 16;
@@ -317,19 +318,23 @@ export function BoardMirror({
                 stroke={esActiva ? "#ffd76a" : esObjetivo ? "#ff8b7d" : "#0c0f14"}
                 strokeWidth={esActiva || esObjetivo ? 3 : 1.5}
               />
-              <text
-                x={cx}
-                y={cy + 4}
-                textAnchor="middle"
-                fontSize={12}
-                fontWeight={700}
-                fill="#0c0f14"
-                pointerEvents="none"
-              >
-                {f.tipo === "heroe"
-                  ? (INICIALES[f.clase] ?? "?")
-                  : MONSTRUOS[f.especie].nombre[0]}
-              </text>
+              {f.tipo === "heroe" && f.icono ? (
+                <Icono id={f.icono as IdIcono} x={cx - 11} y={cy - 11} tamano={22} color="#0c0f14" />
+              ) : (
+                <text
+                  x={cx}
+                  y={cy + 4}
+                  textAnchor="middle"
+                  fontSize={12}
+                  fontWeight={700}
+                  fill="#0c0f14"
+                  pointerEvents="none"
+                >
+                  {f.tipo === "heroe"
+                    ? (INICIALES[f.clase] ?? "?")
+                    : MONSTRUOS[f.especie].nombre[0]}
+                </text>
+              )}
               {/* Puntos de cuerpo, como chapita en la esquina de la casilla:
                   encima del círculo se pisaba con la figura de la fila de arriba. */}
               <circle

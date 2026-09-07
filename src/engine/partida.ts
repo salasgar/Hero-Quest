@@ -43,6 +43,8 @@ export interface HeroeElegido {
   nombre?: string;
   /** Elementos de hechizos. El mago elige 3, el hada 2 y el elfo 1. */
   elementos?: Elemento[];
+  /** Icono elegido en `EleccionDeHeroes.tsx` (T37); sin él, la inicial de la clase. */
+  icono?: string;
 }
 
 export interface OpcionesPartida {
@@ -221,6 +223,7 @@ export function crearPartida(op: OpcionesPartida): EstadoPartida {
       hechizosGastados: [],
       oro: 0,
       efectos: [],
+      icono: elegido.icono,
     };
   });
 
