@@ -75,6 +75,30 @@ ls src/ui/iconos.tsx 2>/dev/null; grep -n 'icono' src/engine/types.ts src/ui/Boa
 - `crearPartida` con `icono` en un `HeroeElegido` lo deja en el héroe; sin él, `undefined`.
 - Todas las claves de iconos tienen dibujo, y no hay dos claves iguales.
 
+## Cómo quedó (para quien la lea después)
+
+- **No hizo falta tocar `estilos.css`**: la rejilla de iconos reutiliza `chip`, `chip-sel`,
+  `pista` y `grupo-elementos`, que ya existían para la elección de elementos de hechizo.
+  Si algún día hace falta una clase propia, es la primera vez que este fichero se libra.
+- **`icono` va como `string` en `types.ts` y `partida.ts`, no como `IdIcono`**: el motor
+  (`src/engine/`) no importa nunca de `src/ui/`, y meter el tipo fuerte ahí lo habría roto.
+  `iconos.tsx` sí exporta `IdIcono` para quien lo use desde la interfaz.
+- **La rejilla va a la vista, sin desplegable**, tal como pide la ficha: con ocho héroes
+  son ocho rejillas seguidas en la pantalla, largas pero explícitas. Un desplegable
+  habría sido menos código pero no es lo que se pidió.
+- **El aviso de icono repetido** sale en la propia fila del héroe, con el nombre de quién
+  más lo lleva, en cuanto se elige —no un resumen al final ni al pulsar «Empezar»—.
+- **`tests/iconos.test.ts` llama a `Icono({id})` como función pura**, sin `render` ni DOM:
+  un componente de React sin hooks es solo una función que devuelve un objeto describiendo
+  el árbol, y basta con mirar que `el.type === "svg"`. No hizo falta ninguna librería de
+  pruebas de componentes.
+- **Sin navegador en el entorno**: no se ha podido enseñar la pantalla a Juan Luis con ocho
+  héroes, que es la prueba que pide esta misma ficha. Verificado por lectura, por los tests
+  y por `npm run build`.
+- **Este reclamo lo heredó una sesión distinta de la que abrió la tarea**: la original cayó
+  con el cierre accidental de VS Code (`hechos/notas/s-20260907T090034-c7bc516d.md`) antes
+  de escribir una sola línea de código; el worktree estaba vacío y se partió de cero.
+
 ## Prohibido
 
 - Cargar iconos de una URL o de una fuente web.
