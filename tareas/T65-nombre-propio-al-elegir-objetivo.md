@@ -92,3 +92,17 @@ T42; no hace falta uno nuevo solo para este cambio de pantalla.
 El orden de cierre es el de `proyecto.md`. En el mensaje de cierre, describe (o pega) los
 dos botones con dos monstruos de la misma especie en pantalla, para que se vea que ya dicen
 nombres distintos.
+
+## Lo que encontró la sesión que la hizo (`s-20260907T205502-6241d5c8`, 2026-09-07)
+
+Hecha y cerrada, encadenada tras la 64. Dos cosas que no estaban escritas aquí:
+
+- **La importación de `MONSTRUOS` se queda.** Además de los dos sitios de la ficha, la usa
+  el titular del turno de Zargon (`MONSTRUOS[activa.especie].nombre`, hacia la línea 143),
+  donde la especie sí es lo que se quiere decir. Quitarla habría roto el typecheck.
+- **Para «pegar los dos botones» sin montar una partida entera** basta un guion de
+  `vite-node` que construya la escena con `partida()` y `situar()` de `tests/ayuda.ts`
+  (un mago con `elementos` en (2,2), dos goblins en (1,2) y (3,2), `salasReveladas:
+  ["a"]`), calcule `objetivosDeAtaque` y `hechizosLanzables`, y renderice `TurnPanel` con
+  `renderToStaticMarkup` de `react-dom/server`: los botones salen como texto. Sin
+  `elementos`, el mago no tiene hechizos y el selector de objetivo no se pinta.
