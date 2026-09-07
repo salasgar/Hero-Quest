@@ -53,6 +53,13 @@ import {
   PUERTAS_CALABOZO,
   TRAMPAS_CALABOZO,
 } from "./calabozo";
+import {
+  MISION_TORREON,
+  MONSTRUOS_TORREON,
+  MUEBLES_TORREON,
+  PUERTAS_TORREON,
+  TRAMPAS_TORREON,
+} from "./torreon";
 
 /** Un monstruo tal y como lo declara una misión: dónde empieza y qué es. */
 export type MonstruoDeMision = OpcionesPartida["monstruos"][number];
@@ -91,11 +98,21 @@ const CALABOZO: MisionCompleta = congelar({
   dificultad: "para empezar: se gana casi siempre, y así tiene que ser",
 });
 
+const TORREON: MisionCompleta = congelar({
+  mision: MISION_TORREON,
+  puertas: PUERTAS_TORREON,
+  monstruos: MONSTRUOS_TORREON,
+  trampas: TRAMPAS_TORREON,
+  muebles: MUEBLES_TORREON,
+  dificultad: "con un jefe que pega de verdad: el Señor de la Guerra y su guardia, entre vosotros y el trono",
+});
+
 /**
  * Todas las misiones, de la más fácil a la más difícil. El calabozo va el
- * primero y ahí se queda: es la misión de referencia.
+ * primero y ahí se queda: es la misión de referencia. El torreón (T46) va
+ * detrás: su tabla está en la terminada de esa tarea.
  */
-export const MISIONES: readonly MisionCompleta[] = Object.freeze([CALABOZO]);
+export const MISIONES: readonly MisionCompleta[] = Object.freeze([CALABOZO, TORREON]);
 
 /** La que se juega si nadie elige: la primera, que es la de empezar. */
 export const MISION_POR_DEFECTO: MisionCompleta = MISIONES[0]!;

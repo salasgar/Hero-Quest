@@ -295,6 +295,65 @@ describe.each(MISIONES.map((m) => [m.mision.id, m] as const))("la misión «%s»
   });
 });
 
+// ------------------------------------------------------------------ el torreón (T46)
+
+import { MISION_TORREON, MONSTRUOS_TORREON, PUERTAS_TORREON } from "../src/data/quests/torreon";
+
+/**
+ * Lo que hace al torreón el torreón, y no otra misión más: el jefe en el
+ * salón del trono, el salón sin puerta al pasillo (se entra por dos salas
+ * con guardia) y la escalada de dureza. La estructura general ya la
+ * comprueba el `describe.each` de arriba.
+ */
+describe("«El torreón del Señor de la Guerra» (T46)", () => {
+  it("va detrás del calabozo en el catálogo", () => {
+    expect(MISIONES[1]?.mision.id).toBe("torreon");
+  });
+
+  it("el objetivo es matar al Señor de la Guerra, un guerrero del Caos que empieza en el salón del trono", () => {
+    const obj = MISION_TORREON.objetivo;
+    expect(obj.clase).toBe("matarA");
+    if (obj.clase !== "matarA") return;
+    const jefe = MONSTRUOS_TORREON.find((m) => m.id === obj.figura);
+    expect(jefe?.especie).toBe("guerreroDelCaos");
+    expect(salaEn(jefe!.celda.x, jefe!.celda.y)).toBe("f");
+    expect(MISION_TORREON.introduccion).toMatch(/Señor de la Guerra/);
+  });
+
+  it("al salón del trono no se entra desde el pasillo: sus puertas dan a la antesala y a la cripta, y las dos tienen guardia", () => {
+    const deF = PUERTAS_TORREON.filter((p) => salaEn(p.a.x, p.a.y) === "f" || salaEn(p.b.x, p.b.y) === "f");
+    expect(deF.length).toBe(2);
+    for (const p of deF) {
+      expect(esPasillo(p.a.x, p.a.y), `la puerta ${p.id} da al pasillo`).toBe(false);
+      expect(esPasillo(p.b.x, p.b.y), `la puerta ${p.id} da al pasillo`).toBe(false);
+      expect(p.secreta, `la puerta ${p.id} es secreta: un grupo que no busque no llegaría al jefe`).toBe(false);
+    }
+    const vecinas = deF.flatMap((p) => [salaEn(p.a.x, p.a.y), salaEn(p.b.x, p.b.y)]).filter((s) => s !== "f");
+    expect(vecinas.sort()).toEqual(["e", "j"]);
+    for (const sala of vecinas)
+      expect(MONSTRUOS_TORREON.some((m) => salaEn(m.celda.x, m.celda.y) === sala), `la sala ${sala} está sin guardia`).toBe(true);
+  });
+
+  it("veinte monstruos en siete salas, del nivel del calabozo en la primera al jefe que pega más que el guardián", () => {
+    const porSala = new Map<string, typeof MONSTRUOS_TORREON>();
+    for (const m of MONSTRUOS_TORREON) {
+      const s = salaEn(m.celda.x, m.celda.y)!;
+      porSala.set(s, [...(porSala.get(s) ?? []), m]);
+    }
+    expect(MONSTRUOS_TORREON).toHaveLength(20);
+    expect([...porSala.keys()].sort()).toEqual(["c", "d", "e", "f", "i", "j", "k"]);
+    const ataqueMaximo = (sala: string) => Math.max(...porSala.get(sala)!.map((m) => MONSTRUOS[m.especie].ataque));
+    // El cuerpo de guardia, junto a la escalera, no pasa de la barra del calabozo (el fimir).
+    expect(ataqueMaximo("c")).toBeLessThanOrEqual(MONSTRUOS.fimir.ataque);
+    // El salón del trono sí: es la primera sala del catálogo donde alguien pega más que el guardián.
+    expect(ataqueMaximo("f")).toBeGreaterThan(MONSTRUOS.fimir.ataque);
+    // Nunca más de doce de una especie: la reserva de nombres de T42.
+    const porEspecie: Record<string, number> = {};
+    for (const m of MONSTRUOS_TORREON) porEspecie[m.especie] = (porEspecie[m.especie] ?? 0) + 1;
+    for (const [especie, n] of Object.entries(porEspecie)) expect(n, especie).toBeLessThanOrEqual(12);
+  });
+});
+
 // -------------------------------------------------------------- baraja y mobiliario
 
 import { BARAJA_TESOROS, MAZO_COMPLETO, repartoDeLaBaraja, TOTAL_CARTAS } from "../src/data/treasure";
