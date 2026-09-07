@@ -249,3 +249,10 @@ que dura la sesión.
   sitios): la portada es la ilustración de la pantalla de entrada. Comparte
   `EleccionDeHeroes.tsx` con T37 y T45, y `estilos.css` con T37; las tres se cogen de una en
   una, nunca a la vez.
+- **T60 (nombre por defecto duplicado en el diario) sale de un fallo que Juan Luis vio
+  jugando** el 2026-09-07 y pegó tal cual: sin nombre propio, el narrador dice «Enano el
+  Enano». Diagnosticada por la sesión coordinadora `s-20260907T090034-c7bc516d` con el
+  fichero y la línea exactos (`partida.ts:191` rellena `h.nombre` con el nombre de la clase;
+  `relato.ts:55-58` y `local.ts:63-68` lo vuelven a pegar sin comprobar que ya coincide), no
+  a ojo. Comparte `types.ts` y `partida.ts` con T37; no toca nada de T45, así que caben a la
+  vez, cada una en su sesión.
