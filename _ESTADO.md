@@ -355,7 +355,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | LISTA (`f7f05ac`) | |
 | 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (`d7724f3`) | |
 | 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | LISTA (`b3c7995`) | |
-| 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | LISTA (hash pendiente tras el `push`) | |
+| 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | LISTA (`42e10f5`) | |
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
 fue nueva del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» como portada
