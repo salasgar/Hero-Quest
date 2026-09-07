@@ -106,10 +106,11 @@ reclamo, modelo fijado al crearlo según la banda de la tarea, y fila aquí.
 Esto es lo que Juan Luis pega al abrir una sesión. Sin ello, la sesión nueva no sabe que
 hay un protocolo y se salta el reclamo entero:
 
-> Trabaja en el reparto de `/Users/salasgar/Documents/git/Hero-Quest`. He abierto esta sesión
-> con un modelo de banda ALTO / MEDIO / BAJO —deja solo la que sea—. Lee `proyecto.md` y
-> `_ESTADO.md`, lista la carpeta `hechos/` que indica la ficha, reclama una tarea libre de esa
-> banda siguiendo el protocolo del tablón, dime en tu primer mensaje cuál has cogido y con qué
+> `HQ T<NN> (<BANDA>)` — Trabaja en el reparto de `/Users/salasgar/Documents/git/Hero-Quest`.
+> He abierto esta sesión con un modelo de banda ALTO / MEDIO / BAJO —deja solo la que sea—, y
+> el nombre de esta sesión es el que encabeza este mensaje. Lee `proyecto.md` y `_ESTADO.md`,
+> lista la carpeta `hechos/` que indica la ficha, reclama una tarea libre de esa banda
+> siguiendo el protocolo del tablón, dime en tu primer mensaje cuál has cogido y con qué
 > identificador de sesión, y sigue con ella hasta cerrarla o soltarla sin esperar
 > confirmación.
 
@@ -126,7 +127,8 @@ agota, no lo lea como orden de terminar a toda costa.
 y cada una nombra la tarea o la cadena que esa sesión reclama, en el sitio de «reclama una
 tarea libre de esa banda»:
 
-> … reclama la tarea NN siguiendo el protocolo del tablón y, al cerrarla, encadena la MM …
+> `HQ T<NN> (<BANDA>)` — … reclama la tarea NN siguiendo el protocolo del tablón y, al
+> cerrarla, encadena la MM …
 
 Una sesión cuya frase nombra una cadena encadena por defecto; solo deja de hacerlo si el
 semáforo está en ámbar o rojo, y entonces lo dice. Quien cierra una tarea escribe tantas
@@ -153,8 +155,21 @@ convivieron en tres copias y se resolvieron por mensajes entre sesiones.
 Para coger una tarea MAL CORTADA que Juan Luis haya decidido tratar como larga, la frase la
 nombra: «… reclama la tarea NN, que está MAL CORTADA y se continúa como larga …».
 
-Conviene poner a cada sesión un título con la tarea que coge: la app no muestra el sid, y
-encontrar después qué conversación hizo qué cuesta minutos.
+## Nombres de sesión
+
+Abreviatura del proyecto: **`HQ`** (va delante de todo nombre). Una sesión no puede ponerse
+ni cambiarse el nombre —lo hace Juan Luis con `/rename` o en el panel—, así que el nombre va
+como prefijo de la frase de arranque y la sesión lo repite cuando cambia lo que hace
+(«renómbrame a …»):
+
+| Sesión | Nombre |
+|---|---|
+| Una tarea | `HQ T<NN> (<BANDA>)` |
+| Una cadena | `HQ T<NN>+T<MM> (<BANDA>)` |
+| Quien monta, recorta o coordina | `HQ Coordinadora <rangos, p. ej. T39-T44, T50-T52> (<BANDA>)` |
+
+El nombre es para encontrar la sesión en el panel; qué hizo cada una sigue estando en
+`hechos/notas/<sid>.md` y en las terminadas.
 
 En cada sesión nueva hay que volver a dar permiso sobre la carpeta: los permisos duran lo
 que dura la sesión.
@@ -224,3 +239,7 @@ que dura la sesión.
   rastros que lo citan —commits, fichas, TRASPASO.md— sigan teniendo a dónde apuntar. Todo lo
   que decía de estado se ha derivado a `hechos/`; lo que decía de firmas, a
   `autorizaciones.md`. No se edita ni se regenera.
+- **La frase de arranque lleva el nombre de sesión delante desde el 2026-09-07** (convención
+  de la skill `reparto`, apartado «Nombres de sesión»): abreviatura `HQ`, y el nombre lo dice
+  la propia sesión porque no puede ponérselo ella misma. Lo pidió Juan Luis con varias
+  sesiones de Hero-Quest abiertas y cada una con un título inventado por la app.
