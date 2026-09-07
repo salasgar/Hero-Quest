@@ -116,11 +116,19 @@ export function useAccionesDeTurno({
    * mantiene todo lo demás en pie: el deshacer sigue siendo exacto y las dos
    * casas siguen viendo la misma partida. Por eso «que los tire la aplicación»
    * es exactamente la misma acción, sin el campo `dados`.
+   *
+   * `mostrarAviso` en `false` despacha la acción igual, pero no abre el modal
+   * de `AvisoDeTirada`: lo pidió Juan Luis el 2026-09-07 solo para el
+   * movimiento (ficha T64), porque el número de casillas ya se ve en el
+   * contador del panel de turno y el aviso obligaba a un clic más en la
+   * acción que más se repite. A cambio dejan de verse las caras de los dos D6
+   * de movimiento, que era lo que T33/T36 querían enseñar. Ataque, hechizo y
+   * trampa lo siguen abriendo, tal y como quedó firmado en T33/T36.
    */
   const tirarYEnsenar = useCallback(
-    (accion: Accion, titulo: string) => {
+    (accion: Accion, titulo: string, mostrarAviso = true) => {
       const eventos = ejecutar(accion);
-      if (!eventos) return;
+      if (!eventos || !mostrarAviso) return;
 
       const ataque = eventos.find((ev) => ev.tipo === "ataque");
       if (ataque && ataque.tipo === "ataque") {
@@ -259,7 +267,7 @@ export function useAccionesDeTurno({
   );
 
   const pedirMovimiento = useCallback(() => {
-    tirarYEnsenar({ tipo: "tirarMovimiento" }, "Tirada de movimiento");
+    tirarYEnsenar({ tipo: "tirarMovimiento" }, "Tirada de movimiento", false);
   }, [tirarYEnsenar]);
 
   const mover = useCallback(
