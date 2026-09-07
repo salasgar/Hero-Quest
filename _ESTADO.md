@@ -17,6 +17,14 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-07 21:22Z · por la sesión `s-20260907T205835-39ec5559`, al cerrar la 61
+(`d4a5a01`). Sobre la regeneración de las 21:19Z (`s-20260907T211731-6bdd85b1`, al reclamar
+la 46) cambia **una fila**: la **61 pasa a LISTA**. Efecto en la 50: ya no espera a la 61 en
+`narrator/local.ts`, pero sigue **PENDIENTE** porque la 37 (EN CURSO) sigue declarando
+`types.ts`. Revisando el informe y el relato salió más gramática rota de la que parecía a
+primera vista —una veintena de plantillas del relato con preposiciones dobles o
+equivocadas—, razonado entero en la terminada.
+
 Regenerado: 2026-09-07 21:19Z · por la sesión `s-20260907T211731-6bdd85b1`, al reclamar la 46.
 Sobre la regeneración de las 21:14Z (`s-20260907T205502-6241d5c8`, al cerrar la 65) cambia
 **una fila**: la **46 pasa a EN CURSO** (este reclamo, caduca 2026-09-08T05:17:31Z; la
@@ -284,7 +292,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | **BLOQUEADA** (46) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | LISTA (`fb40fb1`) | |
-| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** (49 y 42 LISTA; espera a 37 por `types.ts` y a 61 por `narrator/local.ts`) | |
+| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** (49 y 42 LISTA; espera a 37 por `types.ts`; ya no espera a la 61, cerrada) | |
 | 51 | T51 · Un héroe pisa una trampa y tiene que pasarle algo | tareas/T51-las-trampas-saltan-al-pisarlas.md | ninguna · no a la vez que 53, 54, 50 (`reducer.ts`) ni 37 (`BoardMirror.tsx`) | 1,5 h | ALTO | 53, 54 | `reducer.ts`, `BoardMirror.tsx`, `tests/reducer.test.ts` | manual | LISTA (`095d031`) | |
 | 52 | T52 · En el turno de Zargon no salen los mandos de los héroes | tareas/T52-el-turno-de-zargon-sin-mandos-de-heroe.md | ninguna · no a la vez que 36, 22 (`TurnPanel.tsx`) ni 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 36, 22 | `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `tests/turno-automatico.test.ts` | manual | LISTA (`9124757`) | |
 | 53 | T53 · El pergamino del guardián: la misión tiene encargo | tareas/T53-el-pergamino-del-guardian.md | 51 LISTA · no a la vez que 54, 50 (`reducer.ts`), 37, 38 (`types.ts`), 39 (`narrator`), 45 (`simular.ts`) | 3 h | ALTO | 54 | `types.ts`, `reducer.ts`, `quests/calabozo.ts`, `narrator/local.ts`, `scripts/simular.ts`, `tests/quest.test.ts`, `tests/reducer.test.ts` | manual | LISTA (`a60b7e5`) | |
@@ -295,7 +303,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 58 | T58 · Al pasar el ratón por una figura, su ficha en un cuadro flotante | tareas/T58-ficha-flotante-de-cada-figura.md | ninguna · no a la vez que 51, 37 (`BoardMirror.tsx`) ni 22 (`estilos.css`) | 2 h | MEDIO | 37 | `FichaFlotante.tsx` (nuevo), `BoardMirror.tsx`, `estilos.css`, tests | manual | LISTA (`6c3c750`) | |
 | 59 | T59 · La portada del juego | tareas/T59-portada-del-juego.md | ninguna · no a la vez que 37 (`EleccionDeHeroes.tsx`, `estilos.css`) ni 45 (`EleccionDeHeroes.tsx`) | 1,5 h | MEDIO | — | `public/` (la portada), `public/IMAGENES.md`, `src/data/imagenes.ts`, `EleccionDeHeroes.tsx`, `estilos.css` | manual | LISTA (`aa75844`) | |
 | 60 | T60 · Sin nombre propio, el diario dice «Enano el Enano» | tareas/T60-nombre-por-defecto-duplica-la-clase.md | — | 2 h | MEDIO | — | — | manual | **SUSTITUIDA** (por 62) | |
-| 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | **EN CURSO** (relevada) | `s-20260907T205835-39ec5559` · 2026-09-08T02:58:35Z |
+| 61 | T61 · Jugar una partida y revisar el tono del informe y del relato | tareas/T61-revisar-tono-de-informe-y-relato.md | ninguna | 3 h | MEDIO | — | `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `quests/calabozo.ts` (si hace falta), tests | manual | LISTA (`d4a5a01`) | |
 | 62 | T62 · Un nombre chulo por defecto para el héroe sin nombre | tareas/T62-nombre-chulo-por-defecto.md | ninguna · no a la vez que 37 (`types.ts`, `partida.ts`) | 2 h | MEDIO | — | `partida.ts`, `nombresHeroe.ts` (nuevo), tests | manual | LISTA (`aaebe93`) | |
 | 63 | T63 · Al actuar, la página hace scroll y tapa los botones de acción | tareas/T63-scroll-automatico-tapa-los-botones.md | ninguna | 1 h | MEDIO | — | `MasterLog.tsx`, `estilos.css` (si hace falta) | manual | LISTA (`f7f05ac`) | |
 | 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (`d7724f3`) | |
@@ -315,33 +323,31 @@ nombre un nombre de verdad (62) resuelve el síntoma de la 60 («Enano el Enano�
 (`hechos/sustituidas/60--s-20260907T090034-c7bc516d.md`). No hay `hechos/recursos/` con
 nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** solo **50** (ALTO, con las esperas de fichero dichas arriba).
-**37, 46 y 61 están EN CURSO** (sids y caducidad en la tabla; 37 y 61 relevadas tras la
-caída, la 61 a las 20:58:35Z y la 37 a las 21:11:50Z; la 46 reclamada a las 21:17:31Z). **La 45, la 59, la 62, la 63, la
-64 y ahora la 65 están cerradas** (`0f68632`, `aa75844`, `aaebe93`, `f7f05ac`, `d7724f3` y
-`b3c7995`, los seis en `main`); **la 60 quedó SUSTITUIDA**.
+**Libres por estado:** solo **50** (ALTO, con la espera de fichero de abajo).
+**37 y 46 están EN CURSO** (sids y caducidad en la tabla; 37 relevada tras la caída a las
+21:11:50Z; la 46 reclamada a las 21:17:31Z). **La 45, la 59, la 61, la 62, la 63, la 64 y la
+65 están cerradas** (`0f68632`, `aa75844`, `d4a5a01`, `aaebe93`, `f7f05ac`, `d7724f3` y
+`b3c7995`, las siete en `main`); **la 60 quedó SUSTITUIDA**.
 
 **Por ficheros, ahora mismo:** la 45 ya cerró, así que la 37 (EN CURSO) tiene
 `EleccionDeHeroes.tsx` para ella sola; parte del selector de misión que la 45 dejó ahí
-(`0f68632`) y del reparto de nombres de la 62 en `partida.ts`. **61 (EN CURSO) no comparte
-fichero con la 37.** La **46** (EN CURSO) toca `quests/<id>.ts` nuevo y `quests/index.ts`, que
-nadie más vivo declara. La **50** (libre) toca `types.ts` (lo declara la 37) y `narrator/local.ts`
-(lo declara la 61): no se abre en paralelo con ellas sin pactarlo; `reducer.ts` no lo toca
-nadie vivo. La 63, la 64 y la 65, ya cerradas, tocaron solo `MasterLog.tsx`,
-`useAccionesDeTurno.ts` y `TurnPanel.tsx`. 15 espera la palabra de Juan Luis; la 47 sigue
-BLOQUEADA por la 46.
+(`0f68632`) y del reparto de nombres de la 62 en `partida.ts`. La **46** (EN CURSO) toca
+`quests/<id>.ts` nuevo y `quests/index.ts`, que nadie más vivo declara. La **50** (libre)
+toca `types.ts` (lo declara la 37) y `narrator/local.ts` (ya libre: la 61 cerró y no lo
+declara nadie más vivo): solo espera a la 37, no a dos tareas como antes. La 61, la 63, la
+64 y la 65, ya cerradas, tocaron `narrator/`, `MasterLog.tsx`, `useAccionesDeTurno.ts` y
+`TurnPanel.tsx`. 15 espera la palabra de Juan Luis; la 47 sigue BLOQUEADA por la 46.
 
-**Cabe hoy:** ninguna sesión más sin esperas: la 46 ya está cogida. La **50**
-(ALTO, 5 h) cabe cuando cierren la 37 y la 61, o antes si su sesión pacta `types.ts` y
-`narrator/local.ts` con esas dos como hicieron la 45 y la 37 con `EleccionDeHeroes.tsx`. La
-47 (MEDIO) se abre cuando la 46 cierre.
+**Cabe hoy:** ninguna sesión más sin esperas: la 46 ya está cogida. La **50** (ALTO, 5 h)
+cabe cuando cierre la 37, o antes si su sesión pacta `types.ts` con ella. La 47 (MEDIO) se
+abre cuando la 46 cierre.
 
 **Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 ya está cogida. La cadena
 **64 → 65** está cerrada entera (`s-20260907T205502-6241d5c8`, 21:02Z y 21:11Z). 46 → 47 no
-es cadena: cambian de banda (ALTO → MEDIO). Ninguna otra de 37, 61 tiene «encadenable con»
-declarado. Las cadenas 51 → 53 → 54 → 55
-(`s-20260906T174714-651b3481`) y 52 → 36 → 22 (`s-20260906T174532-9cbd624b`) están cerradas
-enteras.
+es cadena: cambian de banda (ALTO → MEDIO). La 37 no tiene «encadenable con» declarado; la
+61, ya cerrada, tampoco lo tenía y esta sesión no encadena (MEDIO sin ninguna libre: solo
+queda la 50, ALTO). Las cadenas 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) y
+52 → 36 → 22 (`s-20260906T174532-9cbd624b`) están cerradas enteras.
 
 ## Registro de finalizaciones
 
@@ -353,6 +359,7 @@ terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
 
+- LISTA · tarea 61 · 2026-09-07 21:21 · `s-20260907T205835-39ec5559` (releva a `s-20260907T204408-8af444b9`, huérfana desde la caída de las 20:50Z) · informe: quita la ambientación de sala que se copiaba tal cual (el diagnóstico exacto de la ficha) y las exclamaciones de trampas, puerta, pasadizo secreto, monstruo errante y objeto de misión; el ataque fallido pierde el banco de frases y dice «Sin daño.»; relato: arregla un fallo sistemático — `{objeto}` ya lleva su «a»/«al» y una veintena de plantillas escribían además una preposición literal, dando «a a Háfir» o «en a Háfir»; de paso, el caso `ataque` solo pisaba `objeto` y no `objeto2`/`deQuien` (una plantilla nueva con `{objeto2}` seguía nombrando al atacante), la forma de mitad de frase de un héroe se ponía en minúscula y le quitaba la mayúscula al nombre, los dos epítetos del goblin llevaban artículo masculino con sustantivos femeninos, y cinco bancos de `efectoDeHechizo` usaban un `{Sujeto}` en singular que se rompería con más de un objetivo; no toca el motor ni el mecanismo del relato (sigue firmado); 693 tests (669 + 4 nuevos de T61, sin ninguno roto de los que había); typecheck en verde · `narrator/local.ts`, `narrator/relato.ts`, `narrator/frases.ts`, `tests/narrador.test.ts`, `tests/narrator.test.ts`, `tests/integracion.test.ts` · `d4a5a01`
 - LISTA · tarea 45 · 2026-09-07 21:08 · `s-20260907T204636-b565f64a` (reclamó y cayó; la hizo entera `s-20260907T205335-e738c893`) · un solo sitio del que salen las misiones, `src/data/quests/index.ts`, con la lista `MISIONES` ordenada por dificultad (la posición es el nivel) y un selector de misión en `EleccionDeHeroes.tsx`; `Juego.tsx`, `red/cliente.ts`, `simular.ts` y `repetir.ts` leen del catálogo en vez de juntar constantes a mano; `npm run sim` sin argumentos recorre el catálogo entero; tocó además `App.tsx` y `EntrarEnPartida.tsx` (fuera de ficha, razonado en `hechos/incidencias/s-20260907T205335-e738c893.md`); 689 tests / 44 ficheros (antes 669 / 43); typecheck en verde · `src/data/quests/index.ts`, `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests · `0f68632`
 - LISTA · tarea 65 · 2026-09-07 21:11 · `s-20260907T205502-6241d5c8` (encadenada tras la 64) · los dos sitios de `TurnPanel.tsx` que enseñaban la especie (`MONSTRUOS[o.especie].nombre`, en el botón de atacar y en el selector de objetivo de hechizo) pasan a `o.nombre`, el nombre propio que T42 reparte único dentro de la partida; la importación de `MONSTRUOS` se queda porque la usa el titular del turno de Zargon; evidencia con `renderToStaticMarkup` de `TurnPanel` (mago entre dos goblins): «Atacar a Glupfch» / «Atacar a Gribzo» y, en el selector de bola de fuego, «Glupfch (1)» / «Gribzo (1)», donde antes decía «Atacar a Goblin» dos veces; 669 tests / 43 ficheros antes y después (689 / 44 sobre el árbol rebasado con la 45 dentro); typecheck en verde · `src/ui/TurnPanel.tsx` · `b3c7995`
 - LISTA · tarea 64 · 2026-09-07 21:02 · `s-20260907T205502-6241d5c8` (reclamo abierto por `s-20260907T204555-0c3c3d69`, sesión caída a las ~20:50Z con el diff sin commitear) · `tirarYEnsenar` gana un parámetro `mostrarAviso` (por defecto `true`) y `pedirMovimiento` lo pasa a `false`: la acción se despacha igual contra el motor y solo se deja de abrir `AvisoDeTirada`; ataque, hechizo y trampa siguen abriéndolo como quedó firmado en T33/T36; sin tocar `DiceInput.tsx` ni `estilos.css`, porque el contador `👣 N de N` de `TurnPanel` ya enseña las casillas y el diario sigue diciendo «saca 3 y 2: 5 casillas»; verificado en Chromium (Playwright de la caché de npx, sin dependencia nueva): tras «Tirar movimiento» no aparece `.dados-fondo`, se pintan las casillas verdes y el contador pasa de «sin tirar» a «5 de 5»; 669 tests / 43 ficheros antes y después; typecheck en verde · `src/ui/useAccionesDeTurno.ts` · `d7724f3`
