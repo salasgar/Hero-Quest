@@ -243,3 +243,9 @@ que dura la sesión.
   de la skill `reparto`, apartado «Nombres de sesión»): abreviatura `HQ`, y el nombre lo dice
   la propia sesión porque no puede ponérselo ella misma. Lo pidió Juan Luis con varias
   sesiones de Hero-Quest abiertas y cada una con un título inventado por la app.
+- **T59 (la portada) sale del encargo de Juan Luis del 2026-09-07** («Portada Hero
+  Quest.png» en la raíz, sin rastrear), escrita por la sesión coordinadora
+  `s-20260907T090034-c7bc516d`. Es distinta de T41 (el logotipo, las letras pequeñas en tres
+  sitios): la portada es la ilustración de la pantalla de entrada. Comparte
+  `EleccionDeHeroes.tsx` con T37 y T45, y `estilos.css` con T37; las tres se cogen de una en
+  una, nunca a la vez.

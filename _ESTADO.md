@@ -25,6 +25,10 @@ reclamo vivo** a las 09:36Z: las cuatro sesiones de la mañana —38, 39, 44 y 5
 cerrado. Quedan libres la 37 (MEDIO) y la 45 (ALTO), y no chocan entre sí más que en
 `EleccionDeHeroes.tsx`: van seguidas, no a la vez.
 
+Sobre esa regeneración, la sesión coordinadora `s-20260907T090034-c7bc516d` añade la fila
+**59** (nueva, `tareas/T59-portada-del-juego.md`), del encargo de Juan Luis de usar
+«Portada Hero Quest.png» como portada del juego; ninguna otra fila cambia. No reclama nada.
+
 ## Antes de hacer nada
 
 0. Lee `proyecto.md`: ahí están las rutas —dónde está `hechos/`, dónde van las salidas—
@@ -256,28 +260,30 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 56 | T56 · Dos arreglos del entorno: vitest y `preview` | tareas/T56-dos-arreglos-del-entorno.md | ninguna | 30 min | BAJO | 57 | `vite.config.ts`, `README.md`, `tareas/_COMUN.md` | manual | LISTA (`7ae9fb9`; hecha por `s-20260906T174758-05906208`, relevada y cerrada por `s-20260906T141818-ff83f12c`) | |
 | 57 | T57 · Descargar la partida: un registro con el que encontrar los fallos | tareas/T57-descargar-la-partida.md | ninguna | 2 h | MEDIO | 56 | `registroDePartida.ts` (nuevo), `usePartida.ts`, `App.tsx`, `scripts/repetir.ts` (nuevo), `package.json`, `README.md`, tests | manual | LISTA (`f40e415`) | |
 | 58 | T58 · Al pasar el ratón por una figura, su ficha en un cuadro flotante | tareas/T58-ficha-flotante-de-cada-figura.md | ninguna · no a la vez que 51, 37 (`BoardMirror.tsx`) ni 22 (`estilos.css`) | 2 h | MEDIO | 37 | `FichaFlotante.tsx` (nuevo), `BoardMirror.tsx`, `estilos.css`, tests | manual | LISTA (`6c3c750`) | |
+| 59 | T59 · La portada del juego | tareas/T59-portada-del-juego.md | ninguna · no a la vez que 37 (`EleccionDeHeroes.tsx`, `estilos.css`) ni 45 (`EleccionDeHeroes.tsx`) | 1,5 h | MEDIO | — | `public/` (la portada), `public/IMAGENES.md`, `src/data/imagenes.ts`, `EleccionDeHeroes.tsx`, `estilos.css` | manual | **PENDIENTE** | |
 
-Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. No hay
+Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59 es
+nueva, del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» en la portada del
+juego), añadida por la sesión coordinadora `s-20260907T090034-c7bc516d` sin reclamar
+ninguna tarea (`hechos/notas/s-20260907T090034-c7bc516d.md`). No hay
 `hechos/recursos/` con nada dentro: ningún tope de procesos fijado.
 
-**Libres por estado:** **37** (MEDIO) y **45** (ALTO). **38 acaba de cerrarse (LISTA)**, y
-con ella cierran las cuatro sesiones de la mañana (38, 39, 44 y 58): ningún reclamo vivo.
+**Libres por estado:** **37** (MEDIO), **45** (ALTO) y **59** (MEDIO, nueva). **38 se
+cerró** esta mañana, y con ella las cuatro sesiones de la mañana (38, 39, 44 y 58): ningún
+reclamo vivo.
 
-**Por ficheros, ahora mismo:** **37** ya no espera a nadie —la 58 le liberó
-`BoardMirror.tsx` y la 38, `types.ts`— y **45** tampoco —la 44 le liberó `Juego.tsx` y la
-38, `scripts/simular.ts`—. Entre ellas comparten **`EleccionDeHeroes.tsx`**, así que **no
-van en paralelo**: o una sesión las hace seguidas, o dos sesiones de una en una. Dicho
-llanamente: **cabe una sesión, no dos**. 15 espera la palabra de Juan Luis; 46, 47 y 50
-siguen BLOQUEADAS por sus precondiciones (46 y 47 esperan a la 45, que ya se puede coger).
+**Por ficheros, ahora mismo:** las tres comparten **`EleccionDeHeroes.tsx`** (37, 45 y 59),
+y 37 y 59 comparten además **`estilos.css`**. **Ninguna de las tres va en paralelo con las
+otras dos**: una sesión las hace de una en una, en el orden que decida, o varias sesiones se
+las reparten de una en una. 15 espera la palabra de Juan Luis; 46, 47 y 50 siguen BLOQUEADAS
+por sus precondiciones (46 y 47 esperan a la 45, que ya se puede coger).
 
-**Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 se coge sola. La 45 no
-tiene «encadenable con» declarado, y de hecho hoy no lo tendría: la única libre de su banda
-es ella. Las cadenas 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) y 52 → 36 → 22
-(`s-20260906T174532-9cbd624b`) están cerradas enteras. Esta sesión
-(`s-20260907T080909-f84dcfe8`) cierra la 38 sin cadena declarada y **para aquí**: la única
-libre de su banda (ALTO) es la 45, que son otras cuatro horas y una tarea de forma
-—catálogo, selector y medida—, no un remate corto; y quedarse con ella dejaría a la 37 sin
-poder cogerse por `EleccionDeHeroes.tsx`.
+**Encadenables:** 58 → 37 ya no aplica: la 58 está LISTA y la 37 se coge sola. Ni 45 ni 59
+tienen «encadenable con» declarado —comparten fichero entre sí y con la 37, así que
+encadenarlas es literal: una sesión que cierre una de las tres puede coger otra de las tres
+en la misma sesión (misma banda solo entre 37 y 59, las dos MEDIO; 45 es ALTO y pide otra
+sesión)—. Las cadenas 51 → 53 → 54 → 55 (`s-20260906T174714-651b3481`) y 52 → 36 → 22
+(`s-20260906T174532-9cbd624b`) están cerradas enteras.
 
 ## Registro de finalizaciones
 
