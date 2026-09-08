@@ -228,6 +228,11 @@ export interface Turno {
   /** null mientras no se haya tirado el movimiento. */
   movimientoTotal: number | null;
   movimientoRestante: number;
+  /**
+   * Desde T76 es también una guarda: regla de la casa firmada en
+   * `autorizaciones.md`, un personaje solo se mueve una vez por turno, y lo que
+   * sobra de la tirada se pierde (`movimientoRestante` queda a 0 al moverse).
+   */
   haMovido: boolean;
   haActuado: boolean;
   /**

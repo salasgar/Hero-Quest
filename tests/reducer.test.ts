@@ -81,10 +81,20 @@ describe("el movimiento es un bloque continuo", () => {
     expect(rechaza(e, { tipo: "atacar", objetivo: "orco1" })).toMatch(/ya has actuado/i);
   });
 
-  it("el movimiento gastado se descuenta", () => {
+  it("el movimiento sobrante se pierde: solo se mueve una vez por turno (T76)", () => {
+    // Regla de la casa (autorizaciones.md). Antes de T76 este test afirmaba que
+    // se descontaba lo andado y se podía seguir (quedaban 4).
     let e = escena();
-    e = hacer(e, { tipo: "mover", destino: c(1, 3) }); // dos casillas
-    expect(e.turno.movimientoRestante).toBe(4);
+    e = hacer(e, { tipo: "mover", destino: c(1, 3) }); // dos casillas de seis
+    expect(e.turno.movimientoRestante).toBe(0);
+    expect(rechaza(e, { tipo: "mover", destino: c(1, 4) })).toMatch(/solo se mueve una vez/i);
+  });
+
+  it("actuar primero y moverse después sigue siendo un solo movimiento", () => {
+    let e = situar(escena(), "barbaro", c(2, 1));
+    e = hacer(e, { tipo: "atacar", objetivo: "orco1", dadosAtaque: [], dadosDefensa: [] });
+    e = hacer(e, { tipo: "mover", destino: c(2, 3) });
+    expect(rechaza(e, { tipo: "mover", destino: c(2, 4) })).toMatch(/solo se mueve una vez/i);
   });
 });
 
@@ -120,15 +130,15 @@ describe("puertas", () => {
   });
 });
 
-describe("mover, abrir una puerta y seguir andando (T75)", () => {
+describe("mover, abrir una puerta y seguir andando (T75 y T76)", () => {
   // Reglamento p. 11: «You may not, however, move part way, perform an action,
   // and then finish your movement». Y p. 12: abrir una puerta NO es una de las
-  // seis acciones; se hace «while you are moving», y «you do not have to move
-  // the entire distance» (p. 11). Así que mover, abrir y seguir andando es UN
-  // movimiento con una puerta en medio, no dos; lo único que lo parte es una
-  // acción, y eso ya lo cierra `movimientoCerrado`. Estos tests fijan esa
-  // lectura para que nadie «arregle» abrirPuerta cerrando el movimiento: eso
-  // dejaría al héroe sin poder cruzar la puerta que acaba de abrir.
+  // seis acciones; se hace «while you are moving». Para el libro, mover, abrir
+  // y seguir andando es UN movimiento con una puerta en medio (T75 lo fijó
+  // así). Desde T76 manda encima una regla de la casa firmada en
+  // autorizaciones.md: un personaje solo se mueve una vez por turno y abrir una
+  // puerta remata el movimiento, así que quien llega andando a la puerta entra
+  // al turno siguiente. Abrir sigue siendo gratis: no toca el turno.
   const escena = () => {
     const base = partida({ puertas: [puerta("p", c(0, 2), c(1, 2))] });
     return conMovimiento(situar(base, "barbaro", c(0, 4)), 6);
@@ -139,24 +149,32 @@ describe("mover, abrir una puerta y seguir andando (T75)", () => {
     expect(rechaza(e, { tipo: "mover", destino: c(1, 2) })).toMatch(/no se puede llegar/i);
   });
 
-  it("mover hasta la puerta, abrirla y entrar en la sala es un solo movimiento", () => {
-    let e = escena();
-    e = hacer(e, { tipo: "mover", destino: c(0, 2) }); // dos casillas
+  it("abrir primero, desde la casilla de al lado, y entrar después sí vale", () => {
+    let e = situar(escena(), "barbaro", c(0, 2));
     e = hacer(e, { tipo: "abrirPuerta", puerta: "p" });
-    e = hacer(e, { tipo: "mover", destino: c(2, 2) }); // dos más, ya dentro
+    expect(e.turno.haMovido).toBe(false);
+    e = hacer(e, { tipo: "mover", destino: c(2, 2) });
     expect(e.heroes[0]!.celda).toEqual(c(2, 2));
-    expect(e.turno.movimientoRestante).toBe(2);
-    expect(e.turno.movimientoCerrado).toBe(false);
+    expect(e.turno.movimientoCerrado).toBe(false); // todavía puede actuar
   });
 
-  it("lo que vio Juan Luis: tras abrir puede irse por otro lado, pero nunca más allá de la tirada", () => {
+  it("llegar andando a la puerta y abrirla remata el movimiento: se entra al turno siguiente (T76)", () => {
+    // Antes de T76 este test afirmaba lo contrario, con el reglamento en la mano.
     let e = escena();
-    e = hacer(e, { tipo: "mover", destino: c(0, 2) }); // 2 de 6
-    e = hacer(e, { tipo: "abrirPuerta", puerta: "p" });
-    e = hacer(e, { tipo: "mover", destino: c(0, 6) }); // 4 más, alejándose de la puerta
-    expect(e.heroes[0]!.celda).toEqual(c(0, 6));
+    e = hacer(e, { tipo: "mover", destino: c(0, 2) }); // dos casillas de seis
+    e = hacer(e, { tipo: "abrirPuerta", puerta: "p" }); // gratis, y revela la sala
+    expect(e.salasReveladas).toContain("a");
+    expect(e.turno.haActuado).toBe(false);
     expect(e.turno.movimientoRestante).toBe(0);
-    expect(rechaza(e, { tipo: "mover", destino: c(0, 7) })).toMatch(/no te queda movimiento/i);
+    expect(rechaza(e, { tipo: "mover", destino: c(2, 2) })).toMatch(/solo se mueve una vez/i);
+  });
+
+  it("lo que vio Juan Luis ya no puede pasar: mover, abrir y volver a mover por otro lado (T76)", () => {
+    let e = escena();
+    e = hacer(e, { tipo: "mover", destino: c(0, 2) });
+    e = hacer(e, { tipo: "abrirPuerta", puerta: "p" });
+    expect(rechaza(e, { tipo: "mover", destino: c(0, 6) })).toMatch(/solo se mueve una vez/i);
+    expect(e.heroes[0]!.celda).toEqual(c(0, 2));
   });
 
   it("lo que sí parte el movimiento es una acción, con o sin puerta en medio", () => {
@@ -341,7 +359,11 @@ describe("trampas", () => {
     expect(r.estado.heroes[0]!.celda).toEqual(c(1, 3));
     expect(cuerpo(r)).toBe(8);
     expect(trampa(r).gastada).toBe(false); // sigue tapado
-    expect(r.estado.turno.movimientoRestante).toBe(4); // el salto cuesta las dos casillas
+    // Antes de T76 aquí quedaban 4 («el salto cuesta las dos casillas»); ahora
+    // lo que sobra se pierde. Que el salto cuesta dos lo sigue diciendo la ruta:
+    // con un solo punto no se llega a (1,3).
+    expect(r.estado.turno.movimientoRestante).toBe(0);
+    expect(rechaza(conMovimiento(conTrampa("foso", { descubierta: true }), 1), { tipo: "mover", destino: c(1, 3) })).toMatch(/no se puede llegar/i);
   });
 
   it("y con calavera se cae dentro: 1 de daño y se acaba el turno", () => {

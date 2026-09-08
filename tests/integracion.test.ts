@@ -90,18 +90,18 @@ describe("los primeros turnos del calabozo", () => {
     e = hacer(e, { tipo: "tirarMovimiento", dados: [3, 3] });
     e = hacer(e, { tipo: "mover", destino: { x: 12, y: 15 } });
     // Sube por la columna 12: (12,17), (12,16) y (12,15) son tres casillas,
-    // donde con la entrada vieja eran dos. De 6 puntos quedan 3, no 4.
-    expect(e.turno.movimientoRestante).toBe(3);
+    // donde con la entrada vieja eran dos. Los 3 puntos que sobran se pierden
+    // (T76, regla de la casa: un solo movimiento por turno); antes quedaban 3.
+    expect(e.turno.movimientoRestante).toBe(0);
 
     const r = aplicarAccion(e, { tipo: "abrirPuerta", puerta: "ps" });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
 
-    // Abrir es gratis: sigue teniendo su movimiento y su acción. El 3 es el
-    // mismo de arriba, no un número nuevo: lo que se comprueba es que abrir la
-    // puerta no le quita nada.
-    expect(r.estado.turno.movimientoRestante).toBe(3);
+    // Abrir es gratis: no gasta la acción, y desde T76 tampoco puede seguir
+    // andando, pero no por la puerta sino porque ya se ha movido.
     expect(r.estado.turno.haActuado).toBe(false);
+    expect(r.estado.turno.movimientoCerrado).toBe(false);
     expect(r.estado.salasReveladas).toContain("s");
 
     const anuncio = r.eventos.find((x) => x.tipo === "salaRevelada");
