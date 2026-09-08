@@ -63,6 +63,20 @@ Si ambas cosas aparecen, está hecha.
 - **T51, T58, T37 tocan `BoardMirror.tsx`.** Coordinad si estáis en paralelo: esta tarea no
   puede ir a la vez que esas.
 
+- **«El rastro saldrá en los dos sitios» no es automático.** `VistaDeHeroe.tsx` comparte
+  `BoardMirror`, sí, pero tiene su propio `ejecutar` (de su propia `usePartida`) y no lo
+  envuelve para detectar el evento `movimiento`: hecha así la tarea, la vista de casa no
+  calcula ningún rastro propio y `BoardMirror` simplemente no recibe el prop `rastro` (por
+  defecto `null`, así que sigue compilando y pintando igual que antes). Si se quiere
+  también en casa, hay que envolver su `ejecutar` igual que en `Juego.tsx` — y entonces
+  `VistaDeHeroe.tsx` pasa a ser un fichero que esta tarea toca, cosa que su ficha no
+  declaraba.
+
+- **Sin navegador en este entorno.** No hay Playwright ni una herramienta de captura para
+  comprobar visualmente el rastro; se verificó leyendo el render (mismas coordenadas que
+  el resto de `BoardMirror`) y arrancando el `dev server`. Conviene jugar una partida con
+  un movimiento largo para verlo de verdad.
+
 - **Velocidad de la animación.** Si la ruta pasa por muchas casillas (7-8), la animación
   puede ser lenta. Ajustar tiempo por casilla para que sea visible pero rápido.
 
