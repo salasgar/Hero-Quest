@@ -17,6 +17,22 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-08T22:32:29Z · por la sesión `s-20260908T221052-03a6e80b` (`HQ T69
+(MEDIO)`), al cerrar la 69. Sobre la regeneración de las 22:30Z (`s-20260908T221002-5f16cc16`,
+al cerrar la 70) cambia **una fila**: la **69 pasa a LISTA**, pendiente del hash de
+`origin/main` (se añade en un commit aparte cuando entre el `push`, como hizo la 70). 725
+tests / 45 ficheros, `npm run typecheck` y `npm run build` en verde; un intento intermedio
+dio `tests/temperamento.test.ts` en rojo por `Test timed out in 5000ms` con la carga del Mac
+en 26-30 (varias sesiones a la vez), repetido con `--testTimeout=30000` en verde: la trampa
+de carga de `_COMUN.md`, no una regresión. Nadie tiene reclamo vivo sobre `App.tsx`,
+`EleccionDeHeroes.tsx` ni `usePartida.ts` aparte de esta tarea, que ya cierra: 37, 45 y 57
+(LISTA desde antes) no chocan. **Nota para quien siga**: el primer intento de esta tarea
+tocó `Juego.tsx` para pasarle la partida a continuar, sin que la ficha lo declare y con T70
+reclamándolo en vivo en ese momento; se deshizo entero (`git checkout HEAD~1 -- src/ui/Juego.tsx`)
+y se resolvió con un contexto de React (`ContinuarContext`, en `usePartida.ts`) que `App.tsx`
+provee alrededor de `<Juego>` sin que ese fichero cambie ni una línea — razonado en la
+terminada. 47 y 73 siguen EN CURSO, como dejó la regeneración anterior.
+
 Regenerado: 2026-09-08 22:30Z · por la sesión `s-20260908T221002-5f16cc16` (`HQ T70
 (MEDIO)`), al cerrar la 70. Sobre la regeneración de las 22:18Z (`s-20260908T221009-8416a271`,
 al cerrar la 75) cambia **una fila**: la **70 pasa a LISTA**, `91a99ed` en `origin/main`
@@ -402,7 +418,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | LISTA (`42e10f5`) | |
 | 67 | T67 · Dos botones que destruyen la partida sin avisar, y «Jugar otra vez» repite la misma | tareas/T67-botones-destruyen-partida.md | ninguna · no a la vez que 57 (`App.tsx`, `usePartida.ts`) | 30 min | BAJO | — | `App.tsx`, `Juego.tsx`, `usePartida.ts` | manual | **PENDIENTE** | |
 | 68 | T68 · Desarmar trampas no existe en la pantalla | tareas/T68-desarmar-trampas-en-pantalla.md | ninguna · no a la vez que 52, 36, 22 (`TurnPanel.tsx`, `useAccionesDeTurno.ts`) | 1,5 h | MEDIO | — | `selectors.ts`, `reducer.ts`, `TurnPanel.tsx`, `useAccionesDeTurno.ts`, tests | manual | **PENDIENTE** | |
-| 69 | T69 · Guardar la partida y continuarla otro día | tareas/T69-guardar-y-continuar-partida.md | 57 LISTA · no a la vez que 37, 45, 57 (`App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`) | 3 h | MEDIO | — | `App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`, `registroDePartida.ts`, tests | manual | EN CURSO | `s-20260908T221052-03a6e80b` · 2026-09-09T04:10:52Z |
+| 69 | T69 · Guardar la partida y continuarla otro día | tareas/T69-guardar-y-continuar-partida.md | 57 LISTA · no a la vez que 37, 45, 57 (`App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`) | 3 h | MEDIO | — | `App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`, `registroDePartida.ts`, tests | manual | LISTA (pendiente hash: ver terminada) | |
 | 70 | T70 · Mostrar la ruta de movimiento en el tablero | tareas/T70-mostrar-ruta-de-movimiento.md | ninguna · no a la vez que 51, 58, 37 (`BoardMirror.tsx`) | 2 h | MEDIO | — | `BoardMirror.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`91a99ed`) | |
 | 71 | T71 · Un monstruo dormido no se despierta nunca | tareas/T71-monstruo-dormido-despierta.md | ninguna · no a la vez que 50, 66 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, `types.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** | |
 | 72 | T72 · El diario leído en voz alta | tareas/T72-diario-leido-en-voz-alta.md | 44 LISTA · no a la vez que 52, 36, 44, 45 (`Juego.tsx`, `useTurnoDeZargon.ts`) | 2 h | MEDIO | — | `voz.ts` (nuevo), `MasterLog.tsx`, `Juego.tsx`, `useTurnoDeZargon.ts` | manual | **PENDIENTE** (44 LISTA) | |
