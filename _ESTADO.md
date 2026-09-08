@@ -17,6 +17,18 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-08 21:41Z · por la sesión coordinadora `s-20260908T213701-6e4fc379`
+(`HQ Coordinadora T67-T75`), al comitear las fichas T67-T74. Sobre la regeneración de las
+21:34Z (`s-20260908T200901-6afd10ed`, al escribir T75) cambian **ocho filas nuevas**: la
+**67 a la 74 pasan a PENDIENTE**, ya en la tabla con sus condiciones tal como las escribió
+`hero-quest-38` (`hechos/notas/s-20260908T213701-6e4fc379.md`). Ninguna código tocado por
+esta sesión; `src/ui/TurnPanel.tsx` sigue modificado sin comitear, es de `hero-quest-38` y
+no es parte de este cierre. Quedan libres, sin espera de fichero entre sí: **67** (BAJO),
+**68**, **70**, **71**, **72** (44 LISTA), **73** (45 LISTA) y **74**; **69** espera a
+ninguna precondición viva (57 ya está LISTA) así que también está libre. **71 y 75**
+comparten `reducer.ts` y no van a la vez (razonado arriba, en la tabla). Nada de esto toca
+la fila 47 ni la 50, que siguen PENDIENTE como antes.
+
 Regenerado: 2026-09-07 23:21Z · por la sesión `s-20260907T223315-1bad2508`, al cerrar la 66.
 Sobre la regeneración de las 21:54Z (`s-20260907T211731-6bdd85b1`, al cerrar la 46) cambia
 **una fila**: la **66 pasa a LISTA**. Se arregló `avanzarActor` (salta a los héroes con
@@ -356,13 +368,24 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (`d7724f3`) | |
 | 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | LISTA (`b3c7995`) | |
 | 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | LISTA (`42e10f5`) | |
+| 67 | T67 · Dos botones que destruyen la partida sin avisar, y «Jugar otra vez» repite la misma | tareas/T67-botones-destruyen-partida.md | ninguna · no a la vez que 57 (`App.tsx`, `usePartida.ts`) | 30 min | BAJO | — | `App.tsx`, `Juego.tsx`, `usePartida.ts` | manual | **PENDIENTE** | |
+| 68 | T68 · Desarmar trampas no existe en la pantalla | tareas/T68-desarmar-trampas-en-pantalla.md | ninguna · no a la vez que 52, 36, 22 (`TurnPanel.tsx`, `useAccionesDeTurno.ts`) | 1,5 h | MEDIO | — | `selectors.ts`, `reducer.ts`, `TurnPanel.tsx`, `useAccionesDeTurno.ts`, tests | manual | **PENDIENTE** | |
+| 69 | T69 · Guardar la partida y continuarla otro día | tareas/T69-guardar-y-continuar-partida.md | 57 LISTA · no a la vez que 37, 45, 57 (`App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`) | 3 h | MEDIO | — | `App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`, `registroDePartida.ts`, tests | manual | **PENDIENTE** (57 LISTA) | |
+| 70 | T70 · Mostrar la ruta de movimiento en el tablero | tareas/T70-mostrar-ruta-de-movimiento.md | ninguna · no a la vez que 51, 58, 37 (`BoardMirror.tsx`) | 2 h | MEDIO | — | `BoardMirror.tsx`, `Juego.tsx`, `estilos.css` | manual | **PENDIENTE** | |
+| 71 | T71 · Un monstruo dormido no se despierta nunca | tareas/T71-monstruo-dormido-despierta.md | ninguna · no a la vez que 50, 66 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, `types.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** | |
+| 72 | T72 · El diario leído en voz alta | tareas/T72-diario-leido-en-voz-alta.md | 44 LISTA · no a la vez que 52, 36, 44, 45 (`Juego.tsx`, `useTurnoDeZargon.ts`) | 2 h | MEDIO | — | `voz.ts` (nuevo), `MasterLog.tsx`, `Juego.tsx`, `useTurnoDeZargon.ts` | manual | **PENDIENTE** (44 LISTA) | |
+| 73 | T73 · Héroes del simulador que juegan como personas | tareas/T73-heroes-simulador-razonables.md | 45 LISTA · no a la vez que 53, 38, 45 (`simular.ts`) | 2 h | MEDIO | — | `scripts/simular.ts`, tests (si hace falta) | manual | **PENDIENTE** (45 LISTA) | |
+| 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | **PENDIENTE** | |
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | **PENDIENTE** | |
 
-**Salto de numeración 67→75, a propósito:** las fichas T67 a T74 las está escribiendo, sin
-comitear todavía, la sesión coordinadora `hero-quest-38` en este mismo árbol (visto en
-`git status`); T75 la numeró la sesión coordinadora `s-20260908T200901-6afd10ed` para no
-chocar. Cuando esa sesión comitee T67-T74, añadirá sus propias filas; esta fila de la 75 no
-se toca al hacerlo.
+Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
+y esta sesión (`HQ Coordinadora T67-T75`) las comiteó (`332ea02`) y regeneró el tablón. El
+salto de numeración 66→75 queda resuelto: no hay tareas perdidas entre medias, solo el orden
+de llegada de dos sesiones coordinadoras distintas el mismo día (T75 se numeró antes porque
+T67-T74 tardaron más en comitearse). **71 y 75 tocan `reducer.ts` a la vez**: la 71 declara
+«no a la vez que 50, 66» sin conocer todavía la 75, y la 75 declara «ninguna otra tarea viva
+sobre `reducer.ts`, comprobar el tablón al reclamar» — esa cláusula ya cubre a la 71, así
+que no van en paralelo aunque la ficha de la 71 no la nombre.
 
 Los números saltan de 22 a 30 a propósito (`proyecto.md`); no hay tareas perdidas. La 59
 fue nueva del encargo de Juan Luis del 2026-09-07 («Portada Hero Quest.png» como portada

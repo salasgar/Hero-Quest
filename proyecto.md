@@ -313,5 +313,19 @@ que dura la sesión.
   T50.
 - **T67 a T74 son ocho fichas nuevas que escribió la sesión coordinadora `hero-quest-38`**
   el 2026-09-08, en paralelo con la T75 de esta nota; el salto de numeración 66→75 está
-  explicado en `_ESTADO.md`. No se han fusionado los detalles de esas ocho aquí: las
-  documenta quien las escribió, al comitearlas.
+  explicado en `_ESTADO.md`. Comiteadas y añadidas al tablón por la sesión coordinadora
+  `s-20260908T213701-6e4fc379` (`HQ Coordinadora T67-T75`), sin editar su contenido: T67
+  (BAJO, dos botones de la cabecera destruyen la partida sin avisar y «Jugar otra vez»
+  repite la misma semilla), T68 (MEDIO, la acción `desarmarTrampa` existe en el motor desde
+  la Fase 2 y ninguna pantalla la despacha), T69 (MEDIO, guardar y continuar partida —
+  precondición T57 LISTA, comparte `App.tsx`/`usePartida.ts`/`EleccionDeHeroes.tsx` con T37,
+  T45 y T57), T70 (MEDIO, mostrar en el tablero la ruta de movimiento antes de confirmarlo,
+  comparte `BoardMirror.tsx` con T51, T58, T37), T71 (MEDIO, un monstruo dormido nunca se
+  despierta — comparte `reducer.ts`/`types.ts` con T50, T66 **y con T75**, que declara «no a
+  la vez que ninguna otra tarea viva sobre `reducer.ts`» y por tanto ya cubre a la T71 aunque
+  su propia ficha no la nombre), T72 (MEDIO, el diario leído en voz alta — precondición T44
+  LISTA, comparte `Juego.tsx` con T52, T36, T44, T45), T73 (MEDIO, héroes del simulador que
+  buscan y curan en vez de solo pegar — precondición T45 LISTA, comparte `simular.ts` con
+  T53, T38, T45) y T74 (MEDIO, con ocho héroes la barra lateral de hojas no cabe y tapa el
+  diario — comparte `HeroSheet.tsx`/`estilos.css` con T54, T22, T58, T37). Ninguna comparte
+  fichero con otra del propio bloque salvo T71 con T75 (`reducer.ts`).
