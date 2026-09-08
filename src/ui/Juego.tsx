@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MISION_POR_DEFECTO, opcionesDe, type MisionCompleta } from "../data/quests";
 import { type Dificultad } from "../ai/difficulty";
 import { motivoDeActivacion, ordenDeActivacion } from "../ai/orden";
+import type { Accion, Celda, Evento } from "../engine/types";
 import type { HeroeElegido } from "../engine/partida";
 import type { SesionDeRed } from "../red/cliente";
 import { BoardMirror } from "./BoardMirror";
@@ -73,6 +74,41 @@ export function Juego({
     partida;
 
   /**
+   * La última ruta recorrida, para pintarla como rastro en el tablero (T70): el
+   * cartón no tiene los números pintados, y con más de un camino posible el
+   * adulto tiene que adivinar por dónde fue la figura.
+   *
+   * Se detecta en el evento `movimiento` que devuelve `ejecutar`, porque «todo
+   * pasa por `ejecutar`» (`useTurnoDeZargon.ts`): captura igual un movimiento de
+   * héroe que uno automático de Zargon, sin tocar ni `useAccionesDeTurno` ni
+   * `useTurnoDeZargon`.
+   */
+  const [rastro, setRastro] = useState<{ ruta: Celda[]; iniciada: number } | null>(null);
+  const ejecutarConRastro = useCallback(
+    (a: Accion): Evento[] | null => {
+      const eventos = ejecutar(a);
+      const movimiento = eventos?.find((ev) => ev.tipo === "movimiento");
+      if (movimiento && movimiento.tipo === "movimiento") {
+        setRastro({ ruta: [movimiento.desde, ...movimiento.ruta], iniciada: Date.now() });
+      }
+      return eventos;
+    },
+    [ejecutar],
+  );
+
+  // Deja de dibujarse sola cuando nadie más mueve nada: sin este temporizador,
+  // un rastro tras la última jugada de la partida se quedaría fijo en el
+  // tablero para siempre, porque nada volvería a redibujar `BoardMirror`. No es
+  // el bucle de animación que se ha evitado a propósito (`T70-...md`, «Sin
+  // `requestAnimationFrame`»): es un único aviso, no uno por fotograma.
+  useEffect(() => {
+    if (!rastro) return;
+    const duracion = Math.max(rastro.ruta.length - 1, 1) * 300 + 1000;
+    const t = setTimeout(() => setRastro(null), duracion);
+    return () => clearTimeout(t);
+  }, [rastro]);
+
+  /**
    * A qué nivel juega Zargon. Vive en la pantalla y no en `localStorage`: es una
    * decisión de esta partida —se sube cuando los niños ganan siempre— y no una
    * preferencia del navegador. Cambiarlo a mitad de misión no rompe el deshacer:
@@ -82,7 +118,7 @@ export function Juego({
 
   const turno = useAccionesDeTurno({
     estado,
-    ejecutar,
+    ejecutar: ejecutarConRastro,
     deshacer,
     puedeActuar,
     // Esta es la pantalla de la mesa: la que tiene las miniaturas delante y la
@@ -125,6 +161,7 @@ export function Juego({
           activa={turno.activa}
           alPulsarCelda={turno.mover}
           alPulsarFigura={turno.alPulsarFigura}
+          rastro={rastro}
         />
         {error && <div className="aviso-error">{error}</div>}
       </div>

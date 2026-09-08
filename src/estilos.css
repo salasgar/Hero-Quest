@@ -82,6 +82,16 @@ button:disabled { opacity: .45; cursor: default; }
 .juego-tablero { position: relative; flex: 0 0 auto; }
 .tablero { display: block; background: #0d1015; border-radius: 8px; }
 
+/* Rastro de la última ruta recorrida (T70). El desvanecido lo hace la propia
+   transición CSS al añadirse `.rastro-desvanecido`: no hace falta redibujar
+   fotograma a fotograma para que se vea suave. */
+.rastro-origen { stroke: #ffd76a; stroke-width: 2; opacity: .85; transition: opacity 1s ease; }
+.rastro-linea { stroke: #ffd76a; stroke-width: 2; stroke-dasharray: 1 6; stroke-linecap: round; opacity: .7; transition: opacity 1s ease; }
+.rastro-punto { fill: #ffd76a; opacity: .7; transition: opacity 1s ease; }
+.rastro-origen.rastro-desvanecido,
+.rastro-linea.rastro-desvanecido,
+.rastro-punto.rastro-desvanecido { opacity: 0; }
+
 .juego-panel {
   flex: 1 1 320px; min-width: 300px; max-width: 460px;
   display: flex; flex-direction: column; gap: .9rem;

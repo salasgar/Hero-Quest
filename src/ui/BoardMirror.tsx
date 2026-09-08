@@ -28,6 +28,13 @@ export interface PropsTablero {
   activa: Figura | null;
   alPulsarCelda: (c: Celda) => void;
   alPulsarFigura: (id: string) => void;
+  /**
+   * La última ruta recorrida, para pintarla como rastro (T70): sin los números
+   * del tablero de cartón, con más de un camino posible nadie sabe por dónde
+   * fue la figura. `null` o ausente si no hay ninguna que enseñar —la vista de
+   * casa, que hoy no la calcula, deja de pintar el rastro y nada más.
+   */
+  rastro?: { ruta: readonly Celda[]; iniciada: number } | null;
 }
 
 export function BoardMirror({
@@ -37,6 +44,7 @@ export function BoardMirror({
   activa,
   alPulsarCelda,
   alPulsarFigura,
+  rastro = null,
 }: PropsTablero) {
   const ancho = ANCHO_TABLERO * LADO + MARGEN * 2;
   const alto = ALTO_TABLERO * LADO + MARGEN * 2;
@@ -92,6 +100,14 @@ export function BoardMirror({
   ];
 
   const figuraAbierta = figuras.find((f) => f.id === idFichaAbierta) ?? null;
+
+  // Cuánto lleva el rastro en pantalla, para decidir si ya toca desvanecerlo.
+  // Se calcula con `Date.now()` en cada render, no con un `requestAnimationFrame`
+  // propio: el diario y el resto de la interfaz ya redibujan seguido mientras
+  // dura una jugada, y eso basta para que el desvanecido (que hace el propio
+  // CSS con una transición) arranque a tiempo.
+  const duracionRastro = rastro ? Math.max(rastro.ruta.length - 1, 1) * 300 : 0;
+  const rastroDesvanecido = !!rastro && Date.now() - rastro.iniciada >= duracionRastro;
 
   return (
     <>
@@ -283,6 +299,40 @@ export function BoardMirror({
               />
             );
           })}
+
+        {/* Rastro de la última ruta recorrida (T70): la casilla de origen
+            marcada y un punto por cada casilla siguiente, con una línea de
+            puntos que las une. Va antes que las figuras para que la ficha se
+            pinte encima. */}
+        {rastro && (
+          <g pointerEvents="none">
+            <circle
+              cx={rastro.ruta[0]!.x * LADO + LADO / 2}
+              cy={rastro.ruta[0]!.y * LADO + LADO / 2}
+              r={LADO / 2 - 5}
+              fill="none"
+              className={`rastro-origen${rastroDesvanecido ? " rastro-desvanecido" : ""}`}
+            />
+            {rastro.ruta.length > 1 && (
+              <polyline
+                points={rastro.ruta
+                  .map((c) => `${c.x * LADO + LADO / 2},${c.y * LADO + LADO / 2}`)
+                  .join(" ")}
+                fill="none"
+                className={`rastro-linea${rastroDesvanecido ? " rastro-desvanecido" : ""}`}
+              />
+            )}
+            {rastro.ruta.slice(1).map((c, i) => (
+              <circle
+                key={`r${i}`}
+                cx={c.x * LADO + LADO / 2}
+                cy={c.y * LADO + LADO / 2}
+                r={3}
+                className={`rastro-punto${rastroDesvanecido ? " rastro-desvanecido" : ""}`}
+              />
+            ))}
+          </g>
+        )}
 
         {/* Figuras */}
         {figuras.map((f) => {
