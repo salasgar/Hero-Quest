@@ -301,3 +301,17 @@ que dura la sesión.
   prohíbe reordenar el catálogo de misiones por su cuenta: si el cambio es grande, lo revisa
   una tarea de banda ALTA aparte, porque el orden actual sale de una firma de T45.
   T66 comparte `reducer.ts` y `types.ts` con T50; no choca con la T46 en curso.
+- **T75 (mover dos veces tras abrir una puerta) es un fallo que Juan Luis vio jugando el
+  2026-09-08.** Confirmado en el código: `movimientoRestante` sí acota bien el total de
+  casillas entre varias llamadas a `mover()`, y `abrirPuerta` no toca el estado del turno
+  en absoluto (a propósito: es gratis). Pero el arreglo obvio —hacer que `abrirPuerta`
+  cierre el movimiento igual que `cerrarAccion`— **rompería el paso normal por una puerta
+  cerrada**, porque una puerta cerrada bloquea el camino (`board.ts:10-11`) y el flujo
+  «moverse hasta la puerta → abrirla → seguir andando» es el único modo de cruzarla. Por
+  eso la ficha no prescribe el arreglo: pide reproducir el caso exacto, leer el reglamento
+  (páginas 12-13 del libro) y decidir con criterio, banda ALTA. Comparte `reducer.ts` con
+  T50.
+- **T67 a T74 son ocho fichas nuevas que escribió la sesión coordinadora `hero-quest-38`**
+  el 2026-09-08, en paralelo con la T75 de esta nota; el salto de numeración 66→75 está
+  explicado en `_ESTADO.md`. No se han fusionado los detalles de esas ocho aquí: las
+  documenta quien las escribió, al comitearlas.
