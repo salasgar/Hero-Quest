@@ -417,6 +417,14 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
   if (esHeroe(f) && f.cuerpo <= 0) return fallo(`${f.nombre} ha caído: no puede moverse.`);
   if (e.turno.movimientoTotal === null) return fallo("Antes hay que tirar el movimiento.");
   if (e.turno.movimientoCerrado) return fallo("Ya has movido y actuado: el movimiento está cerrado.");
+  // Regla de la casa, firmada por Juan Luis en `autorizaciones.md` (2026-09-10,
+  // T76): un personaje —héroe o monstruo— solo se mueve una vez por turno, y
+  // abrir una puerta remata el movimiento. No es el reglamento: la p. 12 deja
+  // abrir una puerta «while you are moving» y seguir andando (ver `abrirPuerta`
+  // y T75); él la lee como que el movimiento se acaba ahí. Va antes que «no te
+  // queda movimiento» porque las casillas sobrantes se pierden al moverse, y el
+  // motivo tiene que decir por qué.
+  if (e.turno.haMovido) return fallo("Ya te has movido este turno: un personaje solo se mueve una vez.");
   if (e.turno.movimientoRestante <= 0) return fallo("No te queda movimiento.");
   if (!celdaLibre(e, destino, f.id)) return fallo("Esa casilla está ocupada o bloqueada.");
 
@@ -513,7 +521,6 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
     } as Figura);
   }
 
-  const gastado = recorrido.length;
   eventos.unshift({
     tipo: "movimiento",
     actor: f.id,
@@ -537,11 +544,13 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
   // Caer al foso o llevarse la lanza acaba el turno («This ends your turn»,
   // pp. 17-18): ni un paso más ni acción. Se cierra como si ya hubiera actuado;
   // el turno sigue siendo suyo hasta que lo termine, como cuando ataca.
+  // Y el movimiento que sobra se pierde siempre (regla de la casa de T76, ver la
+  // guarda de arriba): así la pantalla enseña «0 de N» y no ofrece casillas.
   estado = {
     ...estado,
     turno: {
       ...estado.turno,
-      movimientoRestante: turnoAcabado ? 0 : estado.turno.movimientoRestante - gastado,
+      movimientoRestante: 0,
       haMovido: true,
       ...(turnoAcabado ? { haActuado: true, movimientoCerrado: true } : {}),
     },
@@ -564,6 +573,13 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
  * movimiento con una puerta en medio, acotado por `movimientoRestante`. Si
  * esto cerrara el movimiento, un héroe que llegara andando hasta una puerta
  * cerrada no podría cruzarla nunca en el mismo turno (T75).
+ *
+ * Y sin embargo eso es exactamente lo que pasa desde T76, por regla de la casa
+ * firmada en `autorizaciones.md`: un personaje solo se mueve una vez por turno,
+ * así que quien llega andando a una puerta la abre, mira, y entra al turno
+ * siguiente; para entrar el mismo turno hay que empezar pegado a ella y abrirla
+ * antes de moverse. La guarda está en `mover()`, sobre `haMovido`; esta función
+ * sigue sin tocar el turno, porque abrir sigue siendo gratis.
  */
 function abrirPuerta(e: EstadoPartida, idPuerta: string): Resultado {
   const f = figuraActiva(e);
