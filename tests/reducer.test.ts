@@ -120,6 +120,59 @@ describe("puertas", () => {
   });
 });
 
+describe("mover, abrir una puerta y seguir andando (T75)", () => {
+  // Reglamento p. 11: «You may not, however, move part way, perform an action,
+  // and then finish your movement». Y p. 12: abrir una puerta NO es una de las
+  // seis acciones; se hace «while you are moving», y «you do not have to move
+  // the entire distance» (p. 11). Así que mover, abrir y seguir andando es UN
+  // movimiento con una puerta en medio, no dos; lo único que lo parte es una
+  // acción, y eso ya lo cierra `movimientoCerrado`. Estos tests fijan esa
+  // lectura para que nadie «arregle» abrirPuerta cerrando el movimiento: eso
+  // dejaría al héroe sin poder cruzar la puerta que acaba de abrir.
+  const escena = () => {
+    const base = partida({ puertas: [puerta("p", c(0, 2), c(1, 2))] });
+    return conMovimiento(situar(base, "barbaro", c(0, 4)), 6);
+  };
+
+  it("una puerta cerrada bloquea el camino: hay que pararse delante y abrirla", () => {
+    const e = escena();
+    expect(rechaza(e, { tipo: "mover", destino: c(1, 2) })).toMatch(/no se puede llegar/i);
+  });
+
+  it("mover hasta la puerta, abrirla y entrar en la sala es un solo movimiento", () => {
+    let e = escena();
+    e = hacer(e, { tipo: "mover", destino: c(0, 2) }); // dos casillas
+    e = hacer(e, { tipo: "abrirPuerta", puerta: "p" });
+    e = hacer(e, { tipo: "mover", destino: c(2, 2) }); // dos más, ya dentro
+    expect(e.heroes[0]!.celda).toEqual(c(2, 2));
+    expect(e.turno.movimientoRestante).toBe(2);
+    expect(e.turno.movimientoCerrado).toBe(false);
+  });
+
+  it("lo que vio Juan Luis: tras abrir puede irse por otro lado, pero nunca más allá de la tirada", () => {
+    let e = escena();
+    e = hacer(e, { tipo: "mover", destino: c(0, 2) }); // 2 de 6
+    e = hacer(e, { tipo: "abrirPuerta", puerta: "p" });
+    e = hacer(e, { tipo: "mover", destino: c(0, 6) }); // 4 más, alejándose de la puerta
+    expect(e.heroes[0]!.celda).toEqual(c(0, 6));
+    expect(e.turno.movimientoRestante).toBe(0);
+    expect(rechaza(e, { tipo: "mover", destino: c(0, 7) })).toMatch(/no te queda movimiento/i);
+  });
+
+  it("lo que sí parte el movimiento es una acción, con o sin puerta en medio", () => {
+    const base = partida({
+      puertas: [puerta("p", c(0, 2), c(1, 2))],
+      monstruos: [{ id: "orco1", especie: "orco", celda: c(1, 2) }],
+    });
+    let e = conMovimiento(situar(base, "barbaro", c(0, 4)), 6);
+    e = hacer(e, { tipo: "mover", destino: c(0, 2) });
+    e = hacer(e, { tipo: "abrirPuerta", puerta: "p" });
+    e = hacer(e, { tipo: "atacar", objetivo: "orco1", dadosAtaque: [CAL], dadosDefensa: [] });
+    expect(e.turno.movimientoCerrado).toBe(true);
+    expect(rechaza(e, { tipo: "mover", destino: c(0, 4) })).toMatch(/movimiento está cerrado/i);
+  });
+});
+
 describe("ataque", () => {
   it("hace falta estar adyacente", () => {
     const base = partida({ monstruos: [{ id: "orco1", especie: "orco", celda: c(4, 3) }] });

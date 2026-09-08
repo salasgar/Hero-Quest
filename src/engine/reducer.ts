@@ -554,6 +554,16 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
 /**
  * Abrir una puerta es GRATIS en HeroQuest: no gasta movimiento ni consume la
  * acción del turno. Se abre al pasar por delante y se sigue andando.
+ *
+ * Por eso, y a propósito, no toca el estado del turno: ni `haActuado` ni
+ * `movimientoCerrado`. Reglamento p. 12: «Opening a door is also not one of
+ * the six actions»; se abre «while you are moving». Lo único que parte el
+ * movimiento en dos es una acción (p. 11: «you may not move part way, perform
+ * an action, and then finish your movement»), y eso lo hace `cerrarAccion`.
+ * Mover, abrir y seguir andando —hacia dentro o hacia otro lado— es un solo
+ * movimiento con una puerta en medio, acotado por `movimientoRestante`. Si
+ * esto cerrara el movimiento, un héroe que llegara andando hasta una puerta
+ * cerrada no podría cruzarla nunca en el mismo turno (T75).
  */
 function abrirPuerta(e: EstadoPartida, idPuerta: string): Resultado {
   const f = figuraActiva(e);
