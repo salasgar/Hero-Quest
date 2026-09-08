@@ -17,6 +17,19 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-08T23:04Z · por la sesión `s-20260908T221009-8416a271` (`HQ T75
+(ALTO)`), al reclamar la 76. Sobre la regeneración de las 22:44Z (`s-20260908T222927-9a0511bf`,
+al cerrar la 68) cambia **una fila nueva**: la **76**, ficha escrita por esta sesión por
+encargo directo de Juan Luis tras leer el cierre de la 75: reafirmó que «cualquier personaje
+(héroe o monstruo) solamente se puede mover una vez dentro de su turno» y, preguntado por
+el héroe que llega andando a una puerta cerrada, eligió que **las casillas sobrantes se
+pierden y entra al turno siguiente**. Es regla de la casa (el reglamento p. 12 permite abrir
+«while you are moving» y seguir, fijado en T75), así que la fila nace **BLOQUEADA por su
+firma** en `autorizaciones.md`: se le ha dado el texto exacto; el reclamo está vivo porque
+el código se prepara en el worktree y **no se fusiona en `main` hasta que la firma exista**.
+Comparte `reducer.ts` con 50 y 71, que siguen PENDIENTE: no cogerlas mientras la 76 viva.
+47 y 73 siguen EN CURSO.
+
 Regenerado: 2026-09-08T22:44:46Z · por la sesión `s-20260908T222927-9a0511bf` (`HQ T68
 (MEDIO)`), al cerrar la 68. Sobre la regeneración anterior (al cerrar la 69) cambia **una
 fila**: la **68 pasa a LISTA**, pendiente del hash de `origin/main` (se añade en un commit
@@ -438,6 +451,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 73 | T73 · Héroes del simulador que juegan como personas | tareas/T73-heroes-simulador-razonables.md | 45 LISTA · no a la vez que 53, 38, 45 (`simular.ts`) | 2 h | MEDIO | — | `scripts/simular.ts`, tests (si hace falta) | manual | EN CURSO | `s-20260908T221105-3faa514f` · 2026-09-09T02:11:05Z |
 | 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | **PENDIENTE** | |
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | LISTA (`1b19270`; sin cambio de regla: el reglamento pp. 11-12 permite mover, abrir y seguir) | |
+| 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | **BLOQUEADA** por la firma (sin ella no se fusiona; reclamo vivo de `s-20260908T221009-8416a271`, que prepara el código en su worktree) | `s-20260908T221009-8416a271` · caduca en el reclamo |
 
 Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
 y esta sesión (`HQ Coordinadora T67-T75`) las comiteó (`332ea02`) y regeneró el tablón. El
