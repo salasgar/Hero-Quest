@@ -112,6 +112,22 @@ grep -n "movimientoCerrado" src/engine/reducer.ts
 
 ## Trampas conocidas
 
+- **Resuelto el 2026-09-08 sin cambiar ninguna regla** (`s-20260908T221009-8416a271`,
+  banda ALTO): el reglamento **no sostiene** que abrir una puerta parta el movimiento.
+  P. 11, «On a Hero's Turn»: «you may move and then perform an action, or perform an
+  action and then move. You may not, however, move part way, perform an action, and then
+  finish your movement». P. 12, «Looking and Opening Doors»: «As a hero, while you are
+  moving you may look down a corridor or through an open door. […] On your turn, you may
+  move adjacent to a closed door and ask Zargon to open it. […] Opening a door is also not
+  one of the six actions. Both looking and opening doors are simply considered to be
+  additional things you may do on your turn». Y p. 11: «You do not have to move the entire
+  distance indicated by the dice roll». Lo único que parte el movimiento es **una acción**,
+  y eso ya lo cierra `movimientoCerrado`. Mover, abrir y seguir andando —hacia la sala o
+  hacia otro lado— es **un** movimiento con una puerta en medio, y `movimientoRestante`
+  lo acota (reproducido en `tests/reducer.test.ts`, describe «mover, abrir una puerta y
+  seguir andando (T75)»). Lo que Juan Luis vio es el reglamento funcionando; si quiere otra
+  cosa es una **regla de la casa** que necesita su firma en `autorizaciones.md`, y las
+  opciones están en la terminada de `hechos/terminadas/75--s-20260908T221009-8416a271.md`.
 - **El arreglo ingenuo rompe el cruce normal de puertas.** Está explicado arriba entero;
   no lo repitas sin leerlo.
 - **`movimientoRestante` ya limita el total de casillas correctamente.** No es ahí donde
