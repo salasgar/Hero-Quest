@@ -968,6 +968,15 @@ function desarmarTrampa(e: EstadoPartida, idTrampa: string): Resultado {
   if (t.gastada) return fallo("Esa trampa ya está gastada.");
   if (!t.descubierta) return fallo("Primero hay que encontrarla.");
 
+  // Reglamento p. 19: hay que moverse a la propia casilla de la trampa. Esta
+  // acción no mueve a la figura (como `abrirPuerta`), y `mover()` hace saltar
+  // cualquier trampa descubierta que sea el destino, así que exigir estar
+  // encima dejaría la acción inservible: se acepta la adyacente ortogonal en
+  // su lugar (regla de la casa, pendiente de firma; ver `trampasDesarmables`
+  // en `selectors.ts`).
+  const alcance = mismaCelda(t.celda, f.celda) || vecinasDelTablero(t.celda).some((c) => mismaCelda(c, f.celda));
+  if (!alcance) return fallo("Tienes que estar junto a la trampa para desarmarla.");
+
   const tieneHerramientas = f.equipo.includes("herramientas");
   if (!tieneHerramientas) return fallo("Hacen falta herramientas para desarmar.");
 

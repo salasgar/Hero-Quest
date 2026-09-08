@@ -200,6 +200,7 @@ export function Juego({
             esZargon={turno.esZargon}
             porActivar={turno.porActivar}
             puertas={turno.puertas}
+            trampas={turno.trampas}
             objetivos={turno.objetivos}
             hechizos={turno.hechizos}
             hechizosEnMano={turno.hechizosEnMano}
@@ -216,6 +217,7 @@ export function Juego({
               atacar: turno.pedirAtaque,
               buscarTesoro: () => ejecutar({ tipo: "buscarTesoro" }),
               buscarTrampas: () => ejecutar({ tipo: "buscarTrampas" }),
+              desarmarTrampa: (id) => ejecutar({ tipo: "desarmarTrampa", trampa: id }),
               elegirHechizo: turno.elegirHechizo,
               lanzarSobre: (id) => {
                 if (turno.pendiente) turno.lanzar(turno.pendiente.hechizo, id);

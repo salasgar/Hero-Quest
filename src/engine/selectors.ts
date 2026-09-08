@@ -6,7 +6,7 @@
  * Todo son funciones puras sobre el estado: ni guardan nada ni tocan la interfaz.
  */
 
-import { salaEn } from "../data/board-base";
+import { salaEn, vecinas } from "../data/board-base";
 import { HECHIZOS, type IdHechizo } from "../data/spells";
 import { alcanzables, celdasQueAbren, figuraPorId } from "./board";
 import { dadosDeAtaque, dadosDeDefensa, modoDeAtaqueContra } from "./combat";
@@ -30,6 +30,7 @@ import {
   type Figura,
   type IdFigura,
   type Puerta,
+  type Trampa,
 } from "./types";
 
 export { actorActual, esTurnoDeZargon, figuraActiva };
@@ -74,6 +75,30 @@ export function puertasAlAlcance(e: EstadoPartida): Puerta[] {
       !p.abierta &&
       (!p.secreta || p.descubierta) &&
       celdasQueAbren(p).some((c) => mismaCelda(c, f.celda)),
+  );
+}
+
+/**
+ * Trampas descubiertas que el héroe activo puede desarmar ahora mismo (T68).
+ *
+ * El reglamento (p. 19, «Action 6: Disarm a Trap») exige moverse **a la propia
+ * casilla de la trampa** para intentarlo. Este motor no lo puede hacer así: es
+ * una acción que no mueve a la figura (igual que `abrirPuerta`), y moverse a
+ * la casilla de una trampa descubierta con `mover()` la hace saltar siempre
+ * (`reducer.ts`, `mover`, `esElDestino`), así que exigir estar encima la
+ * dejaría inservible. Se usa la adyacente ortogonal en su lugar —**regla de la
+ * casa**, pendiente de firma en `autorizaciones.md`—, igual que `puertasAlAlcance`
+ * hace con las puertas.
+ */
+export function trampasDesarmables(e: EstadoPartida): Trampa[] {
+  const f = figuraActiva(e);
+  if (!f || !esHeroe(f) || e.turno.haActuado) return [];
+  if (!f.equipo.includes("herramientas")) return [];
+  return e.trampas.filter(
+    (t) =>
+      t.descubierta &&
+      !t.gastada &&
+      (mismaCelda(t.celda, f.celda) || vecinas(t.celda).some((c) => mismaCelda(c, f.celda))),
   );
 }
 

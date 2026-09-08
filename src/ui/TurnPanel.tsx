@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { figuraPorId } from "../engine/board";
 import { dadosDeAtaque, dadosDeDefensa } from "../engine/combat";
-import { esHeroe, type Accion, type EstadoPartida, type Figura, type Puerta } from "../engine/types";
+import { esHeroe, type Accion, type EstadoPartida, type Figura, type Puerta, type Trampa } from "../engine/types";
 import { DIFICULTADES, type Dificultad } from "../ai/difficulty";
 import { MONSTRUOS } from "../data/monsters";
 import { conArticulo, especieEnMinuscula } from "../data/nombres";
@@ -22,6 +22,8 @@ export interface PropsTurno {
   esZargon: boolean;
   porActivar: readonly Figura[];
   puertas: readonly Puerta[];
+  /** Trampas descubiertas al alcance (T68). `undefined` en pantallas que no lo calculen todavía. */
+  trampas?: readonly Trampa[];
   objetivos: readonly Figura[];
   /** Solo los que tienen algún objetivo: los demás no llegan hasta aquí. */
   hechizos: readonly HechizoConObjetivos[];
@@ -39,6 +41,8 @@ export interface PropsTurno {
     atacar: (id: string) => void;
     buscarTesoro: () => void;
     buscarTrampas: () => void;
+    /** T68. Opcional: solo si la pantalla lo trae junto con `trampas`. */
+    desarmarTrampa?: (id: string) => void;
     elegirHechizo: (h: IdHechizo) => void;
     lanzarSobre: (id: string) => void;
     cancelarHechizo: () => void;
@@ -119,6 +123,7 @@ export function TurnPanel({
   esZargon,
   porActivar,
   puertas,
+  trampas = [],
   objetivos,
   hechizos,
   hechizosEnMano,
@@ -353,6 +358,19 @@ export function TurnPanel({
               Buscar trampas <Tecla>R</Tecla>
             </button>
           )}
+          {/*
+            T68: una por trampa al alcance, igual que las puertas, no un botón
+            genérico —con dos trampas descubiertas a la vez hace falta elegir
+            cuál—. `acciones.desarmarTrampa` es opcional: en pantallas que
+            todavía no lo traigan (`trampas` sin declarar), no sale ninguna.
+          */}
+          {acciones.desarmarTrampa &&
+            trampas.map((t, i) => (
+              <button key={t.id} onClick={() => acciones.desarmarTrampa!(t.id)}>
+                Desarmar trampa{trampas.length > 1 ? ` (${i + 1})` : ""}
+                {i === 0 && <Tecla>D</Tecla>}
+              </button>
+            ))}
         </div>
       )}
 

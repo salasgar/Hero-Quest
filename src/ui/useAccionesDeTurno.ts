@@ -32,6 +32,7 @@ import {
   monstruosPorActivar,
   objetivosDeAtaque,
   puertasAlAlcance,
+  trampasDesarmables,
 } from "../engine/selectors";
 import {
   esHeroe,
@@ -172,6 +173,7 @@ export function useAccionesDeTurno({
   const movimiento = casillasDeMovimiento(estado);
   const objetivos = objetivosDeAtaque(estado);
   const puertas = puertasAlAlcance(estado);
+  const trampas = trampasDesarmables(estado);
   const porActivar = monstruosPorActivar(estado);
 
   // Solo los que tienen a alguien a la vista: los demás no se pintan, para que
@@ -389,8 +391,12 @@ export function useAccionesDeTurno({
       } else if (tecla === "r" && mandos) {
         ev.preventDefault();
         ejecutar({ tipo: "buscarTrampas" });
+      } else if (tecla === "d" && mandos && trampas.length > 0) {
+        // T68: D de «Desarmar», libre junto a las de T22, T36 y T52.
+        ev.preventDefault();
+        ejecutar({ tipo: "desarmarTrampa", trampa: trampas[0]!.id });
       } else if (tecla === "h" && mandos && hechizos.length > 0) {
-        // T, A, P, B, R y Z estaban cogidas; H no.
+        // T, A, P, B, R, D y Z estaban cogidas; H no.
         ev.preventDefault();
         elegirHechizo(hechizos[0]!.hechizo);
       } else if (tecla === "z") {
@@ -422,7 +428,7 @@ export function useAccionesDeTurno({
     window.addEventListener("keydown", alPulsar);
     return () => window.removeEventListener("keydown", alPulsar);
   }, [
-    tirada, puedeActuar, activa, esZargon, estado, objetivos, puertas,
+    tirada, puedeActuar, activa, esZargon, estado, objetivos, puertas, trampas,
     porActivar, hechizos, hechizoElegido, mover, ejecutar, deshacerYPausar, pedirAtaque,
     pedirMovimiento, elegirHechizo, cancelarHechizo,
     zargonAutomatico, zargon, mandos,
@@ -434,6 +440,7 @@ export function useAccionesDeTurno({
     movimiento,
     objetivos,
     puertas,
+    trampas,
     porActivar,
     hechizos,
     hechizosEnMano,

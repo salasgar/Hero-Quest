@@ -451,6 +451,18 @@ describe("desarmar una trampa con herramientas", () => {
     expect(r.estado.heroes[0]!.cuerpo).toBe(7);
     expect(r.estado.trampas[0]!.gastada).toBe(true);
   });
+
+  it("desde lejos no se puede desarmar (T68: guarda de alcance)", () => {
+    const base = partida({
+      trampas: [{ id: "t1", tipo: "lanza", celda: c(1, 2), descubierta: true, gastada: false }],
+    });
+    const e = situar(base, "barbaro", c(5, 5));
+    const lejos: EstadoPartida = {
+      ...e,
+      heroes: e.heroes.map((h) => ({ ...h, equipo: [...h.equipo, "herramientas" as IdEquipo] })),
+    };
+    expect(rechaza(lejos, { tipo: "desarmarTrampa", trampa: "t1" })).toMatch(/junto a la trampa/i);
+  });
 });
 
 describe("el tesoro de misión: objetivo «recuperar»", () => {
