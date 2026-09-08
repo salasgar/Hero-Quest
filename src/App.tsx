@@ -16,6 +16,7 @@ import {
   type PartidaGuardada,
 } from "./ui/registroDePartida";
 import { Transicion } from "./ui/Transicion";
+import { ContinuarContext } from "./ui/usePartida";
 import { VistaDeHeroe } from "./ui/VistaDeHeroe";
 
 /**
@@ -206,12 +207,16 @@ export default function App() {
           alVolver={() => setCreandoRed(false)}
         />
       ) : grupo ? (
-        <>
+        // El contexto envuelve a `Juego` sin que ese fichero tenga que saber
+        // nada de continuar una partida (T69): no está en los que declara esta
+        // ficha, y hoy además lo tiene reclamado T70. `usePartida`, que sí es
+        // de esta tarea, lo lee con `useContext` (`ContinuarContext`, en
+        // `usePartida.ts`).
+        <ContinuarContext.Provider value={continuar}>
           <Juego
             key={reparto}
             heroes={grupo}
             mision={mision}
-            continuar={continuar ?? undefined}
             instruccionesAbiertas={verInstrucciones}
             cerrarInstrucciones={() => setVerInstrucciones(false)}
           />
@@ -221,7 +226,7 @@ export default function App() {
               alTerminar={() => setEnTransicion(false)}
             />
           )}
-        </>
+        </ContinuarContext.Provider>
       ) : (
         <EleccionDeHeroes
           alEmpezar={(heroes, elegida) => {

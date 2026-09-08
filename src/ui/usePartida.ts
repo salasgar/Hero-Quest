@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { crearPartida, type HeroeElegido, type OpcionesPartida } from "../engine/partida";
 import { aplicarAccion, repetir } from "../engine/reducer";
 import type { Accion, EstadoPartida, Evento } from "../engine/types";
@@ -9,6 +9,19 @@ import {
   type AccionRechazada,
   type PartidaGuardada,
 } from "./registroDePartida";
+
+/**
+ * Con qué partida guardada continuar (T69), si con alguna: la pone `App.tsx`
+ * alrededor de `Juego` cuando se entra por «Continuar» en vez de por «Empezar
+ * la partida», y la lee este mismo fichero. Es un contexto y no un parámetro
+ * de `usePartida` porque quien decide `fuente` -los héroes, la misión y la
+ * semilla nueva de `Date.now()` para una partida sin continuar- es
+ * `Juego.tsx`, que no está en los ficheros que declara esta ficha (y hoy
+ * además lo tiene reclamado T70): el contexto cruza esa frontera sin tocar
+ * ese fichero. Con una `SesionDeRed` no se mira nunca: continuar una partida
+ * en red no es esta tarea.
+ */
+export const ContinuarContext = createContext<PartidaGuardada | null>(null);
 
 /**
  * El estado de la partida en la interfaz.
@@ -25,25 +38,25 @@ import {
  * salón. Qué modo es no cambia en la vida del componente: se elige al empezar
  * la partida.
  *
- * `previas` es de continuar una partida guardada (T69): la lista de acciones
- * (y lo que el motor rechazó) de la que arrancar en vez de un tablero vacío.
- * `fuente` ya lleva la semilla de esa partida -la decide quien monta esta
- * pantalla, a partir del registro guardado-, así que aquí basta con rehacer el
- * estado con `repetir` y devolver la lista tal cual para que siga creciendo.
- * En red no se usa: continuar una partida en red no es esta tarea.
+ * Al continuar una partida guardada (T69, `ContinuarContext` arriba), la
+ * semilla que de verdad cuenta es la suya y no la que trae `fuente`: con otra,
+ * el mazo de tesoro y el resto de sorteos saldrían distintos y su lista de
+ * acciones ya no encajaría. El estado inicial se rehace con `repetir` sobre
+ * esa semilla y esa lista, que además queda como punto de partida de
+ * `acciones` y `rechazadas` para que sigan creciendo desde ahí.
  */
-export function usePartida(
-  fuente: OpcionesPartida | SesionDeRed,
-  previas?: { acciones: readonly Accion[]; rechazadas: readonly AccionRechazada[] },
-) {
+export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
   const sesion = fuente instanceof SesionDeRed ? fuente : null;
-  const [inicial] = useState<EstadoPartida>(() =>
-    sesion ? sesion.inicial : crearPartida(fuente as OpcionesPartida),
-  );
+  const continuar = useContext(ContinuarContext);
+  const [inicial] = useState<EstadoPartida>(() => {
+    if (sesion) return sesion.inicial;
+    const opciones = fuente as OpcionesPartida;
+    return crearPartida(continuar ? { ...opciones, semilla: continuar.semilla } : opciones);
+  });
   const [estado, setEstado] = useState<EstadoPartida>(() =>
-    sesion ? sesion.estado : previas ? repetir(inicial, previas.acciones) : inicial,
+    sesion ? sesion.estado : continuar ? repetir(inicial, continuar.acciones) : inicial,
   );
-  const [acciones, setAcciones] = useState<Accion[]>(() => (previas ? [...previas.acciones] : []));
+  const [acciones, setAcciones] = useState<Accion[]>(() => (continuar ? [...continuar.acciones] : []));
   const [error, setError] = useState<string | null>(null);
   /**
    * Lo que el motor rechazó, para el registro descargable (T57).
@@ -54,7 +67,7 @@ export function usePartida(
    * tableta— se pierde entero en cuanto el aviso desaparece de la pantalla.
    */
   const [rechazadas, setRechazadas] = useState<AccionRechazada[]>(() =>
-    previas ? [...previas.rechazadas] : [],
+    continuar ? [...continuar.rechazadas] : [],
   );
 
   /**
@@ -66,14 +79,16 @@ export function usePartida(
    * `crearPartida`, y sin ella el fichero descargado no se puede repetir.
    *
    * `crearPartida` toma 1 cuando no le dan semilla, así que aquí se anota lo
-   * mismo y no «ninguna»: se guarda lo que de verdad se usó.
+   * mismo y no «ninguna»: se guarda lo que de verdad se usó. Al continuar
+   * (T69), lo que de verdad se usó es la semilla guardada, no la que traía
+   * `fuente` -por eso `inicial`, arriba, hace la misma sustitución-.
    */
   const [montaje] = useState<{ mision: string; semilla: number; heroes: HeroeElegido[] }>(() =>
     sesion
       ? { mision: sesion.montaje.mision, semilla: sesion.montaje.semilla, heroes: sesion.montaje.heroes }
       : {
           mision: (fuente as OpcionesPartida).mision.id,
-          semilla: (fuente as OpcionesPartida).semilla ?? 1,
+          semilla: continuar ? continuar.semilla : (fuente as OpcionesPartida).semilla ?? 1,
           heroes: (fuente as OpcionesPartida).heroes,
         },
   );
