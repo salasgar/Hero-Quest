@@ -306,8 +306,12 @@ import { MISION_TORREON, MONSTRUOS_TORREON, PUERTAS_TORREON } from "../src/data/
  * comprueba el `describe.each` de arriba.
  */
 describe("«El torreón del Señor de la Guerra» (T46)", () => {
-  it("va detrás del calabozo en el catálogo", () => {
-    expect(MISIONES[1]?.mision.id).toBe("torreon");
+  // T47 midió 66 % de victorias en `normal` para las cavernas del troll
+  // contra el 55 % del torreón (tras el arreglo de T66) y la regla del
+  // catálogo obliga a reordenar por la medida, no por el orden de escritura
+  // (`quests/index.ts`): el torreón pasa al índice 2, detrás de las cavernas.
+  it("va detrás del calabozo y de las cavernas del troll en el catálogo", () => {
+    expect(MISIONES[2]?.mision.id).toBe("torreon");
   });
 
   it("el objetivo es matar al Señor de la Guerra, un guerrero del Caos que empieza en el salón del trono", () => {

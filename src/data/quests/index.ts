@@ -60,6 +60,13 @@ import {
   PUERTAS_TORREON,
   TRAMPAS_TORREON,
 } from "./torreon";
+import {
+  MISION_CAVERNAS,
+  MONSTRUOS_CAVERNAS,
+  MUEBLES_CAVERNAS,
+  PUERTAS_CAVERNAS,
+  TRAMPAS_CAVERNAS,
+} from "./cavernas";
 
 /** Un monstruo tal y como lo declara una misión: dónde empieza y qué es. */
 export type MonstruoDeMision = OpcionesPartida["monstruos"][number];
@@ -107,12 +114,27 @@ const TORREON: MisionCompleta = congelar({
   dificultad: "con un jefe que pega de verdad: el Señor de la Guerra y su guardia, entre vosotros y el trono",
 });
 
+const CAVERNAS: MisionCompleta = congelar({
+  mision: MISION_CAVERNAS,
+  puertas: PUERTAS_CAVERNAS,
+  monstruos: MONSTRUOS_CAVERNAS,
+  trampas: TRAMPAS_CAVERNAS,
+  muebles: MUEBLES_CAVERNAS,
+  dificultad: "con un muro que no se cansa: el troll de las cavernas, casi invulnerable, y hay que desgastarlo entre los cuatro",
+});
+
 /**
  * Todas las misiones, de la más fácil a la más difícil. El calabozo va el
- * primero y ahí se queda: es la misión de referencia. El torreón (T46) va
- * detrás: su tabla está en la terminada de esa tarea.
+ * primero y ahí se queda: es la misión de referencia. Las cavernas del troll
+ * (T47) van **delante** del torreón (T46), no detrás de él como se
+ * escribieron: `npm run sim` mide 66 % de victorias en `normal` para las
+ * cavernas contra el 55 % del torreón (medido tras el arreglo de T66), y la
+ * regla del catálogo es tajante —«si una misión nueva desordena la lista, se
+ * reordena la lista: no se retocan los pesos de Zargon ni se arregla la
+ * primera misión»—, así que el orden de escritura cede al de la medida. Las
+ * tablas están en la terminada de cada tarea.
  */
-export const MISIONES: readonly MisionCompleta[] = Object.freeze([CALABOZO, TORREON]);
+export const MISIONES: readonly MisionCompleta[] = Object.freeze([CALABOZO, CAVERNAS, TORREON]);
 
 /** La que se juega si nadie elige: la primera, que es la de empezar. */
 export const MISION_POR_DEFECTO: MisionCompleta = MISIONES[0]!;
