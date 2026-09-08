@@ -1,9 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { aplicarAccion, repetir } from "../src/engine/reducer";
 import { narrarTodos } from "../src/narrator/local";
 import type { Accion, EstadoPartida } from "../src/engine/types";
 import {
+  borrarGuardada,
   construir,
+  guardarConNombre,
+  listarGuardadas,
   nombreDeFichero,
   type AccionRechazada,
   type PartidaGuardada,
@@ -126,5 +129,84 @@ describe("el registro descargable de una partida", () => {
     expect(p.semilla).toBe(SEMILLA);
     expect(p.formato).toBe(1);
     expect(p.commit).toBe("dev");
+  });
+});
+
+/**
+ * `vitest` corre en `environment: "node"` (`vite.config.ts`), que no trae
+ * `localStorage`. Las funciones de guardado con nombre ya asumen que puede
+ * faltar -Safari en modo privado lo bloquea igual, y por eso van en un
+ * `try`- así que aquí basta con darle uno de mentira en vez de mockear el
+ * módulo entero.
+ */
+function localStorageDeMentira(): Storage {
+  const datos = new Map<string, string>();
+  return {
+    getItem: (k: string) => datos.get(k) ?? null,
+    setItem: (k: string, v: string) => void datos.set(k, v),
+    removeItem: (k: string) => void datos.delete(k),
+    clear: () => datos.clear(),
+    key: () => null,
+    get length() {
+      return datos.size;
+    },
+  } as Storage;
+}
+
+describe("las partidas guardadas con nombre (T69)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("sin nada guardado, la lista está vacía", () => {
+    vi.stubGlobal("localStorage", localStorageDeMentira());
+    expect(listarGuardadas()).toEqual([]);
+  });
+
+  it("guarda con un nombre y lo recupera tal cual", () => {
+    vi.stubGlobal("localStorage", localStorageDeMentira());
+    const p = fichero();
+    guardarConNombre("de sábado", p);
+
+    const lista = listarGuardadas();
+    expect(lista).toHaveLength(1);
+    expect(lista[0]!.nombre).toBe("de sábado");
+    expect(lista[0]!.partida).toEqual(p);
+  });
+
+  it("guardar dos veces con el mismo nombre sustituye, no añade una segunda", () => {
+    vi.stubGlobal("localStorage", localStorageDeMentira());
+    guardarConNombre("de sábado", fichero());
+    const despues = fichero([{ tipo: "atacar", objetivo: "nadie" }]);
+    guardarConNombre("de sábado", despues);
+
+    const lista = listarGuardadas();
+    expect(lista).toHaveLength(1);
+    expect(lista[0]!.partida).toEqual(despues);
+  });
+
+  it("borrar quita solo la guardada de ese nombre", () => {
+    vi.stubGlobal("localStorage", localStorageDeMentira());
+    guardarConNombre("uno", fichero());
+    guardarConNombre("dos", fichero());
+    borrarGuardada("uno");
+
+    expect(listarGuardadas().map((g) => g.nombre)).toEqual(["dos"]);
+  });
+
+  it("borrar un nombre que no existe no rompe nada", () => {
+    vi.stubGlobal("localStorage", localStorageDeMentira());
+    expect(() => borrarGuardada("no existe")).not.toThrow();
+  });
+
+  it("una partida guardada con nombre se reconstruye con `repetir`, igual que el fichero descargado", () => {
+    vi.stubGlobal("localStorage", localStorageDeMentira());
+    guardarConNombre("continuar", fichero());
+
+    const [guardada] = listarGuardadas();
+    const rehecha = repetir(
+      partida({ heroes: guardada!.partida.heroes, semilla: guardada!.partida.semilla }),
+      guardada!.partida.acciones,
+    );
+
+    expect(huellaDe(rehecha)).toEqual(guardada!.partida.huella);
   });
 });

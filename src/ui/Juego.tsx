@@ -11,6 +11,7 @@ import { HeroSheet } from "./HeroSheet";
 import { Instrucciones } from "./Instrucciones";
 import { MasterLog } from "./MasterLog";
 import { TurnPanel } from "./TurnPanel";
+import type { PartidaGuardada } from "./registroDePartida";
 import { mandosDeHeroe, useAccionesDeTurno } from "./useAccionesDeTurno";
 import { usePartida } from "./usePartida";
 import { desbloquearAudio, useSilencio, useSonidos } from "./sonidos";
@@ -39,6 +40,7 @@ export function Juego({
   heroes = GRUPO_CLASICO,
   mision = MISION_POR_DEFECTO,
   sesion,
+  continuar,
   instruccionesAbiertas = false,
   cerrarInstrucciones = () => {},
 }: {
@@ -50,6 +52,12 @@ export function Juego({
    */
   mision?: MisionCompleta;
   sesion?: SesionDeRed;
+  /**
+   * Partida guardada de la que arrancar en vez de un tablero vacío (T69).
+   * `heroes` y `mision` los sigue decidiendo `App.tsx`, a partir de este mismo
+   * registro; aquí solo hace falta su semilla y su lista de acciones.
+   */
+  continuar?: PartidaGuardada;
   /**
    * Si `App.tsx` tiene abiertas las instrucciones. Vive ahí porque el botón
    * está en la barra de navegación, que es de `App`; se lee aquí porque «los
@@ -66,9 +74,12 @@ export function Juego({
       heroes,
       // En red la semilla viene del montaje y no de aquí: si cada navegador la
       // calculara, las dos casas barajarían el mazo distinto y jugarían a dos
-      // partidas que ya no son la misma.
-      semilla: Date.now() % 100000,
+      // partidas que ya no son la misma. Al continuar una guardada pasa lo
+      // mismo con el mazo de tesoro y el resto de sorteos: hace falta la
+      // semilla con la que se jugó, no una nueva.
+      semilla: continuar ? continuar.semilla : Date.now() % 100000,
     },
+    continuar ? { acciones: continuar.acciones, rechazadas: continuar.rechazadas } : undefined,
   );
   const { estado, ejecutar, deshacer, reiniciar, error, limpiarError, puedeDeshacer, puedeActuar } =
     partida;

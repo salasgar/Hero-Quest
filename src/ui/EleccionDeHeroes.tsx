@@ -1,11 +1,19 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useRef, useState, type ChangeEvent } from "react";
 import { EQUIPO, type IdEquipo } from "../data/equipment";
 import { HEROES, VARIANTES_HEROE, type ClaseHeroe, type Genero } from "../data/heroes";
 import { PORTADA, rutaDe } from "../data/imagenes";
-import { MISION_POR_DEFECTO, MISIONES, nivelDe, type MisionCompleta } from "../data/quests";
+import { MISION_POR_DEFECTO, MISIONES, misionPorId, nivelDe, type MisionCompleta } from "../data/quests";
 import { ELEMENTOS, hechizosDelElemento, type Elemento } from "../data/spells";
 import type { HeroeElegido } from "../engine/partida";
 import { GRUPOS_DE_ICONOS, Icono, NOMBRE_ICONO, type IdIcono } from "./iconos";
+import {
+  borrarGuardada,
+  FORMATO,
+  leerEnCurso,
+  listarGuardadas,
+  type PartidaConNombre,
+  type PartidaGuardada,
+} from "./registroDePartida";
 
 /** El tope que pidió Juan Luis el 5 de septiembre de 2026: hasta ocho. */
 const MAXIMO = 8;
@@ -65,9 +73,47 @@ const elementosPorDefecto = (clase: ClaseHeroe): Elemento[] =>
  */
 export function EleccionDeHeroes({
   alEmpezar,
+  alContinuar,
 }: {
   alEmpezar: (heroes: HeroeElegido[], mision: MisionCompleta) => void;
+  /** Retoma una partida guardada (T69) en vez de repartir un grupo nuevo. */
+  alContinuar: (partida: PartidaGuardada) => void;
 }) {
+  // Leída una sola vez al montar: es la pantalla de elegir, no la de jugar, y
+  // no hay nada aquí que la cambie mientras se está en ella salvo guardar o
+  // borrar una guardada con nombre, que si actualiza `guardadas` abajo.
+  const [enCurso] = useState<PartidaGuardada | null>(() => leerEnCurso());
+  const [guardadas, setGuardadas] = useState<PartidaConNombre[]>(() => listarGuardadas());
+
+  const tituloDeMision = (id: string) => misionPorId(id)?.mision.titulo ?? id;
+
+  /**
+   * Lee un fichero bajado con «Descargar partida» (T57) y continúa desde ahí,
+   * para la tableta que se cambia o la partida que llega de otra sesión de
+   * juego. No se guarda con nombre solo por cargarlo: quien quiera conservarla
+   * la guarda desde la partida ya en marcha, como cualquier otra.
+   */
+  const continuarDesdeFichero = (ev: ChangeEvent<HTMLInputElement>) => {
+    const fichero = ev.target.files?.[0];
+    // Sin esto, elegir el mismo fichero dos veces seguidas no dispara un
+    // segundo `onChange` y el segundo intento se queda mudo.
+    ev.target.value = "";
+    if (!fichero) return;
+    const lector = new FileReader();
+    lector.onload = () => {
+      try {
+        const partida = JSON.parse(String(lector.result)) as PartidaGuardada;
+        if (partida.formato !== FORMATO) {
+          alert(`Ese fichero es del formato ${partida.formato} y esta versión entiende el ${FORMATO}.`);
+          return;
+        }
+        alContinuar(partida);
+      } catch {
+        alert("Ese fichero no es una partida de Hero Quest legible.");
+      }
+    };
+    lector.readAsText(fichero);
+  };
   /**
    * La misión va antes que los héroes (T45): cuántas casillas de entrada hay
    * depende de ella, y es lo que decide desde qué número el grupo se estira
@@ -139,6 +185,44 @@ export function EleccionDeHeroes({
           más disputados del tablón y una fila de botones no lo merece. El
           número es la posición en el catálogo, que es la dificultad.
         */}
+        <div className="grupo">
+          <h2>Continuar una partida</h2>
+          {(enCurso || guardadas.length > 0) && (
+            <>
+              {enCurso && (
+                <div className="grupo-fila">
+                  <strong className="grupo-clase">Última partida</strong>
+                  <span className="pista">
+                    {tituloDeMision(enCurso.mision)} · {new Date(enCurso.guardada).toLocaleString()}
+                  </span>
+                  <button onClick={() => alContinuar(enCurso)}>Continuar</button>
+                </div>
+              )}
+              {guardadas.map(({ nombre, partida }) => (
+                <div className="grupo-fila" key={nombre}>
+                  <strong className="grupo-clase">{nombre}</strong>
+                  <span className="pista">
+                    {tituloDeMision(partida.mision)} · {new Date(partida.guardada).toLocaleString()}
+                  </span>
+                  <button onClick={() => alContinuar(partida)}>Continuar</button>
+                  <button
+                    className="grupo-quitar"
+                    onClick={() => {
+                      borrarGuardada(nombre);
+                      setGuardadas(listarGuardadas());
+                    }}
+                  >
+                    borrar
+                  </button>
+                </div>
+              ))}
+            </>
+          )}
+          <p className="pista">
+            También se puede cargar una partida guardada en un fichero:{" "}
+            <input type="file" accept="application/json" onChange={continuarDesdeFichero} />
+          </p>
+        </div>
         <h1>¿A qué misión?</h1>
         <div className="grupo-elementos" style={{ justifyContent: "center", marginBottom: ".4rem" }}>
           {MISIONES.map((m) => (

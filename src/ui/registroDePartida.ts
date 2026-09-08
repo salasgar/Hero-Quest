@@ -191,3 +191,87 @@ export function leerEnCurso(): PartidaGuardada | null {
     return null;
   }
 }
+
+/**
+ * Dónde quedan las partidas que se guardan con un nombre (T69), aparte de la
+ * de `CLAVE_EN_CURSO`.
+ *
+ * Es un mapa nombre → partida y no una lista: guardar con un nombre que ya
+ * existe sustituye esa partida, no añade una segunda con el mismo nombre, que
+ * es lo que se quiere al pisar una guardada anterior con la misma etiqueta.
+ */
+export const CLAVE_GUARDADAS = "heroquest.partidas-guardadas";
+
+type MapaDeGuardadas = Record<string, PartidaGuardada>;
+
+function leerMapaDeGuardadas(): MapaDeGuardadas {
+  try {
+    const crudo = localStorage.getItem(CLAVE_GUARDADAS);
+    if (!crudo) return {};
+    const mapa = JSON.parse(crudo) as MapaDeGuardadas;
+    // Igual que en `leerEnCurso`: una guardada de otro formato se descarta en
+    // vez de ofrecerse a medias.
+    for (const nombre of Object.keys(mapa)) {
+      if (mapa[nombre]?.formato !== FORMATO) delete mapa[nombre];
+    }
+    return mapa;
+  } catch {
+    return {};
+  }
+}
+
+export interface PartidaConNombre {
+  nombre: string;
+  partida: PartidaGuardada;
+}
+
+/** Las partidas guardadas con nombre, de la más reciente a la más antigua. */
+export function listarGuardadas(): PartidaConNombre[] {
+  const mapa = leerMapaDeGuardadas();
+  return Object.entries(mapa)
+    .map(([nombre, partida]) => ({ nombre, partida }))
+    .sort((a, b) => b.partida.guardada.localeCompare(a.partida.guardada));
+}
+
+/**
+ * Umbral de aviso, no de bloqueo: `localStorage` da entre 5 y 10 MB según el
+ * navegador, y una partida de dieciocho rondas con ocho héroes ocupa unos
+ * pocos kilobytes. 4 MB deja margen de sobra antes de acercarse al límite más
+ * estrecho.
+ */
+const AVISO_KB = 4096;
+
+/**
+ * Guarda con un nombre, sustituyendo lo que hubiera guardado con ese mismo
+ * nombre. Nunca lanza -Safari en modo privado bloquea `localStorage`, igual
+ * que en `guardarEnCurso`-; el aviso es para que quien llama decida cómo
+ * enseñarlo.
+ */
+export function guardarConNombre(nombre: string, p: PartidaGuardada): { aviso: string | null } {
+  try {
+    const mapa = leerMapaDeGuardadas();
+    mapa[nombre] = p;
+    const crudo = JSON.stringify(mapa);
+    localStorage.setItem(CLAVE_GUARDADAS, crudo);
+    const kb = new Blob([crudo]).size / 1024;
+    return {
+      aviso:
+        kb > AVISO_KB
+          ? `Las partidas guardadas ocupan ${Math.round(kb)} KB. Si el navegador se queda sin sitio, borra alguna.`
+          : null,
+    };
+  } catch {
+    return { aviso: "No se ha podido guardar: el navegador no deja escribir en localStorage." };
+  }
+}
+
+/** Quita una guardada por nombre. No falla si no existía. */
+export function borrarGuardada(nombre: string): void {
+  try {
+    const mapa = leerMapaDeGuardadas();
+    delete mapa[nombre];
+    localStorage.setItem(CLAVE_GUARDADAS, JSON.stringify(mapa));
+  } catch {
+    // Sin sitio para escribir, tampoco hay nada que borrar de verdad.
+  }
+}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { nombreDeClase } from "./data/heroes";
 import { LOGOTIPO, rutaDe } from "./data/imagenes";
-import { MISION_POR_DEFECTO, type MisionCompleta } from "./data/quests";
+import { MISION_POR_DEFECTO, misionPorId, type MisionCompleta } from "./data/quests";
 import type { HeroeElegido } from "./engine/partida";
 import { MESA, type SesionDeRed } from "./red/cliente";
 import { BoardVerify } from "./ui/BoardVerify";
@@ -9,7 +9,12 @@ import { EleccionDeHeroes } from "./ui/EleccionDeHeroes";
 import { codigoDelEnlace, CrearPartidaEnRed, UnirseAPartida } from "./ui/EntrarEnPartida";
 import { Instrucciones } from "./ui/Instrucciones";
 import { Juego } from "./ui/Juego";
-import { leerEnCurso, nombreDeFichero } from "./ui/registroDePartida";
+import {
+  guardarConNombre,
+  leerEnCurso,
+  nombreDeFichero,
+  type PartidaGuardada,
+} from "./ui/registroDePartida";
 import { Transicion } from "./ui/Transicion";
 import { VistaDeHeroe } from "./ui/VistaDeHeroe";
 
@@ -62,6 +67,26 @@ function descargarPartida(): void {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
+/**
+ * Guarda la partida en curso con un nombre, para poder continuarla más tarde
+ * sin que haga falta que sea la última jugada (T69).
+ *
+ * Usa el mismo registro que `descargarPartida`: `usePartida` ya lo mantiene
+ * al día en `localStorage` en cada cambio, así que pedir un nombre no es
+ * motivo para subir la partida hasta aquí.
+ */
+function guardarPartidaConNombre(): void {
+  const partida = leerEnCurso();
+  if (!partida) {
+    alert("No hay ninguna partida en curso que guardar.");
+    return;
+  }
+  const nombre = window.prompt("¿Con qué nombre se guarda esta partida?")?.trim();
+  if (!nombre) return;
+  const { aviso } = guardarConNombre(nombre, partida);
+  if (aviso) alert(aviso);
+}
+
 export default function App() {
   // Las instrucciones se abren **encima** de lo que haya, no en lugar de ello:
   // se consultan en mitad de una tirada, y la partida vive en el estado de
@@ -71,6 +96,10 @@ export default function App() {
   // La misión se elige en la misma pantalla que el grupo (T45) y llega con él.
   // Sin elegir, la primera del catálogo.
   const [mision, setMision] = useState<MisionCompleta>(MISION_POR_DEFECTO);
+  // De qué partida guardada viene este reparto, si viene de alguna (T69). Se
+  // limpia al empezar una nueva para que un «Cambiar héroes» seguido de
+  // «Empezar la partida» no reabra por error la que se dejó a medias.
+  const [continuar, setContinuar] = useState<PartidaGuardada | null>(null);
   // Cambia con cada grupo nuevo: fuerza a montar la partida desde cero en vez
   // de reaprovechar el estado del grupo anterior.
   const [reparto, setReparto] = useState(0);
@@ -141,10 +170,16 @@ export default function App() {
           <button
             onClick={() => {
               setGrupo(null);
+              setContinuar(null);
               setEnTransicion(false);
             }}
           >
             Cambiar héroes
+          </button>
+        )}
+        {grupo && (
+          <button onClick={guardarPartidaConNombre} title="Guarda la partida con un nombre para continuarla luego">
+            Guardar partida
           </button>
         )}
         {grupo && (
@@ -176,6 +211,7 @@ export default function App() {
             key={reparto}
             heroes={grupo}
             mision={mision}
+            continuar={continuar ?? undefined}
             instruccionesAbiertas={verInstrucciones}
             cerrarInstrucciones={() => setVerInstrucciones(false)}
           />
@@ -191,6 +227,14 @@ export default function App() {
           alEmpezar={(heroes, elegida) => {
             setMision(elegida);
             setGrupo(heroes);
+            setContinuar(null);
+            setReparto((n) => n + 1);
+            setEnTransicion(true);
+          }}
+          alContinuar={(guardada) => {
+            setMision(misionPorId(guardada.mision) ?? MISION_POR_DEFECTO);
+            setGrupo(guardada.heroes);
+            setContinuar(guardada);
             setReparto((n) => n + 1);
             setEnTransicion(true);
           }}

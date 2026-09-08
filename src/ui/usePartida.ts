@@ -24,14 +24,26 @@ import {
  * caso normal de este proyecto, y una wifi caída no puede dejar sin jugar en el
  * salón. Qué modo es no cambia en la vida del componente: se elige al empezar
  * la partida.
+ *
+ * `previas` es de continuar una partida guardada (T69): la lista de acciones
+ * (y lo que el motor rechazó) de la que arrancar en vez de un tablero vacío.
+ * `fuente` ya lleva la semilla de esa partida -la decide quien monta esta
+ * pantalla, a partir del registro guardado-, así que aquí basta con rehacer el
+ * estado con `repetir` y devolver la lista tal cual para que siga creciendo.
+ * En red no se usa: continuar una partida en red no es esta tarea.
  */
-export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
+export function usePartida(
+  fuente: OpcionesPartida | SesionDeRed,
+  previas?: { acciones: readonly Accion[]; rechazadas: readonly AccionRechazada[] },
+) {
   const sesion = fuente instanceof SesionDeRed ? fuente : null;
   const [inicial] = useState<EstadoPartida>(() =>
     sesion ? sesion.inicial : crearPartida(fuente as OpcionesPartida),
   );
-  const [estado, setEstado] = useState<EstadoPartida>(() => (sesion ? sesion.estado : inicial));
-  const [acciones, setAcciones] = useState<Accion[]>([]);
+  const [estado, setEstado] = useState<EstadoPartida>(() =>
+    sesion ? sesion.estado : previas ? repetir(inicial, previas.acciones) : inicial,
+  );
+  const [acciones, setAcciones] = useState<Accion[]>(() => (previas ? [...previas.acciones] : []));
   const [error, setError] = useState<string | null>(null);
   /**
    * Lo que el motor rechazó, para el registro descargable (T57).
@@ -41,7 +53,9 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
    * «pulsé y no pasó nada» —el fallo que Juan Luis más se encuentra en la
    * tableta— se pierde entero en cuanto el aviso desaparece de la pantalla.
    */
-  const [rechazadas, setRechazadas] = useState<AccionRechazada[]>([]);
+  const [rechazadas, setRechazadas] = useState<AccionRechazada[]>(() =>
+    previas ? [...previas.rechazadas] : [],
+  );
 
   /**
    * Con qué se montó esta partida, leído **una sola vez**.
