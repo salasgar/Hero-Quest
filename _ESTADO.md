@@ -17,6 +17,13 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-08 22:11Z · por la sesión `s-20260908T221052-03a6e80b` (`HQ T69`), al
+reclamar la 69. Sobre la regeneración de las 21:41Z (`s-20260908T213701-6e4fc379`) cambia
+**una fila**: la **69 pasa a EN CURSO** (este reclamo, caduca 2026-09-09T04:10:52Z; su
+precondición, 57 LISTA, se cumplía ya). Nada más cambia: 37 y 45 siguen LISTA, así que no
+hay nadie vivo sobre `App.tsx`, `EleccionDeHeroes.tsx` ni `usePartida.ts` aparte de esta
+tarea.
+
 Regenerado: 2026-09-08 21:41Z · por la sesión coordinadora `s-20260908T213701-6e4fc379`
 (`HQ Coordinadora T67-T75`), al comitear las fichas T67-T74. Sobre la regeneración de las
 21:34Z (`s-20260908T200901-6afd10ed`, al escribir T75) cambian **ocho filas nuevas**: la
@@ -370,7 +377,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | LISTA (`42e10f5`) | |
 | 67 | T67 · Dos botones que destruyen la partida sin avisar, y «Jugar otra vez» repite la misma | tareas/T67-botones-destruyen-partida.md | ninguna · no a la vez que 57 (`App.tsx`, `usePartida.ts`) | 30 min | BAJO | — | `App.tsx`, `Juego.tsx`, `usePartida.ts` | manual | **PENDIENTE** | |
 | 68 | T68 · Desarmar trampas no existe en la pantalla | tareas/T68-desarmar-trampas-en-pantalla.md | ninguna · no a la vez que 52, 36, 22 (`TurnPanel.tsx`, `useAccionesDeTurno.ts`) | 1,5 h | MEDIO | — | `selectors.ts`, `reducer.ts`, `TurnPanel.tsx`, `useAccionesDeTurno.ts`, tests | manual | **PENDIENTE** | |
-| 69 | T69 · Guardar la partida y continuarla otro día | tareas/T69-guardar-y-continuar-partida.md | 57 LISTA · no a la vez que 37, 45, 57 (`App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`) | 3 h | MEDIO | — | `App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`, `registroDePartida.ts`, tests | manual | **PENDIENTE** (57 LISTA) | |
+| 69 | T69 · Guardar la partida y continuarla otro día | tareas/T69-guardar-y-continuar-partida.md | 57 LISTA · no a la vez que 37, 45, 57 (`App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`) | 3 h | MEDIO | — | `App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`, `registroDePartida.ts`, tests | manual | EN CURSO | `s-20260908T221052-03a6e80b` · 2026-09-09T04:10:52Z |
 | 70 | T70 · Mostrar la ruta de movimiento en el tablero | tareas/T70-mostrar-ruta-de-movimiento.md | ninguna · no a la vez que 51, 58, 37 (`BoardMirror.tsx`) | 2 h | MEDIO | — | `BoardMirror.tsx`, `Juego.tsx`, `estilos.css` | manual | **PENDIENTE** | |
 | 71 | T71 · Un monstruo dormido no se despierta nunca | tareas/T71-monstruo-dormido-despierta.md | ninguna · no a la vez que 50, 66 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, `types.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** | |
 | 72 | T72 · El diario leído en voz alta | tareas/T72-diario-leido-en-voz-alta.md | 44 LISTA · no a la vez que 52, 36, 44, 45 (`Juego.tsx`, `useTurnoDeZargon.ts`) | 2 h | MEDIO | — | `voz.ts` (nuevo), `MasterLog.tsx`, `Juego.tsx`, `useTurnoDeZargon.ts` | manual | **PENDIENTE** (44 LISTA) | |
