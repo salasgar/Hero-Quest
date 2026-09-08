@@ -58,7 +58,22 @@ trampa. Cítalo exactamente en un comentario si la condición no es obvia en el 
 
 - **La cadena T22 → T36 → T52 toca `TurnPanel.tsx` y `useAccionesDeTurno.ts`.** Coordinad
   si estáis en paralelo: esta tarea no puede ir a la vez que esas. La tecla «Desarmar
-  trampa» se añade con las otras en una tirada.
+  trampa» se añade con las otras en una tirada. Hecho: es `D`.
+
+- **El alcance no puede ser «encima de la trampa», aunque eso diga literalmente el
+  reglamento (p. 19).** `desarmarTrampa` no mueve a la figura (como `abrirPuerta`), y
+  `mover()` hace saltar siempre una trampa descubierta que sea el destino elegido
+  (`esElDestino`, `reducer.ts`), así que un héroe nunca llega a estar de pie sobre una
+  trampa conocida sin haberla disparado ya. Se implementó con la adyacente ortogonal en su
+  lugar —regla de la casa, pendiente de firma, razonada en
+  `hechos/terminadas/68--s-20260908T222927-9a0511bf.md`—. Si Juan Luis prefiere la lectura
+  literal, hay que hacer que `desarmarTrampa` mueva también a la figura hasta la trampa
+  (tocando `mover()` y el consumo de movimiento), que es una tarea más grande que esta.
+
+- **La ficha no declaraba `src/ui/Juego.tsx`, pero hace falta tocarlo** para que
+  `acciones.desarmarTrampa` y `trampas` lleguen a `TurnPanel` desde la pantalla de la mesa;
+  sin eso el botón no aparece nunca. Razonado en `hechos/incidencias/s-20260908T222927-9a0511bf.md`.
+  `VistaDeHeroe.tsx` se dejó sin tocar (igual que T70 con `BoardMirror.tsx`).
 
 - **El selector debe filtrar por alcance.** Igual que `objetivosDeHechizo` o similares:
   no devuelvas todas las trampas descubiertas, solo las alcanzables. De lo contrario el
