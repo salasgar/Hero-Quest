@@ -3,17 +3,28 @@
  * la IA: **¿ganan los héroes lo bastante a menudo?**
  *
  *   npm run sim                        # el catálogo entero: una tabla con misión,
- *                                      # nivel, victorias y rondas (T45)
+ *                                      # nivel, victorias (tontos/razonables) y
+ *                                      # rondas (T45, T73)
  *   npm run sim -- 300                 # otras tantas partidas por nivel
  *   npm run sim -- 100 4242            # y desde otra semilla base
  *   npm run sim -- 100 1000 calabozo   # el informe largo de UNA misión, por su id
  *   npm run sim -- 100 1000 miedoso    # con TODOS los monstruos miedosos (T38)
  *   npm run sim -- 100 1000 calabozo miedoso   # las dos cosas, en cualquier orden
+ *   npm run sim -- --heroes razonables         # el catálogo, ordenado por la
+ *                                               # heurística razonable (T73)
+ *   npm run sim calabozo -- --heroes razonables   # el informe largo, jugado por
+ *                                                  # héroes razonables
  *
  * Sin temperamento, cada monstruo lleva el que le sorteó `crearPartida`, que es
  * como se juega en la mesa. Con él, se fuerza el mismo a todos: es la única
  * forma de ver qué le hace cada temperamento al porcentaje de victorias sin que
  * el sorteo mezcle los tres.
+ *
+ * Los héroes, por defecto, juegan tontos: abren, pegan y se acercan, sin más
+ * (para no cambiar el comportamiento de siempre). `--heroes razonables` los
+ * hace buscar tesoro, lanzar hechizos y curarse (T73); el catálogo mide las
+ * dos heurísticas siempre, columna a columna, y `--heroes` solo decide cuál
+ * de las dos ordena la tabla.
  *
  * La tabla del catálogo es la definición operativa de «ordenada por
  * dificultad» (`src/data/quests/index.ts`): el orden de la lista tiene que
@@ -32,12 +43,31 @@
 import { MISIONES, misionPorId, nivelDe, opcionesDe, type MisionCompleta } from "../src/data/quests";
 import { crearPartida, type HeroeElegido } from "../src/engine/partida";
 import { aplicarAccion, actorActual, esTurnoDeZargon, figuraActiva } from "../src/engine/reducer";
-import { casillasDeMovimiento, objetivosDeAtaque, puedeBuscarTesoro, puertasAlAlcance } from "../src/engine/selectors";
+import {
+  casillasDeMovimiento,
+  hechizosLanzables,
+  objetivosDeAtaque,
+  puedeBuscarTesoro,
+  puertasAlAlcance,
+} from "../src/engine/selectors";
 import { alcanzables, distancia } from "../src/engine/board";
 import { celdasDeSala, salaEn } from "../src/data/board-base";
-import { claveCelda, type Accion, type Celda, type EstadoPartida, type Figura, type IdSala, type Temperamento } from "../src/engine/types";
+import {
+  claveCelda,
+  esHeroe,
+  type Accion,
+  type Celda,
+  type EstadoPartida,
+  type Figura,
+  type Heroe,
+  type IdFigura,
+  type IdSala,
+  type Temperamento,
+} from "../src/engine/types";
 import { accionDeZargon, DIFICULTADES, type Dificultad } from "../src/ai/difficulty";
 import { esHuida } from "../src/ai/zargon";
+import { HECHIZOS } from "../src/data/spells";
+import { cartaDeTesoro, type IdCartaTesoro } from "../src/data/treasure";
 
 /**
  * El grupo con el que se mide. Es el mismo cuarteto clásico de los tests, y va
@@ -189,6 +219,104 @@ function distanciaAPuertaPorAbrir(e: EstadoPartida, c: Celda): number {
   );
 }
 
+// ------------------------------------------------------- los héroes (T73)
+
+/** Con qué heurística juegan los héroes: la de siempre, o la de T73. */
+export type PoliticaDeHeroe = "tontos" | "razonables";
+
+/**
+ * El monstruo al que hay que echarle el ojo: el que hay que matar
+ * (`matarA`) o el custodio del objeto que hay que recuperar. Sin él (una
+ * misión `matarATodos`, `llegarA` o `salir`) no hay un único objetivo al que
+ * dormir antes que a los demás.
+ */
+function jefeDeLaMision(e: EstadoPartida): IdFigura | null {
+  const obj = e.mision.objetivo;
+  if (obj.clase === "matarA") return obj.figura;
+  if (obj.clase === "recuperar" && obj.custodio) return obj.custodio;
+  return null;
+}
+
+/** La primera poción de curación que lleve en la mochila, si lleva alguna. */
+function pocionDeCuracion(heroe: Heroe): IdCartaTesoro | undefined {
+  return heroe.mochila.find((id) => cartaDeTesoro(id)?.efecto.clase === "curacion");
+}
+
+/**
+ * Cómo juega un héroe con cabeza (T73), para medir el catálogo con algo más
+ * parecido a un grupo de verdad que el tonto de arriba: además de abrir y
+ * pegar, busca tesoro en cuanto entra en una sala nueva, dispara los
+ * hechizos de daño a lo que ve, intenta dormir al jefe de la misión en
+ * cuanto sale y se cura —con hechizo o con poción— antes de que la cosa se
+ * ponga fea.
+ *
+ * No es un jugador óptimo: no calcula la mente del monstruo antes de gastar
+ * el Sueño ni raciona los hechizos para un momento mejor. Es un benchmark,
+ * no hace falta que gane siempre (ficha de T73, «trampas conocidas»).
+ */
+function accionDelHeroeRazonable(e: EstadoPartida): Accion | null {
+  const heroe = figuraActiva(e);
+  if (!heroe || !esHeroe(heroe)) return null;
+
+  // Beber una poción no gasta la acción del turno (reglamento p. 16: «you
+  // may drink a potion at any time»), así que se decide aparte y antes que
+  // nada, en cuanto el héroe cae a la mitad de su vida o menos.
+  if (heroe.cuerpo > 0 && heroe.cuerpo * 2 <= heroe.cuerpoMax) {
+    const pocion = pocionDeCuracion(heroe);
+    if (pocion) return { tipo: "usarPocion", quien: heroe.id, carta: pocion };
+  }
+
+  // Abrir es gratis, igual que para el tonto: sin esto no hay mazmorra que
+  // registrar ni jefe que ver.
+  const puerta = puertasAlAlcance(e)[0];
+  if (puerta) return { tipo: "abrirPuerta", puerta: puerta.id };
+
+  // Dormir al jefe en cuanto aparece vale más que pegarle al primer goblin
+  // que se cruce: es la única vez que se lanza este hechizo, y cuanto antes
+  // caiga dormido menos golpea.
+  const jefe = jefeDeLaMision(e);
+  if (jefe) {
+    const sueno = hechizosLanzables(e).find((h) => h.hechizo === "sueno");
+    const objetivo = sueno?.objetivos.find((o) => o.id === jefe && !esHeroe(o) && !o.dormido);
+    if (objetivo) return { tipo: "lanzarHechizo", hechizo: "sueno", objetivo: objetivo.id };
+  }
+
+  const aTiro = objetivosDeAtaque(e);
+  if (aTiro.length > 0) return { tipo: "atacar", objetivo: masDebil(aTiro).id };
+
+  // Sin nadie a quien pegar cuerpo a cuerpo, ¿hay algo a lo que lanzarle daño
+  // a distancia?
+  const dano = hechizosLanzables(e).find(
+    (h) => HECHIZOS[h.hechizo].efecto.clase === "danoConSalvacion" && h.objetivos.length > 0,
+  );
+  if (dano) return { tipo: "lanzarHechizo", hechizo: dano.hechizo, objetivo: dano.objetivos[0]!.id };
+
+  // Sin nada a lo que atacar, toca curarse si hace falta o seguir explorando.
+  if (heroe.cuerpoMax - heroe.cuerpo >= 3) {
+    const curar = hechizosLanzables(e).find(
+      (h) => HECHIZOS[h.hechizo].efecto.clase === "curar" && h.objetivos.some((o) => o.id === heroe.id),
+    );
+    if (curar) return { tipo: "lanzarHechizo", hechizo: curar.hechizo, objetivo: heroe.id };
+  }
+
+  // `puedeBuscarTesoro` ya descarta la sala si hay un monstruo a la vista o
+  // si este héroe ya la registró (salvo el tesoro de misión, T53): no hace
+  // falta repetir aquí ninguna de las dos condiciones.
+  if (puedeBuscarTesoro(e)) return { tipo: "buscarTesoro" };
+
+  if (e.turno.movimientoTotal === null) return { tipo: "tirarMovimiento" };
+
+  const destino = haciaDondeIr(e, heroe);
+  if (destino) return { tipo: "mover", destino };
+
+  return { tipo: "terminarTurno" };
+}
+
+/** La función de un héroe según la política elegida. */
+function accionDelHeroeSegun(politica: PoliticaDeHeroe): (e: EstadoPartida) => Accion | null {
+  return politica === "razonables" ? accionDelHeroeRazonable : accionDelHeroe;
+}
+
 // --------------------------------------------------------------- la partida
 
 interface Partida {
@@ -304,6 +432,7 @@ function jugarPartida(
   semilla: number,
   nivel: Dificultad,
   forzado: Temperamento | null,
+  politica: PoliticaDeHeroe,
 ): Partida {
   // `opcionesDe` da copias: el `map` de abajo no toca el catálogo, que está
   // congelado y lo diría reventando.
@@ -321,7 +450,7 @@ function jugarPartida(
   let rondas = 0;
   while (!e.desenlace && rondas < TOPE_DE_RONDAS) {
     const actor = actorActual(e);
-    e = jugarUnTurno(e, nivel, huidas);
+    e = jugarUnTurno(e, nivel, huidas, politica);
     // La ronda se cuenta al pasar Zargon, que es como se cuenta en la mesa.
     if (actor === "zargon") rondas++;
   }
@@ -342,9 +471,15 @@ function jugarPartida(
 }
 
 /** Un turno entero del actor que toque, hasta que cambie el turno o se acabe. */
-function jugarUnTurno(inicial: EstadoPartida, nivel: Dificultad, huidas: Huidas): EstadoPartida {
+function jugarUnTurno(
+  inicial: EstadoPartida,
+  nivel: Dificultad,
+  huidas: Huidas,
+  politica: PoliticaDeHeroe,
+): EstadoPartida {
   let e = inicial;
   const mio = e.turno.indice;
+  const accionDelHeroeActivo = accionDelHeroeSegun(politica);
 
   for (let i = 0; i < TOPE_POR_TURNO; i++) {
     if (e.desenlace || e.turno.indice !== mio) break;
@@ -352,7 +487,7 @@ function jugarUnTurno(inicial: EstadoPartida, nivel: Dificultad, huidas: Huidas)
     // El punto de entrada de T9, no el de T8 a pelo: es la línea que su registro
     // de T10 dejó encargada. Por aquí entran las personalidades por especie y la
     // miopía estructural del torpe, que no viven en la tabla de pesos.
-    const accion = esTurnoDeZargon(e) ? accionDeZargon(e, nivel) : accionDelHeroe(e);
+    const accion = esTurnoDeZargon(e) ? accionDeZargon(e, nivel) : accionDelHeroeActivo(e);
     if (!accion) break;
 
     if (esTurnoDeZargon(e)) {
@@ -394,15 +529,43 @@ function medir(
   cuantas: number,
   base: number,
   forzado: Temperamento | null,
+  politica: PoliticaDeHeroe,
 ): Partida[] {
   const partidas: Partida[] = [];
-  for (let i = 0; i < cuantas; i++) partidas.push(jugarPartida(mision, base + i, nivel, forzado));
+  for (let i = 0; i < cuantas; i++) partidas.push(jugarPartida(mision, base + i, nivel, forzado, politica));
   return partidas;
 }
 
+const DESCRIPCION_POLITICA: Record<PoliticaDeHeroe, string> = {
+  tontos:
+    "Héroes jugados por una heurística tonta: abren lo que tienen delante, pegan al más\n" +
+    "débil que alcanzan y si no se acercan. No buscan tesoro ni lanzan hechizos.",
+  razonables:
+    "Héroes jugados por una heurística razonable (T73): además de abrir y pegar,\n" +
+    "buscan tesoro en cada sala nueva, lanzan hechizos de daño a lo que ven, intentan\n" +
+    "dormir al jefe de la misión en cuanto sale y se curan —con hechizo o poción—\n" +
+    "antes de que la cosa se ponga fea. No es un jugador óptimo: no calcula la mente\n" +
+    "del monstruo antes de gastar el Sueño ni raciona los hechizos para más tarde.",
+};
+
 async function main() {
-  const cuantas = Number(process.argv[2] ?? 100);
-  const base = Number(process.argv[3] ?? 1000);
+  // `--heroes tontos|razonables` puede ir en cualquier posición; se saca antes
+  // de leer los dos números y lo que venga detrás, que no cambian de sitio.
+  const argv = [...process.argv.slice(2)];
+  let heroes: PoliticaDeHeroe = "tontos";
+  const iHeroes = argv.indexOf("--heroes");
+  if (iHeroes !== -1) {
+    const valor = argv[iHeroes + 1];
+    if (valor !== "tontos" && valor !== "razonables") {
+      console.error(`\n--heroes espera «tontos» o «razonables», no «${valor ?? "nada"}».\n`);
+      process.exit(1);
+    }
+    heroes = valor;
+    argv.splice(iHeroes, 2);
+  }
+
+  const cuantas = Number(argv[0] ?? 100);
+  const base = Number(argv[1] ?? 1000);
 
   // Lo que venga detrás de los dos números es un temperamento, el identificador
   // de una misión, o las dos cosas en cualquier orden. Se distinguen por lo
@@ -410,7 +573,7 @@ async function main() {
   // siga valiendo tal cual desde T38.
   let forzado: Temperamento | null = null;
   let pedida: MisionCompleta | null = null;
-  for (const arg of process.argv.slice(4)) {
+  for (const arg of argv.slice(2)) {
     const mision = misionPorId(arg);
     if (TEMPERAMENTOS.includes(arg as Temperamento)) forzado = arg as Temperamento;
     else if (mision) pedida = mision;
@@ -431,56 +594,102 @@ async function main() {
       : "Temperamento (T38): el que sortea cada partida, por especie. Para forzar uno,\n" +
           "pásalo como argumento: `npm run sim -- 100 1000 miedoso`.",
   );
-  console.log(
-    "Héroes jugados por una heurística tonta: abren lo que tienen delante, pegan al más\n" +
-      "débil que alcanzan y si no se acercan. No buscan tesoro ni lanzan hechizos.",
-  );
 
-  if (pedida) informeDeMision(pedida, cuantas, base, forzado);
-  else tablaDelCatalogo(cuantas, base, forzado);
+  if (pedida) {
+    console.log(DESCRIPCION_POLITICA[heroes]);
+    informeDeMision(pedida, cuantas, base, forzado, heroes);
+  } else {
+    console.log(
+      "El catálogo mide las dos heurísticas de héroe siempre, tontos y razonables\n" +
+        "(T73), columna a columna; `--heroes` solo decide cuál de las dos manda en las\n" +
+        "rondas de la tabla y en si el catálogo está ordenado. Por defecto, tontos.\n\n" +
+        DESCRIPCION_POLITICA.tontos +
+        "\n\n" +
+        DESCRIPCION_POLITICA.razonables,
+    );
+    tablaDelCatalogo(cuantas, base, forzado, heroes);
+  }
+}
+
+const POLITICAS: readonly PoliticaDeHeroe[] = ["tontos", "razonables"];
+
+interface StatsDeNivel {
+  victorias: number;
+  terminadas: number;
+  rondas: number;
 }
 
 /**
- * El catálogo entero, una fila por misión (T45). Es la medida de «ordenada por
- * dificultad»: la columna `normal` tiene que ir de más a menos bajando por la
- * tabla. Si no, se reordena `MISIONES` en `src/data/quests/index.ts`; nunca se
- * retocan los pesos de Zargon.
+ * El catálogo entero, una fila por misión (T45), con las dos heurísticas de
+ * héroe siempre a la vista (T73): cada celda de dificultad trae
+ * `tontos/razonables`, porque un porcentaje sin decir con qué grupo se ha
+ * medido no vale para ordenar nada. `politicaPrimaria` —la de `--heroes`,
+ * tontos por defecto— es la que manda en la columna de rondas y en si el
+ * catálogo está ordenado: es la medida de «ordenada por dificultad» de
+ * siempre, y no la cambia tener ahora una segunda heurística al lado.
  */
-function tablaDelCatalogo(cuantas: number, base: number, forzado: Temperamento | null) {
+function tablaDelCatalogo(
+  cuantas: number,
+  base: number,
+  forzado: Temperamento | null,
+  politicaPrimaria: PoliticaDeHeroe,
+) {
   const filas = MISIONES.map((mision) => {
     const porNivel = Object.fromEntries(
       DIFICULTADES.map((nivel) => {
-        const partidas = medir(mision, nivel, cuantas, base, forzado);
-        const terminadas = partidas.filter((p) => p.termino);
-        return [nivel, { victorias: terminadas.filter((p) => p.victoria).length, terminadas: terminadas.length, rondas: media(terminadas.map((p) => p.rondas)) }];
+        const porPolitica = Object.fromEntries(
+          POLITICAS.map((politica) => {
+            const partidas = medir(mision, nivel, cuantas, base, forzado, politica);
+            const terminadas = partidas.filter((p) => p.termino);
+            const stats: StatsDeNivel = {
+              victorias: terminadas.filter((p) => p.victoria).length,
+              terminadas: terminadas.length,
+              rondas: media(terminadas.map((p) => p.rondas)),
+            };
+            return [politica, stats];
+          }),
+        ) as Record<PoliticaDeHeroe, StatsDeNivel>;
+        return [nivel, porPolitica];
       }),
-    ) as Record<Dificultad, { victorias: number; terminadas: number; rondas: number }>;
+    ) as Record<Dificultad, Record<PoliticaDeHeroe, StatsDeNivel>>;
     return { mision, porNivel };
   });
 
+  const celda = (s: Record<PoliticaDeHeroe, StatsDeNivel>) =>
+    `${pct(s.tontos.victorias, s.tontos.terminadas)}/${pct(s.razonables.victorias, s.razonables.terminadas)}`;
+
   const ancho = Math.max(6, ...filas.map((f) => f.mision.mision.titulo.length));
-  const cab = ["nivel", "misión".padEnd(ancho), ...DIFICULTADES.map((n) => n.padStart(7)), "rondas (normal)"];
+  const anchoNivel = Math.max(13, ...DIFICULTADES.map((n) => n.length + 6));
+  const cab = [
+    "nivel",
+    "misión".padEnd(ancho),
+    ...DIFICULTADES.map((n) => `${n} (T/R)`.padStart(anchoNivel)),
+    "rondas (normal, " + politicaPrimaria + ")",
+  ];
   console.log(`\n${cab.join("  ")}`);
   console.log("─".repeat(cab.join("  ").length));
   for (const f of filas) {
     const celdas = [
       String(nivelDe(f.mision)).padStart(5),
       f.mision.mision.titulo.padEnd(ancho),
-      ...DIFICULTADES.map((n) => pct(f.porNivel[n].victorias, f.porNivel[n].terminadas).padStart(7)),
-      f.porNivel.normal.rondas.toFixed(1).padStart(15),
+      ...DIFICULTADES.map((n) => celda(f.porNivel[n]).padStart(anchoNivel)),
+      f.porNivel.normal[politicaPrimaria].rondas.toFixed(1).padStart(19),
     ];
     console.log(celdas.join("  "));
   }
   for (const f of filas) console.log(`  ${nivelDe(f.mision)} · ${f.mision.mision.id}: ${f.mision.dificultad}`);
 
-  // Empates permitidos: dos misiones al 100 % no desordenan nada.
-  const tasa = (f: (typeof filas)[number]) =>
-    f.porNivel.normal.terminadas === 0 ? 0 : f.porNivel.normal.victorias / f.porNivel.normal.terminadas;
+  // Empates permitidos: dos misiones al 100 % no desordenan nada. El orden se
+  // juzga con la política primaria, tontos por defecto, igual que siempre.
+  const tasa = (f: (typeof filas)[number]) => {
+    const s = f.porNivel.normal[politicaPrimaria];
+    return s.terminadas === 0 ? 0 : s.victorias / s.terminadas;
+  };
   const desordenadas = filas.filter((f, i) => i > 0 && tasa(f) > tasa(filas[i - 1]!));
   console.log(
     desordenadas.length === 0
-      ? "\nEl orden del catálogo coincide con el de victorias en `normal`."
-      : `\n← El catálogo está DESORDENADO: ${desordenadas.map((f) => f.mision.mision.id).join(", ")} gana más que la anterior. ` +
+      ? `\nEl orden del catálogo coincide con el de victorias en \`normal\` (${politicaPrimaria}).`
+      : `\n← El catálogo está DESORDENADO: ${desordenadas.map((f) => f.mision.mision.id).join(", ")} gana más que la anterior (${politicaPrimaria}). ` +
           "Reordena `MISIONES` en `src/data/quests/index.ts`; no toques los pesos de Zargon.",
   );
   console.log(
@@ -490,11 +699,17 @@ function tablaDelCatalogo(cuantas: number, base: number, forzado: Temperamento |
 }
 
 /** El informe largo de una sola misión: lo que era `npm run sim` hasta T45. */
-function informeDeMision(mision: MisionCompleta, cuantas: number, base: number, forzado: Temperamento | null) {
+function informeDeMision(
+  mision: MisionCompleta,
+  cuantas: number,
+  base: number,
+  forzado: Temperamento | null,
+  politica: PoliticaDeHeroe,
+) {
   console.log(`Misión: «${mision.mision.titulo}» (nivel ${nivelDe(mision)} de ${MISIONES.length}, ${mision.dificultad})`);
 
   for (const nombre of DIFICULTADES) {
-    const partidas = medir(mision, nombre, cuantas, base, forzado);
+    const partidas = medir(mision, nombre, cuantas, base, forzado, politica);
 
     const terminadas = partidas.filter((p) => p.termino);
     const ganadas = terminadas.filter((p) => p.victoria);
