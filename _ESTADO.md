@@ -17,6 +17,28 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-09T06:34:54Z · por la sesión `s-20260908T221109-e1db0720` (`HQ T47
+(MEDIO)`), al cerrar la 47. Sobre la regeneración de las 23:04Z (`s-20260908T221009-8416a271`,
+al reclamar la 76) cambia **una fila**: la **47 pasa a LISTA**, pendiente del hash de
+`origin/main` (se añade en un commit aparte cuando entre el `push`). Nueva misión, «Las
+cavernas del troll» (`quests/cavernas.ts`, id `cavernas`): el troll (defensa 6, cuerpo 10,
+casi invulnerable) en la gran caverna con una gárgola y dos orcos de escolta, guardia de
+camino de orcos hasta allí. Medido con `npm run sim` (100 partidas): 62/66/67 % de
+victorias (torpe/normal/astuto), 22-23 rondas de media — **más que el 55 % del torreón**
+tras el arreglo de T66, así que el catálogo reordena: `[calabozo, cavernas, torreon]`, no
+`[calabozo, torreon, cavernas]` como se habían escrito. El test de T46 que fijaba al
+torreón en el índice 1 del catálogo se corrige al índice 2 (afirmaba una posición que la
+propia regla del catálogo —reordenar por la medida, no por el orden de escritura— dejó
+anticuada). Se encontró y se corrigió en la propia tarea, no queda como incidencia: con dos
+héroes caídos pronto por la guardia de camino, el simulador podía engancharse contra una
+pared en la sala del troll por tener una sola puerta (la misma clase de fallo que documentó
+T46 para el torreón); se le dio una segunda puerta normal, como ya tenía el salón del trono,
+y la tasa de partidas sin terminar volvió a la de fondo (1-2 de cien). 726 tests / 45
+ficheros, typecheck 0. El reclamo caducó mientras corría la simulación oficial (más lenta de
+lo previsto) y se reactivó sin relevo ajeno, comprobado dos veces (`hechos/reclamos/47--…`).
+Nadie tiene reclamo vivo sobre `quests/index.ts` ni sobre `tests/quest.test.ts` aparte de
+esta tarea, que ya cierra. **73 sigue EN CURSO**; la 76 sigue BLOQUEADA por su firma.
+
 Regenerado: 2026-09-08T23:04Z · por la sesión `s-20260908T221009-8416a271` (`HQ T75
 (ALTO)`), al reclamar la 76. Sobre la regeneración de las 22:44Z (`s-20260908T222927-9a0511bf`,
 al cerrar la 68) cambia **una fila nueva**: la **76**, ficha escrita por esta sesión por
@@ -422,7 +444,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 44 | T44 · Sonidos de ambientación | tareas/T44-sonidos-de-ambientacion.md | ninguna · no a la vez que 52, 36, 45 (`Juego.tsx`) | 3 h | MEDIO | — | `sonidos.ts` (nuevo), `public/sonidos/`, `Juego.tsx`, `VistaDeHeroe.tsx`, tests | manual | LISTA (`6c8bd22`) | |
 | 45 | T45 · El catálogo de misiones y su selector | tareas/T45-catalogo-y-selector-de-misiones.md | ninguna · no a la vez que 52, 36, 44 (`Juego.tsx`), 37 (`EleccionDeHeroes.tsx`), 53, 38 (`simular.ts`) | 4 h | ALTO | — | `quests/index.ts` (nuevo), `Juego.tsx`, `EleccionDeHeroes.tsx`, `red/cliente.ts`, `scripts/simular.ts`, tests (y, fuera de la ficha, `App.tsx`, `EntrarEnPartida.tsx`, `scripts/repetir.ts`) | manual | LISTA (`0f68632`; hecha por `s-20260907T205335-e738c893` sobre el reclamo de `s-20260907T204636-b565f64a`) | |
 | 46 | T46 · La segunda misión | tareas/T46-segunda-mision.md | 45 LISTA · **cumplida** · no a la vez que 55 | 4 h | ALTO | — | `quests/<id>.ts` (nuevo), `quests/index.ts` | manual | LISTA (`da728ea`) | |
-| 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA · **cumplida** | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | EN CURSO | `s-20260908T221109-e1db0720` · 2026-09-09T04:11:16Z |
+| 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA · **cumplida** | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | LISTA (pendiente hash) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | LISTA (`fb40fb1`) | |
 | 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** (49 y 42 LISTA; ya no espera a nadie por fichero: 37 y 61, cerradas) | |
@@ -513,6 +535,8 @@ conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la
 terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
+
+- LISTA · tarea 47 · 2026-09-09 06:34 · `s-20260908T221109-e1db0720` · «Las cavernas del troll», nivel 2 del catálogo (no el 3, ver más abajo): guardia de camino de orcos hasta la gran caverna (sala `k`, 30 casillas), donde el troll de las cavernas (defensa 6, cuerpo 10) espera con una gárgola y dos orcos de escolta; entrada por el corredor oeste (tercera dirección distinta); puertas del camino iguales a las del calabozo (T40) más una segunda entrada normal a la caverna; objetivo `matarA` el troll; simulador (100 partidas): 62/66/67 % de victorias, 22-23 rondas de media, 1-2 de cien partidas sin terminar por nivel — **más que el 55 % del torreón** (medido tras T66), así que el catálogo se reordena `[calabozo, cavernas, torreon]` y se corrige el test de T46 que fijaba al torreón en el índice 1; cuatro medidas de dificultad antes de dejarla (de 100/93/97 % con guardia ligera a 27/27/31 % con guardia pesada, hasta esta última); encontró y corrigió sola —no queda como incidencia— un enganche del simulador (heurística que va a la puerta cerrada más cercana en línea recta, documentado por T46 para el torreón) que salía mucho más a menudo aquí por tener el grupo diezmado antes de llegar al troll; 726 tests / 45 ficheros (+22); typecheck en verde · `src/data/quests/cavernas.ts`, `src/data/quests/index.ts`, `tests/quest.test.ts`, `imprimibles/cartas.pdf` · pendiente de hash
 
 - LISTA · tarea 68 · 2026-09-08 22:44 · `s-20260908T222927-9a0511bf` · selector `trampasDesarmables` (herramientas, descubierta, no gastada, al alcance) y botón «Desarmar trampa» por trampa en `TurnPanel` (tecla `D`), despachado como `abrirPuerta`; guarda de alcance nueva en `desarmarTrampa` (antes aceptaba cualquier trampa desde cualquier casilla) usando la adyacente ortogonal en vez de «encima de la trampa» (reglamento p. 19), porque `mover()` hace saltar siempre una trampa descubierta que sea el destino y exigir eso habría dejado la acción inservible — regla de la casa, pendiente de firma, razonada en la propia terminada; tocó además `Juego.tsx` (dos líneas, fuera de la ficha, sin reclamo vivo en ese momento, incidencia aparte) para que el botón llegue a la mesa; `VistaDeHeroe.tsx` sin tocar; verificado con `renderToStaticMarkup` (sin navegador en el entorno); 726 tests / 45 ficheros (+1), typecheck 0 · `src/engine/selectors.ts`, `src/engine/reducer.ts`, `src/ui/TurnPanel.tsx`, `src/ui/useAccionesDeTurno.ts`, `src/ui/Juego.tsx`, `tests/reducer.test.ts` · `5ce953e`
 
