@@ -43,6 +43,27 @@ invulnerable**; lo que lo hace matable es que hay cuatro héroes y muchas rondas
 cuántas rondas dura la partida además del porcentaje: una misión ganable que dura cuarenta
 rondas no se juega con niños.
 
+Lo que enseñó esta tarea, para T49 y las siguientes:
+
+- **Una sala con una sola entrada puede engancharse si el grupo llega diezmado.** T46 ya
+  documentó que la heurística del simulador, sin monstruos a la vista, va a la puerta
+  cerrada más cercana **en línea recta** y que eso cuelga una partida de cien contra una
+  sala con una sola puerta accesible en línea recta pero no por el camino real. Con esta
+  misión salió mucho más a menudo (hasta 3 de 30) porque la guardia de camino era lo
+  bastante dura para matar a dos de los cuatro héroes antes de llegar al final, y con solo
+  dos supervivientes hay muchas menos formas de que alguno rompa el enganche por su cuenta.
+  Si tu misión mete un monstruo duro al final de un pasillo largo, **dale a su sala una
+  segunda puerta normal en otra pared**, como ya hacía el torreón con el salón del trono:
+  no es solo redundancia narrativa, evita este enganche. Mídelo leyendo paso a paso
+  (`crearPartida` + las mismas funciones de `simular.ts`, con `console.log` de posiciones)
+  la semilla que salga «sin terminar», no lo des por el 1 % de fondo sin comprobarlo.
+- **Subir la guardia de camino no es lo mismo que subir la dificultad del monstruo final.**
+  Añadir dientes a las salas previas a un monstruo muy resistente puede matar héroes antes
+  de que el monstruo final entre en juego, lo que baja el porcentaje de victorias sin que
+  el monstruo final se vuelva más interesante de pelear. Mide por separado cuántas rondas
+  dura la partida completa y en qué sala caen los héroes: si caen antes de llegar al
+  monstruo central, el problema es el camino, no el monstruo.
+
 ## Prohibido
 
 - Tocar la IA o el motor: si el troll necesita una regla nueva, se apunta y se para.
