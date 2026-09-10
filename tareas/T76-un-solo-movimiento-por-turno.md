@@ -79,6 +79,25 @@ grep -n "solo se mueve una vez" src/engine/reducer.ts
   libro y siguen siendo verdad; esta tarea añade la regla de la casa encima y lo dice en
   el mismo comentario.
 
+Aprendido al cerrarla (sesión `s-20260910T094424-d923ffa6`, 2026-09-10):
+
+- **Hecha, por relevo.** El código lo preparó la sesión de la T75 antes de la firma
+  (`d0a1fed`, rama `origin/worktree-t75-puerta-mover`, sin fusionar); la sesión que la cerró
+  lo verificó sobre `origin/main` y lo heredó como cherry-pick. La terminada
+  (`hechos/terminadas/76--s-20260910T094424-d923ffa6.md`) lleva la lista de tests corregidos.
+- **La firma de la regla de la casa se escribió a mano el 2026-09-10** en el árbol
+  principal y en ese momento no estaba comiteada: una sesión que compruebe la firma solo
+  en `origin/main` la verá vacía hasta que Juan Luis la empuje. La señal es el fichero en
+  disco, no el tablón ni git.
+- **Se hizo en paralelo con la 50 sobre `reducer.ts`**, contra lo que dice esta ficha,
+  por decisión explícita de Juan Luis en conversación (incidencia
+  `hechos/incidencias/s-20260910T094424-d923ffa6.md`). Si la 50 rebasa sobre esto: la guarda
+  de `haMovido` va **antes** de «No te queda movimiento» y `movimientoRestante` queda a 0
+  al final de `mover()` siempre, no solo con `turnoAcabado`.
+- **Ningún generador de acciones mueve dos veces**: `destinos` de `zargon.ts` devuelve
+  vacío con `movimientoRestante <= 0` y además simula cada destino por el motor;
+  `casillasDeMovimiento` (simulador y juego al azar) también. No hubo que avisar a T73.
+
 ## Prohibido
 
 - Implementarla sin la firma en `autorizaciones.md` (`_COMUN.md`, «Prohibido»).

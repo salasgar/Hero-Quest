@@ -17,6 +17,24 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-10T09:50Z · por la sesión `s-20260910T094424-d923ffa6` (`HQ T76
+(ALTO)`), al cerrar la 76. Sobre la regeneración de las 09:01:30Z (`s-20260910T085944-2292a1c6`,
+al reclamar la 50) cambia **una fila**: la **76 pasa a LISTA**, pendiente del hash de
+`origin/main` (se añade en un commit aparte cuando entre el `push`). No se regeneró al
+reclamar (09:44:24Z) porque el tablón del árbol principal estaba reservado por la sesión
+de la 50; el reclamo (`hechos/reclamos/76--s-20260910T094424-d923ffa6.md`, `releva a:
+s-20260908T221009-8416a271`) estaba en `origin/main` desde `b65d115`, ganado sin competidor
+tras el `sleep 30` y el `git ls-tree`. La precondición de la 76 —la firma— está en el
+`autorizaciones.md` **del disco**, escrita a mano el 2026-09-10 y sin comitear al cerrar:
+el tablón no afirma la firma, solo dice dónde mirarla. La **50 sigue EN CURSO** (caduca
+18:59:44Z) y trabajó a la vez sobre `reducer.ts` por decisión de Juan Luis (incidencia
+`s-20260910T094424-d923ffa6`); cuando fusione, rebasa sobre las líneas de la 76. El resto de
+filas se ha comprobado contra `hechos/` y `date -u`: ningún reclamo caducado sin cierre ni
+relevo queda pintado EN CURSO (el de la 76 de `s-20260908T221009-8416a271` está relevado);
+`hechos/reabiertas/` y `hechos/fallos/` vacías; toda terminada tiene su reclamo. Quedan
+sin coger la 15 (BLOQUEADA, aparcada por Juan Luis) y nada más: con la 50 en curso, el
+tablón no tiene ninguna tarea libre de ninguna banda.
+
 Regenerado: 2026-09-10T09:01:30Z · por la sesión `s-20260910T085944-2292a1c6` (`HQ T50
 (ALTO)`), al reclamar la 50. Sobre la regeneración de las 08:55:57Z
 (`s-20260910T084204-edda6eee`, al cerrar la 72) cambia **una fila**: la **50 pasa a EN
@@ -576,7 +594,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 73 | T73 · Héroes del simulador que juegan como personas | tareas/T73-heroes-simulador-razonables.md | 45 LISTA · no a la vez que 53, 38, 45 (`simular.ts`) | 2 h | MEDIO | — | `scripts/simular.ts`, tests (si hace falta) | manual | LISTA (`52858c5`) | |
 | 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`4a63e28`) | |
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | LISTA (`1b19270`; sin cambio de regla: el reglamento pp. 11-12 permite mover, abrir y seguir) | |
-| 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | **BLOQUEADA** por la firma (sin ella no se fusiona); el reclamo de `s-20260908T221009-8416a271` **caducó el 2026-09-09T03:04:10Z** y es relevable: su código preparado está sin fusionar en `origin/worktree-t75-puerta-mover` (`d0a1fed`), a verificar y heredar bajo el sid de quien la coja | — (reclamo caducado) |
+| 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | LISTA (hash pendiente del `push`; firma de Juan Luis del 2026-09-10 en `autorizaciones.md`, en disco y aún sin comitear; hecha en paralelo con la 50 por decisión suya, ver incidencia `s-20260910T094424-d923ffa6`; código heredado de `d0a1fed` por relevo de `s-20260908T221009-8416a271`) | |
 
 Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
 y esta sesión (`HQ Coordinadora T67-T75`) las comiteó (`332ea02`) y regeneró el tablón. El
@@ -638,6 +656,8 @@ conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la
 terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
+
+- LISTA · tarea 76 · 2026-09-10 09:50 · `s-20260910T094424-d923ffa6` (releva a `s-20260908T221009-8416a271`, código heredado de su `d0a1fed`) · regla de la casa firmada el 2026-09-10: guarda sobre `haMovido` en `mover()`, antes que «No te queda movimiento» («Ya te has movido este turno: un personaje solo se mueve una vez»), y `movimientoRestante` a 0 al final de todo `mover()` (lo que sobra se pierde; la pantalla enseña «0 de N»); vale para monstruos porque `activarMonstruo` reinicia `haMovido`; `abrirPuerta` y `movimientoCerrado` sin tocar (abrir sigue siendo gratis: abrir y entrar desde la casilla de al lado vale, llegar andando y abrir remata el movimiento); cuatro tests que afirmaban la regla vieja corregidos a propósito y listados en la terminada (dos del describe de T75, «el movimiento gastado se descuenta», «un foso … se salta», y «el bárbaro llega a la puerta» de integración) más dos nuevos; ningún generador de acciones mueve dos veces (`zargon.ts`, `simular.ts`, juego al azar); hecha en paralelo con la 50 por decisión de Juan Luis (incidencia); 741 tests / 45 ficheros (739 antes, +2), typecheck 0 · `src/engine/reducer.ts`, `src/engine/types.ts`, `tests/reducer.test.ts`, `tests/integracion.test.ts` · hash pendiente
 
 - LISTA · tarea 72 · 2026-09-10 08:55 · `s-20260910T084204-edda6eee` · `speechSynthesis` del navegador lee el diario, sin ficheros ni red (`voz.ts`, nuevo, mismo espíritu que `sonidos.ts` de T44); `useLecturaDeDiario(lineas, vozActiva)` en `MasterLog.tsx` lee cada línea nueva por índice, exactamente las que ya pinta la pantalla (informe o relato, según lo elegido); botón de silencio propio en `Juego.tsx`, junto al de sonidos, con su propia clave de `localStorage`; `useVozLeyendo()` —contador de módulo con oyentes, no una prop— se suma a la guarda de `enMarcha` en `useTurnoDeZargon.ts` junto a `ocupado`, para que el automatismo no atropelle una frase a medias sin tocar `useAccionesDeTurno.ts` (fuera de la ficha); trampa conocida sin bloquear el cierre: cambiar de informe a relato a mitad de partida puede saltarse o repetir alguna lectura, porque los dos modos no descartan los mismos eventos como estructurales; sin navegador en el entorno, verificado por lectura, `npm run typecheck` y `npm run build` (86 módulos); 739 tests / 45 ficheros sin cambio (la ficha no pedía tests nuevos) · `src/ui/voz.ts`, `src/ui/MasterLog.tsx`, `src/ui/Juego.tsx`, `src/ui/useTurnoDeZargon.ts` · `ef41a0a`
 
@@ -720,9 +740,22 @@ leerlo antes de tocar el motor, la IA o la red.
 
 ## Incidencias de coordinación
 
-Derivado de `hechos/incidencias/`. Diez ficheros: dos de la noche y la tarde del día 7 (la
-62 y la 59), uno de la mañana del mismo día (la 38), cinco de las sesiones de la tarde del 6
-y el de la migración:
+Derivado de `hechos/incidencias/`. Quince ficheros; el más reciente (la 76, 2026-09-10) va
+primero, y después los anteriores en el orden en que se fueron recogiendo: los de la noche
+y la tarde del día 7, el de la mañana del mismo día (la 38), los de las sesiones de la tarde
+del 6, el de la migración y los que se sumaron luego:
+
+- **`s-20260910T094424-d923ffa6.md` (la de la 76):** tres cosas. (1) La 76 se hizo **en
+  paralelo con la 50** sobre `reducer.ts`, contra su ficha, por decisión de Juan Luis en
+  conversación («Haz la segunda opción», 09:44Z), con cada sesión en su worktree; aviso
+  para la 50 al rebasar: la guarda de `haMovido` va antes de «No te queda movimiento» y
+  `movimientoRestante` queda a 0 siempre al final de `mover()`. (2) Relevo de
+  `s-20260908T221009-8416a271` (reclamo caducado 2026-09-09T03:04:10Z): su `d0a1fed` se
+  verificó sobre `origin/main` (cherry-pick limpio, 741 / 45, typecheck 0) y se heredó
+  con una sola corrección (la fecha de la firma en el comentario). (3) La firma de la 76
+  está en `autorizaciones.md` **en disco, sin comitear**, y el mismo cambio rellena las
+  otras tres firmas pendientes (Cloudflare, Tempestad sobre héroe, T15) con la misma fecha,
+  como un «reemplazar todo»: no se ha comiteado y se le ha dicho a Juan Luis.
 
 - **`s-20260907T145032-f832894d.md` (la de la 62):** dos cabos sueltos, ninguno reparable
   desde su ficha. (1) La cortina de paso (`Transicion.tsx`) recibe los nombres de
