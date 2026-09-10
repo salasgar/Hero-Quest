@@ -576,8 +576,15 @@ describe("juego al azar con las tres especies", () => {
     // casa de un solo movimiento por turno, cada figura da un paso al azar por
     // turno en vez de varios, los encuentros son más raros y en las diez primeras
     // la araña ya no llega a enredar a nadie (antes de T76 sí). Sondeadas 150
-    // semillas: la telaraña prende en 12 y se tira para soltarse en 11.
-    for (const semilla of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 27]) {
+    // semillas: la telaraña prende en 12 y se tira para soltarse en 11. Más la 52
+    // (T78): al morir, una figura ya no arrastra sus efectos activos
+    // (`aplicarDano`), y eso cambia cuántas acciones legales hay en cada paso —
+    // el `entero(rng, posibles.length)` de más abajo consume el azar distinto—,
+    // así que la 27 deja de bastar para ver `tiraParaSoltarse` y hace falta una
+    // semilla más. Buscada a mano igual que la 27; **no la 17** (ni 20 ni 67): esas
+    // tres disparan el fallo latente de ids de errante duplicados que ya dejó
+    // anotado T76 (`hechos/incidencias/`), ajeno a esta tarea.
+    for (const semilla of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 27, 52]) {
       let e = nueva(semilla);
       let rng = crearRng(semilla * 977);
       let pasos = 0;

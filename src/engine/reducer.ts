@@ -107,12 +107,17 @@ function conFigura(e: EstadoPartida, f: Figura): EstadoPartida {
 
 function aplicarDano(e: EstadoPartida, f: Figura, dano: number): [EstadoPartida, Evento[]] {
   if (dano <= 0) return [e, []];
+  const cuerpo = Math.max(0, f.cuerpo - dano);
   // La piel de piedra se resquebraja con el primer golpe que pasa: por eso su
-  // duración cuelga del daño y no del reloj del turno.
+  // duración cuelga del daño y no del reloj del turno. Una figura derrotada,
+  // en cambio, no arrastra ningún hechizo: sin esto, un monstruo dormido
+  // (Sueño) y matado después seguía tirando el dado de «se despierta» sobre
+  // un cadáver, turnos después de caer.
   const herida = {
     ...f,
-    cuerpo: Math.max(0, f.cuerpo - dano),
-    efectos: f.efectos.filter((x) => x.duracion !== "hastaRecibirDano"),
+    cuerpo,
+    efectos: cuerpo === 0 ? [] : f.efectos.filter((x) => x.duracion !== "hastaRecibirDano"),
+    ...(cuerpo === 0 && f.tipo === "monstruo" ? { dormido: false, pierdeTurno: false } : {}),
   } as Figura;
   const eventos: Evento[] = [];
   let estado = conFigura(e, herida);

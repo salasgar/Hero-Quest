@@ -23,6 +23,15 @@ const conMago = (op: Parameters<typeof partida>[0] = {}) => {
 const tiene = (e: EstadoPartida, id: string, clase: string) =>
   e.heroes.find((h) => h.id === id)!.efectos.some((x) => x.clase === clase);
 
+/** Una semilla cuyo primer d6 saca la cara pedida. Usado por T71 y T78. */
+function semillaParaD6(cara: number): number {
+  for (let s = 1; s < 1000; s++) if (tirarD6(crearRng(s))[0] === cara) return s;
+  throw new Error(`ninguna de las primeras mil semillas saca un ${cara}`);
+}
+const SEMILLA_CINCO = semillaParaD6(5);
+const SEMILLA_SEIS = semillaParaD6(6);
+const conRng = (e: EstadoPartida, semilla: number): EstadoPartida => ({ ...e, rng: crearRng(semilla) });
+
 describe("los hechizos que antes gastaban la carta y no hacían nada", () => {
   it("todos los efectos declarados los ejecuta el motor", () => {
     // La comprobación de fondo: ninguna clase de efecto puede quedarse sin
@@ -262,16 +271,6 @@ describe("las reglas de equipo que el motor tiene que aplicar", () => {
 });
 
 describe("el monstruo dormido despierta al entrar el turno de Zargon", () => {
-  // Una semilla cuyo primer d6 (el de despertar) saca la cara pedida.
-  function semillaParaD6(cara: number): number {
-    for (let s = 1; s < 1000; s++) if (tirarD6(crearRng(s))[0] === cara) return s;
-    throw new Error(`ninguna de las primeras mil semillas saca un ${cara}`);
-  }
-  const SEMILLA_CINCO = semillaParaD6(5);
-  const SEMILLA_SEIS = semillaParaD6(6);
-
-  const conRng = (e: EstadoPartida, semilla: number): EstadoPartida => ({ ...e, rng: crearRng(semilla) });
-
   const escena = () => {
     const e = partida({ monstruos: [{ id: "goblin1", especie: "goblin", celda: c(4, 1) }] });
     return { ...e, monstruos: e.monstruos.map((m) => ({ ...m, dormido: true })) };
@@ -287,5 +286,33 @@ describe("el monstruo dormido despierta al entrar el turno de Zargon", () => {
     const e = hacer(conRng(escena(), SEMILLA_SEIS), { tipo: "terminarTurno" });
     expect(e.monstruos[0]!.dormido).toBe(false);
     expect(e.registro.some((x: Evento) => x.tipo === "dormidoDespierta" && x.actor === "goblin1")).toBe(true);
+  });
+});
+
+describe("un monstruo muerto no arrastra los hechizos que le lanzaron (T78)", () => {
+  // El mago de conMago lanza genio (daño fijo, sin salvación) contra un goblin
+  // (1 de cuerpo) marcado dormido a mano: cuatro calaveras sobran para matarlo.
+  const escenaConGoblinDormido = () => {
+    const e = conMago({ monstruos: [{ id: "goblin1", especie: "goblin", celda: c(4, 1) }] });
+    return { ...e, monstruos: e.monstruos.map((m) => ({ ...m, dormido: true })) };
+  };
+
+  const matarloDormido = () =>
+    hacer(escenaConGoblinDormido(), {
+      tipo: "lanzarHechizo", hechizo: "genio", objetivo: "goblin1", dados: [CAL, CAL, CAL, CAL],
+    });
+
+  it("al morir, se limpian dormido, pierdeTurno y los efectos activos", () => {
+    const goblin = matarloDormido().monstruos[0]!;
+    expect(goblin.cuerpo).toBe(0);
+    expect(goblin.dormido).toBe(false);
+    expect(goblin.pierdeTurno).toBe(false);
+    expect(goblin.efectos).toEqual([]);
+  });
+
+  it("y no se despierta nunca, aunque el dado de Zargon saque justo el 6 que lo habría despertado vivo", () => {
+    const e = hacer(conRng(matarloDormido(), SEMILLA_SEIS), { tipo: "terminarTurno" });
+    expect(e.monstruos[0]!.dormido).toBe(false);
+    expect(e.registro.some((x: Evento) => x.tipo === "dormidoDespierta")).toBe(false);
   });
 });
