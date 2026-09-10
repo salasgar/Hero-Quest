@@ -17,6 +17,23 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-10T16:57:31Z · por la sesión `s-20260910T165701-15d0fd4b` (`HQ T78
+(MEDIO)`), al reclamar la 78. Sobre la regeneración de las 10:00Z (`s-20260910T094424-d923ffa6`,
+al cerrar la 76) cambian **tres filas**: se añaden la **77** (T77 · quitarle el fondo a la
+portada, PENDIENTE) y la **78** (T78 · un monstruo muerto no arrastra los hechizos que le
+lanzaron, **EN CURSO**, este reclamo, caduca 2026-09-10T19:57:01Z). Las dos son peticiones
+que Juan Luis hizo directamente, fuera del tablón, jugando el 2026-09-10 (la portada se ve
+con un rectángulo de fondo que no encaja con el degradado de `.eleccion-cabecera`; una
+gárgola dormida con Sueño y matada después «se despertó» varios turnos más tarde), sin
+ficha previa: se numeran al final (la última era la 76) y se escriben con el mismo criterio
+que cualquier otra ficha (`hechos/notas/s-20260910T165701-15d0fd4b.md`), banda MEDIO las
+dos —no hay regla nueva que decidir, es criterio de pantalla en un caso y una corrección
+acotada con tests en el otro—, sin ningún fichero en común, encadenables entre sí.
+Comprobado antes de reclamar la 78: ninguna tarea viva sobre `reducer.ts` ni `types.ts` (50,
+66, 71, 75 y 76, todas LISTA, sin reclamo vivo en `hechos/reclamos/`); tampoco sobre
+`EleccionDeHeroes.tsx` ni `estilos.css` para la 77, que queda libre para cogerse. Sigo en el
+árbol principal, sin entrar todavía en worktree.
+
 Regenerado: 2026-09-10T10:00Z · por la sesión `s-20260910T094424-d923ffa6` (`HQ T76
 (ALTO)`), al cerrar la 76. Sobre la regeneración de las 09:46:03Z (`s-20260910T085944-2292a1c6`,
 al cerrar la 50) cambia **una fila**: la **76 pasa a LISTA** (`58e12db` en `origin/main`,
@@ -635,6 +652,8 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`4a63e28`) | |
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | LISTA (`1b19270`; sin cambio de regla: el reglamento pp. 11-12 permite mover, abrir y seguir) | |
 | 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | LISTA (`58e12db`; firma de Juan Luis del 2026-09-10 en `autorizaciones.md`, en disco y aún sin comitear; hecha en paralelo con la 50 por decisión suya y rebasada sobre ella, ver incidencia `s-20260910T094424-d923ffa6`; código heredado de `d0a1fed` por relevo de `s-20260908T221009-8416a271`) | |
+| 77 | T77 · Quitarle el fondo a la portada | tareas/T77-quitar-fondo-portada.md | ninguna · no a la vez que 37, 45, 59, 69, 41 si alguna viviera (`EleccionDeHeroes.tsx`, `estilos.css`) — hoy ninguna lo está | 1 h | MEDIO | 78 | `public/portada.webp`, `public/portada-original.png`, `public/IMAGENES.md`, `src/data/imagenes.ts` | manual | PENDIENTE | |
+| 78 | T78 · Un monstruo muerto no arrastra los hechizos que le lanzaron | tareas/T78-anular-hechizos-al-morir.md | ninguna · no a la vez que 50, 66, 71, 75, 76 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 1,5 h | MEDIO | 77 | `src/engine/reducer.ts`, `tests/hechizos.test.ts` | manual | EN CURSO | `s-20260910T165701-15d0fd4b` · 2026-09-10T19:57:01Z |
 
 Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
 y esta sesión (`HQ Coordinadora T67-T75`) las comiteó (`332ea02`) y regeneró el tablón. El
