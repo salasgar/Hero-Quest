@@ -170,9 +170,12 @@ export default function App() {
         {grupo && (
           <button
             onClick={() => {
-              setGrupo(null);
-              setContinuar(null);
-              setEnTransicion(false);
+              if (confirm("¿Salir de la partida actual? Se perderá el progreso.")) {
+                setGrupo(null);
+                setContinuar(null);
+                setEnTransicion(false);
+                setReparto((r) => r + 1);
+              }
             }}
           >
             Cambiar héroes
@@ -219,6 +222,7 @@ export default function App() {
             mision={mision}
             instruccionesAbiertas={verInstrucciones}
             cerrarInstrucciones={() => setVerInstrucciones(false)}
+            alReiniciar={() => setReparto((r) => r + 1)}
           />
           {enTransicion && (
             <Transicion

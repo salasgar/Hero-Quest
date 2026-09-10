@@ -159,16 +159,6 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
     setError(null);
   }, [sesion, acciones, inicial]);
 
-  const reiniciar = useCallback(() => {
-    // En red no hay «jugar otra vez»: el protocolo no tiene esa operación, y
-    // empezar de cero es crear otra partida con otro código. Esa pantalla es
-    // de T32; aquí no se hace nada en vez de hacer algo a medias.
-    if (sesion) return;
-    setAcciones([]);
-    setEstado(inicial);
-    setError(null);
-    setRechazadas([]);
-  }, [sesion, inicial]);
 
   /**
    * El registro descargable de esta partida, a día de hoy.
@@ -208,7 +198,6 @@ export function usePartida(fuente: OpcionesPartida | SesionDeRed) {
     estado,
     ejecutar,
     deshacer,
-    reiniciar,
     error,
     limpiarError: () => setError(null),
     partidaGuardada,

@@ -41,6 +41,7 @@ export function Juego({
   sesion,
   instruccionesAbiertas = false,
   cerrarInstrucciones = () => {},
+  alReiniciar = () => {},
 }: {
   heroes?: HeroeElegido[];
   /**
@@ -59,6 +60,7 @@ export function Juego({
    */
   instruccionesAbiertas?: boolean;
   cerrarInstrucciones?: () => void;
+  alReiniciar?: () => void;
 }) {
   const partida = usePartida(
     sesion ?? {
@@ -70,7 +72,7 @@ export function Juego({
       semilla: Date.now() % 100000,
     },
   );
-  const { estado, ejecutar, deshacer, reiniciar, error, limpiarError, puedeDeshacer, puedeActuar } =
+  const { estado, ejecutar, deshacer, error, limpiarError, puedeDeshacer, puedeActuar } =
     partida;
 
   /**
@@ -191,7 +193,17 @@ export function Juego({
             {/* En red no hay «jugar otra vez»: empezar de cero es crear otra
                 partida, con otro código, y eso se hace desde la pantalla de
                 entrar. Enseñar un botón que no hace nada es peor que no tenerlo. */}
-            {!sesion && <button onClick={reiniciar}>Jugar otra vez</button>}
+            {!sesion && (
+              <button
+                onClick={() => {
+                  if (confirm("¿Jugar otra vez? Se creará una partida nueva con distinto mazo de tesoros y tiradas.")) {
+                    alReiniciar();
+                  }
+                }}
+              >
+                Jugar otra vez
+              </button>
+            )}
           </section>
         ) : (
           <TurnPanel
