@@ -59,6 +59,9 @@ export const BARAJA_TESOROS: readonly CartaTesoro[] = [
   { id: "errOrco",   nombre: "Monstruo errante", texto: "Un orco entra por donde has venido. Aparece a tu lado.",      efecto: { clase: "monstruoErrante", especie: "orco" },   copias: 2 },
   { id: "gas",       nombre: "Gas venenoso",     texto: "Al abrir el arcón sale una nube verde. Pierdes 1 de cuerpo.", efecto: { clase: "peligro", dano: 1 }, copias: 1 },
   { id: "telarana",  nombre: "Telaraña",         texto: "Algo peludo te muerde la mano. Pierdes 1 de cuerpo.",         efecto: { clase: "peligro", dano: 1 }, copias: 1 },
+  { id: "viga",      nombre: "Viga floja",       texto: "El techo cruje y te cae encima un pedazo de madera. Pierdes 1 de cuerpo.", efecto: { clase: "peligro", dano: 1 }, copias: 1 },
+  { id: "esquirla",  nombre: "Esquirla de piedra", texto: "Una losa se rompe bajo tu pie y salta una esquirla afilada. Pierdes 1 de cuerpo.", efecto: { clase: "peligro", dano: 1 }, copias: 1 },
+  { id: "aguja",     nombre: "Aguja oculta",     texto: "Escondida entre la paja, una aguja te pincha el dedo. Pierdes 1 de cuerpo.", efecto: { clase: "peligro", dano: 1 }, copias: 1 },
 ];
 
 /** La carta con ese id, o undefined si no existe (un id que no es de la baraja). */
