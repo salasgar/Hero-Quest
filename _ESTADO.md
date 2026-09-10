@@ -19,8 +19,8 @@ sin la T (la T7 es `07--<sid>.md`).
 
 Regenerado: 2026-09-10T09:46:03Z · por la sesión `s-20260910T085944-2292a1c6` (`HQ T50
 (ALTO)`), al cerrar la 50. Sobre la regeneración de las 09:01:30Z (la misma sesión, al
-reclamarla) cambian **dos filas**: la **50 pasa a LISTA**, pendiente del hash de
-`origin/main` (se añade en un commit aparte cuando entre el `push`), y la **76 pasa a EN
+reclamarla) cambian **dos filas**: la **50 pasa a LISTA** (`6c02023` en `origin/main`,
+añadido en un commit aparte tras el `push`, como manda el orden de cierre), y la **76 pasa a EN
 CURSO** por relevo (`hechos/reclamos/76--s-20260910T094424-d923ffa6.md`, abierto
 2026-09-10T09:44:24Z, caduca 2026-09-10T13:44:24Z, `releva a:` el reclamo caducado de
 `s-20260908T221009-8416a271`): su propio reclamo declara la **colisión con la 50 sobre
@@ -579,7 +579,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA · **cumplida** | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | LISTA (`7363d4d`) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | LISTA (`fb40fb1`) | |
-| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | LISTA (hash pendiente del `push`; tres poderes, ninguno duerme ni quita el turno a un héroe; reglas de la casa pendientes de firma) | |
+| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | LISTA (`6c02023`; tres poderes, ninguno duerme ni quita el turno a un héroe; reglas de la casa pendientes de firma) | |
 | 51 | T51 · Un héroe pisa una trampa y tiene que pasarle algo | tareas/T51-las-trampas-saltan-al-pisarlas.md | ninguna · no a la vez que 53, 54, 50 (`reducer.ts`) ni 37 (`BoardMirror.tsx`) | 1,5 h | ALTO | 53, 54 | `reducer.ts`, `BoardMirror.tsx`, `tests/reducer.test.ts` | manual | LISTA (`095d031`) | |
 | 52 | T52 · En el turno de Zargon no salen los mandos de los héroes | tareas/T52-el-turno-de-zargon-sin-mandos-de-heroe.md | ninguna · no a la vez que 36, 22 (`TurnPanel.tsx`) ni 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 36, 22 | `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `tests/turno-automatico.test.ts` | manual | LISTA (`9124757`) | |
 | 53 | T53 · El pergamino del guardián: la misión tiene encargo | tareas/T53-el-pergamino-del-guardian.md | 51 LISTA · no a la vez que 54, 50 (`reducer.ts`), 37, 38 (`types.ts`), 39 (`narrator`), 45 (`simular.ts`) | 3 h | ALTO | 54 | `types.ts`, `reducer.ts`, `quests/calabozo.ts`, `narrator/local.ts`, `scripts/simular.ts`, `tests/quest.test.ts`, `tests/reducer.test.ts` | manual | LISTA (`a60b7e5`) | |
