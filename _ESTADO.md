@@ -17,6 +17,35 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-10T09:46:03Z · por la sesión `s-20260910T085944-2292a1c6` (`HQ T50
+(ALTO)`), al cerrar la 50. Sobre la regeneración de las 09:01:30Z (la misma sesión, al
+reclamarla) cambian **dos filas**: la **50 pasa a LISTA**, pendiente del hash de
+`origin/main` (se añade en un commit aparte cuando entre el `push`), y la **76 pasa a EN
+CURSO** por relevo (`hechos/reclamos/76--s-20260910T094424-d923ffa6.md`, abierto
+2026-09-10T09:44:24Z, caduca 2026-09-10T13:44:24Z, `releva a:` el reclamo caducado de
+`s-20260908T221009-8416a271`): su propio reclamo declara la **colisión con la 50 sobre
+`reducer.ts`**, decidida por Juan Luis en conversación con esa sesión (en paralelo, cada
+una en su worktree, «quien fusione segunda rebasa»), con incidencia en
+`hechos/incidencias/s-20260910T094424-d923ffa6.md`. La 50 fusiona primera: **la 76 tiene
+que rebasar sobre `reducer.ts` y `types.ts` con los poderes dentro** (nuevas funciones
+`poderDeMonstruo`, `emerger`, `puedeMaldecir`; `tirarMovimientoAccion` y `atacar` cambian
+por dentro; `mover` gana un corte por emboscada en el bucle de pasos). Lo hecho: tres
+poderes —el maleficio del brujo, la bruja y el hechicero del Caos (dado rojo contra la
+mente del héroe, 2 de cuerpo si no resiste), la telaraña de la araña gigante (el héroe
+herido queda enredado hasta que un dado de combate sin calavera lo suelte; no se mueve pero
+actúa) y la emboscada del monstruo de arena (espera enterrado fuera de `monstruos` y emerge
+pegado al primer héroe que pisa su sala, mordiéndole)—, la IA los usa (el maleficio
+puntuado con los pesos de T8 frente al ataque), los dos narradores los cuentan. **Ningún
+poder duerme a un héroe ni le quita el turno**: era la pregunta que la ficha mandaba
+hacerle a Juan Luis y sigue abierta en `autorizaciones.md`; las tres reglas van ahí como
+reglas de la casa pendientes de firma, con el texto exacto en la terminada. Medido con el
+simulador sobre una variante no comiteada del calabozo (cuatro especies cambiadas): con
+poderes 81/90/86 % (héroes tontos) y 96/95/96 % (razonables) frente a 96/97/100 % y
+98/100/99 % sin ellos; el catálogo publicado no cambia de cifras. `relato.ts`, `frases.ts` y
+`sonidos.ts` se tocaron fuera de la ficha porque sus `switch` exhaustivos no compilan con
+un evento nuevo. 765 tests / 46 ficheros (739 antes, +26), typecheck 0. Ninguna otra tarea
+libre de banda ALTO queda en el tablón.
+
 Regenerado: 2026-09-10T09:01:30Z · por la sesión `s-20260910T085944-2292a1c6` (`HQ T50
 (ALTO)`), al reclamar la 50. Sobre la regeneración de las 08:55:57Z
 (`s-20260910T084204-edda6eee`, al cerrar la 72) cambia **una fila**: la **50 pasa a EN
@@ -550,7 +579,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 47 | T47 · La tercera misión, con el troll | tareas/T47-tercera-mision-con-el-troll.md | 46 LISTA · **cumplida** | 3 h | MEDIO | — | `quests/<id>.ts` (nuevo), `quests/index.ts`, `monsters.ts` (solo el troll) | manual | LISTA (`7363d4d`) | |
 | 48 | T48 · Propuestas de mejora para que Juan Luis elija | tareas/T48-propuestas-de-mejora.md | ninguna (mejor tras 11 y 36) | 2 h | ALTO | — | `tareas/_PROPUESTAS-2026-09.md` (nuevo) | manual | LISTA (`a6582f9`) | |
 | 49 | T49 · Más especies de monstruo | tareas/T49-mas-especies-de-monstruo.md | 42 LISTA · no a la vez que 38, 47 | 3 h | MEDIO | — | `monsters.ts`, `personalities.ts`, `nombres.ts`, `tests/monstruos.test.ts` | manual | LISTA (`fb40fb1`) | |
-| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | **EN CURSO** (49 y 42 LISTA; nadie más sobre `reducer.ts`: 66, 71 y 75 LISTA, 76 caducada y sin firma) | `s-20260910T085944-2292a1c6` · caduca 2026-09-10T18:59:44Z |
+| 50 | T50 · Poderes de monstruo: hechizos enemigos, telarañas y emboscadas | tareas/T50-poderes-de-monstruo.md | 49 y 42 LISTA · nada más sobre `reducer.ts` a la vez (después de 51, 53, 54) | 5 h | ALTO | — | `types.ts`, `reducer.ts`, `selectors.ts`, `monsters.ts`, `zargon.ts`, `narrator/local.ts`, tests | manual | LISTA (hash pendiente del `push`; tres poderes, ninguno duerme ni quita el turno a un héroe; reglas de la casa pendientes de firma) | |
 | 51 | T51 · Un héroe pisa una trampa y tiene que pasarle algo | tareas/T51-las-trampas-saltan-al-pisarlas.md | ninguna · no a la vez que 53, 54, 50 (`reducer.ts`) ni 37 (`BoardMirror.tsx`) | 1,5 h | ALTO | 53, 54 | `reducer.ts`, `BoardMirror.tsx`, `tests/reducer.test.ts` | manual | LISTA (`095d031`) | |
 | 52 | T52 · En el turno de Zargon no salen los mandos de los héroes | tareas/T52-el-turno-de-zargon-sin-mandos-de-heroe.md | ninguna · no a la vez que 36, 22 (`TurnPanel.tsx`) ni 44, 45 (`Juego.tsx`) | 2 h | MEDIO | 36, 22 | `TurnPanel.tsx`, `Juego.tsx`, `useAccionesDeTurno.ts`, `tests/turno-automatico.test.ts` | manual | LISTA (`9124757`) | |
 | 53 | T53 · El pergamino del guardián: la misión tiene encargo | tareas/T53-el-pergamino-del-guardian.md | 51 LISTA · no a la vez que 54, 50 (`reducer.ts`), 37, 38 (`types.ts`), 39 (`narrator`), 45 (`simular.ts`) | 3 h | ALTO | 54 | `types.ts`, `reducer.ts`, `quests/calabozo.ts`, `narrator/local.ts`, `scripts/simular.ts`, `tests/quest.test.ts`, `tests/reducer.test.ts` | manual | LISTA (`a60b7e5`) | |
@@ -576,7 +605,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 73 | T73 · Héroes del simulador que juegan como personas | tareas/T73-heroes-simulador-razonables.md | 45 LISTA · no a la vez que 53, 38, 45 (`simular.ts`) | 2 h | MEDIO | — | `scripts/simular.ts`, tests (si hace falta) | manual | LISTA (`52858c5`) | |
 | 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`4a63e28`) | |
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | LISTA (`1b19270`; sin cambio de regla: el reglamento pp. 11-12 permite mover, abrir y seguir) | |
-| 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | **BLOQUEADA** por la firma (sin ella no se fusiona); el reclamo de `s-20260908T221009-8416a271` **caducó el 2026-09-09T03:04:10Z** y es relevable: su código preparado está sin fusionar en `origin/worktree-t75-puerta-mover` (`d0a1fed`), a verificar y heredar bajo el sid de quien la coja | — (reclamo caducado) |
+| 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | **EN CURSO** (relevo del reclamo caducado de `s-20260908T221009-8416a271`, cuyo código `d0a1fed` hereda; su reclamo dice que la firma está escrita a mano en `autorizaciones.md` sin comitear; colisión declarada con la 50 sobre `reducer.ts`, decidida por Juan Luis: en paralelo y rebasa quien fusione segunda — la 50 ya fusionó) | `s-20260910T094424-d923ffa6` · caduca 2026-09-10T13:44:24Z |
 
 Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
 y esta sesión (`HQ Coordinadora T67-T75`) las comiteó (`332ea02`) y regeneró el tablón. El

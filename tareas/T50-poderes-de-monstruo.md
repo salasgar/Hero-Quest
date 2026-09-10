@@ -77,6 +77,32 @@ grep -n 'poder' src/data/monsters.ts src/engine/types.ts
 - **Los subagentes trabajan bajo tu sid**; si lanzas uno a escribir tests, tú no tocas
   `hechos/` mientras corre.
 
+Encontradas al hacerla (sesión `s-20260910T085944-2292a1c6`, 2026-09-10):
+
+- **Tres `switch` exhaustivos sobre `Evento` fuera de «Ficheros que toca»**:
+  `src/narrator/relato.ts` (con su banco `frases.ts`) y `src/ui/sonidos.ts` no compilan
+  con un evento nuevo sin su caso. Cualquier tarea que añada un evento los toca, aunque
+  su ficha no los nombre; esta tarea añadió los cuatro casos en cada uno.
+- **El enterrado no está en `e.monstruos`**: vive en `e.emboscadas` desde que se revela
+  su sala hasta que emerge. Todo lo que cuente «monstruos vivos» recorriendo
+  `e.monstruos` (pantalla, simulador, `comprobarDesenlace`) no lo ve, **a propósito**;
+  `matarATodos` lo tiene en cuenta. `comoLoVe` (T32) copia el estado con `...e`, así que
+  `emboscadas` viaja a la vista remota sin pintarse: quien lea el JSON en su móvil lo
+  puede ver. Filtrarlo ahí es de `src/red/niebla.ts`, que esta tarea no declara.
+- **El brujo va a por el mago si lo alcanza**, en vez de maldecir: el mago (mente 6) es
+  inmune al maleficio por regla y el sesgo «caza al lanzador» de T8/T49 puntúa más pegarle
+  con la daga que maldecir al bárbaro. Solo maldice cuando el mago no está a su alcance,
+  que en una fila india es lo normal. Es el mismo sesgo con el que juega un goblin; si
+  se quiere otro brujo, es un cambio de personalidad (`personalities.ts`), no del poder.
+- **Ninguna misión del catálogo tiene estas especies**, así que los números del
+  simulador de la terminada salen de una variante **no comiteada** del calabozo (cuatro
+  monstruos de las salas de la entrada cambiados por araña, brujo, arena y bruja). El
+  catálogo publicado no cambia de cifras: ningún camino nuevo del motor se ejecuta sin
+  esas especies.
+- **La telaraña es un `EfectoActivo` con `clase: "enredado"`** (texto libre, como los
+  demás) y `duracion: "mision"`; lo gasta la tirada de `tirarMovimientoAccion`, no el
+  reloj del turno. Una pantalla que pinte `efectos` por su `clase` lo enseña tal cual.
+
 ## Tests que hay que añadir
 
 - Cada poder: prende, no prende (motivo en el dato), se cuenta en el diario, y el motor lo
