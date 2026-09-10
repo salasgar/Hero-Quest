@@ -17,6 +17,24 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-10T18:06Z · por la sesión `s-20260910T172614-0366af97` (`HQ T78+T77
+(MEDIO)`), al cerrar la 77. Sobre la regeneración de las 17:26:44Z (la misma sesión, al
+reclamarla) cambia **una fila**: la **77 pasa a LISTA**
+(`39b8b84f8be20354e612df3cafc31f3dd6a35353` en la rama del worktree, pendiente de
+confirmar en `origin/main` tras la fusión). Recorte por color-key sobre una copia de
+`portada-original.png` (el original no se toca): el fondo casi uniforme
+(`rgb(16,19,23)`) pasa a transparente por distancia euclídea, con difuminado entre 30 y 70
+para que el borde no quede dentado; el rojo del rótulo y el blanco del hada están lo
+bastante lejos del color de fondo como para que un umbral global baste sin comerse el
+dibujo. Sin ImageMagick ni Pillow en el entorno: se instaló Pillow con `pip3 install
+--user` como herramienta puntual, no como dependencia del proyecto. Recomprimido con
+`cwebp -q 90` (183 KB, frente a 133 KB sin alfa). Verificado componiendo una prueba sobre
+el degradado real de `.eleccion-cabecera`: sin rectángulo visible. 769 tests / 46 ficheros
+(sin cambio), typecheck 0, `npm run build` 0 (`dist/portada.webp` con alfa confirmado).
+Receta completa en `public/IMAGENES.md`. **Ninguna tarea libre queda EN CURSO por esta
+sesión**: 78 y 77 cerradas y fusionadas (o pendiente de fusionar esta última);
+libres 79, 80 y 81 (MEDIO) y 82 (ALTO).
+
 Regenerado: 2026-09-10T17:26:44Z · por la sesión `s-20260910T172614-0366af97` (`HQ
 T78+T77 (MEDIO)`), al reclamar la 77. Sobre la regeneración de las 19:23Z (la misma
 sesión física, sid nuevo por tarea nueva reclamada) cambia **una fila**: la **77 pasa a EN
@@ -701,7 +719,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`4a63e28`) | |
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | LISTA (`1b19270`; sin cambio de regla: el reglamento pp. 11-12 permite mover, abrir y seguir) | |
 | 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | LISTA (`58e12db`; firma de Juan Luis del 2026-09-10 en `autorizaciones.md`, en disco y aún sin comitear; hecha en paralelo con la 50 por decisión suya y rebasada sobre ella, ver incidencia `s-20260910T094424-d923ffa6`; código heredado de `d0a1fed` por relevo de `s-20260908T221009-8416a271`) | |
-| 77 | T77 · Quitarle el fondo a la portada | tareas/T77-quitar-fondo-portada.md | ninguna · no a la vez que 37, 45, 59, 69, 41 si alguna viviera (`EleccionDeHeroes.tsx`, `estilos.css`) — hoy ninguna lo está | 1 h | MEDIO | 78 | `public/portada.webp`, `public/portada-original.png`, `public/IMAGENES.md`, `src/data/imagenes.ts` | manual | EN CURSO | `s-20260910T172614-0366af97` · 2026-09-10T19:26:14Z |
+| 77 | T77 · Quitarle el fondo a la portada | tareas/T77-quitar-fondo-portada.md | ninguna · no a la vez que 37, 45, 59, 69, 41 si alguna viviera (`EleccionDeHeroes.tsx`, `estilos.css`) — hoy ninguna lo está | 1 h | MEDIO | 78 | `public/portada.webp`, `public/portada-original.png`, `public/IMAGENES.md`, `src/data/imagenes.ts` | manual | LISTA (`39b8b84`) | |
 | 78 | T78 · Un monstruo muerto no arrastra los hechizos que le lanzaron | tareas/T78-anular-hechizos-al-morir.md | ninguna · no a la vez que 50, 66, 71, 75, 76 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 1,5 h | MEDIO | 77 | `src/engine/reducer.ts`, `tests/hechizos.test.ts` | manual | LISTA (`9c29112`) | |
 | 79 | T79 · Un monstruo dormido no grita de dolor | tareas/T79-narracion-de-golpear-dormidos.md | ninguna · no a la vez que 50, 66, 71, 75, 76, 78 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 2 h | MEDIO | 80, 81 | `src/engine/types.ts`, `src/engine/reducer.ts`, `src/narrator/relato.ts`, `src/narrator/frases.ts`, tests | manual | PENDIENTE | |
 | 80 | T80 · Una voz menos robótica para el diario leído | tareas/T80-voz-mas-natural.md | ninguna · no a la vez que 72, 44 si alguna viviera (`voz.ts`) — hoy ambas LISTA | 1,5 h | MEDIO | 79, 81 | `src/ui/voz.ts` | manual | PENDIENTE | |
@@ -768,6 +786,8 @@ conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la
 terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
+
+- LISTA · tarea 77 · 2026-09-10 20:06 · `s-20260910T172614-0366af97` · petición directa de Juan Luis (sin ficha previa, añadida como T77): el fondo casi negro uniforme de `portada.webp` (`rgb(16,19,23)`) recortaba un rectángulo sobre el `radial-gradient` de `.eleccion-cabecera`; recorte por color-key (distancia euclídea, difuminado entre 30 y 70) sobre una copia de `portada-original.png`, que no se toca — sin ImageMagick ni Pillow instalados en el entorno, se instaló Pillow con `pip3 install --user` como herramienta puntual; recomprimido con `cwebp -q 90` (183 KB, antes 133 KB sin alfa); verificado componiendo sobre el degradado real, sin rectángulo visible; 769 tests / 46 ficheros (sin cambio), typecheck 0, build 0 (alfa confirmado en `dist/`) · `public/portada.webp`, `public/IMAGENES.md`, `src/data/imagenes.ts` · `39b8b84f8be20354e612df3cafc31f3dd6a35353` (pendiente de confirmar en `origin/main` tras la fusión)
 
 - LISTA · tarea 78 · 2026-09-10 19:11 · `s-20260910T165701-15d0fd4b` · petición directa de Juan Luis (sin ficha previa, añadida como T78): `aplicarDano` —único sitio que reduce `cuerpo`— vacía `efectos` entero y, si es un monstruo, limpia `dormido`/`pierdeTurno` al llegar a 0, para que un monstruo dormido (Sueño) y matado después no siga tirando el dado de «se despierta» sobre un cadáver; no hizo falta tocar `avanzarActor`; trampa encontrada y corregida en la propia tarea: el cambio varía cuántas acciones legales hay en cada paso del juego al azar de poderes de monstruo, así que la semilla 27 (de T76) deja de bastar para ver `tiraParaSoltarse` y se añade la 52 (evitadas 17/20/67 por el fallo latente de ids de errante duplicados, incidencia de T76, ajeno a esta tarea); dos tests nuevos con una escena real; 769 tests / 46 ficheros (768 antes, +1 neto), typecheck 0 · `src/engine/reducer.ts`, `tests/hechizos.test.ts`, `tests/poderes-de-monstruo.test.ts` · `9c29112835b9356d68a6fd993bed9ff00d0d0aa0` (pendiente de confirmar en `origin/main` tras la fusión)
 
