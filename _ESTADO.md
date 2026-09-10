@@ -17,6 +17,26 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-10T19:11:30Z · por la sesión `s-20260910T165701-15d0fd4b` (`HQ T78
+(MEDIO)`), al cerrar la 78. Sobre la regeneración de las 16:57:31Z (la misma sesión, al
+reclamarla) cambia **una fila**: la **78 pasa a LISTA** (`9c29112835b9356d68a6fd993bed9ff00d0d0aa0`
+en la rama del worktree, pendiente de confirmar en `origin/main` tras la fusión, como manda
+el orden de cierre). `aplicarDano` (único sitio que reduce `cuerpo`) vacía `efectos` entero
+y, si la figura es un monstruo, limpia `dormido`/`pierdeTurno` al llegar a 0: sin esto, un
+monstruo dormido (Sueño) y matado después seguía tirando el dado de «se despierta» en
+`avanzarActor` turnos después de caer, tal como Juan Luis lo vio jugando con una gárgola. No
+hizo falta tocar `avanzarActor`: con `dormido` ya en `false` al morir, cae en la rama que no
+tira dado ni genera evento. **Trampa encontrada al verificar, corregida en la propia
+tarea**: el cambio altera cuántas acciones legales hay en cada paso del juego al azar de
+`tests/poderes-de-monstruo.test.ts`, así que la semilla 27 (añadida por T76) deja de bastar
+para ver `tiraParaSoltarse`; sondeada a mano (script temporal, no comiteado) y añadida la
+semilla 52 —evitadas a propósito la 17, 20 y 67, que disparan el fallo latente de ids de
+errante duplicados que T76 dejó anotado como incidencia, ajeno a esta tarea—. Dos tests
+nuevos en `tests/hechizos.test.ts` con una escena real (mago mata con el hechizo genio a un
+goblin dormido y no se despierta ni forzando el dado con la semilla que antes lo despertaba
+vivo). 769 tests / 46 ficheros (768 antes, +1 neto), typecheck 0. **Libre por estado: la
+77** (MEDIO), sin ningún fichero en común con esta tarea ya cerrada; encadeno.
+
 Regenerado: 2026-09-10T16:57:31Z · por la sesión `s-20260910T165701-15d0fd4b` (`HQ T78
 (MEDIO)`), al reclamar la 78. Sobre la regeneración de las 10:00Z (`s-20260910T094424-d923ffa6`,
 al cerrar la 76) cambian **tres filas**: se añaden la **77** (T77 · quitarle el fondo a la
@@ -653,7 +673,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | LISTA (`1b19270`; sin cambio de regla: el reglamento pp. 11-12 permite mover, abrir y seguir) | |
 | 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | LISTA (`58e12db`; firma de Juan Luis del 2026-09-10 en `autorizaciones.md`, en disco y aún sin comitear; hecha en paralelo con la 50 por decisión suya y rebasada sobre ella, ver incidencia `s-20260910T094424-d923ffa6`; código heredado de `d0a1fed` por relevo de `s-20260908T221009-8416a271`) | |
 | 77 | T77 · Quitarle el fondo a la portada | tareas/T77-quitar-fondo-portada.md | ninguna · no a la vez que 37, 45, 59, 69, 41 si alguna viviera (`EleccionDeHeroes.tsx`, `estilos.css`) — hoy ninguna lo está | 1 h | MEDIO | 78 | `public/portada.webp`, `public/portada-original.png`, `public/IMAGENES.md`, `src/data/imagenes.ts` | manual | PENDIENTE | |
-| 78 | T78 · Un monstruo muerto no arrastra los hechizos que le lanzaron | tareas/T78-anular-hechizos-al-morir.md | ninguna · no a la vez que 50, 66, 71, 75, 76 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 1,5 h | MEDIO | 77 | `src/engine/reducer.ts`, `tests/hechizos.test.ts` | manual | EN CURSO | `s-20260910T165701-15d0fd4b` · 2026-09-10T19:57:01Z |
+| 78 | T78 · Un monstruo muerto no arrastra los hechizos que le lanzaron | tareas/T78-anular-hechizos-al-morir.md | ninguna · no a la vez que 50, 66, 71, 75, 76 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 1,5 h | MEDIO | 77 | `src/engine/reducer.ts`, `tests/hechizos.test.ts` | manual | LISTA (`9c29112`) | |
 
 Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
 y esta sesión (`HQ Coordinadora T67-T75`) las comiteó (`332ea02`) y regeneró el tablón. El
@@ -715,6 +735,8 @@ conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la
 terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
+
+- LISTA · tarea 78 · 2026-09-10 19:11 · `s-20260910T165701-15d0fd4b` · petición directa de Juan Luis (sin ficha previa, añadida como T78): `aplicarDano` —único sitio que reduce `cuerpo`— vacía `efectos` entero y, si es un monstruo, limpia `dormido`/`pierdeTurno` al llegar a 0, para que un monstruo dormido (Sueño) y matado después no siga tirando el dado de «se despierta» sobre un cadáver; no hizo falta tocar `avanzarActor`; trampa encontrada y corregida en la propia tarea: el cambio varía cuántas acciones legales hay en cada paso del juego al azar de poderes de monstruo, así que la semilla 27 (de T76) deja de bastar para ver `tiraParaSoltarse` y se añade la 52 (evitadas 17/20/67 por el fallo latente de ids de errante duplicados, incidencia de T76, ajeno a esta tarea); dos tests nuevos con una escena real; 769 tests / 46 ficheros (768 antes, +1 neto), typecheck 0 · `src/engine/reducer.ts`, `tests/hechizos.test.ts`, `tests/poderes-de-monstruo.test.ts` · `9c29112835b9356d68a6fd993bed9ff00d0d0aa0` (pendiente de confirmar en `origin/main` tras la fusión)
 
 - LISTA · tarea 76 · 2026-09-10 10:00 · `s-20260910T094424-d923ffa6` (releva a `s-20260908T221009-8416a271`, código heredado de su `d0a1fed`) · regla de la casa firmada el 2026-09-10: guarda sobre `haMovido` en `mover()`, antes que «No te queda movimiento» («Ya te has movido este turno: un personaje solo se mueve una vez»), y `movimientoRestante` a 0 al final de todo `mover()` (lo que sobra se pierde; la pantalla enseña «0 de N»); vale para monstruos porque `activarMonstruo` reinicia `haMovido`; `abrirPuerta` y `movimientoCerrado` sin tocar (abrir sigue siendo gratis: abrir y entrar desde la casilla de al lado vale, llegar andando y abrir remata el movimiento); seis tests que afirmaban la regla vieja corregidos a propósito y listados en la terminada (dos del describe de T75, «el movimiento gastado se descuenta», «un foso … se salta», «el bárbaro llega a la puerta» de integración y, tras rebasar sobre la 50, la emboscada que «conservaba lo que le quede de movimiento» y el juego al azar con las tres especies, que necesita la semilla 27 para ver la telaraña) más dos nuevos; ningún generador de acciones mueve dos veces (`zargon.ts`, `simular.ts`, juego al azar); hecha en paralelo con la 50 por decisión de Juan Luis y rebasada sobre ella (incidencia); fallo latente encontrado y no arreglado: dos errantes con el mismo id desde que las emboscadas encogen `monstruos` (incidencia, pide ficha); 767 tests / 46 ficheros (765 antes, +2), typecheck 0 · `src/engine/reducer.ts`, `src/engine/types.ts`, `tests/reducer.test.ts`, `tests/integracion.test.ts`, `tests/poderes-de-monstruo.test.ts` · `58e12db`
 
