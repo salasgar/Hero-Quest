@@ -74,7 +74,7 @@ export const IMAGENES: Imagen[] = [
     archivo: "portada.webp",
     para: "la portada, en la pantalla de elección de héroes",
     origen: "generada",
-    procedencia: "compresión de portada-original.png hecha aquí, sin recorte ni retoque de color",
+    procedencia: "recorte del fondo negro de portada-original.png (color-key, T77) más compresión, hecho aquí",
     licencia: "la misma que el original",
   },
 ];

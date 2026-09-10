@@ -17,7 +17,7 @@ porqué; aquel es el que se ejecuta. Al añadir una imagen hay que tocar los dos
 | `piedra.svg` | textura de los paneles | generada aquí, ruido procedural | propia |
 | `tablero-referencia.webp` | la foto con la que se midió el tablero físico | de Juan Luis, ya estaba antes de T41 | suyo; uso interno |
 | `portada-original.png` | el original de la portada, tal como llegó; **no se usa en pantalla** | lo dio Juan Luis el 2026-09-07 | suyo |
-| `portada.webp` | la portada, en la pantalla de elección de héroes | compresión del anterior, hecha aquí | el mismo que el original |
+| `portada.webp` | la portada, en la pantalla de elección de héroes | recorte de fondo + compresión del anterior, hecho aquí (T77) | el mismo que el original |
 
 **No se ha descargado nada de Internet.** Estaba autorizado, pero no ha hecho falta: el
 logotipo salió de la imagen que dio Juan Luis y la ambientación se genera con SVG y
@@ -61,6 +61,32 @@ verdad, no «RGBA» de mentira como la de T41—, y sus esquinas ya son casi del
 que el fondo de la aplicación (`rgb(16,17-19,21-23)` frente a `--fondo: #14161c`), así
 que no hacía falta recortar nada. Solo se comprimió a WebP (`cwebp -q 90`): de 495 KB a
 133 KB, sin pérdida apreciable.
+
+## El recorte de `portada.webp` (T77)
+
+T59 midió bien el alfa (opaco de verdad) y las esquinas de la imagen, pero «casi igualar el
+fondo liso» no es lo mismo que «encajar con el degradado detrás»: `.eleccion-cabecera`
+(`estilos.css`) pinta un `radial-gradient` marrón/naranja (`#3a1f18` hacia transparente)
+detrás de la portada, y el negro casi puro de la imagen (`rgb(16,19,23)`, uniforme en todo
+el fondo, sin degradado) recortaba un rectángulo con esquinas redondeadas sobre ese
+resplandor. Se ve en cualquier captura de la pantalla real, no solo comparando colores
+sueltos.
+
+Sin ImageMagick ni Pillow instalados en este entorno (comprobado: ni `magick`/`convert` ni
+el módulo `PIL` estaban disponibles), se instaló Pillow con `pip3 install --user Pillow`
+—una herramienta de trabajo, no una dependencia del proyecto— y se recortó el fondo a mano
+con un color-key por distancia euclídea en RGB: cualquier píxel a menos de 30 de distancia
+de `(16,19,23)` pasa a alfa 0, entre 30 y 70 el alfa se difumina linealmente (para que el
+borde no quede dentado), y por encima de 70 el píxel se queda igual. El fondo es tan
+uniforme y tan distinto del rojo del rótulo (el rojo más oscuro muestreado, `(169,46,24)`,
+está a una distancia de unos 180) y del blanco del hada que no hizo falta un recorte por
+selección de región (flood fill): el umbral global basta y no come ni un píxel del dibujo.
+El script no se ha guardado en el repositorio (era de un solo uso; la receta está aquí para
+poder repetirla si Juan Luis cambia el original). El original opaco
+(`public/portada-original.png`) no se ha tocado: el recorte se hizo sobre una copia,
+comprimida después con `cwebp -q 90` igual que hizo T59. El PNG con alfa pesa más que el
+opaco (183 KB frente a 133 KB: el canal alfa se comprime sin pérdida incluso en modo `-q
+90`), pero sigue siendo ligero para una imagen de cabecera.
 
 ## Dónde se ve cada cosa
 
