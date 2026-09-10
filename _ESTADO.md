@@ -37,6 +37,22 @@ reclamo de la 71 y el de este tablón otra sesión reclamó la **74**
 (`hechos/reclamos/74--s-20260910T081406-fb7142d5.md`, caduca 2026-09-10T11:14:13Z) en este
 mismo árbol; la **74 pasa a EN CURSO**. No comparte fichero con la 71.
 
+Regenerado: 2026-09-10T08:55:57Z · por la sesión `s-20260910T084204-edda6eee` (`HQ
+T71+T72 (MEDIO)`), al cerrar la 72. Sobre la regeneración de las 08:49:32Z (la misma
+sesión, al reclamarla) cambia **una fila**: la **72 pasa a LISTA**, pendiente del hash
+de `origin/main` (se añade en un commit aparte cuando entre el `push`). `speechSynthesis`
+del navegador lee cada línea nueva del diario (mismo patrón de índice que T44 con los
+sonidos); `useVozLeyendo()` —un contador de módulo con oyentes, no props— se suma a la
+guarda del automatismo en `useTurnoDeZargon.ts` junto a `ocupado`, para que el turno de
+Zargon no atropelle una frase a medias; botón de silencio propio en `Juego.tsx`, junto
+al de sonidos. Trampa conocida, sin bloquear el cierre: cambiar de informe a relato a
+mitad de partida puede saltarse o repetir alguna lectura, porque los dos modos no
+descartan los mismos eventos como estructurales y el índice de lectura cuenta sobre las
+líneas ya filtradas. 739 tests / 45 ficheros (sin cambio, la ficha no pedía tests
+nuevos), typecheck 0, build 0 — sin navegador en el entorno, no se pudo oír la voz de
+verdad. Nadie tiene reclamo vivo sobre estos cuatro ficheros aparte de esta tarea, que
+ya cierra: 52, 36, 44 y 45 (LISTA desde antes) no chocan.
+
 Regenerado: 2026-09-10T08:49:32Z · por la sesión `s-20260910T084204-edda6eee` (`HQ
 T71+T72 (MEDIO)`), al reclamar la 72, encadenada tras cerrar la 71 en la misma sesión.
 Sobre la regeneración de las 08:39:15Z (`s-20260910T081342-0b04e4d7`, al cerrar la 71)
@@ -540,7 +556,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 69 | T69 · Guardar la partida y continuarla otro día | tareas/T69-guardar-y-continuar-partida.md | 57 LISTA · no a la vez que 37, 45, 57 (`App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`) | 3 h | MEDIO | — | `App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`, `registroDePartida.ts`, tests | manual | LISTA (`b395e81`) | |
 | 70 | T70 · Mostrar la ruta de movimiento en el tablero | tareas/T70-mostrar-ruta-de-movimiento.md | ninguna · no a la vez que 51, 58, 37 (`BoardMirror.tsx`) | 2 h | MEDIO | — | `BoardMirror.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`91a99ed`) | |
 | 71 | T71 · Un monstruo dormido no se despierta nunca | tareas/T71-monstruo-dormido-despierta.md | ninguna · no a la vez que 50, 66 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, `types.ts`, `narrator/local.ts`, tests | manual | LISTA (`52fa8cc`) | |
-| 72 | T72 · El diario leído en voz alta | tareas/T72-diario-leido-en-voz-alta.md | 44 LISTA · no a la vez que 52, 36, 44, 45 (`Juego.tsx`, `useTurnoDeZargon.ts`) | 2 h | MEDIO | — | `voz.ts` (nuevo), `MasterLog.tsx`, `Juego.tsx`, `useTurnoDeZargon.ts` | manual | **EN CURSO** | `s-20260910T084204-edda6eee` · caduca 2026-09-10T12:42:04Z |
+| 72 | T72 · El diario leído en voz alta | tareas/T72-diario-leido-en-voz-alta.md | 44 LISTA · no a la vez que 52, 36, 44, 45 (`Juego.tsx`, `useTurnoDeZargon.ts`) | 2 h | MEDIO | — | `voz.ts` (nuevo), `MasterLog.tsx`, `Juego.tsx`, `useTurnoDeZargon.ts` | manual | LISTA, pendiente del hash de `origin/main` | |
 | 73 | T73 · Héroes del simulador que juegan como personas | tareas/T73-heroes-simulador-razonables.md | 45 LISTA · no a la vez que 53, 38, 45 (`simular.ts`) | 2 h | MEDIO | — | `scripts/simular.ts`, tests (si hace falta) | manual | LISTA (`52858c5`) | |
 | 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`4a63e28`) | |
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | LISTA (`1b19270`; sin cambio de regla: el reglamento pp. 11-12 permite mover, abrir y seguir) | |
@@ -606,6 +622,8 @@ conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la
 terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
+
+- LISTA · tarea 72 · 2026-09-10 08:55 · `s-20260910T084204-edda6eee` · `speechSynthesis` del navegador lee el diario, sin ficheros ni red (`voz.ts`, nuevo, mismo espíritu que `sonidos.ts` de T44); `useLecturaDeDiario(lineas, vozActiva)` en `MasterLog.tsx` lee cada línea nueva por índice, exactamente las que ya pinta la pantalla (informe o relato, según lo elegido); botón de silencio propio en `Juego.tsx`, junto al de sonidos, con su propia clave de `localStorage`; `useVozLeyendo()` —contador de módulo con oyentes, no una prop— se suma a la guarda de `enMarcha` en `useTurnoDeZargon.ts` junto a `ocupado`, para que el automatismo no atropelle una frase a medias sin tocar `useAccionesDeTurno.ts` (fuera de la ficha); trampa conocida sin bloquear el cierre: cambiar de informe a relato a mitad de partida puede saltarse o repetir alguna lectura, porque los dos modos no descartan los mismos eventos como estructurales; sin navegador en el entorno, verificado por lectura, `npm run typecheck` y `npm run build` (86 módulos); 739 tests / 45 ficheros sin cambio (la ficha no pedía tests nuevos) · `src/ui/voz.ts`, `src/ui/MasterLog.tsx`, `src/ui/Juego.tsx`, `src/ui/useTurnoDeZargon.ts` · (hash pendiente del `push`)
 
 - LISTA · tarea 71 · 2026-09-10 08:39 · `s-20260910T081342-0b04e4d7` · un monstruo dormido (Sueño) tira un dado al entrar el turno de Zargon (`avanzarActor`, junto al sitio donde ya se limpiaba `pierdeTurno`, porque `monstruosActivables` excluye a los dormidos y no tienen activación individual sobre la que enganchar la tirada); con un 6 se despierta (`dormido: false`, evento `dormidoDespierta`) y con cualquier otra cara sigue durmiendo, como antes; frase nueva en informe y relato (banco `DORMIDO_DESPIERTA` en `frases.ts`, con `{Sujeto}` porque aquí siempre hay un solo actor, a diferencia de `EFECTO_DORMIR`); el switch exhaustivo de `sonidos.ts` (T44) suma el caso al grupo mudo; no sale de una carta del hechizo —no está en el repositorio—, así que es la regla de la casa que la propia ficha ofrecía como plan B, pendiente de firma en `autorizaciones.md`, mismo patrón que T68; dos tests con una semilla buscada a mano (como `semillaCon` de `tests/reducer.test.ts`) fijan la cara del dado: tira 5 sigue durmiendo sin evento, tira 6 despierta con el evento; 739 tests / 45 ficheros (737 antes, +2), typecheck 0 — un timeout suelto de `tests/temperamento.test.ts` en la batería completa, verde en solitario con `--testTimeout=30000` (carga de varias sesiones a la vez, no una regresión) · `src/engine/reducer.ts`, `src/engine/types.ts`, `src/narrator/local.ts`, `src/narrator/relato.ts`, `src/narrator/frases.ts`, `src/ui/sonidos.ts`, `tests/hechizos.test.ts` · `52fa8cc`
 
