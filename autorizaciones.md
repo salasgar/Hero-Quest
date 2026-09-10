@@ -287,8 +287,8 @@ marcador, con búsqueda previa y con desarme— es tarea nueva y de banda ALTA.
 
 ### Lo dictado que el motor NO hace, cada uno con su firma
 
-Ninguna de estas cinco se toca sin la línea de abajo rellena. Las dos primeras son añadidos;
-las tres siguientes **contradicen al reglamento de 2021 tal como lo cita el código hoy**, así
+Ninguna de estas seis se toca sin la línea de abajo rellena. Las dos primeras son añadidos;
+las cuatro siguientes **contradicen al reglamento de 2021 tal como lo cita el código hoy**, así
 que son regla de la casa, como la T76.
 
 1. **El héroe dentro del foso ataca y defiende con 1 dado menos.** Hoy no hay penalización:
