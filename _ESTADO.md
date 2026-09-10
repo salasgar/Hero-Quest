@@ -17,6 +17,27 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-10T19:23Z · por la sesión `s-20260910T165701-15d0fd4b` (`HQ T78+T77
+(MEDIO)`), tras cerrar la 78. Sobre la regeneración de las 19:11:30Z (la misma sesión, al
+cerrar la 78) se añaden **cuatro filas**: **79** (T79 · un monstruo dormido no grita de
+dolor, PENDIENTE), **80** (T80 · una voz menos robótica para el diario leído, PENDIENTE),
+**81** (T81 · más variedad de peligros al buscar tesoro, PENDIENTE) y **82** (T82 · más
+cofres con monstruo, menos salas vacías, más misiones por dificultad, PENDIENTE, ALTO,
+probable MAL CORTADA al reclamarla). Cuatro peticiones más de Juan Luis, jugando, sin ficha
+previa (commit `2309faa`): un monstruo dormido no debería gritar de dolor en el relato (el
+estado final ya no basta para distinguirlo desde que T78 limpia `dormido` al morir, hace
+falta que el propio evento lleve el dato), la voz sintetizada del diario suena robótica
+(T72), solo hay dos cartas de «peligro» en la baraja de tesoros y siempre parece salir la
+misma (T81: no es un fallo del barajo, es poca variedad), y una petición de contenido más
+grande —más encuentros de monstruo guardando tesoro, menos salas vacías, más misiones por
+dificultad— que se deja como ALTO y probablemente mal cortada, misma familia que T45-T49,
+con dos preguntas abiertas para Juan Luis dentro de la propia ficha (qué significa «menos
+salas» exactamente, y si un «cofre con monstruo» pide mecánica de motor nueva). 79, 80 y 81
+son MEDIO, cortas, sin ningún fichero en común entre sí ni con la 82: **libres las tres a
+la vez**, cada una en su sesión o encadenadas por una sola. Sigo en esta sesión: voy a
+reclamar ahora la **77** (encadenable con la 78 que acabo de cerrar, sin ficheros en
+común).
+
 Regenerado: 2026-09-10T19:11:30Z · por la sesión `s-20260910T165701-15d0fd4b` (`HQ T78
 (MEDIO)`), al cerrar la 78. Sobre la regeneración de las 16:57:31Z (la misma sesión, al
 reclamarla) cambia **una fila**: la **78 pasa a LISTA** (`9c29112835b9356d68a6fd993bed9ff00d0d0aa0`
@@ -674,6 +695,10 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 76 | T76 · Un personaje solo se mueve una vez por turno (regla de la casa) | tareas/T76-un-solo-movimiento-por-turno.md | firma en `autorizaciones.md` («un personaje solo se mueve una vez por turno») · no a la vez que 50, 71 (`reducer.ts`) | 1,5 h | ALTO | — | `reducer.ts`, `types.ts` (comentario), tests | manual | LISTA (`58e12db`; firma de Juan Luis del 2026-09-10 en `autorizaciones.md`, en disco y aún sin comitear; hecha en paralelo con la 50 por decisión suya y rebasada sobre ella, ver incidencia `s-20260910T094424-d923ffa6`; código heredado de `d0a1fed` por relevo de `s-20260908T221009-8416a271`) | |
 | 77 | T77 · Quitarle el fondo a la portada | tareas/T77-quitar-fondo-portada.md | ninguna · no a la vez que 37, 45, 59, 69, 41 si alguna viviera (`EleccionDeHeroes.tsx`, `estilos.css`) — hoy ninguna lo está | 1 h | MEDIO | 78 | `public/portada.webp`, `public/portada-original.png`, `public/IMAGENES.md`, `src/data/imagenes.ts` | manual | PENDIENTE | |
 | 78 | T78 · Un monstruo muerto no arrastra los hechizos que le lanzaron | tareas/T78-anular-hechizos-al-morir.md | ninguna · no a la vez que 50, 66, 71, 75, 76 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 1,5 h | MEDIO | 77 | `src/engine/reducer.ts`, `tests/hechizos.test.ts` | manual | LISTA (`9c29112`) | |
+| 79 | T79 · Un monstruo dormido no grita de dolor | tareas/T79-narracion-de-golpear-dormidos.md | ninguna · no a la vez que 50, 66, 71, 75, 76, 78 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 2 h | MEDIO | 80, 81 | `src/engine/types.ts`, `src/engine/reducer.ts`, `src/narrator/relato.ts`, `src/narrator/frases.ts`, tests | manual | PENDIENTE | |
+| 80 | T80 · Una voz menos robótica para el diario leído | tareas/T80-voz-mas-natural.md | ninguna · no a la vez que 72, 44 si alguna viviera (`voz.ts`) — hoy ambas LISTA | 1,5 h | MEDIO | 79, 81 | `src/ui/voz.ts` | manual | PENDIENTE | |
+| 81 | T81 · Más variedad de peligros al buscar tesoro | tareas/T81-mas-variedad-de-peligros-al-buscar.md | ninguna · no a la vez que 54, 53, 50, 38 si alguna viviera (`treasure.ts`, `reducer.ts`, `simular.ts`) — hoy todas LISTA | 1 h | MEDIO | 79, 80 | `src/data/treasure.ts`, `tests/quest.test.ts` | manual | PENDIENTE | |
+| 82 | T82 · Más cofres con monstruo, menos salas vacías, más misiones por dificultad | tareas/T82-mas-cofres-con-monstruo-y-mas-misiones.md | ninguna · no a la vez que 45, 46, 47, 51, 53, 54, 55, 73 si alguna viviera (`quests/*.ts`, `simular.ts`) — hoy todas LISTA | 5 h, probable MAL CORTADA | ALTO | — | `src/data/quests/*.ts`, `src/data/quests/index.ts`, `scripts/simular.ts` (si hace falta) | manual | PENDIENTE | |
 
 Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
 y esta sesión (`HQ Coordinadora T67-T75`) las comiteó (`332ea02`) y regeneró el tablón. El
