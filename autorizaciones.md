@@ -229,6 +229,96 @@ dentro de seis meses sepa que está ratificado y no solo deducido.
    comprueba: hoy se desarma con monstruos al lado.
    Firma y fecha:
 
+## Los cuatro tipos de trampa, dictados por Juan Luis el 2026-09-10
+
+Segunda tanda, a continuación de la de arriba. La dictó él sin citar fuente, así que vale
+como palabra suya. **Ojo: parte de esto contradice al reglamento de 2021 tal como lo cita
+hoy el código**, y esas partes están abajo con su línea de firma aparte, sin tocar el motor
+hasta que las firme. Lo que coincide se anota como ratificado.
+
+### 1. Foso (`tipo: "foso"`)
+
+Dictado: se abre bajo los pies; 1 punto de daño; el turno acaba en el acto; **mientras el
+héroe está en el pozo ataca y defiende con 1 dado menos**; en su turno siguiente sale con
+normalidad, sin coste extra de movimiento; **no se puede desactivar**, y una vez abierta la
+casilla queda como foso permanente que hay que saltar.
+
+Ratificado, ya implementado: el daño de 1, el fin de turno, que no se desarma
+(`reducer.ts`: «Once a pit trap is sprung … the trap cannot be disarmed», p. 17) y que la
+casilla queda abierta y hay que saltarla (`trampaEn`, que conserva el foso aunque esté
+gastado).
+
+### 2. Lanza (`tipo: "lanza"`)
+
+Dictado: 1 dado de combate; con calavera, 1 punto de daño; con daño o sin él la losa se
+gasta; **el héroe puede seguir moviéndose si le quedaban casillas**. Desarme desde una
+casilla adyacente y antes de pisarla: héroe común con kit de herramientas tira 1 dado
+—calavera, le salta encima; escudo, desarmada—; **el Enano la desarma automáticamente,
+tenga o no kit de herramientas**.
+
+Ratificado, ya implementado: el dado, el daño de 1 solo con calavera, que se gasta igual,
+el desarme desde la adyacente y la tirada de desarme (`reducer.ts`, p. 19).
+
+### 3. Bloque de roca (`tipo: "bloque"`)
+
+Dictado: **1 punto de daño automático**; se coloca la loseta de roca; **el héroe es
+empujado a una casilla libre adyacente y, si no hay ninguna, sufre daño extra**; la casilla
+queda bloqueada el resto de la partida.
+
+Ratificado, ya implementado: que la casilla queda cegada para siempre.
+
+### 4. Cofre o tesoro
+
+Dictado: se activan **solo al hacer la acción de Buscar Tesoro**, si no se ha buscado y
+desarmado antes; el daño lo dicta el Libro de Retos de cada misión (gas, dardos, flechas…).
+Desarme: el héroe tiene que estar adyacente al cofre y haber hecho antes una acción de
+Buscar Trampas; héroe común con herramientas tira 1 dado —calavera, le salta en la cara;
+escudo, desarmada—; el Enano, automático y seguro.
+
+**No existe nada de esto en el motor.** `TipoTrampa` es `"foso" | "bloque" | "lanza"`, y lo
+más parecido son las cartas de clase `"peligro"` del mazo de tesoro (`data/treasure.ts`:
+gas venenoso y telaraña), que saltan al buscar tesoro y no se pueden desarmar. La T81, viva
+el 2026-09-10, está **añadiendo más cartas de esas**, que es otra cosa: su ficha dice
+expresamente «sin regla nueva, solo más cartas». Un cofre como trampa de verdad —con
+marcador, con búsqueda previa y con desarme— es tarea nueva y de banda ALTA.
+
+  Firma y fecha: Juan Luis, 2026-09-10 (dictado por él; vale como palabra suya para todo lo
+  que arriba consta como «ratificado, ya implementado»)
+
+### Lo dictado que el motor NO hace, cada uno con su firma
+
+Ninguna de estas cinco se toca sin la línea de abajo rellena. Las dos primeras son añadidos;
+las tres siguientes **contradicen al reglamento de 2021 tal como lo cita el código hoy**, así
+que son regla de la casa, como la T76.
+
+1. **El héroe dentro del foso ataca y defiende con 1 dado menos.** Hoy no hay penalización:
+   caer en el foso cuesta 1 de cuerpo y el turno, y nada más. Es un campo nuevo de estado y
+   toca el combate entero.
+   Firma y fecha:
+
+2. **Trampas de cofre.** Tipo de trampa nuevo, con búsqueda previa y desarme, y daño dictado
+   por cada misión. Es lo más gordo de las cuatro y no lo cubre la T81.
+   Firma y fecha:
+
+3. **La lanza no acaba el turno.** El código termina el turno cuando la lanza hiere; lo
+   dictado dice que el héroe sigue andando si le quedaban casillas.
+   Firma y fecha:
+
+4. **El bloque hace 1 de daño automático, y no 3 dados.** El código tira 3 dados de combate
+   sin defensa y hiere 1 por calavera (0 a 3 puntos), citando la p. 18. Lo dictado es un
+   punto fijo: bastante más suave.
+   Firma y fecha:
+
+5. **El bloque empuja a una casilla libre adyacente, con daño extra si no hay ninguna.** El
+   código devuelve al héroe a la casilla de la que venía, sin daño extra, y el comentario
+   dice que el reglamento (p. 18) deja elegir entre seguir o volver.
+   Firma y fecha:
+
+6. **El Enano desarma sin kit de herramientas.** El código exige `herramientas` a todos
+   antes de mirar quién es (`desarmarTrampa`), así que hoy un Enano sin kit no puede
+   desarmar nada.
+   Firma y fecha:
+
 ## Condiciones que Juan Luis quiere dejar dichas
 
 - **Nada destructivo sin una firma de arriba.** Eso incluye borrar ramas ajenas, reescribir
