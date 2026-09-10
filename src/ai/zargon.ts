@@ -20,18 +20,26 @@
  */
 
 import { alcanzables } from "../engine/board";
-import { aplicarAccion } from "../engine/reducer";
-import { esTurnoDeZargon, figuraActiva, objetivosDeAtaque } from "../engine/selectors";
+import { aplicarAccion, DANO_DEL_MALEFICIO } from "../engine/reducer";
+import { esTurnoDeZargon, figuraActiva, objetivosDeAtaque, objetivosDePoder } from "../engine/selectors";
 import {
   esHeroe,
   type Accion,
   type Celda,
   type EstadoPartida,
   type Figura,
+  type Heroe,
 } from "../engine/types";
 import { proximoEnActuar } from "./orden";
 import { DISTANCIA_QUE_TRANQUILIZA, ganasDeHuir, heroesCerca } from "./personalities";
-import { objetivosPuntuados, separacionDeLosHeroes, type Pesos, PESOS } from "./targeting";
+import {
+  hechizosSinGastar,
+  objetivosPuntuados,
+  separacionDeLosHeroes,
+  type Pesos,
+  type Puntuacion,
+  PESOS,
+} from "./targeting";
 
 /**
  * Una jugada candidata, ya validada por el motor.
@@ -54,12 +62,57 @@ const simular = (e: EstadoPartida, a: Accion): EstadoPartida | null => {
 };
 
 /**
+ * Cuánto vale maldecir a este héroe (T50), con los mismos términos y los
+ * mismos pesos que un ataque, para que las dos jugadas se comparen en la
+ * misma moneda y la personalidad las tuerza igual.
+ *
+ * El daño esperado sale de la regla y no de los dados de combate: el héroe
+ * resiste con un dado rojo igual o menor que su mente, así que prende con
+ * probabilidad `(6 − mente) / 6` y hace `DANO_DEL_MALEFICIO` fijo. El remate
+ * es esa misma probabilidad cuando al héroe le queda ese cuerpo o menos.
+ * Sin término de distancia: el maleficio va por la vista y desde donde se
+ * lanza ya se llega.
+ *
+ * **Todos los términos van multiplicados por la probabilidad de prender**,
+ * también los de preferencia (herido, lanza hechizos): un maleficio que no
+ * puede prender no vale nada por mucho que el blanco sea el mago. Sin ese
+ * factor, los nueve hechizos del mago (mente 6, inmune) puntuaban más que
+ * maldecir al bárbaro, y el brujo se pasaba la partida maldiciendo a quien
+ * no le podía hacer nada. Con mente 6 o más sale cero en todo, y por eso el
+ * brujo nunca le lanza nada al mago: no es una regla aparte, es que no vale
+ * nada.
+ */
+function puntuarMaleficio(heroe: Heroe, pesos: Pesos): Puntuacion {
+  const prende = Math.max(0, 6 - heroe.mente) / 6;
+  const desglose: Puntuacion["desglose"] = {
+    danoEsperado: prende * DANO_DEL_MALEFICIO * pesos.danoEsperado,
+    remate: (heroe.cuerpo <= DANO_DEL_MALEFICIO ? prende : 0) * pesos.remate,
+    heridoPrimero: prende * (heroe.cuerpoMax - heroe.cuerpo) * pesos.heridoPrimero,
+    lanzaHechizos: prende * hechizosSinGastar(heroe) * pesos.lanzaHechizos,
+    porCasillaDeDistancia: 0,
+  };
+  return {
+    objetivo: heroe,
+    total: Object.values(desglose).reduce((s, x) => s + x, 0),
+    desglose,
+    modo: null,
+  };
+}
+
+/**
  * Lo mejor que puede hacer el monstruo activo **sin moverse**, y cuánto vale.
  *
  * Devuelve la puntuación del mejor objetivo al alcance, o `-Infinity` si no hay
  * ninguno. Se apoya en `objetivosDeAtaque`, que es el mismo selector que usa la
  * pantalla: si algún día cambia lo que es atacable, cambia en los dos sitios a la
  * vez y no hay forma de que se contradigan.
+ *
+ * Desde T50 el maleficio compite aquí con el ataque, puntuado con
+ * `puntuarMaleficio` y ofrecido por `objetivosDePoder`, el selector de la
+ * pantalla. Gana el que más puntúe; a igualdad, el ataque, que es la jugada
+ * que se entiende sola al verla en el tablero. Así un brujo con el bárbaro al
+ * lado y el enano al fondo de la sala decide con la misma fórmula si pega o
+ * maldice, y el que huye sigue sumando aparte lo que vale la distancia.
  */
 function mejorAtaqueDesdeAqui(
   e: EstadoPartida,
@@ -68,16 +121,29 @@ function mejorAtaqueDesdeAqui(
   const monstruo = figuraActiva(e);
   if (!monstruo) return null;
 
+  let mejor: { accion: Accion; puntos: number } | null = null;
+
   const alcance = new Set(objetivosDeAtaque(e).map((x) => x.id));
-  if (alcance.size === 0) return null;
+  if (alcance.size > 0) {
+    const golpe = objetivosPuntuados(e, monstruo, pesos).find((p) => alcance.has(p.objetivo.id));
+    if (golpe) {
+      const accion: Accion = { tipo: "atacar", objetivo: golpe.objetivo.id };
+      // Aunque la puntuación diga que sí, manda el motor: si por lo que sea
+      // rechaza este ataque, esta candidata no existe.
+      if (simular(e, accion)) mejor = { accion, puntos: golpe.total };
+    }
+  }
 
-  const mejor = objetivosPuntuados(e, monstruo, pesos).find((p) => alcance.has(p.objetivo.id));
-  if (!mejor) return null;
+  const maldecibles = objetivosDePoder(e)
+    .map((h) => puntuarMaleficio(h, pesos))
+    .sort((a, b) => b.total - a.total || a.objetivo.id.localeCompare(b.objetivo.id));
+  const maleficio = maldecibles[0];
+  if (maleficio && maleficio.total > 0 && (!mejor || maleficio.total > mejor.puntos)) {
+    const accion: Accion = { tipo: "poderDeMonstruo", objetivo: maleficio.objetivo.id };
+    if (simular(e, accion)) mejor = { accion, puntos: maleficio.total };
+  }
 
-  const accion: Accion = { tipo: "atacar", objetivo: mejor.objetivo.id };
-  // Aunque la puntuación diga que sí, manda el motor: si por lo que sea rechaza
-  // este ataque, esta candidata no existe.
-  return simular(e, accion) ? { accion, puntos: mejor.total } : null;
+  return mejor;
 }
 
 /**
@@ -353,6 +419,16 @@ export function motivoDeLaJugada(e: EstadoPartida, accion: Accion, pesos: Pesos 
     if (p.desglose.heridoPrimero > 0) return `${p.objetivo.nombre} está herido`;
     if (p.desglose.lanzaHechizos > 0) return `a ${p.objetivo.nombre} le quedan hechizos`;
     return `es a quien más daño le hace`;
+  }
+
+  if (accion.tipo === "poderDeMonstruo") {
+    const h = e.heroes.find((x) => x.id === accion.objetivo);
+    if (!h) return null;
+    // Lo que decide el blanco del maleficio es la mente, y eso es lo que se
+    // dice: «le lanza un maleficio al bárbaro porque tiene poca mente» es
+    // verdad y se entiende en la mesa.
+    if (h.cuerpo <= DANO_DEL_MALEFICIO) return `un maleficio puede tumbar a ${h.nombre}`;
+    return `${h.nombre} tiene poca mente para resistir un maleficio`;
   }
 
   if (accion.tipo === "mover") {

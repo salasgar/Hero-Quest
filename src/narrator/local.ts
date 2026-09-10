@@ -258,6 +258,28 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       }
     }
 
+    // Los poderes de monstruo (T50): el informe da la tirada y el resultado,
+    // que es lo que hace falta para seguir la partida y para que en la mesa
+    // se vea que el dado es el que manda.
+    case "maleficio": {
+      const quien = mayus(sujetoInforme(e, ev.actor));
+      const o = nombreDe(e, ev.objetivo);
+      return ev.dano === 0
+        ? `${quien} lanza un maleficio sobre ${o}: saca ${ev.dado} contra mente ${ev.mente}, lo resiste.`
+        : `${quien} lanza un maleficio sobre ${o}: saca ${ev.dado} contra mente ${ev.mente}, ${ev.dano} ${ev.dano === 1 ? "punto" : "puntos"} de cuerpo.`;
+    }
+
+    case "enredado":
+      return `La telaraña ${deDe(nombreDe(e, ev.por))} envuelve ${aA(nombreDe(e, ev.figura))}: no se mueve hasta soltarse.`;
+
+    case "tiraParaSoltarse":
+      return ev.logrado
+        ? `${mayus(nombreDe(e, ev.figura))} rompe la telaraña.`
+        : `${mayus(nombreDe(e, ev.figura))} forcejea con la telaraña y sigue enredado: este turno no se mueve.`;
+
+    case "emboscada":
+      return `¡La arena se mueve! ${mayus(nombreDe(e, ev.monstruo))} emerge junto ${aA(nombreDe(e, ev.sobre))}.`;
+
     case "monstruoActiva":
       // En la mesa, saber cuál de los seis se está moviendo es la mitad de la
       // información. El motivo por el que le toca a ése lo enseña la pantalla

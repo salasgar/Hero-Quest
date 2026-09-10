@@ -16,6 +16,7 @@ import {
   figuraActiva,
   monstruosActivables,
   objetoDeMisionAlAlcance,
+  puedeMaldecir,
   yaRegistro,
 } from "./reducer";
 import { cartaDeTesoro, esPocion, type CartaTesoro } from "../data/treasure";
@@ -56,6 +57,19 @@ export function objetivosDeAtaque(e: EstadoPartida): Figura[] {
   // llevas ballesta. El modo lo decide después la casilla del objetivo.
   const enemigos = esHeroe(f) ? vivos(e.monstruos) : vivos(e.heroes);
   return enemigos.filter((x) => modoDeAtaqueContra(e, f, x) !== null);
+}
+
+/**
+ * Héroes a los que el monstruo activo puede maldecir ahora mismo (T50). Vacío
+ * fuera del turno de Zargon, sin poder de maleficio o con la acción gastada.
+ * La condición es `puedeMaldecir`, la misma guarda que aplica el motor: si la
+ * pantalla ofrece un blanco que el motor rechaza, en la mesa es un clic
+ * perdido.
+ */
+export function objetivosDePoder(e: EstadoPartida): Heroe[] {
+  const f = figuraActiva(e);
+  if (!f || esHeroe(f) || e.turno.haActuado) return [];
+  return vivos(e.heroes).filter((h) => puedeMaldecir(e, f, h));
 }
 
 /** Con cuántos dados atacaría la figura activa a este objetivo. */
@@ -243,6 +257,7 @@ export function accionesDisponibles(e: EstadoPartida) {
     puedeBuscarTesoro: puedeBuscarTesoro(e),
     puedeBuscarTrampas: puedeBuscarTrampas(e),
     puedeLanzarHechizo: hechizosLanzables(e).some((h) => h.objetivos.length > 0),
+    puedeUsarPoder: objetivosDePoder(e).length > 0,
   };
 }
 

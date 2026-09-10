@@ -14,10 +14,10 @@
  * para que la interfaz pueda explicar por qué no se puede hacer eso.
  */
 
-import { salaEn } from "../data/board-base";
+import { celdasDeSala, salaEn } from "../data/board-base";
 import { HECHIZOS } from "../data/spells";
 import { BARAJA_TESOROS, cartaDeTesoro, esPocion, MAZO_COMPLETO, type CartaTesoro } from "../data/treasure";
-import { MONSTRUOS } from "../data/monsters";
+import { MONSTRUOS, poderDe } from "../data/monsters";
 import { HEROES, puedeLlevar } from "../data/heroes";
 import { EQUIPO } from "../data/equipment";
 import { celdaLibre, celdasQueAbren, figuraPorId, pasoAbierto, rutaHasta, vuela } from "./board";
@@ -31,8 +31,10 @@ import {
 import { tirarD6, tirarDadoCombate, tirarDadosCombate, tirarMovimiento as tirarDadosMovimiento } from "./dice";
 import { conMonstruosEnTablero, conPuertasVistas, puedeVer, salasDeLaPuerta } from "./vision";
 import {
+  claveCelda,
   esHeroe,
   mismaCelda,
+  sonAdyacentes,
   type Accion,
   type Actor,
   type Celda,
@@ -118,12 +120,30 @@ function aplicarDano(e: EstadoPartida, f: Figura, dano: number): [EstadoPartida,
   return [estado, eventos];
 }
 
-/** Revela una sala: se apunta como vista y se anuncian sus monstruos. */
+/**
+ * Revela una sala: se apunta como vista y se anuncian sus monstruos.
+ *
+ * Los que esperan en emboscada (T50) **se entierran aquí**, en el mismo paso:
+ * salen de `monstruos` a `emboscadas`, así que la sala se anuncia sin ellos y
+ * a partir de ahora nadie los ve, nadie les pega y no ocupan casilla. Es lo
+ * que hace que «Sala vacía» sea verdad para quien mira desde la puerta y
+ * mentira dos casillas más adentro. Uno que ya estuviera sobre el tablero
+ * —visto desde un pasillo, por ejemplo— no se entierra: ya lo han descubierto.
+ */
 function revelarSala(e: EstadoPartida, sala: string): [EstadoPartida, Evento[]] {
   if (e.salasReveladas.includes(sala)) return [e, []];
-  const dentro = vivos(e.monstruos).filter((m) => salaEn(m.celda.x, m.celda.y) === sala);
+  const enLaSala = vivos(e.monstruos).filter((m) => salaEn(m.celda.x, m.celda.y) === sala);
+  const emboscados = enLaSala.filter(
+    (m) => poderDe(m.especie) === "emboscada" && !e.monstruosEnTablero.includes(m.id),
+  );
+  const dentro = enLaSala.filter((m) => !emboscados.includes(m));
   return [
-    { ...e, salasReveladas: [...e.salasReveladas, sala] },
+    {
+      ...e,
+      salasReveladas: [...e.salasReveladas, sala],
+      monstruos: e.monstruos.filter((m) => !emboscados.includes(m)),
+      emboscadas: [...(e.emboscadas ?? []), ...emboscados],
+    },
     [
       {
         tipo: "salaRevelada",
@@ -133,6 +153,102 @@ function revelarSala(e: EstadoPartida, sala: string): [EstadoPartida, Evento[]] 
       },
     ],
   ];
+}
+
+/** Los enterrados en esta sala, si los hay. */
+const emboscadosEn = (e: EstadoPartida, sala: IdSala): Monstruo[] =>
+  (e.emboscadas ?? []).filter((m) => salaEn(m.celda.x, m.celda.y) === sala);
+
+const distanciaAOjo = (a: Celda, b: Celda): number => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+
+/**
+ * La emboscada (T50): el monstruo enterrado en la sala del héroe emerge y le
+ * muerde. **Regla, tal como se lee en la mesa:** el monstruo de arena espera
+ * enterrado en su sala sin que nadie lo vea; en cuanto un héroe pisa dentro,
+ * emerge en la casilla libre más cercana pegada a ese héroe, lo ataca en el
+ * acto y desde entonces juega como los demás. Es una trampa que muerde, y por
+ * eso vive en el reductor y no en la IA: no hay decisión que tomar.
+ *
+ * Fuente: Juan Luis («monstruo de arena... Dale a la imaginación», 2026-09-06);
+ * el reglamento no trae esta criatura. Pendiente de su firma en
+ * `autorizaciones.md`.
+ *
+ * Dónde emerge: pegado al héroe en ortogonal, dentro de la sala, en la casilla
+ * libre más cercana a donde estaba enterrado, y con el desempate escrito
+ * (clave de casilla) para que la jugada sea reproducible. Si el héroe no tiene
+ * ningún hueco al lado —rodeado de compañeros y muebles— emerge en la casilla
+ * libre de la sala más cercana a él y no muerde: no llega. Si la sala está
+ * llena de arriba abajo se queda enterrado, que es un caso que el tablero de
+ * cartón no puede dar.
+ *
+ * El mordisco es un ataque normal (`resolverAtaque`, los dados de la
+ * especie contra los del héroe) fuera de turno; no toca el turno de nadie.
+ */
+function emerger(e: EstadoPartida, sala: IdSala, idHeroe: IdFigura): [EstadoPartida, Evento[]] {
+  let estado = e;
+  const eventos: Evento[] = [];
+  for (const enterrado of emboscadosEn(e, sala)) {
+    const heroe = figuraPorId(estado, idHeroe);
+    if (!heroe || heroe.cuerpo <= 0) break;
+
+    const porCercania = (a: Celda, b: Celda) =>
+      distanciaAOjo(a, enterrado.celda) - distanciaAOjo(b, enterrado.celda) ||
+      claveCelda(a).localeCompare(claveCelda(b));
+    const pegadas = vecinasDelTablero(heroe.celda)
+      .filter((c) => salaEn(c.x, c.y) === sala && celdaLibre(estado, c))
+      .sort(porCercania);
+    const lejanas = celdasDeSala(sala)
+      .filter((c) => celdaLibre(estado, c))
+      .sort((a, b) => distanciaAOjo(a, heroe.celda) - distanciaAOjo(b, heroe.celda) || porCercania(a, b));
+    const celda = pegadas[0] ?? lejanas[0];
+    if (!celda) continue;
+
+    const monstruo: Monstruo = { ...enterrado, celda };
+    estado = {
+      ...estado,
+      monstruos: [...estado.monstruos, monstruo],
+      emboscadas: (estado.emboscadas ?? []).filter((m) => m.id !== enterrado.id),
+      monstruosEnTablero: [...estado.monstruosEnTablero, monstruo.id],
+    };
+    eventos.push({ tipo: "emboscada", monstruo: monstruo.id, celda, sobre: heroe.id });
+
+    if (!sonAdyacentes(celda, heroe.celda)) continue;
+    const [res, rng] = resolverAtaque(estado, monstruo, heroe);
+    estado = { ...estado, rng };
+    eventos.push({
+      tipo: "ataque",
+      atacante: monstruo.id,
+      objetivo: heroe.id,
+      dadosAtaque: res.dadosAtaque,
+      calaveras: res.calaveras,
+      dadosDefensa: res.dadosDefensa,
+      escudos: res.escudos,
+      dano: res.dano,
+    });
+    const [tras, ev] = aplicarDano(estado, figuraPorId(estado, heroe.id)!, res.dano);
+    estado = tras;
+    eventos.push(...ev);
+  }
+  return [estado, eventos];
+}
+
+/**
+ * Cualquier héroe en pie dentro de una sala con enterrados los despierta. Es
+ * la red que cubre las entradas que no pasan por `mover` casilla a casilla
+ * —atravesar la roca revela la sala con el héroe ya dentro—; la entrada normal
+ * la corta `mover` en la primera casilla, antes de llegar aquí.
+ */
+function despertarEmboscadas(e: EstadoPartida): [EstadoPartida, Evento[]] {
+  let estado = e;
+  const eventos: Evento[] = [];
+  for (const h of vivos(e.heroes)) {
+    const sala = salaEn(h.celda.x, h.celda.y);
+    if (sala === null || emboscadosEn(estado, sala).length === 0) continue;
+    const [tras, ev] = emerger(estado, sala, h.id);
+    estado = tras;
+    eventos.push(...ev);
+  }
+  return [estado, eventos];
 }
 
 /** ¿Se ha acabado la partida? Se comprueba tras cada acción. */
@@ -147,7 +263,10 @@ function comprobarDesenlace(e: EstadoPartida): [EstadoPartida, Evento[]] {
   const obj = e.mision.objetivo;
   // `e.monstruos` conserva a los caídos con cuerpo 0, así que su longitud
   // distingue "los hemos matado a todos" de "esta misión no tenía monstruos".
-  if (obj.clase === "matarATodos" && e.monstruos.length > 0 && vivos(e.monstruos).length === 0) {
+  // Un enterrado (T50) no está en `monstruos` y sigue en pie: hay que entrar
+  // en su sala para acabar con él.
+  const enterrados = (e.emboscadas ?? []).length;
+  if (obj.clase === "matarATodos" && e.monstruos.length > 0 && vivos(e.monstruos).length === 0 && enterrados === 0) {
     const d = { victoria: true, motivo: "No queda ni un monstruo en pie." };
     return [{ ...e, desenlace: d }, [{ tipo: "finDePartida", ...d }]];
   }
@@ -194,6 +313,12 @@ function comprobarDesenlace(e: EstadoPartida): [EstadoPartida, Evento[]] {
  */
 function terminar(e: EstadoPartida, eventos: Evento[]): Resultado {
   let estado = conMonstruosEnTablero(conPuertasVistas(e));
+
+  // Los enterrados (T50) también pasan por el embudo: un héroe que aparece
+  // dentro de su sala por cualquier camino los despierta.
+  const [conEmboscadas, mordiscos] = despertarEmboscadas(estado);
+  estado = conEmboscadas;
+  eventos = [...eventos, ...mordiscos];
 
   // Una acción puede matar a quien la hace —un peligro al buscar tesoro, un
   // bloque que le cae encima al moverse—, sin ser ninguna de las que ya
@@ -319,6 +444,8 @@ export function aplicarAccion(estado: EstadoPartida, accion: Accion): Resultado 
       return desarmarTrampa(estado, accion.trampa);
     case "lanzarHechizo":
       return lanzarHechizo(estado, accion.hechizo, accion.objetivo, accion.dados);
+    case "poderDeMonstruo":
+      return poderDeMonstruo(estado, accion.objetivo);
     case "terminarTurno":
       return terminarTurno(estado);
   }
@@ -333,7 +460,31 @@ function tirarMovimientoAccion(e: EstadoPartida, dados?: [number, number]): Resu
     return fallo(`${heroeDeTurno.nombre} ha caído: no puede tirar movimiento.`);
   if (e.turno.movimientoTotal !== null) return fallo("Ya has tirado el movimiento este turno.");
 
-  let rng = e.rng;
+  let estado: EstadoPartida = e;
+  const eventos: Evento[] = [];
+
+  // La telaraña (T50) se resuelve antes que los dados de movimiento: el héroe
+  // enredado tira un dado de combate y solo con calavera sigue atrapado. Si se
+  // queda, este turno no hay movimiento que tirar —cero casillas—, pero la
+  // acción sigue siendo suya: puede pegarle a la araña, buscar o lanzar. Va
+  // antes de los dados y no después para no gastar el generador en una tirada
+  // que no vale, y para que el viento veloz se quede guardado para otro turno.
+  const enredado = figuraActiva(e);
+  if (enredado && esHeroe(enredado) && enredado.efectos.some((x) => x.clase === "enredado")) {
+    const [cara, r] = tirarDadoCombate(estado.rng);
+    estado = { ...estado, rng: r };
+    const logrado = cara !== "calavera";
+    eventos.push({ tipo: "tiraParaSoltarse", figura: enredado.id, dado: cara, logrado });
+    if (!logrado) {
+      return terminar(
+        { ...estado, turno: { ...estado.turno, movimientoTotal: 0, movimientoRestante: 0 } },
+        eventos,
+      );
+    }
+    estado = conFigura(estado, { ...enredado, efectos: enredado.efectos.filter((x) => x.clase !== "enredado") });
+  }
+
+  let rng = estado.rng;
   let tirada: [number, number];
   if (dados) {
     tirada = dados;
@@ -343,9 +494,8 @@ function tirarMovimientoAccion(e: EstadoPartida, dados?: [number, number]): Resu
     rng = r;
   }
   const base = tirada[0] + tirada[1];
-  const activa = figuraActiva(e);
-  let estado: EstadoPartida = { ...e, rng };
-  const eventos: Evento[] = [];
+  const activa = figuraActiva(estado);
+  estado = { ...estado, rng };
   let total = base;
 
   // El viento veloz añade dos dados a la tirada: cuatro en total, que es lo que
@@ -499,6 +649,21 @@ function mover(e: EstadoPartida, destino: Celda): Resultado {
       if (efecto.terminaTurno || calavera) turnoAcabado = true;
       if (efecto.corta || figuraPorId(estado, f.id)!.cuerpo === 0) break;
     }
+
+    // La emboscada (T50) salta en la primera casilla que el héroe pisa dentro
+    // de la sala del enterrado, y corta el movimiento ahí como lo corta un
+    // bloque: el monstruo emerge pegado a él y le muerde. El turno sigue
+    // —conserva la acción y lo que le quede de movimiento—, que es lo que
+    // permite devolver el golpe o salir corriendo.
+    if (esHeroe(f)) {
+      const sala = salaEn(paso.x, paso.y);
+      if (sala !== null && emboscadosEn(estado, sala).length > 0) {
+        const [tras, ev] = emerger(estado, sala, f.id);
+        estado = tras;
+        eventos.push(...ev);
+        break;
+      }
+    }
   }
 
   // Las cargas que se gastan moviéndose —velo de niebla y atravesar la roca—
@@ -638,6 +803,24 @@ function atacar(
   estado = tras;
   eventos.push(...ev);
 
+  // La telaraña (T50). **Regla, tal como se lee en la mesa:** cuando la araña
+  // gigante hiere a un héroe, lo deja enredado: al empezar cada turno tira un
+  // dado de combate y solo si no sale calavera rompe la tela; mientras siga
+  // enredado no se mueve, pero puede actuar. Prende con la herida, no con el
+  // ataque: un mordisco que no pasa la defensa no enreda a nadie, y al que ya
+  // está enredado no se le apunta dos veces. Fuente: Juan Luis («araña
+  // gigante», 2026-09-06), pendiente de firma en `autorizaciones.md`.
+  if (!esHeroe(atacante) && poderDe(atacante.especie) === "telarana" && esHeroe(objetivo) && res.dano > 0) {
+    const victima = figuraPorId(estado, idObjetivo)!;
+    if (victima.cuerpo > 0 && !victima.efectos.some((x) => x.clase === "enredado")) {
+      estado = conFigura(estado, {
+        ...victima,
+        efectos: [...victima.efectos, { clase: "enredado", duracion: "mision" }],
+      } as Figura);
+      eventos.push({ tipo: "enredado", figura: victima.id, por: atacante.id });
+    }
+  }
+
   // Los bonus de "siguiente ataque" se consumen al atacar.
   const yaAtacado = figuraPorId(estado, atacante.id)!;
   estado = conFigura(estado, {
@@ -655,6 +838,71 @@ const cerrarAccion = (t: EstadoPartida["turno"]) => ({
   haActuado: true,
   movimientoCerrado: t.haMovido,
 });
+
+// ------------------------------------------------------------ poderes (T50)
+
+/**
+ * Lo que pierde el héroe que no resiste un maleficio. Dos y no uno porque un
+ * punto se pierde entre el cuerpo 7 u 8 de los que más lo sufren, y porque
+ * quien lo lanza tiene uno o dos de cuerpo y cae al primer golpe: es un
+ * disparo caro para Zargon, no un goteo.
+ */
+export const DANO_DEL_MALEFICIO = 2;
+
+/**
+ * ¿Puede este monstruo maldecir a este héroe ahora mismo? Tener el poder,
+ * que el héroe siga en pie y verlo: el maleficio va por la vista, como un
+ * hechizo, no por la adyacencia. Vive aquí y la importa `selectors.ts` para
+ * que la pantalla y el motor contesten lo mismo, igual que `yaRegistro`.
+ */
+export const puedeMaldecir = (e: EstadoPartida, monstruo: Figura, heroe: Figura): boolean =>
+  !esHeroe(monstruo) &&
+  poderDe(monstruo.especie) === "maleficio" &&
+  esHeroe(heroe) &&
+  heroe.cuerpo > 0 &&
+  puedeVer(e, monstruo.celda, heroe.celda);
+
+/**
+ * El maleficio (T50). **Regla, tal como se lee en la mesa:** en vez de atacar,
+ * el brujo, la bruja o el hechicero del Caos pueden maldecir a un héroe que
+ * vean; el héroe tira un dado rojo y, si saca su mente o menos, lo resiste; si
+ * no, pierde 2 puntos de cuerpo.
+ *
+ * La mente decide y no la defensa a propósito: es el único sitio del juego
+ * donde la mente de un héroe sirve para algo que no sea el Sueño del mago, y
+ * deja al bárbaro (mente 2) como el blanco natural y al mago (mente 6) fuera
+ * de su alcance, que es lo que se espera de un duelo de voluntades. La
+ * aplicación tira el dado, como todos los demás (T36).
+ *
+ * Fuente: Juan Luis («brujo, bruja... Dale a la imaginación», 2026-09-06); el
+ * reglamento no trae hechizos de monstruo. Pendiente de su firma en
+ * `autorizaciones.md`. Lo que **no** hace, y es una decisión y no un olvido:
+ * dormir a un héroe ni quitarle el turno. La ficha lo dejaba a su palabra
+ * —«quitarle el turno a un niño no es lo mismo que a un goblin»— y esa
+ * pregunta sigue abierta en `autorizaciones.md` (la Tempestad sobre un héroe).
+ */
+function poderDeMonstruo(e: EstadoPartida, idObjetivo: IdFigura): Resultado {
+  if (!esTurnoDeZargon(e)) return fallo("Los poderes son de los monstruos, en el turno de Zargon.");
+  const m = figuraActiva(e);
+  if (!m || esHeroe(m)) return fallo("No hay ningún monstruo activo.");
+  const poder = poderDe(m.especie);
+  if (poder === undefined) return fallo(`${MONSTRUOS[m.especie].nombre} no tiene ningún poder.`);
+  if (poder !== "maleficio") return fallo("Ese poder no se lanza: se dispara solo.");
+  if (e.turno.haActuado) return fallo("Ya ha actuado este turno.");
+
+  const h = figuraPorId(e, idObjetivo);
+  if (!h || !esHeroe(h)) return fallo("El maleficio solo se lanza sobre un héroe.");
+  if (h.cuerpo <= 0) return fallo("Ese héroe ya ha caído.");
+  if (!puedeVer(e, m.celda, h.celda)) return fallo("No ve al héroe: el maleficio necesita línea de visión.");
+
+  const [dado, rng] = tirarD6(e.rng);
+  const dano = dado <= h.mente ? 0 : DANO_DEL_MALEFICIO;
+  let estado: EstadoPartida = { ...e, rng };
+  const eventos: Evento[] = [{ tipo: "maleficio", actor: m.id, objetivo: h.id, dado, mente: h.mente, dano }];
+  const [tras, ev] = aplicarDano(estado, figuraPorId(estado, h.id)!, dano);
+  estado = { ...tras, turno: cerrarAccion(tras.turno) };
+  return terminar(estado, [...eventos, ...ev]);
+}
 
 // ------------------------------------------------------------ búsquedas
 

@@ -340,3 +340,41 @@ export const FIN_DERROTA: readonly string[] = [
   "Derrota. {motivo}",
   "La mazmorra se cobra su precio. {motivo}",
 ];
+
+// ------------------------------------------------------ poderes de monstruo (T50)
+
+export const MALEFICIO_PRENDE: readonly string[] = [
+  "{Sujeto} alza las manos y una sombra se abate sobre {Objeto2}, que se dobla de dolor: pierde {n} puntos de cuerpo.",
+  "Un susurro antiguo sale de la boca {deQuien} y {Objeto2} siente que el frío le muerde por dentro: {n} puntos de cuerpo.",
+  "{Sujeto} señala {objeto} y la maldición prende: {n} puntos de cuerpo se le escapan sin que nadie le toque.",
+];
+
+export const MALEFICIO_RESISTE: readonly string[] = [
+  "{Sujeto} escupe una maldición contra {Objeto2}, que aprieta los dientes: la sombra se disuelve sin tocarle.",
+  "La maldición {deQuien} busca la mente {objeto2}, y no encuentra por dónde entrar.",
+  "{Sujeto} murmura palabras oscuras contra {Objeto2}: un escalofrío, nada más. Resiste.",
+];
+
+export const ENREDADO: readonly string[] = [
+  "Al morder, {sujeto} envuelve a {Objeto2} en hilos pegajosos: no podrá moverse hasta soltarse.",
+  "La tela {deQuien} se cierra sobre {Objeto2}, que se queda en el sitio con las piernas atrapadas.",
+  "{Objeto2} tira de los hilos {deQuien} y no cede ni uno: la telaraña le sujeta.",
+];
+
+export const SUELTA_LOGRADO: readonly string[] = [
+  "{Sujeto} rasga la telaraña de un tirón y vuelve a ser libre.",
+  "Con un esfuerzo, {sujeto} rompe los hilos que le sujetaban.",
+  "{Sujeto} se sacude la tela de encima y da un paso: la telaraña ya no le sujeta.",
+];
+
+export const SUELTA_FALLIDO: readonly string[] = [
+  "{Sujeto} forcejea con la telaraña, pero los hilos aguantan: este turno no se mueve.",
+  "Cuanto más tira {sujeto}, más se le pega la tela. Sigue enredado.",
+  "{Sujeto} lucha con los hilos sin conseguir soltarse; tendrá que pelear desde donde está.",
+];
+
+export const EMBOSCADA: readonly string[] = [
+  "¡La arena se mueve bajo los pies {objeto2}! {Sujeto} emerge del suelo a su lado, enorme y rugiendo.",
+  "El suelo se hincha, se abre, y {sujeto} sale de la arena pegado {objeto}: estaba ahí desde el principio.",
+  "Un temblor, una lluvia de arena, y {sujeto} se alza junto {objeto} como si la sala misma lo hubiera parido.",
+];

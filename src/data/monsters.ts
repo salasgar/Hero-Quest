@@ -28,6 +28,24 @@ export type EspecieMonstruo =
   | "ogro"
   | "serpienteDeLasTumbas";
 
+/**
+ * Lo que una especie sabe hacer además de mover y pegar (T50). Tres, y no
+ * más, a propósito: cada uno es una regla que los niños tienen que entender
+ * en la mesa. La fuente no es el reglamento —no trae estas criaturas— sino
+ * Juan Luis («brujo, bruja, araña gigante, monstruo de arena... Dale a la
+ * imaginación», 2026-09-06); las tres reglas están escritas en una frase en
+ * `reducer.ts`, donde se aplican, y pendientes de su firma en
+ * `autorizaciones.md`.
+ *
+ * - `maleficio`: en vez de atacar, maldice a un héroe que vea; el héroe tira
+ *   un dado rojo y con su mente o menos lo resiste, si no pierde cuerpo.
+ * - `telarana`: cuando hiere a un héroe lo deja enredado, sin moverse hasta
+ *   que una tirada lo suelte.
+ * - `emboscada`: espera enterrado en su sala, invisible, y emerge junto al
+ *   primer héroe que pisa dentro, mordiéndole en el acto.
+ */
+export type PoderDeMonstruo = "maleficio" | "telarana" | "emboscada";
+
 export interface PlantillaMonstruo {
   especie: EspecieMonstruo;
   nombre: string;
@@ -39,7 +57,13 @@ export interface PlantillaMonstruo {
   mente: number;
   /** Los no-muertos tienen mente 0 y son inmunes a lo que apunta a la mente. */
   noMuerto: boolean;
+  /** Ausente en casi todas: solo las especies de T50 hacen algo más que pegar. */
+  poder?: PoderDeMonstruo;
 }
+
+/** El poder de una especie, o `undefined` si solo mueve y pega. */
+export const poderDe = (especie: EspecieMonstruo): PoderDeMonstruo | undefined =>
+  MONSTRUOS[especie].poder;
 
 export const MONSTRUOS: Readonly<Record<EspecieMonstruo, PlantillaMonstruo>> = {
   goblin:           { especie: "goblin",           nombre: "Goblin",             movimiento: 10, ataque: 2, defensa: 1, cuerpo: 1, mente: 1, noMuerto: false },
@@ -50,7 +74,9 @@ export const MONSTRUOS: Readonly<Record<EspecieMonstruo, PlantillaMonstruo>> = {
   momia:            { especie: "momia",            nombre: "Momia",              movimiento:  4, ataque: 3, defensa: 4, cuerpo: 2, mente: 0, noMuerto: true  },
   guerreroDelCaos:  { especie: "guerreroDelCaos",  nombre: "Guerrero del Caos",  movimiento:  7, ataque: 4, defensa: 4, cuerpo: 3, mente: 3, noMuerto: false },
   gargola:          { especie: "gargola",          nombre: "Gárgola",            movimiento:  6, ataque: 4, defensa: 5, cuerpo: 3, mente: 4, noMuerto: false },
-  hechiceroDelCaos: { especie: "hechiceroDelCaos", nombre: "Hechicero del Caos", movimiento:  6, ataque: 3, defensa: 4, cuerpo: 2, mente: 6, noMuerto: false },
+  // Existía desde el principio sin un solo hechizo, que era un orco flaco con
+  // mucha mente. Desde T50 lanza el mismo maleficio que el brujo y la bruja.
+  hechiceroDelCaos: { especie: "hechiceroDelCaos", nombre: "Hechicero del Caos", movimiento:  6, ataque: 3, defensa: 4, cuerpo: 2, mente: 6, noMuerto: false, poder: "maleficio" },
   /**
    * Añadido nuestro, no de la caja: lo pidió Juan Luis el 2026-09-06 para las
    * misiones difíciles que vendrán, y está firmado en `_ESTADO.md`. Su idea,
@@ -73,24 +99,23 @@ export const MONSTRUOS: Readonly<Record<EspecieMonstruo, PlantillaMonstruo>> = {
    * (4/4/3), sin que ninguna sea estrictamente mejor que la gárgola en ataque,
    * defensa y cuerpo a la vez (el troll es el único techo de resistencia).
    * Algunas piden una regla que el motor todavía no tiene —tejer, emerger,
-   * lanzar—: eso se deja anotado como pendiente para T50 y aquí solo se fijan
-   * los números.
+   * lanzar—: T49 la dejó anotada como pendiente y T50 la puso en el campo
+   * `poder`; los números no cambiaron.
    */
 
-  // Objetivo natural de los hechizos y, cuando T50 lo permita, quien los
-  // lanza contra el grupo: la mente más alta después del hechicero del Caos,
-  // cuerpo de papel. pendiente de poder: lanzar un hechizo propio (T50).
-  brujo: { especie: "brujo", nombre: "Brujo", movimiento: 6, ataque: 2, defensa: 2, cuerpo: 1, mente: 5, noMuerto: false },
+  // Objetivo natural de los hechizos y quien los lanza contra el grupo: la
+  // mente más alta después del hechicero del Caos, cuerpo de papel.
+  brujo: { especie: "brujo", nombre: "Brujo", movimiento: 6, ataque: 2, defensa: 2, cuerpo: 1, mente: 5, noMuerto: false, poder: "maleficio" },
   // La misma idea que el brujo con una vuelta más de maldición: algo más dura
   // de cuerpo, igual de arcana, igual de floja cuerpo a cuerpo.
-  bruja: { especie: "bruja", nombre: "Bruja", movimiento: 6, ataque: 2, defensa: 3, cuerpo: 2, mente: 5, noMuerto: false },
+  bruja: { especie: "bruja", nombre: "Bruja", movimiento: 6, ataque: 2, defensa: 3, cuerpo: 2, mente: 5, noMuerto: false, poder: "maleficio" },
   // Rápida y frágil, para pasillos: llega antes que nadie y aguanta un golpe.
-  // pendiente de poder: tejer una tela que enreda (T50).
-  arañaGigante: { especie: "arañaGigante", nombre: "Araña Gigante", movimiento: 10, ataque: 2, defensa: 2, cuerpo: 2, mente: 1, noMuerto: false },
+  // Su mordisco enreda: quien lo sufre no se mueve hasta soltarse.
+  arañaGigante: { especie: "arañaGigante", nombre: "Araña Gigante", movimiento: 10, ataque: 2, defensa: 2, cuerpo: 2, mente: 1, noMuerto: false, poder: "telarana" },
   // Lento y duro, para guardar una sala: pega menos que la gárgola y defiende
-  // menos, pero aguanta más golpes que ella. pendiente de poder: emerger desde
-  // la arena (T50).
-  monstruoDeArena: { especie: "monstruoDeArena", nombre: "Monstruo de Arena", movimiento: 4, ataque: 3, defensa: 4, cuerpo: 4, mente: 1, noMuerto: false },
+  // menos, pero aguanta más golpes que ella. Espera enterrado y emerge junto
+  // al primer héroe que pisa su sala.
+  monstruoDeArena: { especie: "monstruoDeArena", nombre: "Monstruo de Arena", movimiento: 4, ataque: 3, defensa: 4, cuerpo: 4, mente: 1, noMuerto: false, poder: "emboscada" },
   // Un enjambre débil: rápida y mordedora, pero cae con un solo golpe bueno.
   rataGigante: { especie: "rataGigante", nombre: "Rata Gigante", movimiento: 8, ataque: 2, defensa: 1, cuerpo: 1, mente: 1, noMuerto: false },
   // No-muerto rápido y traslúcido: cuerpo de papel pero difícil de alcanzar.

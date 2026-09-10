@@ -34,7 +34,14 @@ export const sonAdyacentesConDiagonal = (a: Celda, b: Celda): boolean =>
 
 export type IdFigura = string;
 
-/** Efecto temporal sobre una figura (bonus de un hechizo, por ejemplo). */
+/**
+ * Efecto temporal sobre una figura (bonus de un hechizo, por ejemplo).
+ *
+ * `clase` es texto libre y hoy vale una de estas: las siete de los hechizos
+ * (`efectoDeHechizo` en `Evento`) y `enredado`, la telaraña de la araña
+ * gigante (T50): dura "mision" y la gasta la tirada de soltarse, en
+ * `tirarMovimientoAccion`, no el reloj del turno.
+ */
 export interface EfectoActivo {
   clase: string;
   dados?: number;
@@ -311,6 +318,16 @@ export interface EstadoPartida {
    * no».
    */
   objetoRecuperado?: IdFigura;
+  /**
+   * Los monstruos enterrados (poder `emboscada`, T50): salen de `monstruos`
+   * en el momento en que se revela su sala —para que la sala se anuncie
+   * vacía, nadie los vea, nadie les pegue y no ocupen casilla— y vuelven a
+   * `monstruos` al emerger, cuando un héroe pisa dentro. Mientras están aquí
+   * no cuentan para «no queda ni un monstruo en pie»: la misión no se gana sin
+   * entrar en su sala. Opcional para que ninguna partida guardada antes de
+   * T50 cambie de forma: ausente es «ninguno».
+   */
+  emboscadas?: Monstruo[];
 }
 
 // ---------------------------------------------------------------- acciones
@@ -342,6 +359,13 @@ export type Accion =
   | { tipo: "usarPocion"; quien: IdFigura; carta: IdCartaTesoro; objetivo?: IdFigura }
   /** Dar una carta de la mochila a otro héroe. Solo en el turno de quien da (p. 16). */
   | { tipo: "darObjeto"; carta: IdCartaTesoro; a: IdFigura }
+  /**
+   * El poder del monstruo activo, en el turno de Zargon (T50). Hoy solo lo
+   * tiene una acción propia el maleficio (brujo, bruja, hechicero del Caos), y
+   * `objetivo` es el héroe al que maldice; la telaraña va dentro de `atacar` y
+   * la emboscada la dispara el movimiento del héroe, sin acción.
+   */
+  | { tipo: "poderDeMonstruo"; objetivo: IdFigura }
   | { tipo: "terminarTurno" };
 
 // ---------------------------------------------------------------- eventos
@@ -441,6 +465,19 @@ export type Evento =
   | { tipo: "monstruoSinActuar"; monstruo: IdFigura }
   /** El Sueño se rompe con un 6 al llegar el turno de Zargon, no antes. */
   | { tipo: "dormidoDespierta"; actor: IdFigura }
+  /**
+   * El maleficio de un brujo sobre un héroe (T50). `dado` es el dado rojo que
+   * tira el héroe y `mente` la suya: con `dado <= mente` lo resiste y `dano`
+   * es 0; si no, `dano` es lo que pierde. Un solo evento para los dos
+   * finales, con el motivo en el dato y no en la frase, como `hechizoSinEfecto`.
+   */
+  | { tipo: "maleficio"; actor: IdFigura; objetivo: IdFigura; dado: number; mente: number; dano: number }
+  /** La telaraña prende: la araña `por` ha herido a `figura` y la deja sin moverse. */
+  | { tipo: "enredado"; figura: IdFigura; por: IdFigura }
+  /** La tirada de soltarse de la telaraña, al empezar el turno: calavera es seguir enredado. */
+  | { tipo: "tiraParaSoltarse"; figura: IdFigura; dado: CaraCombate; logrado: boolean }
+  /** Un monstruo enterrado emerge en `celda`, junto al héroe `sobre` que ha pisado su sala. */
+  | { tipo: "emboscada"; monstruo: IdFigura; celda: Celda; sobre: IdFigura }
   /** Zargon llega a su turno y no tiene a nadie. Los dos motivos se cuentan distinto. */
   | { tipo: "zargonSinMonstruos"; motivo: "ningunoDescubierto" | "todosHanActuado" }
   | { tipo: "cambioDeTurno"; actor: Actor }

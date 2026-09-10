@@ -267,6 +267,35 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       }
     }
 
+    // Los poderes de monstruo (T50). `Objeto2` es el héroe con mayúscula,
+    // para las plantillas que lo ponen de sujeto de la segunda oración.
+    case "maleficio": {
+      const objetivo = nombreDe(e, ev.objetivo);
+      const t = {
+        ...tokensDe(e, ev.actor),
+        objeto: aA(objetivo),
+        objeto2: deDe(objetivo),
+        Objeto2: mayus(objetivo),
+        n: ev.dano,
+      };
+      return rellenar(variante(ev.dano === 0 ? F.MALEFICIO_RESISTE : F.MALEFICIO_PRENDE, n, ev.actor), t);
+    }
+
+    case "enredado": {
+      const victima = nombreDe(e, ev.figura);
+      const t = { ...tokensDe(e, ev.por), objeto: aA(victima), objeto2: deDe(victima), Objeto2: mayus(victima) };
+      return rellenar(variante(F.ENREDADO, n, ev.figura), t);
+    }
+
+    case "tiraParaSoltarse":
+      return rellenar(variante(ev.logrado ? F.SUELTA_LOGRADO : F.SUELTA_FALLIDO, n, ev.figura), tokensDe(e, ev.figura));
+
+    case "emboscada": {
+      const victima = nombreDe(e, ev.sobre);
+      const t = { ...tokensDe(e, ev.monstruo), objeto: aA(victima), objeto2: deDe(victima) };
+      return rellenar(variante(F.EMBOSCADA, n, ev.monstruo), t);
+    }
+
     // Puramente estructurales: no aportan nada al relato, y repetirlas cada
     // vez que a un monstruo «le toca» es justo el diario de seis líneas por
     // monstruo que la ficha pide evitar.

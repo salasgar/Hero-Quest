@@ -73,6 +73,16 @@ export function sonidoDe(ev: Evento): Sonido | null {
       return "hechizo";
     case "hechizoSinEfecto":
       return "fallo";
+    // Los poderes de monstruo (T50): el maleficio suena como lo que es, y la
+    // arena que se abre como la sorpresa que es. La telaraña se lee en el
+    // diario y su tirada ya la cuenta el propio turno.
+    case "maleficio":
+      return ev.dano > 0 ? "hechizo" : "fallo";
+    case "emboscada":
+      return "sorpresa";
+    case "enredado":
+    case "tiraParaSoltarse":
+      return null;
     case "movimientoExtra":
     case "monstruoActiva":
     case "monstruoSinActuar":
