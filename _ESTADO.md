@@ -17,6 +17,21 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-10T08:16:06Z · por la sesión `s-20260910T081342-0b04e4d7` (`HQ T71
+(MEDIO)`), al reclamar la 71. Sobre la regeneración de las 2026-09-09T06:39:00Z
+(`s-20260908T221105-3faa514f`, al cerrar la 73) cambian **dos filas**: la **71 pasa a EN
+CURSO** (este reclamo, `hechos/reclamos/71--s-20260910T081342-0b04e4d7.md`, caduca
+2026-09-10T12:13:43Z) y la **67 pasa a LISTA** (`ccf7852`), que ya estaba en `hechos/terminadas/`
+y en `origin/main` sin que el tablón lo recogiera — se regenera contra `hechos/`, no solo
+contra mi propia fila. Comprobado antes de reclamar: la **66** está LISTA (`42e10f5`) y la
+**75** está LISTA (`1b19270`), así que no chocan con `reducer.ts`/`types.ts`; la **50** está
+PENDIENTE sin reclamo abierto en `hechos/reclamos/`; la **76** tiene un reclamo
+(`76--s-20260908T221009-8416a271`) con `caduca: 2026-09-09T03:04:10Z` — más de 24 h en el
+pasado, sin latido posterior y sin firma en `autorizaciones.md` («un personaje solo se mueve
+una vez por turno» sigue sin la línea `Firma y fecha:`) — caducado y sin relevo, no cuenta
+como vivo ni bloquea `reducer.ts`. Nadie más vivo sobre `reducer.ts`, `types.ts` ni
+`narrator/local.ts`.
+
 Regenerado: 2026-09-09T06:39:00Z · por la sesión `s-20260908T221105-3faa514f` (`HQ T73
 (MEDIO)`), al cerrar la 73. Sobre la regeneración de las 06:34:54Z (`s-20260908T221109-e1db0720`,
 al cerrar la 47) cambia **una fila**: la **73 pasa a LISTA** (`52858c5`, fusión por
@@ -475,11 +490,11 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 64 | T64 · Quitar el aviso emergente de la tirada de movimiento | tareas/T64-sin-aviso-en-la-tirada-de-movimiento.md | ninguna | 1 h | MEDIO | 65 | `useAccionesDeTurno.ts` | manual | LISTA (`d7724f3`) | |
 | 65 | T65 · Dos botones de «Atacar a Goblin» sin decir cuál es cuál | tareas/T65-nombre-propio-al-elegir-objetivo.md | ninguna | 30 min | BAJO | 64 | `TurnPanel.tsx` | manual | LISTA (`b3c7995`) | |
 | 66 | T66 · Un héroe caído (cuerpo 0) sigue recibiendo turno y puede actuar | tareas/T66-heroe-caido-sigue-jugando.md | ninguna · no a la vez que 50 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, tests | manual | LISTA (`42e10f5`) | |
-| 67 | T67 · Dos botones que destruyen la partida sin avisar, y «Jugar otra vez» repite la misma | tareas/T67-botones-destruyen-partida.md | ninguna · no a la vez que 57 (`App.tsx`, `usePartida.ts`) | 30 min | BAJO | — | `App.tsx`, `Juego.tsx`, `usePartida.ts` | manual | **PENDIENTE** | |
+| 67 | T67 · Dos botones que destruyen la partida sin avisar, y «Jugar otra vez» repite la misma | tareas/T67-botones-destruyen-partida.md | ninguna · no a la vez que 57 (`App.tsx`, `usePartida.ts`) | 30 min | BAJO | — | `App.tsx`, `Juego.tsx`, `usePartida.ts` | manual | LISTA (`ccf7852`) | |
 | 68 | T68 · Desarmar trampas no existe en la pantalla | tareas/T68-desarmar-trampas-en-pantalla.md | ninguna · no a la vez que 52, 36, 22 (`TurnPanel.tsx`, `useAccionesDeTurno.ts`) | 1,5 h | MEDIO | — | `selectors.ts`, `reducer.ts`, `TurnPanel.tsx`, `useAccionesDeTurno.ts`, tests | manual | LISTA (`5ce953e`) | |
 | 69 | T69 · Guardar la partida y continuarla otro día | tareas/T69-guardar-y-continuar-partida.md | 57 LISTA · no a la vez que 37, 45, 57 (`App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`) | 3 h | MEDIO | — | `App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`, `registroDePartida.ts`, tests | manual | LISTA (`b395e81`) | |
 | 70 | T70 · Mostrar la ruta de movimiento en el tablero | tareas/T70-mostrar-ruta-de-movimiento.md | ninguna · no a la vez que 51, 58, 37 (`BoardMirror.tsx`) | 2 h | MEDIO | — | `BoardMirror.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`91a99ed`) | |
-| 71 | T71 · Un monstruo dormido no se despierta nunca | tareas/T71-monstruo-dormido-despierta.md | ninguna · no a la vez que 50, 66 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, `types.ts`, `narrator/local.ts`, tests | manual | **PENDIENTE** | |
+| 71 | T71 · Un monstruo dormido no se despierta nunca | tareas/T71-monstruo-dormido-despierta.md | ninguna · no a la vez que 50, 66 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, `types.ts`, `narrator/local.ts`, tests | manual | **EN CURSO** | `s-20260910T081342-0b04e4d7` · caduca 2026-09-10T12:13:43Z |
 | 72 | T72 · El diario leído en voz alta | tareas/T72-diario-leido-en-voz-alta.md | 44 LISTA · no a la vez que 52, 36, 44, 45 (`Juego.tsx`, `useTurnoDeZargon.ts`) | 2 h | MEDIO | — | `voz.ts` (nuevo), `MasterLog.tsx`, `Juego.tsx`, `useTurnoDeZargon.ts` | manual | **PENDIENTE** (44 LISTA) | |
 | 73 | T73 · Héroes del simulador que juegan como personas | tareas/T73-heroes-simulador-razonables.md | 45 LISTA · no a la vez que 53, 38, 45 (`simular.ts`) | 2 h | MEDIO | — | `scripts/simular.ts`, tests (si hace falta) | manual | LISTA (`52858c5`) | |
 | 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | **PENDIENTE** | |
@@ -546,6 +561,8 @@ conversación que usaba el tablón viejo. Fecha: la del commit, en UTC. Desde la
 terminada la escribe la sesión que cerró la tarea.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · recuento · ruta de la salida`
+
+- LISTA · tarea 67 · 2026-09-10 (hora exacta no consta en la terminada) · `s-20260908T230547-8aa9e72c` · botón «Cambiar héroes» en `App.tsx` pide confirmación antes de salir de la partida; botón «Jugar otra vez» en `Juego.tsx` pide confirmación y reinicia con semilla nueva (ya no repite la misma); eliminada `reiniciar` de `usePartida.ts`, que quedó sin uso; 726 tests en verde, typecheck en verde · `App.tsx`, `Juego.tsx`, `usePartida.ts` · `ccf7852`
 
 - LISTA · tarea 73 · 2026-09-09 06:39 · `s-20260908T221105-3faa514f` · política «razonable» de héroe en `scripts/simular.ts`, elegible con `--heroes tontos|razonables` (por defecto tontos, sin cambiar `npm run sim` a secas): busca tesoro en cada sala nueva (`puedeBuscarTesoro`, ya descarta salas con monstruos a la vista o ya registradas), lanza hechizos de daño (`danoConSalvacion`) a lo primero visible sin nada a lo que atacar cuerpo a cuerpo, intenta dormir con Sueño al jefe de la misión (el `figura` de un `matarA` o el `custodio` de un `recuperar`) en cuanto está a la vista y despierto, se cura con hechizo a 3+ de cuerpo perdido y bebe una poción de curación de la mochila a la mitad de vida o menos (no gasta la acción); prioridad: poción → puerta → Sueño al jefe → atacar → hechizo de daño → hechizo de curación → buscar tesoro → moverse (reutiliza `haciaDondeIr` sin cambios); no calcula la mente del monstruo antes de gastar el Sueño ni raciona hechizos, a propósito (benchmark, no jugador óptimo); el catálogo (`tablaDelCatalogo`) mide siempre las dos políticas y muestra cada celda como `tontos %/razonables %`, y `--heroes` solo decide cuál de las dos ordena la tabla y aparece en la columna de rondas; comprobación con 5 partidas por nivel: calabozo 100/100/100 % en las dos políticas, torreón 60→100 %/75→75 %/67→75 % (torpe/normal/astuto, tontos→razonables) — la razonable no baja nunca y sube donde curarse y el pergamino importan; sin `cuantas` grande, medido antes de rebasar sobre la T47 (dos misiones, no las tres de hoy), porque no hace falta para cerrar y no da cifra fiable con solo 5; 737 tests / 45 ficheros tras el rebase (sin cambio propio, la política queda inline sin módulo ni tests nuevos, como preveía la ficha); typecheck en verde · `scripts/simular.ts` · `52858c5`
 
