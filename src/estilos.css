@@ -133,6 +133,16 @@ kbd {
 .hoja-cuerpo { color: #e0574c; letter-spacing: 1px; font-size: .78rem; margin: .15rem 0; }
 .hoja-datos { display: flex; flex-wrap: wrap; gap: .5rem; color: #b6bdcb; font-size: .78rem; }
 .hoja-efectos { margin-top: .25rem; }
+
+/* T74: con 5 héroes o más las hojas no caben en dos columnas y el diario se
+   sale de la pantalla. La hoja del turno se queda entera (arriba) y las
+   demás se reducen a una línea en una sola columna. */
+.hojas.muchos-heroes { grid-template-columns: 1fr; gap: .3rem; }
+.hoja-linea {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .2rem .55rem; font-size: .72rem;
+}
+.hoja-linea-nombre { flex: 1 1 auto; }
 .etiqueta {
   display: inline-block; padding: 0 .35em; border-radius: 3px;
   background: #333a48; font-size: .72rem; color: #cfd6e4;

@@ -245,9 +245,16 @@ export function Juego({
           />
         )}
 
-        <section className="hojas">
+        <section className={`hojas ${estado.heroes.length >= 5 ? "muchos-heroes" : ""}`}>
           {estado.heroes.map((h) => (
-            <HeroSheet key={h.id} heroe={h} estado={estado} esElDeTurno={turno.activa?.id === h.id} ejecutar={ejecutar} />
+            <HeroSheet
+              key={h.id}
+              heroe={h}
+              estado={estado}
+              esElDeTurno={turno.activa?.id === h.id}
+              ejecutar={ejecutar}
+              compacta={estado.heroes.length >= 5}
+            />
           ))}
         </section>
 

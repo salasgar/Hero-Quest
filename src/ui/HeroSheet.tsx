@@ -13,6 +13,7 @@ export function HeroSheet({
   esElDeTurno,
   estado,
   ejecutar,
+  compacta = false,
 }: {
   heroe: Heroe;
   esElDeTurno: boolean;
@@ -23,8 +24,28 @@ export function HeroSheet({
    * enseña la mochila y no ofrece botones.
    */
   ejecutar?: (accion: Accion) => void;
+  /**
+   * Modo compacto (T74): con muchas hojas a la vez, solo la del turno se ve
+   * entera; las demás se reducen a una línea para que el diario no quede
+   * fuera de la pantalla.
+   */
+  compacta?: boolean;
 }) {
   const caido = heroe.cuerpo === 0;
+
+  if (compacta && !esElDeTurno) {
+    return (
+      <div className={`hoja hoja-linea ${caido ? "hoja-caido" : ""}`}>
+        <strong className="hoja-linea-nombre">{heroe.nombre}</strong>
+        <span className="hoja-cuerpo" title={`${heroe.cuerpo} de ${heroe.cuerpoMax} puntos de cuerpo`}>
+          {barra(heroe.cuerpo, heroe.cuerpoMax)}
+        </span>
+        <span title="dados de ataque">⚔ {dadosDeAtaque(heroe, "cuerpo", estado)}</span>
+        <span title="dados de defensa">🛡 {dadosDeDefensa(heroe, estado)}</span>
+      </div>
+    );
+  }
+
   const mochila = heroe.mochila
     .map((id, i) => ({ id, i, carta: cartaDeTesoro(id) }))
     .filter((x): x is { id: string; i: number; carta: NonNullable<ReturnType<typeof cartaDeTesoro>> } => !!x.carta);
