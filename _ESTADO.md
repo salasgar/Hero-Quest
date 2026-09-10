@@ -17,6 +17,20 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-09-10T20:33:00Z · por la sesión `s-20260910T182754-c173faad` (`HQ T81
+(MEDIO)`), al cerrar la 81. Sobre la regeneración de las 18:28:10Z (la misma sesión, al
+reclamarla) cambia **una fila**: la **81 pasa a LISTA** (`e5fff74` en la rama del worktree,
+pendiente de confirmar en `origin/main` tras la fusión, como manda el orden de cierre).
+Tres cartas nuevas de clase `"peligro"` en `src/data/treasure.ts` (Viga floja, Esquirla de
+piedra, Aguja oculta; `dano: 1`, `copias: 1` cada una, mismo patrón que `gas`/`telarana`):
+28 → 31 cartas en el mazo, cartas malas 6 → 9 (29,0 %), dentro del 20-32 % que fija
+`repartoDeLaBaraja()` — comprobado corriendo `tests/quest.test.ts`, no a ojo. Imprimibles
+(`imprimibles/cartas.html`, `.pdf`) regenerados con `npm run cartas`; `public/` no tenía
+nada de tesoros que tocar. 769 tests / 46 ficheros (sin cambio, no pedía tests nuevos),
+typecheck 0. **Ninguna tarea libre queda EN CURSO por esta sesión**: cierro y no encadeno
+(79 y 80 comparten banda MEDIO pero ninguna de las dos es más corta que lo ya hecho y
+prefiero no alargar el turno); **libres 79 y 80** (MEDIO) y **82** (ALTO).
+
 Regenerado: 2026-09-10T18:28:10Z · por la sesión `s-20260910T182754-c173faad` (`HQ T81
 (MEDIO)`), al reclamar la 81. Sobre la regeneración de las 18:06Z (`s-20260910T172614-0366af97`,
 al cerrar la 77) cambia **una fila**: la **81 pasa a EN CURSO** (este reclamo,
@@ -736,7 +750,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 78 | T78 · Un monstruo muerto no arrastra los hechizos que le lanzaron | tareas/T78-anular-hechizos-al-morir.md | ninguna · no a la vez que 50, 66, 71, 75, 76 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 1,5 h | MEDIO | 77 | `src/engine/reducer.ts`, `tests/hechizos.test.ts` | manual | LISTA (`9c29112`) | |
 | 79 | T79 · Un monstruo dormido no grita de dolor | tareas/T79-narracion-de-golpear-dormidos.md | ninguna · no a la vez que 50, 66, 71, 75, 76, 78 si alguna viviera (`reducer.ts`, `types.ts`) — hoy ninguna lo está | 2 h | MEDIO | 80, 81 | `src/engine/types.ts`, `src/engine/reducer.ts`, `src/narrator/relato.ts`, `src/narrator/frases.ts`, tests | manual | PENDIENTE | |
 | 80 | T80 · Una voz menos robótica para el diario leído | tareas/T80-voz-mas-natural.md | ninguna · no a la vez que 72, 44 si alguna viviera (`voz.ts`) — hoy ambas LISTA | 1,5 h | MEDIO | 79, 81 | `src/ui/voz.ts` | manual | PENDIENTE | |
-| 81 | T81 · Más variedad de peligros al buscar tesoro | tareas/T81-mas-variedad-de-peligros-al-buscar.md | ninguna · no a la vez que 54, 53, 50, 38 si alguna viviera (`treasure.ts`, `reducer.ts`, `simular.ts`) — hoy todas LISTA | 1 h | MEDIO | 79, 80 | `src/data/treasure.ts`, `tests/quest.test.ts` | manual | **EN CURSO** | `s-20260910T182754-c173faad` · caduca 2026-09-10T21:28:10Z |
+| 81 | T81 · Más variedad de peligros al buscar tesoro | tareas/T81-mas-variedad-de-peligros-al-buscar.md | ninguna · no a la vez que 54, 53, 50, 38 si alguna viviera (`treasure.ts`, `reducer.ts`, `simular.ts`) — hoy todas LISTA | 1 h | MEDIO | 79, 80 | `src/data/treasure.ts`, `tests/quest.test.ts` | manual | LISTA (`e5fff74`, pendiente de confirmar en `origin/main` tras la fusión) | |
 | 82 | T82 · Más cofres con monstruo, menos salas vacías, más misiones por dificultad | tareas/T82-mas-cofres-con-monstruo-y-mas-misiones.md | ninguna · no a la vez que 45, 46, 47, 51, 53, 54, 55, 73 si alguna viviera (`quests/*.ts`, `simular.ts`) — hoy todas LISTA | 5 h, probable MAL CORTADA | ALTO | — | `src/data/quests/*.ts`, `src/data/quests/index.ts`, `scripts/simular.ts` (si hace falta) | manual | PENDIENTE | |
 
 Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
