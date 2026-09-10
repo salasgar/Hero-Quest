@@ -37,6 +37,15 @@ reclamo de la 71 y el de este tablón otra sesión reclamó la **74**
 (`hechos/reclamos/74--s-20260910T081406-fb7142d5.md`, caduca 2026-09-10T11:14:13Z) en este
 mismo árbol; la **74 pasa a EN CURSO**. No comparte fichero con la 71.
 
+Regenerado: 2026-09-10T08:49:32Z · por la sesión `s-20260910T084204-edda6eee` (`HQ
+T71+T72 (MEDIO)`), al reclamar la 72, encadenada tras cerrar la 71 en la misma sesión.
+Sobre la regeneración de las 08:39:15Z (`s-20260910T081342-0b04e4d7`, al cerrar la 71)
+cambia **una fila**: la **72 pasa a EN CURSO** (este reclamo,
+`hechos/reclamos/72--s-20260910T084204-edda6eee.md`, caduca 2026-09-10T12:42:04Z).
+Precondición (44 LISTA) cumplida; nadie tiene reclamo vivo sobre `voz.ts`,
+`MasterLog.tsx`, `Juego.tsx` ni `useTurnoDeZargon.ts`: 52, 36, 44 y 45 siguen LISTA. La
+50 (ALTO, PENDIENTE) y la 76 (BLOQUEADA por firma) no comparten fichero con esta tarea.
+
 Regenerado: 2026-09-10T08:39:15Z · por la sesión `s-20260910T081342-0b04e4d7` (`HQ T71
 (MEDIO)`), al cerrar la 71. Sobre la regeneración de las 08:26:36Z (`s-20260910T081406-fb7142d5`,
 al cerrar la 74) cambia **una fila**: la **71 pasa a LISTA**, pendiente del hash de
@@ -531,7 +540,7 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 69 | T69 · Guardar la partida y continuarla otro día | tareas/T69-guardar-y-continuar-partida.md | 57 LISTA · no a la vez que 37, 45, 57 (`App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`) | 3 h | MEDIO | — | `App.tsx`, `EleccionDeHeroes.tsx`, `usePartida.ts`, `registroDePartida.ts`, tests | manual | LISTA (`b395e81`) | |
 | 70 | T70 · Mostrar la ruta de movimiento en el tablero | tareas/T70-mostrar-ruta-de-movimiento.md | ninguna · no a la vez que 51, 58, 37 (`BoardMirror.tsx`) | 2 h | MEDIO | — | `BoardMirror.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`91a99ed`) | |
 | 71 | T71 · Un monstruo dormido no se despierta nunca | tareas/T71-monstruo-dormido-despierta.md | ninguna · no a la vez que 50, 66 (`reducer.ts`, `types.ts`) | 2 h | MEDIO | — | `reducer.ts`, `types.ts`, `narrator/local.ts`, tests | manual | LISTA (`52fa8cc`) | |
-| 72 | T72 · El diario leído en voz alta | tareas/T72-diario-leido-en-voz-alta.md | 44 LISTA · no a la vez que 52, 36, 44, 45 (`Juego.tsx`, `useTurnoDeZargon.ts`) | 2 h | MEDIO | — | `voz.ts` (nuevo), `MasterLog.tsx`, `Juego.tsx`, `useTurnoDeZargon.ts` | manual | **PENDIENTE** (44 LISTA) | |
+| 72 | T72 · El diario leído en voz alta | tareas/T72-diario-leido-en-voz-alta.md | 44 LISTA · no a la vez que 52, 36, 44, 45 (`Juego.tsx`, `useTurnoDeZargon.ts`) | 2 h | MEDIO | — | `voz.ts` (nuevo), `MasterLog.tsx`, `Juego.tsx`, `useTurnoDeZargon.ts` | manual | **EN CURSO** | `s-20260910T084204-edda6eee` · caduca 2026-09-10T12:42:04Z |
 | 73 | T73 · Héroes del simulador que juegan como personas | tareas/T73-heroes-simulador-razonables.md | 45 LISTA · no a la vez que 53, 38, 45 (`simular.ts`) | 2 h | MEDIO | — | `scripts/simular.ts`, tests (si hace falta) | manual | LISTA (`52858c5`) | |
 | 74 | T74 · Ocho hojas de héroe: la barra lateral no cabe | tareas/T74-hojas-compactas-con-muchos-heroes.md | ninguna · no a la vez que 54, 22 (`HeroSheet.tsx`, `estilos.css`), 58, 37 | 1,5 h | MEDIO | — | `HeroSheet.tsx`, `Juego.tsx`, `estilos.css` | manual | LISTA (`4a63e28`) | |
 | 75 | T75 · Un héroe puede volver a moverse después de abrir una puerta | tareas/T75-mover-dos-veces-tras-abrir-puerta.md | ninguna · no a la vez que 50 (`reducer.ts`) | 2 h | ALTO | — | `reducer.ts`, tests | manual | LISTA (`1b19270`; sin cambio de regla: el reglamento pp. 11-12 permite mover, abrir y seguir) | |
