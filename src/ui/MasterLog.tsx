@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { narrar as narrarInforme } from "../narrator/local";
 import { narrar as narrarRelato } from "../narrator/relato";
 import type { EstadoPartida } from "../engine/types";
+import { useLecturaDeDiario } from "./voz";
 
 type ModoDiario = "informe" | "relato";
 
@@ -29,14 +30,19 @@ function guardarModo(modo: ModoDiario): void {
 }
 
 /** El diario de la partida: lo que Zargon va contando, en informe o en relato. */
-export function MasterLog({ estado }: { estado: EstadoPartida }) {
+export function MasterLog({ estado, vozActiva = false }: { estado: EstadoPartida; vozActiva?: boolean }) {
   const fondo = useRef<HTMLDivElement>(null);
   const [modo, setModo] = useState<ModoDiario>(leerModoGuardado);
 
   const narrar = modo === "relato" ? narrarRelato : narrarInforme;
   const lineas = estado.registro
     .map((ev, i) => ({ texto: narrar(estado, ev, i), clave: i, tipo: ev.tipo }))
-    .filter((l) => l.texto !== null);
+    .filter((l): l is { texto: string; clave: number; tipo: (typeof estado.registro)[number]["tipo"] } => l.texto !== null);
+
+  // La voz lee exactamente estas líneas, en el modo que se tenga elegido: si
+  // alguien cambia de informe a relato a mitad de partida, lo que se lea a
+  // partir de ahí cambia con la pantalla, sin releer lo de antes.
+  useLecturaDeDiario(lineas, vozActiva);
 
   useEffect(() => {
     const lista = fondo.current?.parentElement;

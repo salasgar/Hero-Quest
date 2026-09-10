@@ -33,6 +33,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { accionDeZargon, type Dificultad } from "../ai/difficulty";
 import type { Accion, EstadoPartida, Evento } from "../engine/types";
+import { useVozLeyendo } from "./voz";
 
 /** Automático: se va solo. Paso: avanza cuando se le dice. */
 export type ModoDeZargon = "automatico" | "paso";
@@ -112,6 +113,9 @@ export interface OpcionesTurnoDeZargon {
    * Si hay algo en pantalla esperando a una persona: el diálogo de dados o el
    * aviso de lo que ha salido. Mientras lo haya, el automatismo no avanza —sería
    * jugar por encima de quien tiene los dados en la mano—.
+   *
+   * La voz (T72) no pasa por aquí: se lee sola con `useVozLeyendo`, más abajo,
+   * porque quien la enciende y apaga es `MasterLog`, no quien llama a este hook.
    */
   ocupado: boolean;
   nivel: Dificultad;
@@ -201,7 +205,11 @@ export function useTurnoDeZargon({
     }
   }, [proxima, ejecutar, pedirAtaque]);
 
-  const enMarcha = activo && modo === "automatico" && !pausado && !ocupado && !averia && !!proxima;
+  // Si el diario está leyendo la última frase en voz alta (T72), el turno
+  // espera igual que si hubiera un diálogo de dados en pantalla: la siguiente
+  // acción no puede atropellar la que se está contando.
+  const leyendo = useVozLeyendo();
+  const enMarcha = activo && modo === "automatico" && !pausado && !ocupado && !leyendo && !averia && !!proxima;
 
   useEffect(() => {
     if (!enMarcha) return;

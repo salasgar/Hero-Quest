@@ -14,6 +14,7 @@ import { TurnPanel } from "./TurnPanel";
 import { mandosDeHeroe, useAccionesDeTurno } from "./useAccionesDeTurno";
 import { usePartida } from "./usePartida";
 import { desbloquearAudio, useSilencio, useSonidos } from "./sonidos";
+import { useSilencioDeVoz } from "./voz";
 
 /** El grupo con el que se juega si nadie elige: los cuatro de la caja. */
 export const GRUPO_CLASICO: HeroeElegido[] = [
@@ -141,6 +142,7 @@ export function Juego({
 
   const [silenciado, alternarSilencio] = useSilencio();
   useSonidos(estado, silenciado);
+  const [vozSilenciada, alternarVoz] = useSilencioDeVoz();
 
   useEffect(() => {
     if (!error) return;
@@ -181,6 +183,13 @@ export function Juego({
               title={silenciado ? "Sonido apagado" : "Sonido encendido"}
             >
               {silenciado ? "🔇" : "🔊"}
+            </button>
+            <button
+              onClick={alternarVoz}
+              aria-label={vozSilenciada ? "Activar la narración en voz alta" : "Silenciar la narración en voz alta"}
+              title={vozSilenciada ? "Narración apagada" : "Narración encendida"}
+            >
+              {vozSilenciada ? "🔈" : "🗣️"}
             </button>
           </div>
           <p className="apagado">{estado.mision.introduccion}</p>
@@ -258,7 +267,7 @@ export function Juego({
           ))}
         </section>
 
-        <MasterLog estado={estado} />
+        <MasterLog estado={estado} vozActiva={!vozSilenciada} />
       </aside>
 
       {turno.tirada && <AvisoDeTirada tirada={turno.tirada} alCerrar={turno.cerrarTirada} />}
