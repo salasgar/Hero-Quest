@@ -319,6 +319,29 @@ que son regla de la casa, como la T76.
    desarmar nada.
    Firma y fecha:
 
+## La emboscada no es excepción a «un movimiento por turno» (2026-09-10)
+
+Salió al chocar la T50 con la T76: cuando un monstruo enterrado emerge y muerde al héroe
+que acaba de pisar su sala, ¿puede el héroe salir corriendo con lo que le quedaba de
+movimiento? Preguntado, Juan Luis: **«No. La emboscada no es una excepción a un movimiento
+por turno. Si le tienden una emboscada y cae en ella, se queda en ese sitio sin poder
+seguir hasta que vuelva a ser su turno.»**
+
+Firma y fecha: Juan Luis, 2026-09-10
+
+**No hace falta tocar nada: el motor ya se comporta así.** `mover()` corta el recorrido en
+la casilla donde emerge el emboscado (`emerger`, y `break`), y lo que le quedaba de
+movimiento se pierde como tras cualquier `mover` (regla de la casa de la T76). Esta firma
+convierte en decisión explícita lo que hasta hoy era una consecuencia lateral de la T76, y
+por eso se anota: quien lea ese `break` dentro de seis meses tiene que saber que es querido.
+
+**Matiz que conviene dejar dicho, por si no era lo que quería.** El turno del héroe **no**
+acaba con la emboscada: conserva su acción y puede devolver el golpe desde donde está —lo
+que pierde es el movimiento—. Así lo hace el motor hoy y así se ha entendido «sin poder
+seguir»: sin poder seguir *andando*. Si lo que quería es que la emboscada le acabe el turno
+entero, sin contraataque, es una línea en `mover()` y una firma nueva aquí.
+  Firma y fecha (solo si quiere que además pierda la acción):
+
 ## Condiciones que Juan Luis quiere dejar dichas
 
 - **Nada destructivo sin una firma de arriba.** Eso incluye borrar ramas ajenas, reescribir
