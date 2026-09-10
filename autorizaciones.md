@@ -150,19 +150,31 @@ Eran la sección «Pendientes de su palabra» del tablón viejo. Ninguna sesión
 autorizar a sí misma; una tarea que las necesite está BLOQUEADA hasta que la línea lleve
 firma.
 
+Un personaje solo se mueve una vez por turno; abrir una puerta remata el movimiento. Las casillas que le quedaban se pierden. Regla de la casa: contradice a propósito la lectura del reglamento (p. 12) que fijó la T75.
+Firma y fecha: Juan Luis, 2026-09-10
+
 - **Crear la cuenta de Cloudflare y desplegar el relevo** (`wrangler deploy` de `server/`),
   que es donde quedan guardadas las partidas —el montaje y la lista de acciones— en un
   servicio de terceros. No hay datos personales dentro más allá de los nombres que los niños
   les pongan a sus héroes, pero es un dato que sale de casa y por eso se pregunta. El código
   está escrito y probado (T30); lo que requiere firma es el despliegue. Primer paso escrito en
   `server/README.md`: comprobar si los Durable Objects entran en el plan gratuito, y parar si no.
-  Firma y fecha:
+  Firma y fecha: Juan Luis, 2026-09-10 — **sí, se despliega.** Esta firma se puso el mismo
+  día junto con otras tres por un reemplazo global del fichero; preguntado una a una,
+  Juan Luis la ratificó. El primer paso sigue siendo el de `server/README.md`: si los
+  Durable Objects no entran en el plan gratuito, se para y se le pregunta.
 
 - **¿La Tempestad se puede lanzar también sobre un héroe?** Sale de su propia respuesta —«un
   único ser (monstruo o héroe)»— y no está implementado: `pierdeTurno` vive en `Monstruo`,
   no en `Heroe`. Cambia la forma del estado, el paso de turno y la pantalla, y en la mesa
   quitarle el turno a un niño no es lo mismo que a un goblin. Si lo quiere, es tarea aparte.
-  Firma y fecha:
+  Firma y fecha: Juan Luis, 2026-09-10 — **sí.** Sus palabras: «la tempestad se puede
+  lanzar sobre un héroe, aunque lo sensato sería lanzarla sobre un monstruo. Pero quiero
+  que la aplicación deje lanzarla sobre cualquier personaje». Es decir: **el objetivo
+  legal es cualquier figura, héroe o monstruo**, y la aplicación no lo impide ni avisa; a
+  quién conviene lanzarla es cosa de quien juega. Sale tarea aparte: `pierdeTurno` tiene
+  que existir también en `Heroe`, y eso toca la forma del estado, el paso de turno y la
+  pantalla.
 
 - **Las cuatro decisiones del libro de hechizos (T15).** El 2026-09-05 dijo que no lo tiene
   claro y que de momento no se haga nada de eso; la tarea queda escrita y sin tocar. Es regla
@@ -174,6 +186,48 @@ firma.
      falla, ¿puede reintentar, o esa estantería queda agotada? (De esta depende si la acción
      consume el `rng` del estado, y de eso los tests y el deshacer.)
   Firma y fecha:
+  (El 2026-09-10 esta línea apareció con fecha por un reemplazo global del fichero, junto
+  con las dos de arriba. No es una firma: son cuatro preguntas y no había respuesta, así
+  que se vacía otra vez. T15 sigue BLOQUEADA y no se reclama.)
+
+## Trampas: lo que dijo Juan Luis el 2026-09-10
+
+Lo pegó él, con sus fuentes (un resumen del reglamento en Scribd, un vídeo de YouTube y un
+hilo de Reddit). **No son el reglamento de 2021**, así que esto vale como palabra suya, que
+es la otra fuente que `_COMUN.md` admite. Casi todo coincide con lo que el motor ya hace
+citando las páginas 17 y 19 del reglamento; se anota entero para que quien lea el código
+dentro de seis meses sepa que está ratificado y no solo deducido.
+
+- **Si el héroe no sabe que hay una trampa**: al pisar la casilla el movimiento se detiene
+  de golpe, la trampa se activa en esa misma casilla y se aplica su daño. *(Ya implementado:
+  `mover()` en `reducer.ts`, «you automatically spring the trap», p. 17.)*
+- **Si el héroe sabe dónde está**, puede intentar **saltarla** si le queda movimiento y hay
+  casilla libre al otro lado donde caer: 1 dado de combate, cualquier cara que no sea
+  calavera y cruza sin daño y sigue moviéndose; con calavera cae en la casilla de la trampa,
+  se activa, sufre el daño **y ahí acaba su turno**. *(Ya implementado: evento
+  `saltoDeTrampa`, p. 19.)*
+- **Desactivarla**: el héroe usa su turno para llegar a la casilla e intentar desarmarla con
+  un kit de herramientas, o siendo el Enano. *(Implementado con dos diferencias, abajo.)*
+
+  Firma y fecha: Juan Luis, 2026-09-10 (dictado por él; las tres fuentes, en su mensaje)
+
+**Dos cosas de ese texto que el motor NO hace hoy, y que siguen pendientes de su palabra:**
+
+1. **¿Desde encima de la trampa, o desde la casilla de al lado?** Su texto dice «moverse a
+   la casilla», que es la letra del reglamento (p. 19). El motor acepta la **adyacente
+   ortogonal**, y está marcado en el código como *regla de la casa pendiente de firma*
+   (`selectors.ts`, `trampasDesarmables`; `reducer.ts`, `desarmarTrampa`). El motivo es
+   práctico y conviene saberlo antes de decidir: `mover()` hace saltar cualquier trampa
+   descubierta que sea el **destino** del movimiento, así que exigir estar encima dejaría la
+   acción **inservible** —el héroe no puede llegar a esa casilla sin que la trampa salte—.
+   Si se quiere la letra del reglamento, hay que cambiar además `mover()` para que pisar
+   a propósito una trampa descubierta no la dispare, y eso es otra tarea.
+   Firma y fecha:
+
+2. **¿Hace falta que no haya monstruos cerca para desarmar?** Su texto lo dice («si no hay
+   monstruos cerca»); sale del hilo de Reddit, no del reglamento. El motor **no** lo
+   comprueba: hoy se desarma con monstruos al lado.
+   Firma y fecha:
 
 ## Condiciones que Juan Luis quiere dejar dichas
 
