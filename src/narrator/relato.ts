@@ -279,6 +279,9 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
     case "monstruoSinActuar":
       return null;
 
+    case "dormidoDespierta":
+      return rellenar(variante(F.DORMIDO_DESPIERTA, n, ev.actor), tokensDe(e, ev.actor));
+
     case "zargonSinMonstruos":
       return variante(ev.motivo === "ningunoDescubierto" ? F.ZARGON_SIN_MONSTRUOS_ESPERA : F.ZARGON_SIN_MONSTRUOS_TODOS, n);
 

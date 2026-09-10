@@ -439,6 +439,8 @@ export type Evento =
   | { tipo: "monstruoActiva"; monstruo: IdFigura }
   /** Cerró su activación sin moverse ni atacar. Es el caso que se lee como «esto está roto». */
   | { tipo: "monstruoSinActuar"; monstruo: IdFigura }
+  /** El Sueño se rompe con un 6 al llegar el turno de Zargon, no antes. */
+  | { tipo: "dormidoDespierta"; actor: IdFigura }
   /** Zargon llega a su turno y no tiene a nadie. Los dos motivos se cuentan distinto. */
   | { tipo: "zargonSinMonstruos"; motivo: "ningunoDescubierto" | "todosHanActuado" }
   | { tipo: "cambioDeTurno"; actor: Actor }

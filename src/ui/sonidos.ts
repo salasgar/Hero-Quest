@@ -78,6 +78,7 @@ export function sonidoDe(ev: Evento): Sonido | null {
     case "monstruoSinActuar":
     case "zargonSinMonstruos":
     case "cambioDeTurno":
+    case "dormidoDespierta":
       return null; // se anuncian en pantalla y en el diario; no hace falta más
     case "finDePartida":
       return ev.victoria ? "victoria" : "derrota";

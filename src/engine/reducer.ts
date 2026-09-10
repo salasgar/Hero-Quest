@@ -1244,8 +1244,13 @@ function terminarTurno(e: EstadoPartida): Resultado {
         quieto,
       );
     }
-    return terminar(avanzarActor({ ...e, turno: { ...e.turno, monstruoActivo: null, monstruosHechos: hechos } }), [
+    const { estado: avanzado, eventos: despertares } = avanzarActor({
+      ...e,
+      turno: { ...e.turno, monstruoActivo: null, monstruosHechos: hechos },
+    });
+    return terminar(avanzado, [
       ...quieto,
+      ...despertares,
       { tipo: "cambioDeTurno", actor: siguienteActor(e) },
     ]);
   }
@@ -1265,8 +1270,10 @@ function terminarTurno(e: EstadoPartida): Resultado {
         ]
       : [];
 
-  return terminar(avanzarActor(e), [
+  const { estado: avanzado, eventos: despertares } = avanzarActor(e);
+  return terminar(avanzado, [
     ...sinNadie,
+    ...despertares,
     { tipo: "cambioDeTurno", actor: siguienteActor(e) },
   ]);
 }
@@ -1290,13 +1297,24 @@ function proximoIndice(e: EstadoPartida): number {
 
 const siguienteActor = (e: EstadoPartida): Actor => e.turno.orden[proximoIndice(e)]!;
 
-function avanzarActor(e: EstadoPartida): EstadoPartida {
+function avanzarActor(e: EstadoPartida): { estado: EstadoPartida; eventos: Evento[] } {
   const indice = proximoIndice(e);
   const entraZargon = e.turno.orden[indice] === "zargon";
 
-  // Al empezar la ronda de Zargon se limpian los estados de un turno.
+  // Al empezar la ronda de Zargon se limpian los estados de un turno y cada
+  // monstruo dormido (Sueño) tira un dado: con un 6 se despierta, si no sigue
+  // durmiendo y su turno transcurre sin actuar, como ya hacía.
+  let rng = e.rng;
+  const eventos: Evento[] = [];
   const monstruos = entraZargon
-    ? e.monstruos.map((m) => ({ ...m, pierdeTurno: false }))
+    ? e.monstruos.map((m) => {
+        if (!m.dormido) return { ...m, pierdeTurno: false };
+        const [cara, r] = tirarD6(rng);
+        rng = r;
+        if (cara !== 6) return { ...m, pierdeTurno: false };
+        eventos.push({ tipo: "dormidoDespierta", actor: m.id });
+        return { ...m, pierdeTurno: false, dormido: false };
+      })
     : e.monstruos;
 
   // Los efectos de duración "turno" caducan al pasar el turno. Los que cuelgan
@@ -1307,20 +1325,24 @@ function avanzarActor(e: EstadoPartida): EstadoPartida {
   }));
 
   return {
-    ...e,
-    heroes,
-    monstruos,
-    turno: {
-      ...e.turno,
-      indice,
-      movimientoTotal: null,
-      movimientoRestante: 0,
-      haMovido: false,
-      haActuado: false,
-      movimientoCerrado: false,
-      monstruoActivo: null,
-      monstruosHechos: entraZargon ? [] : e.turno.monstruosHechos,
+    estado: {
+      ...e,
+      rng,
+      heroes,
+      monstruos,
+      turno: {
+        ...e.turno,
+        indice,
+        movimientoTotal: null,
+        movimientoRestante: 0,
+        haMovido: false,
+        haActuado: false,
+        movimientoCerrado: false,
+        monstruoActivo: null,
+        monstruosHechos: entraZargon ? [] : e.turno.monstruosHechos,
+      },
     },
+    eventos,
   };
 }
 

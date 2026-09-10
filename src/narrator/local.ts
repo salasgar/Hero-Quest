@@ -264,6 +264,15 @@ export function narrar(e: EstadoPartida, ev: Evento, n = 0): string | null {
       // (T17): aquí no se repite, que el diario se lee entero.
       return `Le toca ${aA(nombreDe(e, ev.monstruo))}.`;
 
+    case "dormidoDespierta":
+      return elegir(
+        [
+          `${mayus(nombreDe(e, ev.actor))} abre los ojos: el Sueño se ha roto.`,
+          `${mayus(nombreDe(e, ev.actor))} se despierta de golpe.`,
+        ],
+        n,
+      );
+
     case "monstruoSinActuar":
       return elegir(
         [

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { EQUIPO, POR_VERIFICAR, type IdEquipo } from "../src/data/equipment";
 import { HECHIZOS, HECHIZOS_POR_VERIFICAR } from "../src/data/spells";
 import { alcanzables } from "../src/engine/board";
+import { tirarD6 } from "../src/engine/dice";
 import { aplicarAccion } from "../src/engine/reducer";
+import { crearRng } from "../src/engine/rng";
 import { objetivosDeAtaque } from "../src/engine/selectors";
 import { claveCelda, type EstadoPartida, type Evento } from "../src/engine/types";
 import { c, conMovimiento, hacer, partida, situar } from "./ayuda";
@@ -256,5 +258,34 @@ describe("las reglas de equipo que el motor tiene que aplicar", () => {
 
     const conEspada = conEquipo(["espadaAncha"]);
     expect(objetivosDeAtaque(conEspada).map((o) => o.id)).not.toContain("orco1");
+  });
+});
+
+describe("el monstruo dormido despierta al entrar el turno de Zargon", () => {
+  // Una semilla cuyo primer d6 (el de despertar) saca la cara pedida.
+  function semillaParaD6(cara: number): number {
+    for (let s = 1; s < 1000; s++) if (tirarD6(crearRng(s))[0] === cara) return s;
+    throw new Error(`ninguna de las primeras mil semillas saca un ${cara}`);
+  }
+  const SEMILLA_CINCO = semillaParaD6(5);
+  const SEMILLA_SEIS = semillaParaD6(6);
+
+  const conRng = (e: EstadoPartida, semilla: number): EstadoPartida => ({ ...e, rng: crearRng(semilla) });
+
+  const escena = () => {
+    const e = partida({ monstruos: [{ id: "goblin1", especie: "goblin", celda: c(4, 1) }] });
+    return { ...e, monstruos: e.monstruos.map((m) => ({ ...m, dormido: true })) };
+  };
+
+  it("con un 5 sigue durmiendo, sin actuar y sin evento", () => {
+    const e = hacer(conRng(escena(), SEMILLA_CINCO), { tipo: "terminarTurno" });
+    expect(e.monstruos[0]!.dormido).toBe(true);
+    expect(e.registro.some((x: Evento) => x.tipo === "dormidoDespierta")).toBe(false);
+  });
+
+  it("con un 6 se despierta y genera el evento", () => {
+    const e = hacer(conRng(escena(), SEMILLA_SEIS), { tipo: "terminarTurno" });
+    expect(e.monstruos[0]!.dormido).toBe(false);
+    expect(e.registro.some((x: Evento) => x.tipo === "dormidoDespierta" && x.actor === "goblin1")).toBe(true);
   });
 });

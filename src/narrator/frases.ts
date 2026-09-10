@@ -275,6 +275,13 @@ export const EFECTO_DORMIR: readonly string[] = [
   "Los párpados {deQuien} pesan de golpe, y el sueño se los cierra.",
 ];
 
+// A diferencia de `EFECTO_DORMIR`, aquí siempre hay un solo actor (el
+// monstruo que despierta), así que sí lleva `{Sujeto}`.
+export const DORMIDO_DESPIERTA: readonly string[] = [
+  "{Sujeto} abre los ojos: el Sueño se ha roto.",
+  "{Sujeto} se despierta de golpe.",
+];
+
 export const EFECTO_PERDER_TURNO: readonly string[] = [
   "Un torbellino envuelve {objeto}, que se queda sin su próximo turno.",
   "Un remolino de viento atrapa {objeto} y le arrebata el turno siguiente.",
