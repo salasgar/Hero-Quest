@@ -5,6 +5,7 @@ import { PORTADA, rutaDe } from "../data/imagenes";
 import { MISION_POR_DEFECTO, MISIONES, misionPorId, nivelDe, type MisionCompleta } from "../data/quests";
 import { ELEMENTOS, hechizosDelElemento, type Elemento } from "../data/spells";
 import type { HeroeElegido } from "../engine/partida";
+import { Autoria } from "./Autoria";
 import { GRUPOS_DE_ICONOS, Icono, NOMBRE_ICONO, type IdIcono } from "./iconos";
 import {
   borrarGuardada,
@@ -396,6 +397,7 @@ export function EleccionDeHeroes({
         </button>
         {grupo.length === 0 && <span className="pista">Elige al menos un héroe.</span>}
       </div>
+      <Autoria />
     </div>
   );
 }

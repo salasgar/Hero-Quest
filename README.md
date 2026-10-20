@@ -7,6 +7,13 @@ en voz alta.
 
 Tablero de referencia: edición Avalon Hill 2021, 26 × 19 casillas.
 
+## Autoría
+
+Aplicación © 2026 Juan Luis Salas García. El juego HeroQuest original es de Stephen Baker,
+Milton Bradley y Games Workshop (1989), y HeroQuest es una marca de Hasbro / Avalon Hill:
+el copyright de esta aplicación no se extiende al juego. El repositorio no tiene licencia
+de uso; basta este aviso de copyright.
+
 ## Cómo se juega
 
 El tablero, las miniaturas y las cartas son físicos. La aplicación corre en el portátil,

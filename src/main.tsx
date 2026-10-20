@@ -1,3 +1,4 @@
+// Aplicación © 2026 Juan Luis Salas García. HeroQuest es una marca de Hasbro / Avalon Hill.
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";

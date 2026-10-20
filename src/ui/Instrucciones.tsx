@@ -1,6 +1,7 @@
 import { equivalenciaDeDados, type CaraCombate } from "../engine/dice";
 import { ELEMENTOS, HECHIZOS, type Elemento, type IdHechizo } from "../data/spells";
 import type { EstadoPartida } from "../engine/types";
+import { Autoria } from "./Autoria";
 import { CaraDeDado, NOMBRE_DE_CARA } from "./DiceInput";
 
 /**
@@ -212,6 +213,7 @@ export function Instrucciones({
         </section>
 
         {estado && <HechizosDelGrupo estado={estado} />}
+        <Autoria />
       </div>
     </div>
   );
