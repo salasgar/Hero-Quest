@@ -6,6 +6,7 @@ import {
   salaEn,
 } from "../data/board-base";
 import { MONSTRUOS } from "../data/monsters";
+import { fosoAbierto } from "../engine/combat";
 import { puertasVisibles } from "../engine/selectors";
 import { colorDeSala } from "./paleta";
 import { claveCelda, mismaCelda, type Celda, type EstadoPartida, type Figura } from "../engine/types";
@@ -214,7 +215,7 @@ export function BoardMirror({
             encima. Los otros dos tipos gastados no se pintan: la lanza ya no
             existe y el bloque caído es una casilla cegada. */}
         {estado.trampas
-          .filter((t) => t.tipo === "foso" && t.gastada)
+          .filter(fosoAbierto)
           .map((t) => (
             // Del tamaño de la casilla y con el borde de piedra: la ficha de
             // quien está dentro tapa el centro, y lo que se ve es el anillo.

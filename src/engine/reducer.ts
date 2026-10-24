@@ -24,6 +24,7 @@ import { celdaLibre, celdasQueAbren, figuraPorId, pasoAbierto, rutaHasta, vuela 
 import { vecinas as vecinasDelTablero } from "../data/board-base";
 import {
   armaADistanciaDe,
+  fosoAbierto,
   modoDeAtaqueContra,
   resolverAtaque,
   resolverDanoDirecto,
@@ -356,7 +357,7 @@ function terminar(e: EstadoPartida, eventos: Evento[]): Resultado {
  * no existe («gone forever», p. 18) y el bloque caído es una casilla cegada.
  */
 const trampaEn = (e: EstadoPartida, c: Celda): Trampa | undefined =>
-  e.trampas.find((t) => (!t.gastada || t.tipo === "foso") && mismaCelda(t.celda, c));
+  e.trampas.find((t) => (!t.gastada || fosoAbierto(t)) && mismaCelda(t.celda, c));
 
 /**
  * Efecto de que una trampa salte sobre una figura, según su tipo (reglamento
@@ -1234,7 +1235,8 @@ function desarmarTrampa(e: EstadoPartida, idTrampa: string): Resultado {
   // and a pit tile placed on the board, the trap cannot be disarmed and
   // removed». Va antes que la comprobación de `gastada` para que el motivo diga
   // la verdad: no es que llegues tarde, es que no hay nada que desarmar.
-  if (t.tipo === "foso" && t.gastada) return fallo("Un foso abierto no se desarma: el agujero se queda.");
+  if (fosoAbierto(t)) return fallo("Un foso abierto no se desarma: el agujero se queda.");
+  if (t.desarmada) return fallo("Esa trampa ya está desarmada.");
   if (t.gastada) return fallo("Esa trampa ya está gastada.");
   if (!t.descubierta) return fallo("Primero hay que encontrarla.");
 
@@ -1254,7 +1256,7 @@ function desarmarTrampa(e: EstadoPartida, idTrampa: string): Resultado {
   const eventos: Evento[] = [];
 
   if (HEROES[f.clase].desarmaTrampasSinRiesgo) {
-    estado = { ...estado, trampas: estado.trampas.map((x) => (x.id === t.id ? { ...x, gastada: true } : x)) };
+    estado = { ...estado, trampas: estado.trampas.map((x) => (x.id === t.id ? { ...x, gastada: true, desarmada: true } : x)) };
     eventos.push({ tipo: "trampaDesarmada", trampa: t.id });
     return terminar(estado, eventos);
   }
@@ -1267,7 +1269,7 @@ function desarmarTrampa(e: EstadoPartida, idTrampa: string): Resultado {
   const [cara, rng] = tirarDadoCombate(estado.rng);
   estado = { ...estado, rng };
   if (cara !== "calavera") {
-    estado = { ...estado, trampas: estado.trampas.map((x) => (x.id === t.id ? { ...x, gastada: true } : x)) };
+    estado = { ...estado, trampas: estado.trampas.map((x) => (x.id === t.id ? { ...x, gastada: true, desarmada: true } : x)) };
     eventos.push({ tipo: "trampaDesarmada", trampa: t.id });
   } else {
     const [tras, ev] = dispararTrampa(estado, t, figuraPorId(estado, f.id)!, true);
@@ -1571,21 +1573,30 @@ function avanzarActor(e: EstadoPartida): { estado: EstadoPartida; eventos: Event
   const indice = proximoIndice(e);
   const entraZargon = e.turno.orden[indice] === "zargon";
 
-  // Al empezar la ronda de Zargon se limpian los estados de un turno y cada
-  // monstruo dormido (Sueño) tira un dado: con un 6 se despierta, si no sigue
-  // durmiendo y su turno transcurre sin actuar, como ya hacía.
+  // Cada monstruo dormido (Sueño) tira un dado al empezar la ronda de Zargon:
+  // con un 6 se despierta, si no sigue durmiendo y su turno transcurre sin
+  // actuar, como ya hacía.
+  //
+  // `pierdeTurno` (Tempestad, T84) se borra al SALIR del turno de Zargon, no al
+  // entrar: el hechizo se lanza en el turno de un héroe, y el turno de Zargon
+  // que viene a continuación es justo el que el monstruo tiene que perder.
+  // Borrarlo al entrar, como se hacía, lo dejaba sin efecto en partida real.
+  // «Lo deja un turno sin jugar» (Juan Luis, 2026-09-06, autorizaciones.md).
+  const saleZargon = e.turno.orden[e.turno.indice] === "zargon";
   let rng = e.rng;
   const eventos: Evento[] = [];
-  const monstruos = entraZargon
-    ? e.monstruos.map((m) => {
-        if (!m.dormido) return { ...m, pierdeTurno: false };
-        const [cara, r] = tirarD6(rng);
-        rng = r;
-        if (cara !== 6) return { ...m, pierdeTurno: false };
-        eventos.push({ tipo: "dormidoDespierta", actor: m.id });
-        return { ...m, pierdeTurno: false, dormido: false };
-      })
-    : e.monstruos;
+  const monstruos = e.monstruos.map((m) => {
+    let r: Monstruo = saleZargon && m.pierdeTurno ? { ...m, pierdeTurno: false } : m;
+    if (entraZargon && r.dormido) {
+      const [cara, rngNuevo] = tirarD6(rng);
+      rng = rngNuevo;
+      if (cara === 6) {
+        eventos.push({ tipo: "dormidoDespierta", actor: r.id });
+        r = { ...r, dormido: false };
+      }
+    }
+    return r;
+  });
 
   // Los efectos de duración "turno" caducan al pasar el turno. Los que cuelgan
   // de un movimiento o de un golpe se gastan donde pasa la cosa, no aquí.

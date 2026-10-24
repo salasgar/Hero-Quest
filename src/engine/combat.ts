@@ -24,7 +24,7 @@ import {
   type CaraCombate,
 } from "./dice";
 import type { Rng } from "./rng";
-import { esHeroe, mismaCelda, type EstadoPartida, type Figura } from "./types";
+import { esHeroe, mismaCelda, type EstadoPartida, type Figura, type Trampa } from "./types";
 
 /**
  * ¿Está esta figura metida en un foso?
@@ -35,7 +35,14 @@ import { esHeroe, mismaCelda, type EstadoPartida, type Figura } from "./types";
  * acaban un día diciendo cosas distintas.
  */
 export const enUnFoso = (e: EstadoPartida, f: Figura): boolean =>
-  e.trampas.some((t) => t.tipo === "foso" && t.gastada && mismaCelda(t.celda, f.celda));
+  e.trampas.some((t) => fosoAbierto(t) && mismaCelda(t.celda, f.celda));
+
+/**
+ * Un foso disparado y todavía ahí. Uno desarmado no cuenta: «a disarmed trap is
+ * considered gone» (p. 19), y no deja agujero. Los tres sitios que preguntaban
+ * «foso && gastada» —el salto, el combate y el dibujo— confundían los dos.
+ */
+export const fosoAbierto = (t: Trampa): boolean => t.tipo === "foso" && t.gastada && !t.desarmada;
 
 /**
  * Lo que el foso resta a una tirada de combate, con su suelo.

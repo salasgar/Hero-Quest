@@ -188,6 +188,13 @@ export interface Trampa {
   celda: Celda;
   descubierta: boolean;
   gastada: boolean;
+  /**
+   * Desarmada con éxito (reglamento p. 19: «A disarmed trap is considered gone
+   * and is not put out on the gameboard»). Implica `gastada`, pero no es lo
+   * mismo: un foso `gastada` y no `desarmada` es un agujero abierto, y uno
+   * desarmado no existe. Opcional para que un guardado antiguo siga valiendo.
+   */
+  desarmada?: boolean;
 }
 
 // ---------------------------------------------------------------- misión
