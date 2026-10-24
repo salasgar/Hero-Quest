@@ -17,6 +17,8 @@ protocolo, está en `_ESTADO-antiguo-2026-09-06.md`: es histórico, no se edita 
 el estado de nada. Los números de tarea en `hechos/` son los de las fichas, a dos cifras y
 sin la T (la T7 es `07--<sid>.md`).
 
+Regenerado: 2026-10-24T11:10:00Z · por la sesión `s-20261024T104500-a84b85c1`, al cerrar la 84 y la 85. Sobre la regeneración anterior se añaden **dos filas**: **84** (la Tempestad no hacía perder el turno: `pierdeTurno` se borraba al entrar Zargon) y **85** (un foso desarmado seguía siendo foso abierto), las dos LISTA, 775 tests / 48 ficheros, typecheck 0, build 0. La 83 (copyright) está cerrada en `hechos/` pero no figuraba en esta tabla: no se ha añadido aquí.
+
 Regenerado: 2026-09-10T20:33:00Z · por la sesión `s-20260910T182754-c173faad` (`HQ T81
 (MEDIO)`), al cerrar la 81. Sobre la regeneración de las 18:28:10Z (la misma sesión, al
 reclamarla) cambia **una fila**: la **81 pasa a LISTA** (`e5fff74` en la rama del worktree,
@@ -752,6 +754,8 @@ la ficha. La columna «Salida» son los ficheros que la ficha declara en «Fiche
 | 80 | T80 · Una voz menos robótica para el diario leído | tareas/T80-voz-mas-natural.md | ninguna · no a la vez que 72, 44 si alguna viviera (`voz.ts`) — hoy ambas LISTA | 1,5 h | MEDIO | 79, 81 | `src/ui/voz.ts` | manual | PENDIENTE | |
 | 81 | T81 · Más variedad de peligros al buscar tesoro | tareas/T81-mas-variedad-de-peligros-al-buscar.md | ninguna · no a la vez que 54, 53, 50, 38 si alguna viviera (`treasure.ts`, `reducer.ts`, `simular.ts`) — hoy todas LISTA | 1 h | MEDIO | 79, 80 | `src/data/treasure.ts`, `tests/quest.test.ts` | manual | LISTA (`e5fff74`, pendiente de confirmar en `origin/main` tras la fusión) | |
 | 82 | T82 · Más cofres con monstruo, menos salas vacías, más misiones por dificultad | tareas/T82-mas-cofres-con-monstruo-y-mas-misiones.md | ninguna · no a la vez que 45, 46, 47, 51, 53, 54, 55, 73 si alguna viviera (`quests/*.ts`, `simular.ts`) — hoy todas LISTA | 5 h, probable MAL CORTADA | ALTO | — | `src/data/quests/*.ts`, `src/data/quests/index.ts`, `scripts/simular.ts` (si hace falta) | manual | PENDIENTE | |
+| 84 | T84 · La Tempestad no hace nada en una partida real | tareas/T84-la-tempestad-no-hace-nada.md | ninguna · no a la vez que 50, 66, 71, 75, 76, 78, 79 si alguna viviera (`reducer.ts`) | 1 h | MEDIO | 85 | `src/engine/reducer.ts`, `tests/tempestad-turno.test.ts` | manual | LISTA (`63f277f`, pendiente de confirmar en `origin/main`) | |
+| 85 | T85 · Un foso desarmado sigue siendo foso | tareas/T85-foso-desarmado-sigue-siendo-foso.md | ninguna · no a la vez que 50, 66, 71, 75, 76, 78, 79, 84 si alguna viviera (`reducer.ts`, `types.ts`) | 1 h | MEDIO | 84 | `src/engine/types.ts`, `combat.ts`, `reducer.ts`, `src/ui/BoardMirror.tsx`, `tests/foso-desarmado.test.ts` | manual | LISTA (`63f277f`, pendiente de confirmar en `origin/main`) | |
 
 Las filas 67-74 ya no faltan: la sesión coordinadora `hero-quest-38` cerró esas ocho fichas
 y esta sesión (`HQ Coordinadora T67-T75`) las comiteó (`332ea02`) y regeneró el tablón. El
